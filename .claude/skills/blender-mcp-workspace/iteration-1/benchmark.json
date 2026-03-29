@@ -1,0 +1,108 @@
+{
+  "skill_name": "blender-mcp",
+  "iteration": 1,
+  "timestamp": "2026-03-24T12:00:00Z",
+  "configurations": [
+    {
+      "name": "with_skill",
+      "pass_rate": 0.84,
+      "mean_tokens": 124633,
+      "stddev_tokens": 13843,
+      "mean_duration_seconds": 97.7,
+      "stddev_duration_seconds": 52.8
+    },
+    {
+      "name": "without_skill",
+      "pass_rate": 0.32,
+      "mean_tokens": 111180,
+      "stddev_tokens": 7419,
+      "mean_duration_seconds": 84.9,
+      "stddev_duration_seconds": 60.4
+    }
+  ],
+  "delta": {
+    "pass_rate": "+52pp (0.84 vs 0.32)",
+    "tokens": "+12% (124.6K vs 111.2K)",
+    "duration": "+15% (97.7s vs 84.9s)"
+  },
+  "evals": [
+    {
+      "eval_name": "eval-0-produce-asset",
+      "results": {
+        "with_skill": {
+          "pass_rate": 0.92,
+          "passed": 12,
+          "total": 13,
+          "failed_assertions": ["single_quotes_python (borderline — mixed but mostly correct)"],
+          "tokens": 116634,
+          "duration_seconds": 60.5
+        },
+        "without_skill": {
+          "pass_rate": 0.38,
+          "passed": 5,
+          "total": 13,
+          "failed_assertions": ["brace_depth_parser", "scene_cleanup_correct", "render_output_path", "gray_background", "light_energy_sufficient", "camera_bounding_box", "ground_plane_named", "result_double_unwrap"],
+          "tokens": 105919,
+          "duration_seconds": 40.7
+        }
+      }
+    },
+    {
+      "eval_name": "eval-1-debug-validation",
+      "results": {
+        "with_skill": {
+          "pass_rate": 0.80,
+          "passed": 4,
+          "total": 5,
+          "failed_assertions": ["scene_persistence_explanation"],
+          "tokens": 144194,
+          "duration_seconds": 172.4
+        },
+        "without_skill": {
+          "pass_rate": 0.40,
+          "passed": 2,
+          "total": 5,
+          "failed_assertions": ["identifies_stale_scene", "scene_persistence_explanation", "single_quotes_in_fix"],
+          "tokens": 122004,
+          "duration_seconds": 165.8
+        }
+      }
+    },
+    {
+      "eval_name": "eval-2-fix-render-quality",
+      "results": {
+        "with_skill": {
+          "pass_rate": 0.71,
+          "passed": 5,
+          "total": 7,
+          "failed_assertions": ["camera_framing_advice", "no_blender_prefix_advice"],
+          "tokens": 113071,
+          "duration_seconds": 60.3
+        },
+        "without_skill": {
+          "pass_rate": 0.14,
+          "passed": 1,
+          "total": 7,
+          "failed_assertions": ["gray_bg_fix", "area_lights_fix", "three_point_lighting", "engine_lowercase_fix", "camera_framing_advice", "no_blender_prefix_advice"],
+          "tokens": 105616,
+          "duration_seconds": 48.1
+        }
+      }
+    }
+  ],
+  "analysis": {
+    "skill_impact": "Strong positive. Pass rate jumps from 32% to 84% (+52pp). The skill provides critical domain-specific knowledge that general LLM training simply doesn't cover — MCP wire protocol quirks, Blender-specific gotchas, and production-tested lighting/camera values.",
+    "strongest_impact_areas": [
+      "Render quality (gray bg, area lights, 3-point lighting) — 0.14 → 0.71",
+      "Production script patterns (brace-depth, cleanup, export, render params) — 0.38 → 0.92"
+    ],
+    "gaps_found": [
+      "camera_framing_advice: Skill covers it in §7 but eval-2 (debug context) didn't surface it — the skill may need to cross-reference render quality issues with camera framing more explicitly",
+      "no_blender_prefix_advice: Skill covers it in §1 but when debugging a specific tool name (blender_cleanup), the model doesn't generalize to the prefix convention",
+      "scene_persistence_explanation: §3 covers it but eval-1 with-skill didn't articulate the producer-disconnect-revert scenario clearly enough — needs stronger callout",
+      "single_quotes_python: Eval-0 with-skill had borderline mixed usage — the quoting rule needs even more emphasis or examples"
+    ],
+    "non_discriminating_assertions": [],
+    "high_variance_evals": ["eval-1 had highest token count variation — debugging tasks are naturally more exploratory"]
+  }
+}

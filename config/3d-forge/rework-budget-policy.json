@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "modes": {
+    "conservative": {
+      "max_fix_attempts_per_asset": 1,
+      "max_visual_retries": 0,
+      "max_total_rework_minutes_per_batch": 20
+    },
+    "balanced": {
+      "max_fix_attempts_per_asset": 2,
+      "max_visual_retries": 1,
+      "max_total_rework_minutes_per_batch": 45
+    },
+    "aggressive": {
+      "max_fix_attempts_per_asset": 4,
+      "max_visual_retries": 2,
+      "max_total_rework_minutes_per_batch": 90
+    }
+  },
+  "switch_rules": {
+    "min_runs_before_switch": 2
+  }
+}
+

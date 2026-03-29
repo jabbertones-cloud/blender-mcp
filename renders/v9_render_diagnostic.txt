@@ -1,0 +1,94 @@
+=== V9 RENDER DIAGNOSTIC AND FIX ===
+
+
+--- Processing: v9_scene1 ---
+Initial State:
+  Objects: 30
+  Lights: 0
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  Set render engine to EEVEE
+  Set resolution to 1920x1080
+  ACTION: Creating default world
+  Set world background strength to 1.0
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene1_BirdEye_fixed.png
+    SUCCESS: 1162482 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene1_DriverPOV_fixed.png
+    SUCCESS: 1119264 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene1_Wide_fixed.png
+    SUCCESS: 1080399 bytes
+
+--- Processing: v9_scene2 ---
+Initial State:
+  Objects: 32
+  Lights: 0
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  Set render engine to EEVEE
+  Set resolution to 1920x1080
+  ACTION: Creating default world
+  Set world background strength to 1.0
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene2_BirdEye_fixed.png
+    SUCCESS: 1372479 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene2_DriverPOV_fixed.png
+    SUCCESS: 1421864 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene2_Wide_fixed.png
+    SUCCESS: 1089036 bytes
+
+--- Processing: v9_scene3 ---
+Initial State:
+  Objects: 72
+  Lights: 0
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  Set render engine to EEVEE
+  Set resolution to 1920x1080
+  ACTION: Creating default world
+  Set world background strength to 1.0
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene3_BirdEye_fixed.png
+    SUCCESS: 1249689 bytes
+  Rendering TruckPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene3_TruckPOV_fixed.png
+    SUCCESS: 1172809 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene3_Wide_fixed.png
+    SUCCESS: 1091683 bytes
+
+--- Processing: v9_scene4 ---
+Initial State:
+  Objects: 72
+  Lights: 0
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  Set render engine to EEVEE
+  Set resolution to 1920x1080
+  ACTION: Creating default world
+  Set world background strength to 1.0
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene4_BirdEye_fixed.png
+    SUCCESS: 1249689 bytes
+  Rendering SecurityCam -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene4_SecurityCam_fixed.png
+    SUCCESS: 1155584 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v9_fixed/v9_scene4_Wide_fixed.png
+    SUCCESS: 1091683 bytes

@@ -1,0 +1,392 @@
+{
+  "version": "1.0",
+  "timestamp_created": "2026-03-26T00:00:00Z",
+  "description": "Reference-based scoring system compares new renders against gold standard forensic shots to stabilize quality, reduce drift, and maintain consistency across scene types and lighting conditions",
+  "metadata": {
+    "purpose": "Establish objective, repeatable metrics for render quality assessment",
+    "maintenance": "Gold reference images should be updated quarterly or when methodology changes",
+    "author": "Quality Systems Architect",
+    "audit_trail": true
+  },
+  "gold_references": {
+    "description": "3-5 gold standard images per scene type. Each defines histogram targets, edge density, contrast profiles, and required forensic markers. Initially populated with target descriptions until actual gold images are captured.",
+    "scene_types": ["t_bone_impact", "rear_end_collision", "side_swipe", "rollover", "pedestrian_involvement", "low_light_scene"],
+    "t_bone_impact_gold": {
+      "scene_code": "TBIG001",
+      "scene_description": "T-bone intersection collision with clear impact point visibility, dual vehicle damage zones, and witness sight lines",
+      "lighting_conditions": "daylight_clear",
+      "reference_image_count": 3,
+      "reference_images": [],
+      "target_histogram": {
+        "description": "Luminance distribution target for reference comparison",
+        "brightness_mean": [120, 160],
+        "brightness_std": [40, 70],
+        "color_channels_balanced": true,
+        "red_channel_mean": [125, 155],
+        "green_channel_mean": [120, 160],
+        "blue_channel_mean": [115, 150],
+        "histogram_entropy_min": 6.5
+      },
+      "target_edge_density": {
+        "description": "Canny edge detection metrics for evidence marker clarity",
+        "min_edge_ratio": 0.08,
+        "max_edge_ratio": 0.25,
+        "edge_concentration_zones": [
+          {"region": "impact_point", "target_edge_density": 0.30},
+          {"region": "vehicle_contact", "target_edge_density": 0.25},
+          {"region": "skid_marks", "target_edge_density": 0.15},
+          {"region": "background", "target_edge_density": 0.05}
+        ]
+      },
+      "target_contrast_profile": {
+        "description": "Local and global contrast metrics for forensic readability",
+        "dynamic_range_min": 0.6,
+        "dynamic_range_target": [0.65, 0.85],
+        "local_contrast_min": 0.3,
+        "michelson_contrast_per_zone": {
+          "impact_zone": 0.5,
+          "witness_view": 0.45,
+          "damage_detail": 0.55,
+          "environment": 0.35
+        }
+      },
+      "evidence_markers_required": [
+        "impact_point_label",
+        "vehicle_positions_at_impact",
+        "approach_angles_marked",
+        "scale_reference_visible",
+        "damage_zones_highlighted",
+        "sight_line_indicators",
+        "coordinate_system_shown"
+      ],
+      "forensic_requirements": {
+        "impact_point_brightness_delta": 15,
+        "vehicle_separation_clarity": true,
+        "damage_contrast_ratio": 1.5,
+        "marker_legibility_size": "minimum 12px at display resolution"
+      }
+    },
+    "rear_end_collision_gold": {
+      "scene_code": "RECG001",
+      "scene_description": "Rear-end collision with visible following distance, velocity indicators, and brake light/impact timing markers",
+      "lighting_conditions": "daylight_clear",
+      "reference_image_count": 3,
+      "reference_images": [],
+      "target_histogram": {
+        "brightness_mean": [130, 170],
+        "brightness_std": [45, 75],
+        "color_channels_balanced": true,
+        "histogram_entropy_min": 6.5
+      },
+      "target_edge_density": {
+        "min_edge_ratio": 0.10,
+        "max_edge_ratio": 0.28,
+        "edge_concentration_zones": [
+          {"region": "rear_vehicle_damage", "target_edge_density": 0.32},
+          {"region": "front_vehicle_contact", "target_edge_density": 0.28},
+          {"region": "road_markings", "target_edge_density": 0.12},
+          {"region": "environment", "target_edge_density": 0.06}
+        ]
+      },
+      "target_contrast_profile": {
+        "dynamic_range_min": 0.6,
+        "local_contrast_min": 0.32,
+        "michelson_contrast_per_zone": {
+          "rear_damage": 0.55,
+          "front_impact": 0.52,
+          "gap_space": 0.40,
+          "road": 0.38
+        }
+      },
+      "evidence_markers_required": [
+        "following_distance_marked",
+        "initial_vehicle_positions",
+        "impact_moment_velocity_indicators",
+        "brake_light_state_shown",
+        "reaction_time_zone_marked",
+        "final_rest_positions",
+        "measurement_references"
+      ]
+    },
+    "side_swipe_gold": {
+      "scene_code": "SSWG001",
+      "scene_description": "Side-swipe collision with lateral damage, lane position clarity, and trajectory indicators",
+      "lighting_conditions": "daylight_clear",
+      "reference_image_count": 3,
+      "reference_images": [],
+      "target_histogram": {
+        "brightness_mean": [125, 165],
+        "brightness_std": [42, 72],
+        "color_channels_balanced": true,
+        "histogram_entropy_min": 6.5
+      },
+      "target_edge_density": {
+        "min_edge_ratio": 0.09,
+        "max_edge_ratio": 0.26,
+        "edge_concentration_zones": [
+          {"region": "lateral_damage", "target_edge_density": 0.31},
+          {"region": "lane_markings", "target_edge_density": 0.16},
+          {"region": "vehicle_edges", "target_edge_density": 0.20},
+          {"region": "background", "target_edge_density": 0.05}
+        ]
+      },
+      "target_contrast_profile": {
+        "dynamic_range_min": 0.62,
+        "local_contrast_min": 0.31,
+        "michelson_contrast_per_zone": {
+          "damage_zone": 0.53,
+          "road_surface": 0.39,
+          "lane_boundary": 0.42,
+          "vehicle_sides": 0.48
+        }
+      },
+      "evidence_markers_required": [
+        "lane_positions_pre_impact",
+        "lateral_distance_measurements",
+        "trajectory_paths_marked",
+        "contact_line_visible",
+        "damage_distribution_shown",
+        "road_geometry_clear",
+        "speed_indicators_present"
+      ]
+    },
+    "low_light_scene_gold": {
+      "scene_code": "LOWG001",
+      "scene_description": "Nighttime or low-light reconstruction with careful exposure, visibility simulation, and headlight/streetlight integration",
+      "lighting_conditions": "nighttime_mixed_sources",
+      "reference_image_count": 3,
+      "reference_images": [],
+      "target_histogram": {
+        "description": "Low-light requires higher entropy and careful midtone separation",
+        "brightness_mean": [60, 100],
+        "brightness_std": [35, 65],
+        "color_channels_balanced": true,
+        "histogram_entropy_min": 7.0,
+        "shadow_detail_min": 15
+      },
+      "target_edge_density": {
+        "min_edge_ratio": 0.06,
+        "max_edge_ratio": 0.22,
+        "edge_concentration_zones": [
+          {"region": "lit_damage", "target_edge_density": 0.28},
+          {"region": "headlight_illumination", "target_edge_density": 0.20},
+          {"region": "streetlight_falloff", "target_edge_density": 0.12},
+          {"region": "unlit_areas", "target_edge_density": 0.04}
+        ]
+      },
+      "target_contrast_profile": {
+        "dynamic_range_min": 0.7,
+        "local_contrast_min": 0.35,
+        "michelson_contrast_per_zone": {
+          "illuminated_damage": 0.60,
+          "headlight_cone": 0.52,
+          "ambient_shadows": 0.25,
+          "background": 0.20
+        }
+      },
+      "evidence_markers_required": [
+        "illumination_source_visible",
+        "visibility_limitations_shown",
+        "light_cone_boundaries_clear",
+        "shadow_areas_realistic",
+        "headlight_colors_accurate",
+        "damage_visibility_in_context",
+        "witness_sight_line_illumination"
+      ],
+      "lighting_specific_requirements": {
+        "headlight_color_temp_kelvin": [4500, 6500],
+        "streetlight_color_temp_kelvin": [2700, 4000],
+        "light_falloff_realism": "inverse_square_law",
+        "glare_simulation": "realistic_but_not_distracting"
+      }
+    }
+  },
+  "scoring_method": {
+    "description": "Composite scoring method combining 5 weighted metrics. Each metric produces a 0-10 score; final score is weighted average.",
+    "overall_formula": "sum(metric_score * metric_weight) where sum(weights) = 1.0",
+    "metrics": {
+      "histogram_similarity": {
+        "weight": 0.20,
+        "target_range": [7.0, 10.0],
+        "method": "chi_squared_distance",
+        "description": "Compares luminance and color channel distributions against gold reference",
+        "implementation": {
+          "algorithm": "chi_squared_distance",
+          "channels": ["L", "a", "b"],
+          "bins": 256,
+          "threshold_perfect": 0.7,
+          "threshold_acceptable": 0.5,
+          "scoring": "linear_0_to_10_from_threshold_to_1.0"
+        },
+        "tolerance": {
+          "brightness_mean_delta": 5,
+          "color_channel_balance_delta": 0.02,
+          "entropy_delta": 0.5
+        }
+      },
+      "edge_density_match": {
+        "weight": 0.20,
+        "target_range": [6.5, 10.0],
+        "method": "canny_edge_detection_pixel_ratio_comparison",
+        "description": "Validates edge clarity in evidence zones using Canny edge detection",
+        "implementation": {
+          "algorithm": "canny_edge_detector",
+          "sigma": 1.4,
+          "threshold_low": 0.1,
+          "threshold_high": 0.3,
+          "target_edge_ratio": [0.08, 0.25],
+          "zone_analysis": true,
+          "scoring": "per_zone_weighted_average"
+        },
+        "zone_weights": {
+          "impact_point": 0.35,
+          "vehicle_contact": 0.30,
+          "evidence_markers": 0.25,
+          "background": 0.10
+        }
+      },
+      "contrast_profile_match": {
+        "weight": 0.15,
+        "target_range": [7.0, 10.0],
+        "method": "local_contrast_map_correlation",
+        "description": "Evaluates local and global contrast using Michelson contrast metrics",
+        "implementation": {
+          "algorithm": "local_binary_patterns_contrast",
+          "window_size": 32,
+          "dynamic_range_target": [0.6, 0.85],
+          "local_contrast_target": [0.30, 0.65],
+          "correlation_metric": "pearson"
+        },
+        "micro_contrast_analysis": {
+          "enabled": true,
+          "texture_sharpness_check": true,
+          "detail_preservation": "high"
+        }
+      },
+      "evidence_visibility": {
+        "weight": 0.25,
+        "target_range": [7.0, 10.0],
+        "method": "region_brightness_and_contrast_check_per_marker",
+        "description": "Forensic-specific: Validates that all required evidence markers are visible and legible",
+        "implementation": {
+          "marker_detection": "template_matching_and_manual_annotation",
+          "visibility_criteria": {
+            "brightness_delta_from_background": 15,
+            "contrast_ratio_minimum": 1.5,
+            "edge_clarity_score": 0.7,
+            "label_legibility_pixels": 12
+          },
+          "required_markers_pass_threshold": 1.0
+        },
+        "per_marker_validation": {
+          "impact_point_label": {"criticality": "high", "weight": 0.30},
+          "vehicle_positions": {"criticality": "high", "weight": 0.25},
+          "scale_reference": {"criticality": "high", "weight": 0.20},
+          "sight_lines": {"criticality": "medium", "weight": 0.15},
+          "coordinate_system": {"criticality": "medium", "weight": 0.10}
+        }
+      },
+      "composition_balance": {
+        "weight": 0.20,
+        "target_range": [6.5, 10.0],
+        "method": "rule_of_thirds_alignment_and_spatial_distribution",
+        "description": "Ensures forensically appropriate composition: evidence in focus, witness perspectives clear",
+        "implementation": {
+          "algorithm": "entropy_distribution_analysis",
+          "rule_of_thirds_grid": true,
+          "focal_point_analysis": true,
+          "depth_distribution": true
+        },
+        "forensic_composition_rules": {
+          "impact_zone_framing": "center_or_upper_third",
+          "witness_perspective_visible": true,
+          "environmental_context_clear": true,
+          "spatial_depth_conveyed": true,
+          "evidence_hierarchy_visual": true
+        }
+      }
+    }
+  },
+  "drift_detection": {
+    "description": "Automated quality drift detection triggers review when scores deviate significantly from gold baseline across multiple cycles",
+    "enabled": true,
+    "max_drift_percentage": 15,
+    "drift_calculation": "percentage_change_from_baseline_average",
+    "baseline_samples": 5,
+    "min_cycles_before_alert": 3,
+    "alert_conditions": {
+      "overall_score_drift": {
+        "threshold_percentage": 15,
+        "trigger_cycles": 3,
+        "action": "flag_for_investigation"
+      },
+      "track_score_drift": {
+        "threshold_percentage": 20,
+        "trigger_cycles": 2,
+        "action": "isolate_degraded_track"
+      },
+      "histogram_drift": {
+        "threshold_chi_squared": 1.2,
+        "trigger_cycles": 3,
+        "action": "check_lighting_setup"
+      },
+      "edge_density_drift": {
+        "threshold_percentage": 25,
+        "trigger_cycles": 2,
+        "action": "review_material_sharpness"
+      }
+    },
+    "recovery_protocol": {
+      "compare_against": "last_known_good_version",
+      "snapshot_frequency_cycles": 5,
+      "rollback_available": true,
+      "notification_targets": ["qa_lead", "render_supervisor"]
+    }
+  },
+  "reference_update_protocol": {
+    "description": "Procedure for updating gold references when methodology improves",
+    "trigger_conditions": [
+      "quarterly_scheduled_review",
+      "methodology_change",
+      "significant_improvement_milestone",
+      "scene_type_addition"
+    ],
+    "review_process": [
+      "render_5_samples_same_scene",
+      "calculate_mean_metrics",
+      "verify_consistency_across_samples",
+      "validate_against_forensic_requirements",
+      "document_rationale_for_changes",
+      "obtain_stakeholder_approval"
+    ],
+    "version_history": {
+      "keep_previous_versions": true,
+      "deprecation_period_cycles": 50,
+      "archive_location": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/archive/gold-references/"
+    }
+  },
+  "testing": {
+    "description": "Unit and integration tests for scoring system reliability",
+    "unit_tests": [
+      "histogram_similarity_known_distributions",
+      "edge_density_range_validation",
+      "contrast_profile_boundary_conditions",
+      "marker_visibility_detection_accuracy",
+      "composition_rule_enforcement"
+    ],
+    "integration_tests": [
+      "end_to_end_scoring_pipeline",
+      "drift_detection_triggering",
+      "multi_sample_confidence_intervals",
+      "cross_scene_type_consistency"
+    ],
+    "test_data_location": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/test-data/reference-scoring/"
+  },
+  "calibration": {
+    "description": "Periodic recalibration ensures metrics remain valid as scenes evolve",
+    "frequency": "every_50_renders_or_monthly",
+    "validation_method": "human_jury_comparison",
+    "acceptable_human_agreement": 0.85,
+    "metric_sensitivity_review": true
+  }
+}

@@ -1,0 +1,102 @@
+=== V10 SCENE DIAGNOSTIC AND RENDER ===
+
+
+--- Processing: v10_scene1 ---
+Initial State:
+  Objects: 30
+  Lights: 0 - []
+  Cameras: 5 - ['BirdEye', 'DriverPOV', 'SecurityCam', 'TruckPOV', 'Wide']
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  ACTION: Creating default world
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene1_BirdEye.png
+    SUCCESS: 1139285 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene1_DriverPOV.png
+    SUCCESS: 1119003 bytes
+  Rendering SecurityCam -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene1_SecurityCam.png
+    SUCCESS: 1135584 bytes
+  Rendering TruckPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene1_TruckPOV.png
+    SUCCESS: 1108734 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene1_Wide.png
+    SUCCESS: 1080400 bytes
+
+--- Processing: v10_scene2 ---
+Initial State:
+  Objects: 32
+  Lights: 0 - []
+  Cameras: 5 - ['BirdEye', 'DriverPOV', 'SecurityCam', 'TruckPOV', 'Wide']
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  ACTION: Creating default world
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene2_BirdEye.png
+    SUCCESS: 1336652 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene2_DriverPOV.png
+    SUCCESS: 1447764 bytes
+  Rendering SecurityCam -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene2_SecurityCam.png
+    SUCCESS: 1172796 bytes
+  Rendering TruckPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene2_TruckPOV.png
+    SUCCESS: 1937651 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene2_Wide.png
+    SUCCESS: 1089037 bytes
+
+--- Processing: v10_scene3 ---
+Initial State:
+  Objects: 72
+  Lights: 0 - []
+  Cameras: 5 - ['BirdEye', 'DriverPOV', 'SecurityCam', 'TruckPOV', 'Wide']
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  ACTION: Creating default world
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene3_BirdEye.png
+    SUCCESS: 1267433 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene3_DriverPOV.png
+    SUCCESS: 1174913 bytes
+  Rendering SecurityCam -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene3_SecurityCam.png
+    SUCCESS: 1151972 bytes
+  Rendering TruckPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene3_TruckPOV.png
+    SUCCESS: 1181245 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene3_Wide.png
+    SUCCESS: 1091684 bytes
+
+--- Processing: v10_scene4 ---
+Initial State:
+  Objects: 72
+  Lights: 0 - []
+  Cameras: 5 - ['BirdEye', 'DriverPOV', 'SecurityCam', 'TruckPOV', 'Wide']
+  World: None
+  Active camera: Wide
+  Render engine: BLENDER_EEVEE
+  ACTION: Adding 3-point lighting
+    Added KeyLight (SUN, energy=2.0)
+    Added FillLight (SUN, energy=1.0)
+    Added RimLight (SUN, energy=1.5)
+  ACTION: Creating default world
+  Saved fixed scene
+  Rendering BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene4_BirdEye.png
+    SUCCESS: 1266363 bytes
+  Rendering DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene4_DriverPOV.png
+    SUCCESS: 1174913 bytes
+  Rendering SecurityCam -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene4_SecurityCam.png
+    SUCCESS: 1151283 bytes
+  Rendering TruckPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene4_TruckPOV.png
+    SUCCESS: 1183190 bytes
+  Rendering Wide -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v10_renders/v10_scene4_Wide.png
+    SUCCESS: 1091684 bytes

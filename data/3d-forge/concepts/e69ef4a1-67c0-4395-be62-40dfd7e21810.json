@@ -1,0 +1,525 @@
+{
+  "name": "Universal 3D Printed Phone Stand - Multi-Design Collection",
+  "description": "Premium 3D-printed phone stands in multiple iconic designs (bird, minimal base, curved ergonomic) and vibrant color options. Perfect for desks, showcasing phones, tablets, or small devices. 3D-printable files optimized for FDM/SLA printing with elegant proportions, branded cutouts, and stable weighted bases. Sells through Etsy, Thingiverse, and print-on-demand platforms.",
+  "visual_analysis": {
+    "silhouette": "Collection of stand designs: (1) Curved organic bird silhouette with rounded back and weighted base, (2) Minimal rectangular base with angled phone slot, (3) Geometric 'A'-frame or chevron design with deep contact pads and cable management, (4) Branded versions with Android/Apple logo cutouts at ~45° angle cradle",
+    "proportions": {
+      "base_width_mm": 65,
+      "base_depth_mm": 55,
+      "total_height_mm": 95,
+      "phone_slot_depth_mm": 12,
+      "contact_pad_width_mm": 35,
+      "support_arm_thickness_mm": 8,
+      "mounting_hole_diameter_mm": 6
+    },
+    "materials": [
+      "PLA/ABS plastic (3D-printed)",
+      "Matte powder coat finish",
+      "Slight texture for grip"
+    ],
+    "colors": [
+      "#FF6B35",
+      "#D946EF",
+      "#14B8A6",
+      "#FFFFFF",
+      "#1F2937",
+      "#0066CC",
+      "#00AA44",
+      "#FFD700"
+    ],
+    "key_features": [
+      "Ergonomic curved support arm at optimal 45-50° angle",
+      "Weighted base prevents tipping (integrated mass distribution)",
+      "Branded logo cutouts (Android, Apple) for aesthetic appeal",
+      "Dual contact pads (rubber/soft-touch compatible) grip phone securely",
+      "Cable management slot or routing groove on rear/side",
+      "Mounting hole for wall bracket attachment",
+      "Minimal overhang reduces support material during printing",
+      "Smooth rounded edges reduce phone scratching risk",
+      "Works portrait and landscape orientation",
+      "Compact footprint fits any desk/nightstand"
+    ]
+  },
+  "blender_steps": [
+    {
+      "step": 1,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1.3,
+        "location": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create base rectangular foundation (65x55mm footprint, 12mm tall). This will be the weighted anchor."
+    },
+    {
+      "step": 2,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube",
+        "scale": [
+          1.3,
+          1.1,
+          0.24
+        ]
+      },
+      "description": "Scale cube to approximate base dimensions: 65mm wide, 55mm deep, 12mm height"
+    },
+    {
+      "step": 3,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "shade_smooth"
+      },
+      "description": "Apply smooth shading to base for clean appearance"
+    },
+    {
+      "step": 4,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          0.3,
+          0.8
+        ],
+        "rotation": [
+          0.785,
+          0,
+          0
+        ]
+      },
+      "description": "Create angled support arm/back (main phone-holding structure). Rotated ~45° for ergonomic angle"
+    },
+    {
+      "step": 5,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube.001",
+        "scale": [
+          0.9,
+          0.16,
+          1.5
+        ]
+      },
+      "description": "Shape support arm: 35mm wide, 8mm thick, 95mm height total. Angled orientation for 45° phone cradle"
+    },
+    {
+      "step": 6,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "shade_smooth"
+      },
+      "description": "Smooth the support arm surfaces"
+    },
+    {
+      "step": 7,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 0.35,
+        "location": [
+          0,
+          0.15,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create left contact pad (silicone-gripping surface for phone back)"
+    },
+    {
+      "step": 8,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube.002",
+        "scale": [
+          0.5,
+          0.3,
+          0.8
+        ]
+      },
+      "description": "Size contact pad: ~18mm wide, 12mm deep, 32mm tall. Positioned on left side of cradle"
+    },
+    {
+      "step": 9,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 0.35,
+        "location": [
+          0,
+          0.15,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create right contact pad (mirror of left for dual-grip stability)"
+    },
+    {
+      "step": 10,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube.003",
+        "location": [
+          0.5,
+          0.15,
+          0.55
+        ],
+        "scale": [
+          0.5,
+          0.3,
+          0.8
+        ]
+      },
+      "description": "Position right pad on opposite side, 18mm from center"
+    },
+    {
+      "step": 11,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nfrom mathutils import Vector\n\n# Create slot/channel for cable management on rear\nbpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -0.8, 0.4))\nslot = bpy.context.active_object\nslot.scale = (0.8, 0.1, 0.5)\n\n# Boolean difference to carve channel\nbpy.context.view_layer.objects.active = bpy.data.objects.get('Cube')\nbpy.ops.object.modifier_add(type='BOOLEAN')\nbpy.context.object.modifiers[-1].operation = 'DIFFERENCE'\nbpy.context.object.modifiers[-1].object = slot"
+      },
+      "description": "Add cable management slot/channel carved into rear base using boolean operation"
+    },
+    {
+      "step": 12,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cylinder",
+        "size": 0.12,
+        "location": [
+          0.5,
+          -0.6,
+          0.08
+        ],
+        "rotation": [
+          1.5708,
+          0,
+          0
+        ]
+      },
+      "description": "Create mounting hole for wall bracket (6mm diameter, 10mm depth)"
+    },
+    {
+      "step": 13,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Boolean difference for mounting hole\nbpy.context.view_layer.objects.active = bpy.data.objects.get('Cylinder')\nhole = bpy.context.active_object\nbpy.context.view_layer.objects.active = bpy.data.objects.get('Cube')\nbpy.ops.object.modifier_add(type='BOOLEAN')\nbpy.context.object.modifiers[-1].operation = 'DIFFERENCE'\nbpy.context.object.modifiers[-1].object = hole"
+      },
+      "description": "Cut mounting hole through base via boolean difference"
+    },
+    {
+      "step": 14,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 0.6,
+        "location": [
+          0,
+          0.5,
+          0.75
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create branded logo cutout area (Android/Apple logo recess) - geometric placeholder"
+    },
+    {
+      "step": 15,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube.004",
+        "scale": [
+          0.75,
+          0.08,
+          0.6
+        ]
+      },
+      "description": "Shape logo cutout as shallow depression (2mm depth) across support face"
+    },
+    {
+      "step": 16,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Boolean difference for logo recess\nbpy.context.view_layer.objects.active = bpy.data.objects.get('Cube.004')\nlogo_cut = bpy.context.active_object\nbpy.context.view_layer.objects.active = bpy.data.objects.get('Cube.001')\nbpy.ops.object.modifier_add(type='BOOLEAN')\nbpy.context.object.modifiers[-1].operation = 'DIFFERENCE'\nbpy.context.object.modifiers[-1].object = logo_cut"
+      },
+      "description": "Carve logo cutout depression into support arm"
+    },
+    {
+      "step": 17,
+      "tool": "blender_apply_modifier",
+      "params": {
+        "object_name": "Cube",
+        "modifier_type": "SUBSURF",
+        "params": {
+          "levels": 2,
+          "render_levels": 3
+        }
+      },
+      "description": "Apply Catmull-Clark subdivision to base for smooth, rounded edges"
+    },
+    {
+      "step": 18,
+      "tool": "blender_apply_modifier",
+      "params": {
+        "object_name": "Cube.001",
+        "modifier_type": "SUBSURF",
+        "params": {
+          "levels": 2,
+          "render_levels": 3
+        }
+      },
+      "description": "Apply subdivision to support arm for organic curve"
+    },
+    {
+      "step": 19,
+      "tool": "blender_apply_modifier",
+      "params": {
+        "object_name": "Cube.002",
+        "modifier_type": "SUBSURF",
+        "params": {
+          "levels": 1,
+          "render_levels": 2
+        }
+      },
+      "description": "Light subdivision on left contact pad"
+    },
+    {
+      "step": 20,
+      "tool": "blender_apply_modifier",
+      "params": {
+        "object_name": "Cube.003",
+        "modifier_type": "SUBSURF",
+        "params": {
+          "levels": 1,
+          "render_levels": 2
+        }
+      },
+      "description": "Light subdivision on right contact pad"
+    },
+    {
+      "step": 21,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube",
+        "color": [
+          1,
+          0.42,
+          0.21,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.65,
+        "specular": 0.5
+      },
+      "description": "Apply vibrant orange (#FF6B35) base material with matte finish (roughness for 3D-print texture)"
+    },
+    {
+      "step": 22,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube.001",
+        "color": [
+          1,
+          0.42,
+          0.21,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.65,
+        "specular": 0.5
+      },
+      "description": "Apply matching orange to support arm"
+    },
+    {
+      "step": 23,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube.002",
+        "color": [
+          0.2,
+          0.2,
+          0.2,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.8,
+        "specular": 0.3
+      },
+      "description": "Apply dark gray to left contact pad (softer appearance for grip surface)"
+    },
+    {
+      "step": 24,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube.003",
+        "color": [
+          0.2,
+          0.2,
+          0.2,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.8,
+        "specular": 0.3
+      },
+      "description": "Apply dark gray to right contact pad"
+    },
+    {
+      "step": 25,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "recalculate_normals"
+      },
+      "description": "Recalculate all normals for watertight mesh export"
+    },
+    {
+      "step": 26,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Select all objects and join into single mesh\nbpy.ops.object.select_all(action='SELECT')\nbpy.ops.object.join()\nstand_model = bpy.context.active_object\nstand_model.name = 'PhoneStand_Orange'\n\n# Apply all modifiers\nfor mod in stand_model.modifiers:\n    bpy.ops.object.modifier_apply(modifier=mod.name)"
+      },
+      "description": "Join all components into single watertight object and apply all modifiers"
+    },
+    {
+      "step": 27,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "remove_doubles"
+      },
+      "description": "Remove duplicate vertices for clean geometry"
+    },
+    {
+      "step": 28,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nfrom mathutils import Vector\n\n# Verify watertight by checking mesh integrity\nmesh = bpy.context.active_object.data\nprint(f'Vertices: {len(mesh.vertices)}')\nprint(f'Edges: {len(mesh.edges)}')\nprint(f'Faces: {len(mesh.faces)}')\n\n# Add 1.5mm wall thickness to ensure printability\nbpy.ops.object.modifier_add(type='SOLIDIFY')\nsolidify = bpy.context.object.modifiers[-1]\nsolidify.thickness = 0.003  # 1.5mm in Blender units (assuming 1 unit = 1mm)"
+      },
+      "description": "Add solidify modifier for minimum 1.5mm wall thickness compliance with 3D-print specifications"
+    },
+    {
+      "step": 29,
+      "tool": "blender_uv_operations",
+      "params": {
+        "object_name": "PhoneStand_Orange",
+        "action": "smart_project"
+      },
+      "description": "Auto-unwrap UV map for efficient texture mapping and print pattern visibility"
+    },
+    {
+      "step": 30,
+      "tool": "blender_export_file",
+      "params": {
+        "filepath": "/output/PhoneStand_Orange_V1.stl",
+        "format": "stl"
+      },
+      "description": "Export final model as STL (watertight mesh format) optimized for FDM/SLA 3D printing"
+    },
+    {
+      "step": 31,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Duplicate model for alternative color variant (Teal/Turquoise)\nbpy.ops.object.duplicate(use_linked=False)\nteal_stand = bpy.context.active_object\nteal_stand.name = 'PhoneStand_Teal'\n\n# Change material color to teal\nfor mat_slot in teal_stand.material_slots:\n    if mat_slot.material:\n        mat_slot.material.use_nodes = True\n        bsdf = mat_slot.material.node_tree.nodes['Principled BSDF']\n        bsdf.inputs[0].default_value = (0.08, 0.72, 0.72, 1.0)  # Teal #14B8A6"
+      },
+      "description": "Duplicate model and create teal color variant (#14B8A6) for product variety"
+    },
+    {
+      "step": 32,
+      "tool": "blender_export_file",
+      "params": {
+        "filepath": "/output/PhoneStand_Teal_V1.stl",
+        "format": "stl"
+      },
+      "description": "Export teal variant as STL"
+    },
+    {
+      "step": 33,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Create white minimalist variant\nbpy.ops.object.duplicate(use_linked=False)\nwhite_stand = bpy.context.active_object\nwhite_stand.name = 'PhoneStand_White'\n\nfor mat_slot in white_stand.material_slots:\n    if mat_slot.material:\n        mat_slot.material.use_nodes = True\n        bsdf = mat_slot.material.node_tree.nodes['Principled BSDF']\n        bsdf.inputs[0].default_value = (1.0, 1.0, 1.0, 1.0)  # Pure white"
+      },
+      "description": "Create white minimalist variant for neutral/professional aesthetic"
+    },
+    {
+      "step": 34,
+      "tool": "blender_export_file",
+      "params": {
+        "filepath": "/output/PhoneStand_White_V1.stl",
+        "format": "stl"
+      },
+      "description": "Export white variant as STL"
+    },
+    {
+      "step": 35,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\n\n# Get all stand objects and calculate combined triangle count\ntotal_tris = 0\nfor obj in bpy.data.objects:\n    if 'PhoneStand' in obj.name and obj.type == 'MESH':\n        tris = len(obj.data.polygons)\n        total_tris += tris\n        print(f'{obj.name}: {tris} triangles')\n\nprint(f'\\nTotal triangle count (single model): ~{total_tris}')\nprint(f'Within budget: {total_tris < 100000}')"
+      },
+      "description": "Verify triangle count is within 100k max budget for platform constraint compliance"
+    }
+  ],
+  "estimated_dimensions_mm": [
+    65,
+    55,
+    95
+  ],
+  "estimated_tri_count": 24000,
+  "difficulty": "medium",
+  "concept_id": "e69ef4a1-67c0-4395-be62-40dfd7e21810",
+  "trend_id": "433abc30-a609-4b6c-bec0-e6a43193d4d7",
+  "platform": "stl",
+  "generated_at": "2026-03-24T21:36:26.982Z",
+  "api_usage": {
+    "input_tokens": 8826,
+    "output_tokens": 5078,
+    "total_tokens": 13904,
+    "estimated_cost_usd": 0.102648,
+    "provider": "claude-haiku-4.5"
+  },
+  "variations": [
+    {
+      "variation_id": 0,
+      "name": "Universal 3D Printed Phone Stand - Multi-Design Collection",
+      "param_overrides": {},
+      "description": "Original design from reference images"
+    },
+    {
+      "variation_id": 1,
+      "name": "Universal 3D Printed Phone Stand - Multi-Design Collection — Large",
+      "param_overrides": {
+        "scale": 1.1,
+        "dimension_adjustment": "10% larger proportions"
+      },
+      "description": "Scaled up 10% for larger market segment"
+    },
+    {
+      "variation_id": 2,
+      "name": "Universal 3D Printed Phone Stand - Multi-Design Collection — Compact",
+      "param_overrides": {
+        "scale": 0.9,
+        "dimension_adjustment": "10% smaller proportions"
+      },
+      "description": "Scaled down 10% for compact variant"
+    }
+  ]
+}

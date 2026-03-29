@@ -1,0 +1,122 @@
+{
+  "_version": "1.0",
+  "_description": "Per-category prompt templates for concept generation. Auto-updated by autoresearch agent.",
+  "_last_updated": null,
+
+  "desk_organizer": {
+    "system_context": "You specialize in functional desk accessories. Focus on: clean geometric shapes, cable management features, modular sections, practical dimensions (fits standard desk items like pens, phones, cables). Keep wall thickness ≥2mm for durability.",
+    "geometry_hints": ["Start with box/cylinder primitives", "Use boolean difference for compartments", "Bevel all visible edges", "Consider phone angle (15-20° optimal)"],
+    "typical_dimensions_mm": [150, 100, 80],
+    "modifiers": ["SOLIDIFY", "BEVEL", "SUBSURF"],
+    "complexity": "low",
+    "production_feasibility": 90
+  },
+  "phone_stand": {
+    "system_context": "You specialize in device stands/docks. Focus on: device-specific fit (iPhone, Samsung, iPad), viewing angle (15-75°), cable pass-through, anti-slip features, portrait and landscape support.",
+    "geometry_hints": ["L-shaped or angled cradle geometry", "Boolean cut for charging port", "Rounded contact edges to protect device", "Weighted base for stability"],
+    "typical_dimensions_mm": [80, 100, 120],
+    "modifiers": ["SOLIDIFY", "BEVEL", "SUBSURF"],
+    "complexity": "low",
+    "production_feasibility": 90
+  },
+  "smart_home_mount": {
+    "system_context": "You specialize in mounting solutions for smart home devices. Focus on: device-specific fit (Ring Doorbell, Arlo camera, Nest thermostat), adjustable angles, integrated cable channels, wall-mount or desk-mount options, weather considerations for outdoor mounts.",
+    "geometry_hints": ["Start with device dimensions as inner cavity", "Boolean for device slot", "Add screw holes for wall mounting", "Cable channel via boolean cylinder cut"],
+    "typical_dimensions_mm": [100, 80, 50],
+    "modifiers": ["SOLIDIFY", "BOOLEAN", "BEVEL"],
+    "complexity": "medium",
+    "production_feasibility": 85
+  },
+  "planter": {
+    "system_context": "You specialize in decorative planters and vases. Focus on: drainage holes, inner cavity for soil/plant, aesthetic outer surface (geometric, organic, textured), stable base, appropriate wall thickness for plant weight.",
+    "geometry_hints": ["Cylinder or sphere base, scale for shape", "Boolean difference for hollow interior", "Small cylinder boolean for drainage holes", "Surface detail via displacement or boolean patterns"],
+    "typical_dimensions_mm": [100, 100, 120],
+    "modifiers": ["SOLIDIFY", "SUBSURF", "BEVEL", "DISPLACE"],
+    "complexity": "medium",
+    "production_feasibility": 85
+  },
+  "figurine": {
+    "system_context": "You specialize in collectible figurines and character models. Focus on: recognizable silhouette, dynamic pose, clean surface for printing, separate base/pedestal, balanced center of gravity for standing.",
+    "geometry_hints": ["Build from multiple primitives joined together", "Sphere for head, cylinder for body", "Use proportional editing for organic shapes", "Add base platform for stability"],
+    "typical_dimensions_mm": [50, 50, 100],
+    "modifiers": ["SUBSURF", "SMOOTH", "BEVEL"],
+    "complexity": "high",
+    "production_feasibility": 60
+  },
+  "cosplay_prop": {
+    "system_context": "You specialize in cosplay props (swords, shields, helmets, accessories). Focus on: recognizable shape from source material, lightweight hollow design, assembly points if multi-part, smooth printable surfaces, correct scale for human use.",
+    "geometry_hints": ["Reference source material precisely", "Hollow interior via solidify modifier", "Split large props into printable sections", "Add alignment pins/keys at split points"],
+    "typical_dimensions_mm": [200, 50, 800],
+    "modifiers": ["SOLIDIFY", "MIRROR", "SUBSURF", "BOOLEAN"],
+    "complexity": "high",
+    "production_feasibility": 55
+  },
+  "miniature": {
+    "system_context": "You specialize in tabletop gaming miniatures (28mm-32mm scale). Focus on: fine detail at small scale, supported poses for resin printing, integrated base, compatible with standard 25mm round base.",
+    "geometry_hints": ["Work at 10x scale then scale down", "Avoid thin floating geometry", "Ensure contact with base for support", "Add connection point under base"],
+    "typical_dimensions_mm": [25, 25, 35],
+    "modifiers": ["SUBSURF", "DECIMATE"],
+    "complexity": "high",
+    "production_feasibility": 50
+  },
+  "roblox_hat": {
+    "system_context": "You specialize in Roblox UGC hat accessories. Focus on: avatar-compatible sizing, low poly (≤4K triangles), sits on top of avatar head, fun/trendy designs (anime, meme, streetwear inspired), vibrant colors.",
+    "geometry_hints": ["Start with sphere/cylinder at head scale", "Keep geometry simple and clean", "No interior geometry needed", "Decimate to stay under 4K tris"],
+    "typical_dimensions_mm": [30, 30, 25],
+    "modifiers": ["DECIMATE", "SUBSURF"],
+    "complexity": "medium",
+    "production_feasibility": 80,
+    "platform_specific": {
+      "attachment_point": "Hat",
+      "max_tris": 4000
+    }
+  },
+  "roblox_wings": {
+    "system_context": "You specialize in Roblox UGC back accessories (wings, auras, capes). Focus on: dramatic visual impact, symmetrical design, attaches to avatar back, low poly, bright/glowing appearance possible.",
+    "geometry_hints": ["Use mirror modifier for symmetry", "Plane with solidify for wing surface", "Displacement for feather texture", "Keep flat/planar to save triangles"],
+    "typical_dimensions_mm": [60, 10, 50],
+    "modifiers": ["MIRROR", "SOLIDIFY", "DECIMATE"],
+    "complexity": "medium",
+    "production_feasibility": 75,
+    "platform_specific": {
+      "attachment_point": "Back",
+      "max_tris": 4000
+    }
+  },
+  "roblox_hair": {
+    "system_context": "You specialize in Roblox UGC hair accessories. Focus on: anime/trendy hairstyles, sits on avatar head correctly, multiple color variants, low poly but recognizable silhouette.",
+    "geometry_hints": ["Build from scaled/deformed spheres and cylinders", "Use proportional editing for hair flow", "Boolean union to join strands", "Decimate aggressively while keeping silhouette"],
+    "typical_dimensions_mm": [30, 30, 35],
+    "modifiers": ["SUBSURF", "DECIMATE"],
+    "complexity": "medium",
+    "production_feasibility": 70,
+    "platform_specific": {
+      "attachment_point": "Hair",
+      "max_tris": 4000
+    }
+  },
+  "game_environment": {
+    "system_context": "You specialize in modular environment pieces for game developers (walls, floors, pillars, doors, windows). Focus on: tileable/modular design, consistent scale, PBR materials, clean UV mapping, multiple LOD levels.",
+    "geometry_hints": ["Grid-aligned dimensions (1m, 2m, 4m units)", "Modular snap points at edges", "Separate geometry for LODs", "UV-friendly topology (quads, minimal stretching)"],
+    "typical_dimensions_mm": [2000, 2000, 3000],
+    "modifiers": ["BEVEL", "SUBSURF", "ARRAY"],
+    "complexity": "medium",
+    "production_feasibility": 70
+  },
+  "game_prop": {
+    "system_context": "You specialize in game-ready props (furniture, crates, barrels, tools, decorative items). Focus on: game-friendly polycount, PBR material setup, clean topology for animation if needed, appropriate scale.",
+    "geometry_hints": ["Start with simple primitives", "Add detail where camera will see it", "Keep backfaces minimal", "UV unwrap for texture baking"],
+    "typical_dimensions_mm": [500, 500, 500],
+    "modifiers": ["BEVEL", "SUBSURF"],
+    "complexity": "medium",
+    "production_feasibility": 75
+  },
+  "pet_accessory": {
+    "system_context": "You specialize in 3D printable pet accessories (bowl stands, toy dispensers, name tags, leash hooks). Focus on: pet-safe smooth surfaces, no sharp edges, food-safe considerations, durable thick walls.",
+    "geometry_hints": ["Round all edges generously", "Extra thick walls (≥3mm)", "No small detachable parts", "Drainage/cleaning access"],
+    "typical_dimensions_mm": [150, 150, 80],
+    "modifiers": ["SOLIDIFY", "BEVEL", "SUBSURF"],
+    "complexity": "low",
+    "production_feasibility": 85
+  }
+}

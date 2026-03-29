@@ -1,0 +1,282 @@
+{
+  "metadata": {
+    "report_date": "2026-03-26",
+    "research_focus": "Render validation and self-improving loop for Blender forensic animation pipeline",
+    "target_quality_score": 8.5,
+    "current_baseline_score": 4.2,
+    "critical_issue": "Renders produce black output (0/10) without detection"
+  },
+  "render_validation": {
+    "black_render_detection_code": {
+      "description": "Python script to validate render output is not black/corrupt before proceeding",
+      "approach": "Multi-metric validation: brightness threshold + edge detection + color variance",
+      "python_implementation": "import numpy as np\nfrom PIL import Image\nimport cv2\n\ndef validate_render_not_black(image_path, brightness_threshold=30, min_edges=100):\n    \"\"\"\n    Validate a rendered PNG is not black/corrupt.\n    Returns: (is_valid: bool, score: float, details: dict)\n    \"\"\"\n    try:\n        img = Image.open(image_path).convert('RGB')\n        img_array = np.array(img, dtype=np.float32)\n    except Exception as e:\n        return False, 0.0, {'error': f'Failed to load image: {str(e)}'}\n    \n    details = {}\n    \n    # Metric 1: Mean brightness (0-255)\n    mean_brightness = np.mean(img_array)\n    details['mean_brightness'] = float(mean_brightness)\n    brightness_pass = mean_brightness > brightness_threshold\n    details['brightness_pass'] = brightness_pass\n    \n    # Metric 2: Grayscale variance (detects monochrome/solid-color images)\n    gray = np.mean(img_array, axis=2)  # Convert to grayscale\n    color_variance = np.var(img_array)  # RGB channel variance\n    details['color_variance'] = float(color_variance)\n    variance_pass = color_variance > 100  # Threshold to detect actual colors\n    details['variance_pass'] = variance_pass\n    \n    # Metric 3: Edge detection (checks if geometry/content is visible)\n    gray_uint8 = np.uint8(np.mean(img_array, axis=2))\n    edges = cv2.Canny(gray_uint8, 50, 150)\n    edge_count = np.count_nonzero(edges)\n    details['edge_count'] = int(edge_count)\n    edges_pass = edge_count > min_edges\n    details['edges_pass'] = edges_pass\n    \n    # Metric 4: Histogram spread (ensures not a solid color)\n    hist = cv2.calcHist([gray_uint8], [0], None, [256], [0, 256])\n    hist_spread = np.count_nonzero(hist > 10)  # Count bins with meaningful data\n    details['histogram_spread'] = int(hist_spread)\n    histogram_pass = hist_spread > 50\n    details['histogram_pass'] = histogram_pass\n    \n    # Overall validation\n    is_valid = brightness_pass and variance_pass and edges_pass and histogram_pass\n    \n    # Composite score (0.0-1.0)\n    scores = [\n        min(mean_brightness / 255.0, 1.0) * 0.3,  # Brightness: 30% weight\n        min(color_variance / 5000.0, 1.0) * 0.3,  # Variance: 30% weight\n        min(edge_count / 10000.0, 1.0) * 0.2,     # Edges: 20% weight\n        min(hist_spread / 256.0, 1.0) * 0.2       # Histogram: 20% weight\n    ]\n    score = sum(scores)\n    details['validation_score'] = float(score)\n    \n    return is_valid, score, details",
+      "usage": "is_valid, score, details = validate_render_not_black('/path/to/render.png')\nif not is_valid:\n    print(f'Render validation failed: {details}')\n    # Trigger remediation (retry, adjust settings, etc.)"
+    },
+    "quality_metrics_code": {
+      "description": "Calculate composite quality score for rendered image (separate from black-detection)",
+      "approach": "Multi-factor assessment: contrast, noise, focus clarity, object isolation",
+      "python_implementation": "import numpy as np\nfrom PIL import Image\nimport cv2\nfrom scipy import ndimage\n\ndef score_render_quality(image_path):\n    \"\"\"\n    Score render quality on 0-10 scale.\n    Focuses on: contrast, sharpness, noise levels, lighting balance\n    \"\"\"\n    try:\n        img = Image.open(image_path).convert('RGB')\n        img_array = np.array(img, dtype=np.uint8)\n    except:\n        return 0.0, {}\n    \n    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)\n    details = {}\n    \n    # 1. Contrast (Laplacian variance = sharpness measure)\n    laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()\n    details['sharpness_laplacian'] = float(laplacian_var)\n    sharpness_score = min(laplacian_var / 500.0, 1.0)  # Normalize\n    \n    # 2. Dynamic range (histogram spread)\n    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])\n    hist_min_idx = np.argmax(hist > 0)\n    hist_max_idx = 255 - np.argmax(np.flip(hist) > 0)\n    dynamic_range = hist_max_idx - hist_min_idx\n    details['dynamic_range'] = int(dynamic_range)\n    dynamic_range_score = min(dynamic_range / 200.0, 1.0)\n    \n    # 3. Noise level (Laplacian of Gaussian, high = high noise)\n    blurred = cv2.GaussianBlur(gray, (5, 5), 0)\n    noise_residual = np.mean(np.abs(gray.astype(float) - blurred.astype(float)))\n    details['noise_level'] = float(noise_residual)\n    noise_score = max(1.0 - (noise_residual / 50.0), 0.0)  # Inverse score\n    \n    # 4. Lighting balance (check if image is over/underexposed)\n    mean_brightness = np.mean(gray)\n    ideal_brightness = 128\n    brightness_diff = abs(mean_brightness - ideal_brightness)\n    details['brightness_balance'] = float(mean_brightness)\n    brightness_score = max(1.0 - (brightness_diff / 128.0), 0.0)\n    \n    # 5. Edge distribution (objects well-defined)\n    edges = cv2.Canny(gray, 50, 150)\n    edge_density = np.count_nonzero(edges) / edges.size\n    details['edge_density'] = float(edge_density)\n    edge_score = min(edge_density / 0.15, 1.0)  # 15% edges is good\n    \n    # Weighted composite score (0-10)\n    weights = {\n        'sharpness': (sharpness_score, 0.25),\n        'dynamic_range': (dynamic_range_score, 0.25),\n        'noise': (noise_score, 0.20),\n        'brightness': (brightness_score, 0.15),\n        'edges': (edge_score, 0.15)\n    }\n    \n    composite = sum(score * weight for score, weight in weights.values())\n    final_score = composite * 10.0  # Scale to 0-10\n    \n    details['component_scores'] = {\n        'sharpness': float(sharpness_score * 10),\n        'dynamic_range': float(dynamic_range_score * 10),\n        'noise': float(noise_score * 10),\n        'brightness': float(brightness_score * 10),\n        'edges': float(edge_score * 10)\n    }\n    details['final_quality_score'] = final_score\n    \n    return final_score, details"
+    },
+    "common_black_render_causes": [
+      {
+        "cause": "Surfaces filter disabled in View Layer Properties",
+        "symptom": "Completely black output regardless of scene content",
+        "fix": "Go to Render Properties > View Layer > Filters > Enable 'Surfaces'",
+        "automation_check": "bpy.context.scene.view_layers[0].use_pass_combined must be True"
+      },
+      {
+        "cause": "No camera set or camera not active",
+        "symptom": "Black frame, may see grid or nothing",
+        "fix": "Set active camera: bpy.context.scene.camera = bpy.data.objects['Camera']",
+        "automation_check": "bpy.context.scene.camera is not None and bpy.context.scene.camera.hide_render == False"
+      },
+      {
+        "cause": "Camera clipping distance excludes scene geometry",
+        "symptom": "Black if objects are outside camera clip bounds",
+        "fix": "Expand camera clip_start and clip_end to encompass scene",
+        "automation_check": "camera.data.clip_start < min_scene_distance < camera.data.clip_end"
+      },
+      {
+        "cause": "No lights in scene (Cycles is physically-based)",
+        "symptom": "Black or very dark output",
+        "fix": "Add Area/Sun/Point light or enable World HDRI",
+        "automation_check": "len([obj for obj in bpy.data.objects if obj.type == 'LIGHT']) > 0"
+      },
+      {
+        "cause": "All lights have 0 power",
+        "symptom": "Black output despite lights existing",
+        "fix": "Set light energy: light.data.energy = 1000 (or higher)",
+        "automation_check": "sum(light.data.energy for light in bpy.data.lights) > 0"
+      },
+      {
+        "cause": "Compositor enabled without proper connections",
+        "symptom": "Black even though viewport shows correct render",
+        "fix": "Connect Render Layers output to Composite input",
+        "automation_check": "Verify Composite node has input from Render Layers node"
+      },
+      {
+        "cause": "Render engine not set to Cycles",
+        "symptom": "Unexpected rendering results or black",
+        "fix": "bpy.context.scene.render.engine = 'CYCLES'",
+        "automation_check": "bpy.context.scene.render.engine == 'CYCLES'"
+      },
+      {
+        "cause": "All objects hidden from rendering (outliner eye icons)",
+        "symptom": "Black output, scene appears empty",
+        "fix": "Enable render visibility on all objects",
+        "automation_check": "Iterate objects and check hide_render == False"
+      },
+      {
+        "cause": "Output path incorrect or unwritable",
+        "symptom": "Black or corrupted output file",
+        "fix": "Set render output path and ensure directory exists",
+        "automation_check": "os.path.isdir(os.path.dirname(render_path)) and os.access(os.path.dirname(render_path), os.W_OK)"
+      },
+      {
+        "cause": "Resolution exceeds 16384 pixels in any dimension",
+        "symptom": "Black renders at very high resolution",
+        "fix": "Reduce render resolution: bpy.context.scene.render.resolution_x/y <= 16384",
+        "automation_check": "render.resolution_x <= 16384 and render.resolution_y <= 16384"
+      }
+    ],
+    "fixes_for_each_cause": [
+      {
+        "cause": "Surfaces filter disabled",
+        "automated_fix": "def fix_surfaces_filter(scene):\n    for view_layer in scene.view_layers:\n        view_layer.use_pass_combined = True"
+      },
+      {
+        "cause": "No active camera",
+        "automated_fix": "def fix_camera(scene):\n    cameras = [obj for obj in scene.objects if obj.type == 'CAMERA']\n    if cameras:\n        scene.camera = cameras[0]\n    else:\n        raise ValueError('No camera in scene')"
+      },
+      {
+        "cause": "Camera clipping distance wrong",
+        "automated_fix": "def fix_camera_clip(scene):\n    if not scene.camera:\n        return\n    camera = scene.camera.data\n    # Auto-calculate bounds\n    min_z, max_z = float('inf'), float('-inf')\n    for obj in scene.objects:\n        if obj.type in ['MESH', 'CURVE', 'ARMATURE']:\n            for vertex in obj.data.vertices:\n                z = (obj.matrix_world @ vertex.co).z\n                min_z = min(min_z, z)\n                max_z = max(max_z, z)\n    if min_z != float('inf'):\n        camera.clip_start = max(0.01, min_z - 10)\n        camera.clip_end = max_z + 10"
+      },
+      {
+        "cause": "No lights in scene",
+        "automated_fix": "def add_default_lighting(scene):\n    if not any(obj.type == 'LIGHT' for obj in scene.objects):\n        light_data = bpy.data.lights.new('DefaultLight', 'AREA')\n        light_data.energy = 1000\n        light_obj = bpy.data.objects.new('Light', light_data)\n        scene.collection.objects.link(light_obj)\n        light_obj.location = (10, 10, 10)"
+      },
+      {
+        "cause": "Lights have 0 power",
+        "automated_fix": "def fix_light_power(scene):\n    for light in bpy.data.lights:\n        if light.energy == 0:\n            light.energy = 1000 if light.type == 'AREA' else 100"
+      },
+      {
+        "cause": "Compositor without connections",
+        "automated_fix": "def fix_compositor(scene):\n    if not scene.use_nodes:\n        return\n    tree = scene.node_tree\n    render_layers_node = next((n for n in tree.nodes if n.type == 'RENDER_LAYERS'), None)\n    composite_node = next((n for n in tree.nodes if n.type == 'COMPOSITE'), None)\n    if render_layers_node and composite_node:\n        tree.links.new(render_layers_node.outputs[0], composite_node.inputs[0])"
+      },
+      {
+        "cause": "Wrong render engine",
+        "automated_fix": "def fix_render_engine(scene):\n    scene.render.engine = 'CYCLES'"
+      },
+      {
+        "cause": "Objects hidden from render",
+        "automated_fix": "def unhide_all_objects(scene):\n    for obj in scene.objects:\n        obj.hide_render = False"
+      },
+      {
+        "cause": "Invalid output path",
+        "automated_fix": "def fix_output_path(scene, output_dir):\n    import os\n    os.makedirs(output_dir, exist_ok=True)\n    scene.render.filepath = os.path.join(output_dir, 'render_####.png')"
+      },
+      {
+        "cause": "Resolution too high",
+        "automated_fix": "def fix_resolution(scene, max_res=4096):\n    scene.render.resolution_x = min(scene.render.resolution_x, max_res)\n    scene.render.resolution_y = min(scene.render.resolution_y, max_res)"
+      }
+    ]
+  },
+  "self_improving_loop": {
+    "architecture": {
+      "description": "Multi-cycle refinement loop with quality gates and escalation strategy",
+      "pattern": "Render → Validate → Score → If score < target: Diagnose → Fix → Re-render → Repeat",
+      "key_components": [
+        "Validation gate (detects black/corrupt renders immediately)",
+        "Quality scorer (composite 0-10 score based on multiple metrics)",
+        "Issue diagnostics (identifies worst problem: lighting, camera, geometry, settings)",
+        "Automated fixes (apply targeted fixes based on diagnosis)",
+        "Escalation handler (if stuck after N cycles, apply nuclear options)",
+        "Exit condition (score >= target OR max_cycles reached OR escalation exhausted)"
+      ]
+    },
+    "pseudocode": "def self_improving_render_loop(\n    blender_file,\n    target_quality_score=8.5,\n    max_cycles=10,\n    validation_brightness_threshold=30\n):\n    \"\"\"\n    Main self-improving loop for forensic animation renders.\n    \"\"\"\n    cycle = 0\n    current_score = 0\n    history = []\n    \n    while cycle < max_cycles and current_score < target_quality_score:\n        print(f'Cycle {cycle + 1}/{max_cycles}: Quality Score {current_score:.2f}/{target_quality_score}')\n        \n        # Step 1: Render\n        render_path = render_scene_headless(blender_file, output_dir=f'renders/cycle_{cycle}')\n        \n        # Step 2: Validate (black-render detection)\n        is_valid, validation_score, validation_details = validate_render_not_black(\n            render_path,\n            brightness_threshold=validation_brightness_threshold\n        )\n        \n        if not is_valid:\n            print(f'  VALIDATION FAILED: {validation_details}')\n            issue = diagnose_black_render(blender_file)\n            fix = get_fix_for_issue(issue)\n            apply_fix(blender_file, fix)\n            cycle += 1\n            history.append({\n                'cycle': cycle,\n                'stage': 'validation_failed',\n                'issue': issue,\n                'fix_applied': fix\n            })\n            continue\n        \n        # Step 3: Quality score\n        current_score, quality_details = score_render_quality(render_path)\n        print(f'  Validation: PASS | Quality: {current_score:.2f}/10')\n        \n        history.append({\n            'cycle': cycle,\n            'render_path': render_path,\n            'quality_score': current_score,\n            'quality_details': quality_details,\n            'validation_details': validation_details\n        })\n        \n        # Step 4: Check if we've met target\n        if current_score >= target_quality_score:\n            print(f'SUCCESS: Reached target quality {current_quality_score:.2f}')\n            return {\n                'success': True,\n                'final_score': current_score,\n                'final_render': render_path,\n                'cycles_used': cycle + 1,\n                'history': history\n            }\n        \n        # Step 5: Diagnose and fix (only if validation passed but quality low)\n        worst_component = identify_worst_quality_component(quality_details)\n        print(f'  Worst component: {worst_component}')\n        \n        issue = diagnose_quality_issue(blender_file, worst_component)\n        fix = get_fix_for_issue(issue)\n        apply_fix(blender_file, fix)\n        \n        history[-1]['issue_diagnosed'] = issue\n        history[-1]['fix_applied'] = fix\n        \n        cycle += 1\n        \n        # Step 6: Escalation check\n        if cycle % 3 == 0 and cycle > 0:\n            # Every 3 cycles, try nuclear options\n            escalation_fix = get_escalation_fix(cycle)\n            apply_fix(blender_file, escalation_fix)\n            history[-1]['escalation_applied'] = escalation_fix\n    \n    # Max cycles reached\n    return {\n        'success': False,\n        'final_score': current_score,\n        'final_render': render_path,\n        'cycles_used': cycle,\n        'cycles_exhausted': True,\n        'history': history\n    }",
+    "score_gate": 8.5,
+    "max_cycles": 10,
+    "quality_component_weights": {
+      "sharpness": 0.25,
+      "dynamic_range": 0.25,
+      "noise_level": 0.20,
+      "brightness_balance": 0.15,
+      "edge_definition": 0.15
+    },
+    "escalation_strategy": {
+      "cycle_3": "If score < 5 after 3 cycles, apply nuclear options: reset all lights, reset camera, reset compositor, enable world HDRI",
+      "cycle_6": "If score < 6.5 after 6 cycles, increase render samples from 128 to 512, enable denoiser, reduce noise threshold",
+      "cycle_9": "If score < 7.5 after 9 cycles, switch to higher quality preset (BALANCED or HIGH), enable adaptive sampling",
+      "abort_condition": "If score hasn't improved in 2 consecutive cycles, flag as stuck and return with 'quality_plateau' status"
+    },
+    "diagnosis_logic": {
+      "poor_sharpness": [
+        "Check camera focus (defocus enabled?) → disable or set realistic values",
+        "Check motion blur enabled → disable if not needed",
+        "Increase render samples for noise reduction making edges fuzzy"
+      ],
+      "low_dynamic_range": [
+        "Lighting too uniform → add varied light sources",
+        "HDRI too flat → try different HDRI or increase world strength",
+        "Camera exposure wrong → adjust exposure compensation"
+      ],
+      "high_noise": [
+        "Render samples too low → increase from 128 to 256+",
+        "Denoiser disabled → enable OptiX/OpenImage denoiser",
+        "Materials too reflective → check material roughness settings"
+      ],
+      "poor_brightness": [
+        "Lights too dim → increase light energy",
+        "Camera overexposed → reduce world strength",
+        "Scene in shadow → check light positions relative to camera"
+      ],
+      "weak_edges": [
+        "No objects visible → check object visibility + camera clip",
+        "Ambient occlusion too strong → reduce AO distance",
+        "Objects too far apart → check camera focal length"
+      ]
+    }
+  },
+  "best_practices": [
+    {
+      "practice": "Validate before iterating",
+      "description": "Run validation immediately after render completes. Don't waste CPU cycles scoring black images.",
+      "implementation": "Add validation as first checkpoint in render pipeline"
+    },
+    {
+      "practice": "Separate validation from quality scoring",
+      "description": "Black-render detection (binary pass/fail) is separate from quality metrics (continuous 0-10 score).",
+      "implementation": "Two functions: validate_render_not_black() → score_render_quality()"
+    },
+    {
+      "practice": "Log every cycle with full diagnostics",
+      "description": "Track render path, scores, issues, and fixes applied for post-mortem analysis.",
+      "implementation": "Store history dict with cycle, render_path, scores, diagnostics, fixes"
+    },
+    {
+      "practice": "Detect plateaus and abort gracefully",
+      "description": "If score doesn't improve for 2 consecutive cycles, stop iterating and return with 'plateau' status.",
+      "implementation": "Track score deltas across cycles; if delta < 0.1 twice in a row, abort"
+    },
+    {
+      "practice": "Use headless rendering for speed",
+      "description": "Run blender --background to skip UI overhead, but verify all scene setup before headless run.",
+      "implementation": "Pre-validate in GUI mode, then run headless with script that applies fixes"
+    },
+    {
+      "practice": "Bake scenes before iterating",
+      "description": "Pre-compute expensive simulations (fluid, smoke, particles) before render loop to focus on lighting/camera/settings.",
+      "implementation": "Separate bake pass from quality-improvement loop"
+    },
+    {
+      "practice": "Use multi-threaded validation",
+      "description": "While rendering cycle N, validate and score cycle N-1 in parallel.",
+      "implementation": "Use Python threading or multiprocessing for async validation"
+    },
+    {
+      "practice": "Escalate thoughtfully",
+      "description": "Don't apply nuclear fixes every cycle. Use escalation gates: 3 cycles before first nuclear fix, 6 before second, etc.",
+      "implementation": "if cycle % 3 == 0: apply_escalation_fix()"
+    },
+    {
+      "practice": "Store diagnostic metadata with renders",
+      "description": "Save JSON sidecar with each render containing validation score, quality score, and diagnostics.",
+      "implementation": "Save {render_path}.metadata.json alongside PNG"
+    },
+    {
+      "practice": "Target realistic scores",
+      "description": "8.5/10 is ambitious but achievable. Below 5/10 suggests scene design issues, not just settings tuning.",
+      "implementation": "If plateau at <5 after 3 cycles, investigate scene geometry and materials"
+    }
+  ],
+  "implementation_notes": {
+    "required_dependencies": [
+      "bpy (Blender Python API)",
+      "Pillow (PIL)",
+      "OpenCV (cv2)",
+      "numpy",
+      "scipy"
+    ],
+    "blender_version": "4.0+",
+    "key_files_to_create": [
+      "validation.py - black-render detection and quality metrics",
+      "self_improving_loop.py - main orchestration logic",
+      "diagnostics.py - issue detection and fix application",
+      "render_utils.py - headless rendering wrapper"
+    ],
+    "integration_points": [
+      "Run validation immediately after bpy.ops.render.render()",
+      "Feed quality_score to decision logic before next iteration",
+      "Store all metadata in timestamped JSON for audit trail",
+      "Expose max_cycles and target_score as CLI arguments"
+    ],
+    "monitoring": [
+      "Log cycle progress to console in real-time",
+      "Generate HTML report at end showing render progression",
+      "Alert if quality plateaus or validation fails repeatedly",
+      "Track total render time per cycle to detect performance issues"
+    ]
+  },
+  "source_references": {
+    "blender_python_api": "https://docs.blender.org/api/current/bpy.types.RenderSettings.html",
+    "render_validation": "https://ammous88.wordpress.com/2015/01/16/blender-access-render-results-pixels-directly-from-python-2/",
+    "black_render_causes": [
+      "https://irendering.net/top-reasons-your-blender-render-is-black-and-how-to-fix-them/",
+      "https://artisticrender.com/why-is-your-render-black-in-blender/"
+    ],
+    "quality_assessment": [
+      "https://docs.fastpix.io/docs/render-quality-metrics",
+      "https://sightengine.com/docs/image-quality-detection"
+    ],
+    "self_improving_agents": [
+      "https://docs.cloud.google.com/architecture/choose-design-pattern-agentic-ai-system",
+      "https://blog.bytebytego.com/p/top-ai-agentic-workflow-patterns",
+      "https://developers.openai.com/cookbook/examples/partners/self_evolving_agents/autonomous_agent_retraining"
+    ],
+    "image_brightness": "https://gist.github.com/kmohrf/8d4653536aaa88965a69a06b81bcb022",
+    "edge_detection": "https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html"
+  }
+}

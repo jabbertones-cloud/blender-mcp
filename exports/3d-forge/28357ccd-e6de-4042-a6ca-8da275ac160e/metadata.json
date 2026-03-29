@@ -1,0 +1,110 @@
+{
+  "concept_id": "28357ccd-e6de-4042-a6ca-8da275ac160e",
+  "status": "failed",
+  "error": "Exceeded failure threshold: 11/22 (50.0%)",
+  "production_time_seconds": 2,
+  "steps_executed": 11,
+  "steps_failed": 11,
+  "step_log": [
+    {
+      "step": "new_scene",
+      "success": true
+    },
+    {
+      "step": "geometry_step_0",
+      "success": false,
+      "error": "Converting py args to operator properties: MESH_OT_primitive_cube_add.size expected a float type, not list"
+    },
+    {
+      "step": "geometry_step_1",
+      "success": true
+    },
+    {
+      "step": "geometry_step_2",
+      "success": true
+    },
+    {
+      "step": "geometry_step_3",
+      "success": false,
+      "error": "ObjectModifiers.new(): error with keyword argument \"type\" -  enum \"SUBDIVISION_SURFACE\" not found in ('GREASE_PENCIL_VERTEX_WEIGHT_PROXIMITY', 'DATA_TRANSFER', 'MESH_CACHE', 'MESH_SEQUENCE_CACHE', 'NORMAL_EDIT', 'WEIGHTED_NORMAL', 'UV_PROJECT', 'UV_WARP', 'VERTEX_WEIGHT_EDIT', 'VERTEX_WEIGHT_MIX', 'VERTEX_WEIGHT_PROXIMITY', 'GREASE_PENCIL_COLOR', 'GREASE_PENCIL_TINT', 'GREASE_PENCIL_OPACITY', 'GREASE_PENCIL_VERTEX_WEIGHT_ANGLE', 'GREASE_PENCIL_TIME', 'GREASE_PENCIL_TEXTURE', 'ARRAY', 'BEVEL', 'BOOLEAN', 'BUILD', 'DECIMATE', 'EDGE_SPLIT', 'NODES', 'MASK', 'MIRROR', 'MESH_TO_VOLUME', 'MULTIRES', 'REMESH', 'SCREW', 'SKIN', 'SOLIDIFY', 'SUBSURF', 'TRIANGULATE', 'VOLUME_TO_MESH', 'WELD', 'WIREFRAME', 'GREASE_PENCIL_ARRAY', 'GREASE_PENCIL_BUILD', 'GREASE_PENCIL_LENGTH', 'LINEART', 'GREASE_PENCIL_MIRROR', 'GREASE_PENCIL_MULTIPLY', 'GREASE_PENCIL_SIMPLIFY', 'GREASE_PENCIL_SUBDIV', 'GREASE_PENCIL_ENVELOPE', 'GREASE_PENCIL_OUTLINE', 'ARMATURE', 'CAST', 'CURVE', 'DISPLACE', 'HOOK', 'LAPLACIANDEFORM', 'LATTICE', 'MESH_DEFORM', 'SHRINKWRAP', 'SIMPLE_DEFORM', 'SMOOTH', 'CORRECTIVE_SMOOTH', 'LAPLACIANSMOOTH', 'SURFACE_DEFORM', 'WARP', 'WAVE', 'VOLUME_DISPLACE', 'GREASE_PENCIL_HOOK', 'GREASE_PENCIL_NOISE', 'GREASE_PENCIL_OFFSET', 'GREASE_PENCIL_SMOOTH', 'GREASE_PENCIL_THICKNESS', 'GREASE_PENCIL_LATTICE', 'GREASE_PENCIL_DASH', 'GREASE_PENCIL_ARMATURE', 'GREASE_PENCIL_SHRINKWRAP', 'CLOTH', 'COLLISION', 'DYNAMIC_PAINT', 'EXPLODE', 'FLUID', 'OCEAN', 'PARTICLE_INSTANCE', 'PARTICLE_SYSTEM', 'SOFT_BODY', 'SURFACE')"
+    },
+    {
+      "step": "geometry_step_4",
+      "success": false,
+      "error": "Converting py args to operator properties: MESH_OT_primitive_cube_add.size expected a float type, not list"
+    },
+    {
+      "step": "geometry_step_5",
+      "success": false,
+      "error": "<built-in method get of bpy_prop_collection object at 0x3166af280> returned a result with an exception set"
+    },
+    {
+      "step": "geometry_step_6",
+      "success": false,
+      "error": "Converting py args to operator properties: MESH_OT_primitive_cube_add.size expected a float type, not list"
+    },
+    {
+      "step": "geometry_step_7",
+      "success": true
+    },
+    {
+      "step": "geometry_step_8",
+      "success": false,
+      "error": "<built-in method get of bpy_prop_collection object at 0x3166af7c0> returned a result with an exception set"
+    },
+    {
+      "step": "geometry_step_9",
+      "success": false,
+      "error": "unsupported operand type(s) for /: 'list' and 'int'"
+    },
+    {
+      "step": "geometry_step_10",
+      "success": false,
+      "error": "unsupported operand type(s) for /: 'list' and 'int'"
+    },
+    {
+      "step": "geometry_step_11",
+      "success": false,
+      "error": "<built-in method get of bpy_prop_collection object at 0x3166af280> returned a result with an exception set"
+    },
+    {
+      "step": "geometry_step_12",
+      "success": false,
+      "error": "<built-in method get of bpy_prop_collection object at 0x3166af280> returned a result with an exception set"
+    },
+    {
+      "step": "geometry_step_13",
+      "success": true
+    },
+    {
+      "step": "geometry_step_14",
+      "success": true
+    },
+    {
+      "step": "geometry_step_15",
+      "success": false,
+      "error": "bpy_struct: item.attr = val: sequences of dimension 0 should contain 4 items, not 7"
+    },
+    {
+      "step": "geometry_step_16",
+      "success": true
+    },
+    {
+      "step": "geometry_step_17",
+      "success": true
+    },
+    {
+      "step": "geometry_step_18",
+      "success": true
+    },
+    {
+      "step": "geometry_step_19",
+      "success": true
+    },
+    {
+      "step": "geometry_step_20",
+      "success": true
+    }
+  ],
+  "created_at": "2026-03-24T22:14:59.731Z"
+}

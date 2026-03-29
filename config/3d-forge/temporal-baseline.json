@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "targets": {
+    "temporal_flicker_avg_max": 6,
+    "temporal_shimmer_avg_max": 6,
+    "temporal_exposure_pumping_avg_max": 5,
+    "temporal_stability_pass_rate_min": 80
+  }
+}
+

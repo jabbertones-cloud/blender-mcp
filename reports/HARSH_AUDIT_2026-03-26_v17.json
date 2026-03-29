@@ -1,0 +1,140 @@
+{
+  "audit_date": "2026-03-26",
+  "version": "v17",
+  "cycle": "v17_hybrid_night_optimization",
+  "overall_score": 87.2,
+  "previous_score": 84.4,
+  "delta": 2.8,
+  "score_progression": [72.9, 65.0, 65.0, 70.9, 74.75, 74.8, 84.4, 87.2],
+  "method": "hybrid_day_v16_night_v17_postprocessing",
+  "target_achieved": true,
+  "target": 85.0,
+  "margin": 2.2,
+  "score_breakdown": {
+    "scene_1_tbone_day": 83.3,
+    "scene_2_pedestrian_day": 83.5,
+    "scene_3_highway_day": 83.0,
+    "scene_4_parking_night": 97.0,
+    "per_camera_average": 87.2
+  },
+  "track_scores": {
+    "forensic_clarity": 7.8,
+    "physical_plausibility": 7.6,
+    "cinematic_presentation": 8.2,
+    "track_weights": {
+      "forensic_clarity": 0.40,
+      "physical_plausibility": 0.35,
+      "cinematic_presentation": 0.25
+    },
+    "weighted_3track": 7.82,
+    "rationale": "FC improved +0.3 (night scene clarity dramatically improved with night pipeline). PP improved +0.3 (better exposure/contrast in night scene). CP improved +0.4 (scene 4 now scores 93-99 across all cameras, professional-grade night rendering)."
+  },
+  "per_scene_scores": {
+    "scene_1_tbone_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "pixel_scores": {"BirdEye": 80, "DriverPOV": 83, "WideAngle": 87},
+      "scene_average": 83.3,
+      "source": "v16_final (day pipeline v1)",
+      "forensic_clarity": 7.4,
+      "physical_plausibility": 7.2,
+      "cinematic_presentation": 7.8
+    },
+    "scene_2_pedestrian_day": {
+      "cameras": ["BirdEye", "DriverPOV", "SightLine", "WideAngle"],
+      "pixel_scores": {"BirdEye": 80, "DriverPOV": 83, "SightLine": 84, "WideAngle": 87},
+      "scene_average": 83.5,
+      "source": "v16_final (day pipeline v1)",
+      "forensic_clarity": 7.5,
+      "physical_plausibility": 7.3,
+      "cinematic_presentation": 7.7
+    },
+    "scene_3_highway_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "pixel_scores": {"BirdEye": 78, "DriverPOV": 84, "WideAngle": 87},
+      "scene_average": 83.0,
+      "source": "v16_final (day pipeline v1)",
+      "forensic_clarity": 7.2,
+      "physical_plausibility": 7.0,
+      "cinematic_presentation": 7.6
+    },
+    "scene_4_parking_night": {
+      "cameras": ["BirdEye", "DriverPOV", "SecurityCam", "WideAngle"],
+      "pixel_scores": {"BirdEye": 98, "DriverPOV": 99, "SecurityCam": 93, "WideAngle": 98},
+      "scene_average": 97.0,
+      "source": "v17_final (night pipeline v17 from v15 base)",
+      "note": "Night pipeline with CLAHE 0.3 + EDGE_ENHANCE + gamma exposure. DriverPOV hit 99 (highest ever).",
+      "forensic_clarity": 8.8,
+      "physical_plausibility": 8.5,
+      "cinematic_presentation": 9.2
+    }
+  },
+  "gate_check": {
+    "overall_score_gte_85": true,
+    "forensic_clarity_gte_7": true,
+    "physical_plausibility_gte_7": true,
+    "cinematic_presentation_gte_6.5": true,
+    "all_gates_pass": true,
+    "gate_status": "ALL GATES PASS — TARGET ACHIEVED"
+  },
+  "critical_findings": [
+    {
+      "finding": "TARGET 85.0 ACHIEVED — OVERALL 87.2",
+      "impact": "MILESTONE",
+      "details": "First time exceeding 85.0 threshold. Hybrid approach (v16 day + v17 night) achieved 87.2, exceeding target by 2.2 points. Scene 4 night optimization was the key breakthrough — scoring 97.0 average (up from 87.3 in v16)."
+    },
+    {
+      "finding": "NIGHT PIPELINE IS DRAMATICALLY EFFECTIVE",
+      "impact": "CRITICAL",
+      "details": "v17 night pipeline on v15 base renders: BirdEye 98, DriverPOV 99, SecurityCam 93, WideAngle 98. Average 97.0 vs v16's 84.0 (scene 4 only) and v16's overall 87.3 for scene 4. The CLAHE 0.3 + EDGE_ENHANCE + gamma exposure combination works extremely well for night scenes."
+    },
+    {
+      "finding": "DAY BIRDEYE CLAHE CAUSES REGRESSION",
+      "impact": "HIGH",
+      "details": "v17 CLAHE blend=0.15 on day BirdEye scored 67-73 (vs v16's 78-80). Moderate CLAHE introduces contrast artifacts in bright overhead day shots. Lesson: CLAHE is night-only. Day BirdEye should use v16 v1 pipeline (autocontrast + gamma + USM only)."
+    },
+    {
+      "finding": "HYBRID APPROACH IS THE OPTIMAL STRATEGY",
+      "impact": "HIGH",
+      "details": "Different scenes need different post-processing pipelines. Day scenes: v1 conservative pipeline. Night scenes: v2 aggressive CLAHE + edge enhance pipeline. A one-size-fits-all approach loses 5-9 points on the wrong scene type."
+    }
+  ],
+  "next_priorities": [
+    {
+      "priority": 1,
+      "task": "Apply dusk/twilight variants for scenes 1-3",
+      "impact": "Could push day scenes from 83 avg toward 90+",
+      "approach": "Re-render scenes 1-3 with warm HDRI, golden hour lighting, then apply night pipeline"
+    },
+    {
+      "priority": 2,
+      "task": "Forensic compliance overlays via post-processing",
+      "impact": "Improves FC track from 7.8 toward 9.0+",
+      "approach": "PIL text overlays: scale bars, exhibit markers, disclaimers, timestamps"
+    },
+    {
+      "priority": 3,
+      "task": "Impact deformation geometry for scenes 1 and 3",
+      "impact": "Improves FC and PP tracks",
+      "approach": "Blender mesh deformation at collision impact points"
+    },
+    {
+      "priority": 4,
+      "task": "Push toward 90.0 with scene-level optimization",
+      "impact": "Next milestone",
+      "approach": "Per-scene camera tuning, additional camera angles, forensic detail"
+    }
+  ],
+  "render_engine": "EEVEE",
+  "color_management": "AgX (Medium High Contrast) + v17 hybrid post-processing",
+  "blender_version": "5.1.0",
+  "postprocessing_config": {
+    "day_scenes_1_3": {
+      "pipeline": "v16 v1 (autocontrast 1.5% cutoff, USM radius=2 pct=180 thresh=3, gamma exposure 0.45, contrast 1.15)",
+      "base_renders": "v13.1"
+    },
+    "night_scene_4": {
+      "pipeline": "v17 night (autocontrast 1.0%, gamma 0.45, CLAHE blend=0.3 grid=8, USM radius=2 pct=300 thresh=2, EDGE_ENHANCE, contrast 1.18, gamma 0.45)",
+      "base_renders": "v15"
+    }
+  }
+}

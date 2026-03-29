@@ -1,0 +1,86 @@
+[00:13:34] Portfolio Render v6 — Professional Forensic Quality
+[00:13:34] Render dir: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/
+[00:13:34] Cycles 128spl, 4 cameras per scene, 4 scenes
+[00:13:34] 
+[00:13:34] --- Starting Scene 1 ---
+[00:13:34] === SCENE 1: T-Bone Intersection Collision ===
+[00:13:35]   Rendering Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_01_Cam_BirdEye.png
+[00:14:37]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_01_Cam_BirdEye.png'}}
+[00:14:37]   Exhibit frame added: 1-A
+[00:14:37]   Rendering Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_02_Cam_DriverPOV.png
+[00:15:00]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_02_Cam_DriverPOV.png'}}
+[00:15:00]   Exhibit frame added: 1-B
+[00:15:00]   Rendering Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_03_Cam_Orbit.png
+[00:15:22]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_03_Cam_Orbit.png'}}
+[00:15:22]   Exhibit frame added: 1-C
+[00:15:22]   Rendering Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_04_Cam_Witness.png
+[00:15:40]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene1_04_Cam_Witness.png'}}
+[00:15:40]   Exhibit frame added: 1-D
+[00:15:40] Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6_scene1.blend
+[00:15:40] 
+[00:15:40] --- Starting Scene 2 ---
+[00:15:40] === SCENE 2: Pedestrian Crosswalk Incident ===
+[00:15:41]   Rendering Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_01_Cam_BirdEye.png
+[00:16:06]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_01_Cam_BirdEye.png'}}
+[00:16:06]   Exhibit frame added: 2-A
+[00:16:06]   Rendering Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_02_Cam_DriverPOV.png
+[00:16:29]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_02_Cam_DriverPOV.png'}}
+[00:16:29]   Exhibit frame added: 2-B
+[00:16:29]   Rendering Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_03_Cam_Orbit.png
+[00:16:48]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_03_Cam_Orbit.png'}}
+[00:16:49]   Exhibit frame added: 2-C
+[00:16:49]   Rendering Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_04_Cam_Witness.png
+[00:17:10]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene2_04_Cam_Witness.png'}}
+[00:17:10]   Exhibit frame added: 2-D
+[00:17:10] Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6_scene2.blend
+[00:17:10] 
+[00:17:10] --- Starting Scene 3 ---
+[00:17:10] === SCENE 3: Workplace Scaffolding Collapse ===
+[00:17:11]   Rendering Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_01_Cam_BirdEye.png
+[00:17:38]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_01_Cam_BirdEye.png'}}
+[00:17:38]   Exhibit frame added: 3-A
+[00:17:38]   Rendering Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_02_Cam_DriverPOV.png
+[00:18:00]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_02_Cam_DriverPOV.png'}}
+[00:18:01]   Exhibit frame added: 3-B
+[00:18:01]   Rendering Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_03_Cam_Orbit.png
+[00:18:37]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_03_Cam_Orbit.png'}}
+[00:18:37]   Exhibit frame added: 3-C
+[00:18:37]   Rendering Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_04_Cam_Witness.png
+[00:19:20]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene3_04_Cam_Witness.png'}}
+[00:19:20]   Exhibit frame added: 3-D
+[00:19:20] Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6_scene3.blend
+[00:19:20] 
+[00:19:20] --- Starting Scene 4 ---
+[00:19:20] === SCENE 4: Nighttime Parking Lot Hit-and-Run ===
+[00:19:23]   Rendering Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_01_Cam_BirdEye.png
+[00:20:01]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_01_Cam_BirdEye.png'}}
+[00:20:01]   Exhibit frame added: 4-A
+[00:20:01]   Rendering Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_02_Cam_DriverPOV.png
+[00:20:39]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_02_Cam_DriverPOV.png'}}
+[00:20:39]   Exhibit frame added: 4-B
+[00:20:39]   Rendering Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_03_Cam_Orbit.png
+[00:21:15]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_03_Cam_Orbit.png'}}
+[00:21:15]   Exhibit frame added: 4-C
+[00:21:15]   Rendering Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_04_Cam_Witness.png
+[00:21:41]   Result: {'id': 'unknown', 'result': {'result': '/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6/scene4_04_Cam_Witness.png'}}
+[00:21:41]   Exhibit frame added: 4-D
+[00:21:41] Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/v6_scene4.blend
+[00:21:41] 
+[00:21:41] === ALL SCENES COMPLETE ===
+[00:21:41] Total renders: 16
+[00:21:41]   scene1_01_Cam_BirdEye.png (1357KB)
+[00:21:41]   scene1_02_Cam_DriverPOV.png (1320KB)
+[00:21:41]   scene1_03_Cam_Orbit.png (1391KB)
+[00:21:41]   scene1_04_Cam_Witness.png (1325KB)
+[00:21:41]   scene2_01_Cam_BirdEye.png (1345KB)
+[00:21:41]   scene2_02_Cam_DriverPOV.png (1315KB)
+[00:21:41]   scene2_03_Cam_Orbit.png (1389KB)
+[00:21:41]   scene2_04_Cam_Witness.png (1343KB)
+[00:21:41]   scene3_01_Cam_BirdEye.png (1388KB)
+[00:21:41]   scene3_02_Cam_DriverPOV.png (1325KB)
+[00:21:41]   scene3_03_Cam_Orbit.png (1403KB)
+[00:21:41]   scene3_04_Cam_Witness.png (1349KB)
+[00:21:41]   scene4_01_Cam_BirdEye.png (1289KB)
+[00:21:41]   scene4_02_Cam_DriverPOV.png (1387KB)
+[00:21:41]   scene4_03_Cam_Orbit.png (1398KB)
+[00:21:41]   scene4_04_Cam_Witness.png (1415KB)

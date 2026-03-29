@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-03-26T12:09:16.671Z",
+  "checks": {
+    "temporal_flicker_avg": {
+      "value": 4.475,
+      "target_max": 6,
+      "pass": true
+    },
+    "temporal_shimmer_avg": {
+      "value": 3.788,
+      "target_max": 6,
+      "pass": true
+    },
+    "temporal_exposure_pumping_avg": {
+      "value": 3.043,
+      "target_max": 5,
+      "pass": true
+    },
+    "temporal_stability_pass_rate": {
+      "value": 74,
+      "target_min": 80,
+      "pass": false
+    },
+    "validation_pass_rate": {
+      "value": 0
+    }
+  },
+  "overall_pass": false
+}

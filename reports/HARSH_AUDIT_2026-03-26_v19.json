@@ -1,0 +1,86 @@
+{
+  "audit_date": "2026-03-26",
+  "version": "v19",
+  "cycle": "v19_post_overlay_gamma_fix",
+  "overall_score": 94.5,
+  "previous_score": 92.0,
+  "delta": 2.5,
+  "score_progression": [72.9, 65.0, 65.0, 70.9, 74.75, 74.8, 84.4, 87.2, 92.0, 94.5],
+  "method": "post_overlay_gamma_correction_plus_driverpov_detail_boost",
+  "target_achieved": true,
+  "target": 85.0,
+  "margin": 9.5,
+  "score_breakdown": {
+    "scene_1_tbone_day": 90.3,
+    "scene_2_pedestrian_day": 94.0,
+    "scene_3_highway_day": 92.7,
+    "scene_4_parking_night": 99.5,
+    "per_camera_average": 94.5
+  },
+  "track_scores": {
+    "forensic_clarity": 8.8,
+    "physical_plausibility": 8.3,
+    "cinematic_presentation": 8.9,
+    "weighted_3track": 8.63,
+    "rationale": "FC boosted by forensic overlays + post-overlay gamma fixing exposure. PP improved via better exposure accuracy. CP improved via measurement annotations and professional overlay design."
+  },
+  "per_scene_scores": {
+    "scene_1_tbone_day": {
+      "cameras": {"BirdEye": 84, "DriverPOV": 90, "WideAngle": 97},
+      "scene_average": 90.3,
+      "v18_comparison": {"BirdEye": "+0", "DriverPOV": "+2", "WideAngle": "+2"}
+    },
+    "scene_2_pedestrian_day": {
+      "cameras": {"BirdEye": 90, "DriverPOV": 91, "SightLine": 98, "WideAngle": 97},
+      "scene_average": 94.0,
+      "v18_comparison": {"BirdEye": "+3", "DriverPOV": "+3", "SightLine": "+3", "WideAngle": "+2"}
+    },
+    "scene_3_highway_day": {
+      "cameras": {"BirdEye": 89, "DriverPOV": 94, "WideAngle": 95},
+      "scene_average": 92.7,
+      "v18_comparison": {"BirdEye": "+5", "DriverPOV": "+4", "WideAngle": "+2"}
+    },
+    "scene_4_parking_night": {
+      "cameras": {"BirdEye": 100, "DriverPOV": 99, "SecurityCam": 100, "WideAngle": 99},
+      "scene_average": 99.5,
+      "v18_comparison": {"BirdEye": "+1", "DriverPOV": "0", "SecurityCam": "+7", "WideAngle": "+1"}
+    }
+  },
+  "gate_check": {
+    "overall_score_gte_85": true,
+    "forensic_clarity_gte_7": true,
+    "physical_plausibility_gte_7": true,
+    "cinematic_presentation_gte_6.5": true,
+    "weighted_3track_gte_8.5": true,
+    "all_gates_pass": true,
+    "gate_status": "ALL GATES PASS — 3-TRACK TARGET 8.5 ACHIEVED"
+  },
+  "critical_findings": [
+    {
+      "finding": "3-TRACK TARGET 8.5 ACHIEVED — WEIGHTED 8.63",
+      "impact": "MILESTONE",
+      "details": "First time exceeding 8.5 weighted 3-track threshold. Post-overlay gamma correction was the key insight — fixing exposure after overlay application recovered 3-5 points on BirdEye cameras."
+    },
+    {
+      "finding": "TWO PERFECT 100 SCORES",
+      "impact": "HIGH",
+      "details": "Scene 4 BirdEye and SecurityCam both scored 100. SecurityCam gained +7 from v18 via post-overlay gamma + DriverPOV detail boost measurements."
+    },
+    {
+      "finding": "ZERO REGRESSIONS",
+      "impact": "HIGH",
+      "details": "All 14 images improved or held steady vs v18. Regression guard validated but not needed this cycle."
+    },
+    {
+      "finding": "POST-OVERLAY GAMMA IS THE KEY TECHNIQUE",
+      "impact": "CRITICAL",
+      "details": "Applying gamma_exposure(0.45) AFTER overlay application fixes the exposure penalty from dark semi-transparent bars. This single change accounts for +2-5 points on most images."
+    }
+  ],
+  "render_engine": "EEVEE",
+  "blender_version": "5.1.0",
+  "postprocessing_config": {
+    "day_scenes_1_3": "v1 pipeline + dusk grading + overlays + post-overlay gamma(0.45) + light USM(80%)",
+    "night_scene_4": "overlay only (v17 already processed) + post-overlay gamma(0.45) + light USM(80%)"
+  }
+}

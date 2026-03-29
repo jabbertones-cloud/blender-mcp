@@ -1,0 +1,123 @@
+{
+  "timestamp": "2026-03-26T21:58:19.280Z",
+  "summary": {
+    "total_assets": 4,
+    "assets_passed": 0,
+    "assets_needs_revision": 3,
+    "assets_rejected": 1,
+    "pass_rate_percent": 0,
+    "average_quality_score": 66.5,
+    "average_production_time_ms": 5784
+  },
+  "by_verdict": {
+    "PASS": [],
+    "NEEDS_REVISION": [
+      "9d2d0350-30c6-4e45-abb5-5f40c28ceb37",
+      "e69ef4a1-67c0-4395-be62-40dfd7e21810",
+      "f3b5aae6-8ded-48aa-b967-1b3880bd8443"
+    ],
+    "REJECT": [
+      "unknown"
+    ]
+  },
+  "by_tier": {
+    "learning": {
+      "count": 0,
+      "pass": 0,
+      "avg_score": 0
+    },
+    "production": {
+      "count": 0,
+      "pass": 0,
+      "avg_score": 0
+    },
+    "premium": {
+      "count": 0,
+      "pass": 0,
+      "avg_score": 0
+    }
+  },
+  "by_platform": {
+    "game": {
+      "count": 4,
+      "passed": 0,
+      "avg_score": 66.5,
+      "pass_rate_percent": 0
+    }
+  },
+  "by_category": {},
+  "mechanical_check_results": {},
+  "visual_check_results": {
+    "shape_accuracy": 5.67,
+    "proportion_accuracy": 4.67,
+    "detail_level": 3.67,
+    "material_quality": 6.33,
+    "marketplace_readiness": 4.33
+  },
+  "failure_analysis": {
+    "most_common_failures": [],
+    "failure_by_phase": {}
+  },
+  "quality_trends": {
+    "score_distribution": {
+      "0-20": 0,
+      "20-40": 0,
+      "40-60": 2,
+      "60-80": 0,
+      "80-100": 2
+    },
+    "check_pass_rates": {
+      "manifold": {
+        "pass": 3,
+        "fail": 0,
+        "pass_rate": 100
+      },
+      "tri_count": {
+        "pass": 3,
+        "fail": 0,
+        "pass_rate": 100
+      },
+      "loose_verts": {
+        "pass": 3,
+        "fail": 0,
+        "pass_rate": 100
+      },
+      "degenerate_faces": {
+        "pass": 3,
+        "fail": 0,
+        "pass_rate": 100
+      },
+      "wall_thickness": {
+        "pass": 3,
+        "fail": 0,
+        "pass_rate": 100
+      },
+      "bounding_box": {
+        "pass": 2,
+        "fail": 1,
+        "pass_rate": 66.7
+      }
+    }
+  },
+  "improvement_suggestions": [
+    {
+      "severity": "critical",
+      "message": "Pass rate is 0% — nearly all assets are failing. Review validator thresholds or generation quality."
+    },
+    {
+      "severity": "high",
+      "message": "Visual dimension 'proportion_accuracy' averages 4.67/10 — very low. Focus generation improvements here.",
+      "dimension": "proportion_accuracy"
+    },
+    {
+      "severity": "high",
+      "message": "Visual dimension 'detail_level' averages 3.67/10 — very low. Focus generation improvements here.",
+      "dimension": "detail_level"
+    },
+    {
+      "severity": "high",
+      "message": "Visual dimension 'marketplace_readiness' averages 4.33/10 — very low. Focus generation improvements here.",
+      "dimension": "marketplace_readiness"
+    }
+  ]
+}

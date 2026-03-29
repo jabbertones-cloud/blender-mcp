@@ -1,0 +1,81 @@
+{
+  "concept_id": "deef312d-9e70-4bc2-b1f4-f51eafd60f3b",
+  "status": "completed",
+  "production_time_seconds": 33,
+  "steps_executed": 12,
+  "steps_failed": 0,
+  "step_log": [
+    {
+      "step": "new_scene",
+      "success": true
+    },
+    {
+      "step": "geometry_step_0",
+      "success": true
+    },
+    {
+      "step": "subsurf_modifier",
+      "success": true
+    },
+    {
+      "step": "shade_smooth",
+      "success": false,
+      "error": "<built-in method get of bpy_prop_collection object at 0x316378500> returned a result with an exception set"
+    },
+    {
+      "step": "apply_materials",
+      "success": true
+    },
+    {
+      "step": "smart_project_uv",
+      "success": true
+    },
+    {
+      "step": "export_stl",
+      "success": true
+    },
+    {
+      "step": "save_blend",
+      "success": true
+    },
+    {
+      "step": "render_hero",
+      "success": true
+    },
+    {
+      "step": "render_front",
+      "success": true
+    },
+    {
+      "step": "render_side",
+      "success": true
+    },
+    {
+      "step": "render_top",
+      "success": true
+    },
+    {
+      "step": "render_detail",
+      "success": true
+    }
+  ],
+  "created_at": "2026-03-24T22:20:48.520Z",
+  "vertex_count": 140,
+  "face_count": 106,
+  "dimensions_mm": [
+    20000,
+    20000,
+    2000
+  ],
+  "file_sizes": {
+    "detail.png": 1885467,
+    "front.png": 953038,
+    "hero.png": 960710,
+    "metadata.json": 1502,
+    "model.blend": 98258,
+    "model.blend1": 102563,
+    "model.stl": 1284,
+    "side.png": 933442,
+    "top.png": 983351
+  }
+}

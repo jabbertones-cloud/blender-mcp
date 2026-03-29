@@ -1,0 +1,121 @@
+{
+  "_version": "1.0",
+  "_description": "Trend source configuration for the 3D Forge scanner",
+
+  "google_trends": {
+    "enabled": true,
+    "requires_api_key": "SERPER_API_KEY",
+    "seed_keywords": [
+      "3D print", "3D printed", "STL file",
+      "desk organizer", "phone stand", "cable management",
+      "cosplay prop", "cosplay weapon", "cosplay armor",
+      "miniature figure", "DnD miniature", "tabletop terrain",
+      "planter pot", "self watering planter",
+      "Roblox UGC", "Roblox accessory",
+      "anime figure", "funko pop custom",
+      "smart home mount", "Ring doorbell mount",
+      "pet bowl stand", "dog tag custom"
+    ],
+    "categories_to_watch": [
+      "3D printing", "cosplay", "gaming miniatures",
+      "home decor", "desk accessories", "smart home",
+      "Roblox", "anime merch", "pet accessories"
+    ],
+    "weight": 0.25
+  },
+
+  "reddit": {
+    "enabled": true,
+    "user_agent": "3DForge/1.0 (trend scanner)",
+    "subreddits": {
+      "primary": [
+        {"name": "3Dprinting", "sort": "hot", "limit": 25, "signal": "what people are printing"},
+        {"name": "functionalprint", "sort": "hot", "limit": 25, "signal": "utilitarian printable designs"},
+        {"name": "roblox", "sort": "hot", "limit": 25, "signal": "trending roblox items/culture"},
+        {"name": "EtsySellers", "sort": "hot", "limit": 15, "signal": "what's selling on Etsy"}
+      ],
+      "secondary": [
+        {"name": "cosplay", "sort": "hot", "limit": 15, "signal": "trending cosplay props"},
+        {"name": "anime", "sort": "hot", "limit": 15, "signal": "trending anime characters"},
+        {"name": "gaming", "sort": "hot", "limit": 15, "signal": "gaming trends"},
+        {"name": "tabletopgaming", "sort": "hot", "limit": 10, "signal": "miniature demand"},
+        {"name": "funkopop", "sort": "hot", "limit": 10, "signal": "collectible figure trends"},
+        {"name": "smarthome", "sort": "hot", "limit": 10, "signal": "smart home accessory needs"},
+        {"name": "IndoorGarden", "sort": "hot", "limit": 10, "signal": "planter/gardening trends"}
+      ]
+    },
+    "keyword_signals": {
+      "high_demand": ["need", "looking for", "where can I find", "wish someone would make", "anyone selling", "STL for"],
+      "trending": ["just released", "new", "trending", "viral", "everyone wants", "sold out"],
+      "printable": ["3D print", "STL", "printable", "printed", "filament", "resin"]
+    },
+    "weight": 0.25
+  },
+
+  "roblox_catalog": {
+    "enabled": true,
+    "api_base": "https://catalog.roblox.com/v1/search/items",
+    "categories": [
+      {"id": "Accessories", "subcategories": ["Hat", "Hair", "Face", "Neck", "Shoulder", "Front", "Back", "Waist"]},
+      {"id": "Clothing", "subcategories": ["Shirt", "Pants", "TShirt"]}
+    ],
+    "sort_types": {
+      "bestselling": 2,
+      "recently_updated": 3,
+      "price_low_to_high": 4,
+      "price_high_to_low": 5
+    },
+    "gap_detection": {
+      "description": "Look for categories with high favorites but few similar items",
+      "min_favorites_for_signal": 1000,
+      "max_similar_items_for_gap": 20
+    },
+    "weight": 0.25
+  },
+
+  "etsy": {
+    "enabled": false,
+    "requires_api_key": "ETSY_API_KEY",
+    "search_terms": [
+      "3D printed", "STL file digital download",
+      "desk organizer 3D print", "phone stand STL",
+      "planter 3D print", "cosplay prop 3D",
+      "miniature 3D print"
+    ],
+    "trending_endpoint": "/v3/application/listings/trending",
+    "weight": 0.25,
+    "note": "Enable once ETSY_API_KEY is configured"
+  },
+
+  "scoring": {
+    "demand_score_weights": {
+      "google_interest": 0.25,
+      "reddit_engagement": 0.25,
+      "roblox_catalog_gap": 0.25,
+      "category_feasibility": 0.25
+    },
+    "velocity_thresholds": {
+      "rising": 1.5,
+      "peaked": 1.0,
+      "declining": 0.5
+    },
+    "minimum_demand_score": 30,
+    "top_trends_limit": 20
+  },
+
+  "category_feasibility_scores": {
+    "desk_organizer": 90,
+    "phone_stand": 90,
+    "smart_home_mount": 85,
+    "pet_accessory": 85,
+    "planter": 85,
+    "roblox_hat": 80,
+    "roblox_wings": 75,
+    "roblox_hair": 70,
+    "game_prop": 75,
+    "game_environment": 70,
+    "figurine": 60,
+    "cosplay_prop": 55,
+    "miniature": 50
+  }
+}

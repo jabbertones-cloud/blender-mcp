@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "identifies_stale_scene: Correctly identifies the root cause as measuring a stale/wrong scene in Blender, not the saved .blend file",
+      "passed": true,
+      "evidence": "Explicitly stated in root cause: 'The validator is measuring stale scene data instead of the actual produced model.' and 'The validator silently fails to open the correct .blend file and measures whatever model was previously in the Blender scene — likely leftover from a previous production run or a large reference model.' Also: 'CRITICAL: Blocks all asset validation' and 'The validator is measuring whatever scene is currently loaded in Blender (which may be a completely different project).'"
+    },
+    {
+      "text": "open_mainfile_fix: Provides the fix: use bpy.ops.wm.open_mainfile() to open the .blend file before measuring",
+      "passed": true,
+      "evidence": "In Fix Implementation section #1, the corrected code shows: 'await this.blenderClient.executePython(`import bpy\\\\nbpy.ops.wm.open_mainfile(filepath=${escapedPath})' and the Python code explicitly uses 'bpy.ops.wm.open_mainfile(filepath=${escapedPath}). Additionally, in the 'Corrected Code (Full Method)' section, the validate() method includes this same call with detailed comments explaining why it's critical."
+    },
+    {
+      "text": "ground_plane_mention: Mentions excluding _ground_plane from bounding box measurements",
+      "passed": true,
+      "evidence": "Mentioned in Cause #2: 'The getMeshData() method correctly attempts to exclude the ground plane: meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.visible_get() and not o.name.startswith('_ground_plane')]'. Also in Fix #3, the enhanced code explicitly includes: 'and not o.name.startswith('_ground_plane')' and mentions 'Exclude ground plane and any suspicious geometry (fallback in case ground plane wasn't properly named)'."
+    },
+    {
+      "text": "scene_persistence_explanation: Explains the scene persistence gotcha - that Blender may revert to a previous scene after producer disconnects",
+      "passed": false,
+      "evidence": "The document does NOT explain any gotcha about Blender reverting to a previous scene after producer disconnects. It explains that the validator fails to open the correct .blend file due to a path escaping bug, causing it to measure whatever was previously loaded. However, it does not mention scene persistence reverting behavior after disconnection. The closest mention is 'Blender continues with whatever scene was previously loaded' but this is about the current session, not about post-disconnect behavior."
+    },
+    {
+      "text": "single_quotes_in_fix: Any Python code provided in the fix uses single quotes only (no double quotes inside JS strings)",
+      "passed": true,
+      "evidence": "The corrected getMeshData() method contains an explicit comment: 'CRITICAL: Python code must use single quotes only — double quotes inside a JS template literal get escaped to \\\" by JSON.stringify, which crashes the Blender addon's exec().' The Python code consistently uses single quotes: o.name.startswith('_ground_plane'), o.name.lower().startswith('ground'), o.type == 'MESH', o.visible_get(), and all string dictionary keys like 'error', 'all_objects', 'vertex_count', etc. use single quotes."
+    }
+  ]
+}

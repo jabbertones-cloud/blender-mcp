@@ -1,0 +1,43 @@
+{
+  "version": "worker_latest",
+  "date": "2026-03-26T19:54:50.805Z",
+  "overall_score": 89.8,
+  "per_camera_scores": {
+    "scene1": {
+      "BirdEye": 74.6,
+      "DriverPOV": 90.3,
+      "WideAngle": 99
+    },
+    "scene2": {
+      "BirdEye": 71.2,
+      "DriverPOV": 92,
+      "SightLine": 98,
+      "WideAngle": 99
+    },
+    "scene3": {
+      "BirdEye": 71.5,
+      "DriverPOV": 94.1,
+      "WideAngle": 69.1
+    },
+    "scene4": {
+      "BirdEye": 100,
+      "DriverPOV": 99,
+      "SecurityCam": 100,
+      "WideAngle": 99
+    }
+  },
+  "total_experiments": 20,
+  "improvements": 17,
+  "reverted": 3,
+  "last_experiment": {
+    "timestamp": "2026-03-26T19:54:48.802Z",
+    "camera": "scene3_DriverPOV",
+    "fix_type": "overlay_forensic",
+    "original_score": 94.9,
+    "new_score": 94.1,
+    "delta": -0.8,
+    "kept": "reverted",
+    "hypothesis": "Fallback heuristic: trying overlay_forensic on scene3_DriverPOV (score: 94.1)",
+    "llm_confidence": 0.5
+  }
+}

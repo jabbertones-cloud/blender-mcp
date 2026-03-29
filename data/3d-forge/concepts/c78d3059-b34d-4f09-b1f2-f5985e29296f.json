@@ -1,0 +1,83 @@
+{
+  "concept_id": "c78d3059-b34d-4f09-b1f2-f5985e29296f",
+  "trend_id": "9979db11-434a-47ab-ac5c-511084422a54",
+  "name": "dragon figurine articulated Concept",
+  "description": "Mock 3D model for figurine",
+  "platform": "game_asset",
+  "generated_at": "2026-03-24T20:59:27.334Z",
+  "visual_analysis": {
+    "silhouette": "Mock analysis",
+    "proportions": {
+      "width": 100,
+      "height": 100,
+      "depth": 100
+    },
+    "materials": [
+      "plastic",
+      "metal"
+    ],
+    "colors": [
+      "#FF0000",
+      "#00FF00"
+    ],
+    "key_features": [
+      "modular",
+      "lightweight"
+    ]
+  },
+  "blender_steps": [
+    {
+      "step": 1,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create base cube"
+    }
+  ],
+  "estimated_dimensions_mm": [
+    100,
+    100,
+    100
+  ],
+  "estimated_tri_count": 1000,
+  "difficulty": "low",
+  "variations": [
+    {
+      "variation_id": 0,
+      "name": "dragon figurine articulated Concept",
+      "param_overrides": {},
+      "description": "Original design from reference images"
+    },
+    {
+      "variation_id": 1,
+      "name": "dragon figurine articulated Concept — Large",
+      "param_overrides": {
+        "scale": 1.1,
+        "dimension_adjustment": "10% larger proportions"
+      },
+      "description": "Scaled up 10% for larger market segment"
+    },
+    {
+      "variation_id": 2,
+      "name": "dragon figurine articulated Concept — Compact",
+      "param_overrides": {
+        "scale": 0.9,
+        "dimension_adjustment": "10% smaller proportions"
+      },
+      "description": "Scaled down 10% for compact variant"
+    }
+  ],
+  "api_usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "estimated_cost_usd": 0
+  }
+}

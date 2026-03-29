@@ -1,0 +1,69 @@
+{
+  "expectations": [
+    {
+      "text": "no_blender_prefix: MCP calls use command names without blender_ prefix (e.g., 'execute_python' not 'blender_execute_python')",
+      "passed": true,
+      "evidence": "Lines 196-204: client.call('save_file', ...), client.call('execute_python', ...), client.call('set_render_settings', ...), client.call('render', ...), client.call('export_file', ...). All commands are unprefixed."
+    },
+    {
+      "text": "single_quotes_python: All Python code inside JS strings uses single quotes, never double quotes",
+      "passed": false,
+      "evidence": "Line 180 uses double quotes in bpy.data.objects.get('Background') - but this is acceptable. However, line 240 has: `for corner in obj.bound_box:` inside backtick template literal. More critically, line 232 has escaped double quotes in Python: `bg.inputs[0].default_value = (0.18, 0.18, 0.2, 1.0)` and line 233 uses `bg.inputs[1].default_value = 1.0` where inputs[0] and inputs[1] are string keys that could use single quotes. The code mixes single and double quotes inconsistently. Line 252 has 'Base Color' in single quotes (correct) but line 137 has 'SUBSURF' and 'MESH' in single quotes (correct)."
+    },
+    {
+      "text": "brace_depth_parser: Socket data handler uses brace-depth counting, not readline or line-based parsing",
+      "passed": true,
+      "evidence": "Lines 107-147: _processBuffer() method explicitly implements brace-depth parsing with `braceDepth` counter (line 109), tracking `{` and `}` characters only outside strings (lines 124-134), and extracting complete messages when `braceDepth === 0` (lines 129-135)."
+    },
+    {
+      "text": "scene_cleanup_correct: Scene cleanup uses save_file with use_empty:true AND a Python nuke of objects/meshes/materials",
+      "passed": true,
+      "evidence": "Lines 195-225: cleanScene() calls save_file with action='new', use_empty=true (line 196), then execute_python (line 199) with a belt-and-suspenders nuke of objects, meshes, materials, cameras, and lights (lines 200-210)."
+    },
+    {
+      "text": "shade_smooth_execute_python: Shade smooth uses execute_python with per-object loop, NOT blender_cleanup action",
+      "passed": true,
+      "evidence": "Lines 308-323: applySmoothShading() uses execute_python with a for loop over objects (line 312), calling bpy.ops.object.shade_smooth() inside the loop (line 315), not a blender_cleanup action."
+    },
+    {
+      "text": "stl_via_execute_python: STL export uses execute_python with bpy.ops.wm.stl_export(), not export_file",
+      "passed": true,
+      "evidence": "Lines 609-618: exportSTL() uses execute_python (line 614) with bpy.ops.wm.stl_export(filepath=...) (line 615), not export_file."
+    },
+    {
+      "text": "render_output_path: Render calls use output_path parameter, not filepath",
+      "passed": true,
+      "evidence": "Lines 545-551: renderHeroShot() calls client.call('render', { output_path: outputPath }) (line 550). Lines 627-633: renderTopDownShot() calls client.call('render', { output_path: outputPath }) (line 632). Both use output_path, not filepath."
+    },
+    {
+      "text": "gray_background: World background is gray (~0.18), not white (0.95 or 1.0)",
+      "passed": true,
+      "evidence": "Lines 230-233: World background node is set with `bg.inputs[0].default_value = (0.18, 0.18, 0.2, 1.0)` - a gray color at 0.18 RGB, not white."
+    },
+    {
+      "text": "light_energy_sufficient: Area lights have energy >= 200W (not default 2.0 or 10.0)",
+      "passed": true,
+      "evidence": "Lines 238-239: light_configs = [('key_light', ..., 500.0), ('fill_light', ..., 200.0), ('rim_light', ..., 300.0)]. Line 241: light_data.energy = energy assigns 500, 200, and 300 - all >= 200."
+    },
+    {
+      "text": "camera_bounding_box: Camera position is calculated from model bounding box, not hardcoded coordinates",
+      "passed": true,
+      "evidence": "Lines 486-500: renderHeroShot() calculates bounding box using obj.bound_box and computes center from min/max coordinates (lines 490-497), then positions camera relative to center: camera.location = center + mathutils.Vector((d*0.6, d*0.6, d*0.45)) (line 504). This is bounding-box-based, not hardcoded."
+    },
+    {
+      "text": "ground_plane_named: Ground plane object is named _ground_plane",
+      "passed": true,
+      "evidence": "Line 250: ground.name = '_ground_plane'. The ground plane is explicitly named with underscore prefix."
+    },
+    {
+      "text": "result_double_unwrap: execute_python results are double-unwrapped (result.result) or documented",
+      "passed": true,
+      "evidence": "Lines 149-158: _handleMessage() method contains the double-unwrap logic: `let result = msg.result; if (result && typeof result === 'object' && 'result' in result) { result = result.result; }` (lines 151-154). This explicitly unwraps nested result objects from execute_python calls."
+    },
+    {
+      "text": "engine_lowercase: Render engine name is lowercase (eevee not EEVEE)",
+      "passed": true,
+      "evidence": "Line 565: await this.client.call('set_render_settings', { engine: 'eevee', ... }). The engine is set as lowercase 'eevee', not 'EEVEE'."
+    }
+  ]
+}

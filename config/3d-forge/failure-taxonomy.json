@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "classes": [
+    {
+      "failure_code": "MECH_NON_MANIFOLD",
+      "phase": "validate",
+      "severity": "critical",
+      "detect_from": { "type": "mechanical_check_failed", "check": "manifold" },
+      "tags": ["mesh_topology", "stl_blocker"]
+    },
+    {
+      "failure_code": "MECH_DEGENERATE_FACES",
+      "phase": "validate",
+      "severity": "critical",
+      "detect_from": { "type": "mechanical_check_failed", "check": "degenerate_faces" },
+      "tags": ["mesh_topology"]
+    },
+    {
+      "failure_code": "MECH_BOUNDING_BOX",
+      "phase": "validate",
+      "severity": "high",
+      "detect_from": { "type": "mechanical_check_failed", "check": "bounding_box" },
+      "tags": ["scale", "platform_constraints"]
+    },
+    {
+      "failure_code": "VISUAL_LOW_SCORE",
+      "phase": "validate",
+      "severity": "high",
+      "detect_from": { "type": "visual_average_lt", "value": 5.0 },
+      "tags": ["render_quality", "composition"]
+    },
+    {
+      "failure_code": "VISUAL_NEEDS_REVISION",
+      "phase": "validate",
+      "severity": "medium",
+      "detect_from": { "type": "visual_verdict", "equals": "NEEDS_REVISION" },
+      "tags": ["render_quality"]
+    },
+    {
+      "failure_code": "RENDER_INVALID_FRAME",
+      "phase": "validate",
+      "severity": "critical",
+      "detect_from": { "type": "shot_gate_failed" },
+      "tags": ["black_frame", "content_missing"]
+    }
+  ]
+}
+

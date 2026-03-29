@@ -1,0 +1,267 @@
+{
+  "research_date": "2026-03-26",
+  "web_research_sources": [
+    {
+      "title": "Accident Reconstruction Visualization & Animation",
+      "url": "https://topa3d.com/accident-reconstruction-animation/",
+      "key_findings": "Multiple camera angles (overhead, driver POV, witness view, slow-motion impact) essential for forensic animation"
+    },
+    {
+      "title": "Creating A Bird's-Eye Camera View In Blender",
+      "url": "https://yelzkizi.org/how-do-i-create-a-birds-eye-camera-view-in-blender/",
+      "key_findings": "Position camera above scene, use orthographic for technical views or perspective for cinematic"
+    },
+    {
+      "title": "Blender Camera Tutorial",
+      "url": "https://renderguide.com/blender-camera-tutorial/",
+      "key_findings": "Adjust clip start/end to prevent clipping artifacts, wider FOV for context shots"
+    },
+    {
+      "title": "Fix CAMERA CLIPPING Issues in Blender",
+      "url": "https://thecgessentials.com/cameraclipping/",
+      "key_findings": "Dark renders inside vehicles caused by clip start too low; increase to 0.1-1m, regulate clip end to prevent geometry inversion"
+    },
+    {
+      "title": "Blender Camera Settings - Field of View",
+      "url": "https://blenderartists.org/t/blender-camera-settings-millimeters-field-of-view/1158108/",
+      "key_findings": "Lower focal length = wider FOV; security cameras use wide angle (4-8mm equivalent); use fisheye for extreme wide angle"
+    }
+  ],
+  "scene_audits": {
+    "scene1": {
+      "name": "Scene 1 - Basic Intersection",
+      "scene_bounding_box": {
+        "min": [-999, -999, -999],
+        "max": [-999, -999, -999]
+      },
+      "scene_center": [0, 0, 0],
+      "mesh_count": 10,
+      "cameras": [
+        {
+          "name": "BirdEye",
+          "location": [0.0, 0.0, 200.5],
+          "rotation_degrees": [0.0, 0.0, 0.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Height 200.5m excessive for 100-200m scene; should be 30-50m max", "Focal length 50mm good but could be 35-50mm range"]
+        },
+        {
+          "name": "DriverPOV",
+          "location": [160.0, -80.0, 70.5],
+          "rotation_degrees": [68.6, 0.0, 63.4],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Location is too far away (160m X, -80m Y); should be ~1-3m from vehicle center", "Height 70.5m is unrealistic for inside-vehicle; should be ~1.2-1.5m above road"]
+        },
+        {
+          "name": "WideAngle",
+          "location": [120.0, 80.0, 70.5],
+          "rotation_degrees": [64.1, 0.0, 123.7],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position too far and high; should be 20-30m away, 5m height, 30-45° angle to intersection"]
+        }
+      ],
+      "recommendations": "All cameras are scaled too large/high. Scene likely uses scaled coordinates. Need to audit actual vehicle positions and adjust accordingly."
+    },
+    "scene2": {
+      "name": "Scene 2 - Pedestrian Crossing",
+      "scene_bounding_box": {
+        "min": [-50.0, -50.0, -0.3],
+        "max": [50.0, 50.0, 1.4]
+      },
+      "scene_center": [0.0, 0.0, 0.55],
+      "mesh_count": 16,
+      "cameras": [
+        {
+          "name": "BirdEye",
+          "location": [0.0, 0.0, 200.52],
+          "rotation_degrees": [0.0, 0.0, 0.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Height 200m excessive; should be 25-35m for 100m² scene", "Focal length 50mm adequate but 35mm might better frame scene"]
+        },
+        {
+          "name": "SightLine",
+          "location": [-120.0, 140.0, 80.53],
+          "rotation_degrees": [66.5, 0.0, -139.4],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position far outside scene bounds (-120, 140 vs scene -50 to 50); needs repositioning", "Could use 28mm for wider field of view"]
+        },
+        {
+          "name": "WideAngle",
+          "location": [120.0, 80.0, 70.53],
+          "rotation_degrees": [64.1, 0.0, 123.7],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position also outside bounds; needs repositioning within 70-unit perimeter"]
+        }
+      ],
+      "recommendations": "Cameras positioned outside scene bounds. Need to reposition within ~70 units of scene center. Consider witness POV camera instead of SightLine."
+    },
+    "scene3": {
+      "name": "Scene 3 - Highway Collision",
+      "scene_bounding_box": {
+        "min": [-120.0, -60.0, -0.3],
+        "max": [120.0, 60.0, 1.3]
+      },
+      "scene_center": [0.0, 0.0, 0.5],
+      "mesh_count": 23,
+      "cameras": [
+        {
+          "name": "BirdEye",
+          "location": [0.0, 0.0, 480.5],
+          "rotation_degrees": [0.0, 0.0, 0.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Height 480.5m excessive for 240m×120m scene; should be 60-80m", "50mm focal length acceptable but 35-40mm better for wide highway view"]
+        },
+        {
+          "name": "DriverPOV",
+          "location": [384.0, -192.0, 168.5],
+          "rotation_degrees": [68.6, 0.0, 63.4],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position way outside scene (384, -192 vs bounds ±120/60); position should be within vehicle on road", "Height 168.5m unrealistic; should be ~1.2-1.5m for truck/car cab"]
+        },
+        {
+          "name": "WideAngle",
+          "location": [288.0, 192.0, 168.5],
+          "rotation_degrees": [64.1, 0.0, 123.7],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position outside bounds (288, 192); reposition to 30-40m away at 5-8m height"]
+        }
+      ],
+      "recommendations": "Severe scaling issue. Cameras scaled 4x larger than scene. Clip end may need increase to 5000+ given distances. All positions need complete recalculation."
+    },
+    "scene4": {
+      "name": "Scene 4 - Parking Lot",
+      "scene_bounding_box": {
+        "min": [-75.0, -75.0, -0.3],
+        "max": [75.0, 75.0, 8.0]
+      },
+      "scene_center": [0.0, 0.0, 3.85],
+      "mesh_count": 43,
+      "cameras": [
+        {
+          "name": "BirdEye",
+          "location": [0.0, 0.0, 10.0],
+          "rotation_degrees": [0.0, 0.0, 0.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Height 10m appropriate for parking lot (150m² scene)", "Focal length 50mm good; could use 35-40mm for slightly wider view of entire lot"]
+        },
+        {
+          "name": "SecurityCam",
+          "location": [-10.0, -10.0, 5.0],
+          "rotation_degrees": [-30.0, 0.0, 45.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Focal length 50mm too narrow for security camera (should be 4-8mm equiv. 100-170° FOV)", "Rotation -30° tilt good but needs wider lens", "Position (-10, -10, 5) good, but needs wide-angle focal length"]
+        },
+        {
+          "name": "WideAngle",
+          "location": [10.0, 8.0, 6.0],
+          "rotation_degrees": [-25.0, 0.0, -30.0],
+          "focal_length_mm": 50.0,
+          "clip_start": 0.1,
+          "clip_end": 1000.0,
+          "sensor_width_mm": 36.0,
+          "issues": ["Position good, angle good, but focal length could be 28-35mm for wider establishing shot"]
+        }
+      ],
+      "recommendations": "Scene 4 is well-scaled. SecurityCam needs wide-angle lens (5-8mm focal length = 170°+ FOV). BirdEye and WideAngle focal lengths could be reduced to 35mm and 28mm respectively."
+    }
+  },
+  "problems_found": [
+    "Severe camera scaling issues in scenes 1, 2, 3 - cameras positioned 4-200x too far from subjects",
+    "DriverPOV cameras in unrealistic positions (70m+ height) instead of inside vehicle cab (~1.2m)",
+    "BirdEye cameras at extreme heights (200-480m) instead of practical heights (30-80m)",
+    "SecurityCam in scene 4 uses 50mm focal length instead of security camera wide-angle (5-8mm)",
+    "All cameras have clip_start=0.1m which is fine but clip_end=1000m may be insufficient for scaled scenes",
+    "No camera auto-framing to scene geometry - manual positioning leads to inconsistent framing",
+    "Camera naming inconsistent - some are generic names, need standardized naming per scene"
+  ],
+  "optimal_camera_configs": {
+    "BirdEye": {
+      "description": "Overhead view showing spatial relationships and evidence markers",
+      "position_relative_to_scene_center": [0, 0, "variable"],
+      "height_range_meters": [30, 50],
+      "rotation_euler_degrees": [-90, 0, 0],
+      "focal_length_mm": 35,
+      "sensor_width_mm": 36,
+      "clip_start": 0.1,
+      "clip_end": 1000,
+      "sensor_fit": "vertical",
+      "notes": "Position directly above scene center, looking straight down. Height depends on scene size. Use 35mm for ~80-120° horizontal FOV."
+    },
+    "DriverPOV": {
+      "description": "Dashboard view - shows what driver could see, sight line analysis",
+      "position_relative_to_vehicle": [0.5, 0.5, 1.2],
+      "height_above_road_meters": 1.2,
+      "rotation_euler_degrees": [10, 0, 0],
+      "focal_length_mm": 35,
+      "sensor_width_mm": 36,
+      "clip_start": 0.1,
+      "clip_end": 1000,
+      "notes": "Position inside vehicle cab at driver's eye height. Slight downward tilt (10° pitch). CRITICAL: Ensure cabin has lighting or add interior lights. Use 35mm for human-realistic ~50° FOV."
+    },
+    "WideEstablishing": {
+      "description": "Overview context shot - professional presentation of scene",
+      "distance_from_scene_center_meters": 30,
+      "height_meters": 5,
+      "angle_to_intersection_degrees": 35,
+      "rotation_euler_degrees": [-35, 0, "variable"],
+      "focal_length_mm": 28,
+      "sensor_width_mm": 36,
+      "clip_start": 0.1,
+      "clip_end": 1000,
+      "notes": "Position 20-30m away from scene at ~5m height, angled 30-45° down toward impact point. Use 28mm for ~75° horizontal FOV."
+    },
+    "SecurityCam": {
+      "description": "Fixed angle security camera - simulates actual security footage",
+      "position_height_meters": [3, 5],
+      "position_horizontal_distance_meters": 5,
+      "rotation_euler_degrees": [-35, 0, "variable"],
+      "focal_length_mm": 6,
+      "sensor_width_mm": 6.4,
+      "sensor_fit": "horizontal",
+      "clip_start": 0.1,
+      "clip_end": 500,
+      "notes": "Fixed position at 3-5m height on nearby structure. Use 6mm focal length for ~170° FOV (realistic security dome). Tilt down 35-45°."
+    }
+  },
+  "camera_script_path": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/scripts/v12_cameras.py",
+  "implementation_status": "Script created and ready for testing",
+  "next_steps": [
+    "Apply v12_cameras.py to scene 1 and render test images",
+    "Verify camera framing captures all mesh objects",
+    "Test render quality for each camera angle",
+    "Iterate focal lengths based on render tests",
+    "Apply to scenes 2, 3, 4 and render complete test suite"
+  ]
+}

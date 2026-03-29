@@ -1,0 +1,172 @@
+============================================================
+BRIDGE TEST SCENE AUDIT
+============================================================
+
+Total objects: 152
+  ARMATURE: 1
+  CAMERA: 4
+  EMPTY: 5
+  FONT: 8
+  LIGHT: 1
+  MESH: 133
+
+--- VEHICLE CHECK ---
+  V1_Sedan: EMPTY -> IMPORTED (14 meshes, 3536 verts)
+    Location: [-15.0, 0.0, 0.0]
+    Rotation Z: 0.0 deg
+  V1_Sedan_FluidSpill: MESH -> SINGLE MESH (24 verts)
+    Location: [-11.88, 0.0, 0.0]
+    Rotation Z: 0.0 deg
+  V1_Sedan_Glass_0: MESH -> SINGLE MESH (12 verts)
+    Location: [2.09, -0.03, 0.02]
+    Rotation Z: 94.3 deg
+  V1_Sedan_Glass_1: MESH -> SINGLE MESH (12 verts)
+    Location: [2.03, 0.31, 0.04]
+    Rotation Z: 294.8 deg
+  V1_Sedan_Glass_2: MESH -> SINGLE MESH (12 verts)
+    Location: [3.13, -0.2, 0.06]
+    Rotation Z: 199.6 deg
+  V1_Sedan_Glass_3: MESH -> SINGLE MESH (12 verts)
+    Location: [2.95, 0.52, 0.05]
+    Rotation Z: 59.2 deg
+  V1_Sedan_Glass_4: MESH -> SINGLE MESH (12 verts)
+    Location: [2.84, -0.4, 0.03]
+    Rotation Z: 311.3 deg
+  V1_Sedan_Glass_5: MESH -> SINGLE MESH (12 verts)
+    Location: [1.97, 0.62, 0.02]
+    Rotation Z: 240.1 deg
+  V1_Sedan_Glass_6: MESH -> SINGLE MESH (12 verts)
+    Location: [2.32, 0.01, 0.05]
+    Rotation Z: 326.3 deg
+  V1_Sedan_Glass_7: MESH -> SINGLE MESH (12 verts)
+    Location: [2.22, -0.76, 0.03]
+    Rotation Z: 239.6 deg
+  V1_Sedan_ImpactZone: MESH -> SINGLE MESH (256 verts)
+    Location: [2.4, 0.0, 0.51]
+    Rotation Z: 0.0 deg
+  V1_Sedan_Label: FONT -> UNKNOWN
+    Location: [-15.0, 0.0, 3.5]
+    Rotation Z: 0.0 deg
+  V2_SUV: EMPTY -> IMPORTED (15 meshes, 4188 verts)
+    Location: [0.0, -12.0, 0.0]
+    Rotation Z: 90.0 deg
+  V2_SUV_Glass_0: MESH -> SINGLE MESH (12 verts)
+    Location: [-0.72, 1.12, 0.05]
+    Rotation Z: 320.0 deg
+  V2_SUV_Glass_1: MESH -> SINGLE MESH (12 verts)
+    Location: [0.74, 1.71, 0.06]
+    Rotation Z: 173.0 deg
+  V2_SUV_Glass_2: MESH -> SINGLE MESH (12 verts)
+    Location: [-0.13, 1.47, 0.02]
+    Rotation Z: 193.4 deg
+  V2_SUV_Glass_3: MESH -> SINGLE MESH (12 verts)
+    Location: [-0.38, 1.63, 0.02]
+    Rotation Z: 332.3 deg
+  V2_SUV_Glass_4: MESH -> SINGLE MESH (12 verts)
+    Location: [-0.16, 0.78, 0.03]
+    Rotation Z: 334.2 deg
+  V2_SUV_Glass_5: MESH -> SINGLE MESH (12 verts)
+    Location: [0.17, 0.27, 0.03]
+    Rotation Z: 64.4 deg
+  V2_SUV_Glass_6: MESH -> SINGLE MESH (12 verts)
+    Location: [-0.38, 1.42, 0.02]
+    Rotation Z: 125.3 deg
+  V2_SUV_Glass_7: MESH -> SINGLE MESH (12 verts)
+    Location: [0.78, 0.93, 0.03]
+    Rotation Z: 65.7 deg
+  V2_SUV_ImpactZone: MESH -> SINGLE MESH (256 verts)
+    Location: [0.0, 0.96, 0.61]
+    Rotation Z: 0.0 deg
+  V2_SUV_Label: FONT -> UNKNOWN
+    Location: [0.0, -12.0, 3.5]
+    Rotation Z: 0.0 deg
+
+--- MATERIAL CHECK ---
+  Annotation_distance_Mat: color=(1.00, 1.00, 1.00), nodes=True
+  Annotation_speed.001_Mat: color=(1.00, 1.00, 1.00), nodes=True
+  Annotation_speed_Mat: color=(1.00, 1.00, 1.00), nodes=True
+  Asphalt_Main: color=(0.08, 0.08, 0.09), nodes=True
+  colormap.001: color=(0.80, 0.80, 0.80), nodes=True
+  CurbConcrete: color=(0.55, 0.53, 0.50), nodes=True
+  DebrisGlass: color=(0.70, 0.80, 0.85), nodes=True
+  DebrisMetal: color=(0.50, 0.50, 0.52), nodes=True
+  DebrisPlastic: color=(0.15, 0.15, 0.15), nodes=True
+  ImpactPoint_Mat: color=(1.00, 0.00, 0.00), nodes=True
+  Sidewalk: color=(0.60, 0.58, 0.55), nodes=True
+  Signal_0_green_Mat: color=(0.00, 0.85, 0.20), nodes=True
+  Signal_0_HousingMat: color=(0.08, 0.08, 0.08), nodes=True
+  Signal_0_PoleMat: color=(0.25, 0.25, 0.25), nodes=True
+  Signal_0_red_Mat: color=(1.00, 0.00, 0.00), nodes=True
+  Signal_0_yellow_Mat: color=(1.00, 0.90, 0.00), nodes=True
+  Signal_1_green_Mat: color=(0.00, 0.85, 0.20), nodes=True
+  Signal_1_HousingMat: color=(0.08, 0.08, 0.08), nodes=True
+  Signal_1_PoleMat: color=(0.25, 0.25, 0.25), nodes=True
+  Signal_1_red_Mat: color=(1.00, 0.00, 0.00), nodes=True
+  Signal_1_yellow_Mat: color=(1.00, 0.90, 0.00), nodes=True
+  Signal_2_green_Mat: color=(0.00, 0.85, 0.20), nodes=True
+  Signal_2_HousingMat: color=(0.08, 0.08, 0.08), nodes=True
+  Signal_2_PoleMat: color=(0.25, 0.25, 0.25), nodes=True
+  Signal_2_red_Mat: color=(1.00, 0.00, 0.00), nodes=True
+  Signal_2_yellow_Mat: color=(1.00, 0.90, 0.00), nodes=True
+  Signal_3_green_Mat: color=(0.00, 0.85, 0.20), nodes=True
+  Signal_3_HousingMat: color=(0.08, 0.08, 0.08), nodes=True
+  Signal_3_PoleMat: color=(0.25, 0.25, 0.25), nodes=True
+  Signal_3_red_Mat: color=(1.00, 0.00, 0.00), nodes=True
+  Signal_3_yellow_Mat: color=(1.00, 0.90, 0.00), nodes=True
+  SkidMark_-0.8_Mat: color=(0.03, 0.03, 0.03), nodes=True
+  SkidMark_0.8_Mat: color=(0.03, 0.03, 0.03), nodes=True
+  StopSign_0_PoleMat: color=(0.40, 0.40, 0.40), nodes=True
+  StopSign_0_SignMat: color=(0.85, 0.05, 0.05), nodes=True
+  StopSign_0_TextMat: color=(1.00, 1.00, 1.00), nodes=True
+  StopSign_1_PoleMat: color=(0.40, 0.40, 0.40), nodes=True
+  StopSign_1_SignMat: color=(0.85, 0.05, 0.05), nodes=True
+  StopSign_1_TextMat: color=(1.00, 1.00, 1.00), nodes=True
+  StreetLight_0_FixMat: color=(0.90, 0.85, 0.70), nodes=True
+  StreetLight_0_PoleMat: color=(0.30, 0.30, 0.30), nodes=True
+  StreetLight_1_FixMat: color=(0.90, 0.85, 0.70), nodes=True
+  StreetLight_1_PoleMat: color=(0.30, 0.30, 0.30), nodes=True
+  StreetLight_2_FixMat: color=(0.90, 0.85, 0.70), nodes=True
+  StreetLight_2_PoleMat: color=(0.30, 0.30, 0.30), nodes=True
+  StreetLight_3_FixMat: color=(0.90, 0.85, 0.70), nodes=True
+  StreetLight_3_PoleMat: color=(0.30, 0.30, 0.30), nodes=True
+  V1_Sedan_Body: color=(0.10, 0.20, 0.70), nodes=True
+  V1_Sedan_BrokenGlass: color=(0.75, 0.85, 0.90), nodes=True
+  V1_Sedan_FluidMat: color=(0.15, 0.35, 0.20), nodes=True
+  V1_Sedan_ImpactMat: color=(1.00, 0.15, 0.00), nodes=True
+  V1_Sedan_LabelMat: color=(1.00, 1.00, 1.00), nodes=True
+  V1_Sedan_Tire: color=(0.02, 0.02, 0.02), nodes=True
+  V2_SUV_Body: color=(0.60, 0.05, 0.05), nodes=True
+  V2_SUV_BrokenGlass: color=(0.75, 0.85, 0.90), nodes=True
+  V2_SUV_ImpactMat: color=(1.00, 0.15, 0.00), nodes=True
+  V2_SUV_LabelMat: color=(1.00, 1.00, 1.00), nodes=True
+  V2_SUV_Tire: color=(0.02, 0.02, 0.02), nodes=True
+  WhitePaint: color=(0.95, 0.95, 0.95), nodes=True
+  Witness_1_Hair: color=(0.08, 0.05, 0.03), nodes=True
+  Witness_1_LabelMat: color=(1.00, 1.00, 1.00), nodes=True
+  Witness_1_Pants: color=(0.15, 0.15, 0.20), nodes=True
+  Witness_1_Shirt: color=(0.20, 0.35, 0.55), nodes=True
+  Witness_1_Shoes: color=(0.05, 0.05, 0.05), nodes=True
+  Witness_1_Skin: color=(0.70, 0.50, 0.30), nodes=True
+  YellowPaint: color=(1.00, 0.85, 0.00), nodes=True
+
+--- MAGENTA CHECK ---
+  No magenta materials found (GOOD)
+
+--- CAMERAS ---
+  Cam_BirdEye: loc=[0.0, 0.0, 30.0]
+  Cam_DriverPOV: loc=[0.0, 0.0, 1.5]
+  Cam_Orbit: loc=[20.0, 0.0, 10.0]
+  Cam_Witness: loc=[15.0, 15.0, 1.7]
+
+--- TEXT/ANNOTATIONS ---
+  Annotation_distance: 'Impact Zone' at [0.0, 0.0, 3.0]
+  Annotation_speed: '38 mph' at [-10.0, 0.0, 3.0]
+  Annotation_speed.001: '28 mph' at [0.0, -8.0, 3.0]
+  StopSign_0_Text: 'STOP' at [10.9, 5.2, 2.5]
+  StopSign_1_Text: 'STOP' at [-10.9, -5.2, 2.5]
+  V1_Sedan_Label: 'Vehicle 1 - Sedan' at [-15.0, 0.0, 3.5]
+  V2_SUV_Label: 'Vehicle 2 - SUV' at [0.0, -12.0, 3.5]
+  Witness_1_Label: 'Witness A' at [8.0, -8.0, 2.2]
+
+--- COLLECTIONS ---
+  Collection: 152 objects

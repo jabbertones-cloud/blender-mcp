@@ -1,0 +1,29 @@
+{
+  "rounds": 5,
+  "final_avg": 87.9,
+  "total_improvements": 48,
+  "cameras": {
+    "scene1_BirdEye": 74.7,
+    "scene1_DriverPOV": 91.7,
+    "scene1_WideAngle": 93.2,
+    "scene2_BirdEye": 76.0,
+    "scene2_DriverPOV": 92.3,
+    "scene2_SightLine": 81.7,
+    "scene2_WideAngle": 93.5,
+    "scene3_BirdEye": 73.8,
+    "scene3_DriverPOV": 94.8,
+    "scene3_WideAngle": 92.2,
+    "scene4_BirdEye": 95.1,
+    "scene4_DriverPOV": 94.8,
+    "scene4_SecurityCam": 83.5,
+    "scene4_WideAngle": 93.6
+  },
+  "experiments": [
+    {
+      "round": 1,
+      "camera": "scene3_BirdEye",
+      "fix": "denoise",
+      "before": 66.6,
+      "after": 68.3,
+      "delta": 1.7,
+      "kept": 

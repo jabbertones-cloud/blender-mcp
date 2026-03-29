@@ -1,0 +1,83 @@
+{
+  "concept_id": "9d2d0350-30c6-4e45-abb5-5f40c28ceb37",
+  "trend_id": "a912c65c-c579-44ff-9d6a-d51b4b8e2fd1",
+  "name": "minimalist desk organizer Concept",
+  "description": "Mock 3D model for desk_organizer",
+  "platform": "game_asset",
+  "generated_at": "2026-03-24T20:59:27.333Z",
+  "visual_analysis": {
+    "silhouette": "Mock analysis",
+    "proportions": {
+      "width": 100,
+      "height": 100,
+      "depth": 100
+    },
+    "materials": [
+      "plastic",
+      "metal"
+    ],
+    "colors": [
+      "#FF0000",
+      "#00FF00"
+    ],
+    "key_features": [
+      "modular",
+      "lightweight"
+    ]
+  },
+  "blender_steps": [
+    {
+      "step": 1,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create base cube"
+    }
+  ],
+  "estimated_dimensions_mm": [
+    100,
+    100,
+    100
+  ],
+  "estimated_tri_count": 1000,
+  "difficulty": "low",
+  "variations": [
+    {
+      "variation_id": 0,
+      "name": "minimalist desk organizer Concept",
+      "param_overrides": {},
+      "description": "Original design from reference images"
+    },
+    {
+      "variation_id": 1,
+      "name": "minimalist desk organizer Concept — Large",
+      "param_overrides": {
+        "scale": 1.1,
+        "dimension_adjustment": "10% larger proportions"
+      },
+      "description": "Scaled up 10% for larger market segment"
+    },
+    {
+      "variation_id": 2,
+      "name": "minimalist desk organizer Concept — Compact",
+      "param_overrides": {
+        "scale": 0.9,
+        "dimension_adjustment": "10% smaller proportions"
+      },
+      "description": "Scaled down 10% for compact variant"
+    }
+  ],
+  "api_usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "estimated_cost_usd": 0
+  }
+}

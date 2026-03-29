@@ -1,0 +1,839 @@
+{
+  "version": "1.0",
+  "timestamp_created": "2026-03-26T00:00:00Z",
+  "description": "Three-track weighted audit system for forensic animation quality assessment. Split evaluation into forensic clarity (40%), physical plausibility (35%), and cinematic presentation (25%) with per-track minimum gates and integrated regression testing.",
+  "metadata": {
+    "purpose": "Structured, reproducible quality assessment with clear minimum standards per track and confidence intervals",
+    "maintenance_frequency": "per_render_cycle",
+    "approval_authority": "qa_lead",
+    "audit_trail_enabled": true
+  },
+  "tracks": {
+    "forensic_clarity": {
+      "track_id": "FC",
+      "weight": 0.40,
+      "minimum_gate": 7.0,
+      "description": "Evidence readability and forensic accuracy — can a jury understand the reconstruction and evidence positioning?",
+      "criticality": "highest",
+      "gate_failure_action": "automatic_rework_required",
+      "criteria": [
+        {
+          "id": "FC_001",
+          "name": "evidence_marker_visibility",
+          "weight": 0.25,
+          "description": "Are all required markers, labels, and scale bars clearly legible and forensically accurate?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "visual_inspection_and_contrast_measurement",
+          "scoring_rubric": {
+            "10": "All markers present, crisply legible, forensically positioned, no ambiguity",
+            "9": "All markers present and legible, minor positioning refinements needed",
+            "8": "All required markers visible, mostly legible, some contrast issues",
+            "7": "All required markers present but contrast could improve",
+            "6": "Some markers missing or difficult to read",
+            "below_6": "Critical markers invisible or illegible — fail"
+          },
+          "technical_requirements": {
+            "marker_size_minimum_pixels": 12,
+            "contrast_ratio_minimum": 1.8,
+            "edge_clarity_threshold": 0.75,
+            "color_distinctness": "distinct_from_background",
+            "font_antialiasing": "required"
+          },
+          "evidence_types_covered": [
+            "impact_point_markers",
+            "vehicle_position_labels",
+            "scale_references_and_rulers",
+            "coordinate_system_labels",
+            "damage_zone_annotations",
+            "sight_line_indicators",
+            "measurement_annotations"
+          ]
+        },
+        {
+          "id": "FC_002",
+          "name": "spatial_relationships",
+          "weight": 0.25,
+          "description": "Are distances, angles, relative positions, and spatial layout clearly communicated and measurable?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "geometric_verification_and_dimensional_analysis",
+          "scoring_rubric": {
+            "10": "All distances, angles clearly marked and measurable with precision indicators",
+            "9": "All relationships clear, minor measurement ambiguities",
+            "8": "Relationships visible, some measurements could be clearer",
+            "7": "Basic spatial arrangement understandable, precision uncertain",
+            "6": "Spatial relationships partially clear, ambiguities present",
+            "below_6": "Critical spatial relationships unclear — fail"
+          },
+          "technical_requirements": {
+            "distance_measurement_method": "visible_scale_markers",
+            "angle_measurement_indicators": "required",
+            "perspective_distortion_compensation": "required",
+            "coordinate_system_calibration": "absolute_positioning",
+            "measurement_precision_meters": 0.1
+          },
+          "spatial_elements_verified": [
+            "initial_vehicle_positions",
+            "impact_zone_lateral_distance",
+            "approach_angles_marked",
+            "final_rest_positions",
+            "sight_line_distances",
+            "vehicle_separation_measurements"
+          ]
+        },
+        {
+          "id": "FC_003",
+          "name": "damage_documentation",
+          "weight": 0.20,
+          "description": "Is impact damage visible, documented, and forensically meaningful for injury analysis and liability determination?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "damage_zone_visibility_and_injury_correlation_check",
+          "scoring_rubric": {
+            "10": "All damage zones crisply visible, clearly correspond to injury patterns, forensically defensible",
+            "9": "Damage well-documented, minor clarity issues, strong injury correlation",
+            "8": "Damage visible, generally corresponds to injuries, some zones unclear",
+            "7": "Key damage zones visible, basic injury correspondence evident",
+            "6": "Some damage visible, limited injury correlation",
+            "below_6": "Critical damage zones not visible — fail"
+          },
+          "technical_requirements": {
+            "damage_zone_contrast_minimum": 1.6,
+            "deformation_visibility": "high_definition",
+            "paint_transfer_visible": "if_applicable",
+            "lighting_reveals_damage": "required",
+            "macro_and_micro_damage_shown": true
+          },
+          "damage_categories_assessed": [
+            "vehicle_1_impact_zone_severity",
+            "vehicle_2_impact_zone_severity",
+            "secondary_collision_damage",
+            "paint_transfer_documentation",
+            "deformation_direction_clarity",
+            "material_failure_patterns",
+            "glass_breakage_pattern_visibility"
+          ]
+        },
+        {
+          "id": "FC_004",
+          "name": "sight_line_clarity",
+          "weight": 0.15,
+          "description": "Can viewers trace what each party could see? Are visibility limitations and obstruction zones clearly shown?",
+          "target_score_range": [6.5, 10.0],
+          "assessment_method": "sight_line_animation_and_obstruction_analysis",
+          "scoring_rubric": {
+            "10": "Sight lines animated with clear begin/end points, obstruction zones marked, visibility windows explicit",
+            "9": "Sight lines clearly visible with minor annotation improvements",
+            "8": "Sight lines identifiable, some obstruction ambiguity",
+            "7": "General sight line direction understandable, detail unclear",
+            "6": "Sight lines partially visible, significant ambiguity",
+            "below_6": "Sight lines not clearly demonstrated — fail"
+          },
+          "technical_requirements": {
+            "sight_line_visualization": "animated_cone_or_labeled_path",
+            "obstruction_representation": "explicit_geometry_or_shading",
+            "perspective_marker_distance": true,
+            "field_of_view_angle": "marked_if_restricted",
+            "visibility_transition_clarity": "gradual_fade_or_hard_edge_clear"
+          },
+          "sight_line_scenarios": [
+            "driver_1_forward_view",
+            "driver_2_forward_view",
+            "witness_line_of_sight",
+            "visibility_obstructions",
+            "mirror_blind_spot_zones",
+            "weather_condition_impact",
+            "time_of_day_visibility"
+          ]
+        },
+        {
+          "id": "FC_005",
+          "name": "timeline_readability",
+          "weight": 0.15,
+          "description": "Is the sequence of events clear from the animation? Can viewers understand temporal progression and causation?",
+          "target_score_range": [6.5, 10.0],
+          "assessment_method": "temporal_annotation_and_sequence_verification",
+          "scoring_rubric": {
+            "10": "Timeline clearly marked with timestamps, causation explicit, no ambiguity about sequence",
+            "9": "Sequence clear with minor temporal annotation improvements",
+            "8": "General sequence understandable, some timing ambiguity",
+            "7": "Basic before/during/after structure evident, details unclear",
+            "6": "Sequence partially clear, significant ambiguity",
+            "below_6": "Timeline not clearly communicated — fail"
+          },
+          "technical_requirements": {
+            "timestamp_display": "hh:mm:ss.ms format",
+            "phase_markers": ["pre_impact", "impact_moment", "post_impact", "final_rest"],
+            "event_keyframes": "annotated",
+            "causation_indicators": "visual_arrows_or_labels",
+            "slow_motion_regions": "marked",
+            "playback_speed_constant_or_marked": true
+          },
+          "timeline_elements": [
+            "initial_motion_sequence",
+            "impact_moment_precision",
+            "post_impact_trajectory",
+            "vehicle_tumble_rotation_if_applicable",
+            "final_positions_duration",
+            "reaction_time_windows",
+            "visibility_changes_over_time"
+          ]
+        }
+      ]
+    },
+    "physical_plausibility": {
+      "track_id": "PP",
+      "weight": 0.35,
+      "minimum_gate": 7.0,
+      "description": "Lighting, material realism, and physics accuracy — does the reconstruction look physically real and scientifically defensible?",
+      "criticality": "high",
+      "gate_failure_action": "automatic_rework_required",
+      "criteria": [
+        {
+          "id": "PP_001",
+          "name": "lighting_realism",
+          "weight": 0.25,
+          "description": "Are light sources physically plausible, color temperatures accurate, and falloff realistic for the scene time/location?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "radiometric_analysis_and_expert_visual_inspection",
+          "scoring_rubric": {
+            "10": "Light sources physically accurate, color temps correct per time, inverse-square falloff evident, no artificial artifacts",
+            "9": "Lighting realistic with minor color/intensity refinements",
+            "8": "Lighting plausible, some color temperature or falloff inconsistencies",
+            "7": "General lighting direction and intensity reasonable, detailed accuracy varies",
+            "6": "Lighting somewhat realistic but with notable inaccuracies",
+            "below_6": "Lighting unrealistic or physically implausible — fail"
+          },
+          "technical_requirements": {
+            "light_source_types": ["sun", "sky", "street_lights", "vehicle_headlights", "brake_lights", "interior_fixtures"],
+            "sun_color_temp_kelvin_range": [4500, 6500],
+            "street_light_color_temp_kelvin_range": [2700, 4000],
+            "headlight_color_temp_kelvin_range": [4500, 6500],
+            "falloff_algorithm": "inverse_square_law",
+            "shadow_accuracy": "ray_traced_or_equivalent",
+            "ambient_occlusion": "subtle_and_realistic",
+            "atmospheric_scattering": "if_applicable_to_time_of_day"
+          },
+          "lighting_scenarios": [
+            "daylight_clear_sky",
+            "daylight_overcast",
+            "dusk_sunset_transition",
+            "nighttime_with_street_lights",
+            "nighttime_with_headlights_only",
+            "fog_or_poor_visibility",
+            "mixed_artificial_natural_light"
+          ]
+        },
+        {
+          "id": "PP_002",
+          "name": "material_accuracy",
+          "weight": 0.25,
+          "description": "Do vehicle materials, road surfaces, and environmental objects have realistic reflectance, roughness, and subsurface scattering properties?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "pbr_property_validation_and_visual_comparison",
+          "scoring_rubric": {
+            "10": "All materials PBR-accurate with appropriate roughness, metallic, specular properties; worn surfaces realistic",
+            "9": "Materials realistic with minor property refinements",
+            "8": "Material properties plausible, some roughness or specular inaccuracies",
+            "7": "General material character correct, detailed properties approximate",
+            "6": "Material representation somewhat realistic but with notable inaccuracies",
+            "below_6": "Materials unrealistic or clearly wrong for object type — fail"
+          },
+          "technical_requirements": {
+            "material_model": "physically_based_rendering",
+            "vehicle_paint_properties": {
+              "metallic": [0.8, 1.0],
+              "roughness": [0.1, 0.3],
+              "specular_intensity": [0.5, 0.9]
+            },
+            "glass_properties": {
+              "roughness": [0.0, 0.1],
+              "specular_intensity": 1.0,
+              "ior": 1.5
+            },
+            "rubber_tire_properties": {
+              "metallic": 0.0,
+              "roughness": [0.6, 0.9],
+              "normal_maps": "required"
+            },
+            "road_surface_properties": {
+              "asphalt_roughness": [0.5, 0.8],
+              "concrete_roughness": [0.6, 0.9],
+              "wet_surface_reduction": [0.3, 0.5]
+            },
+            "damage_material_exposure": "visible_metal_or_plastic_beneath_paint"
+          },
+          "material_types_verified": [
+            "vehicle_paint_base_colors",
+            "metallic_finishes",
+            "chrome_reflections",
+            "glass_transparency_and_refraction",
+            "rubber_tire_texture",
+            "road_asphalt_appearance",
+            "environmental_object_properties",
+            "damage_material_exposure",
+            "weathering_and_patina",
+            "dirt_dust_accumulation"
+          ]
+        },
+        {
+          "id": "PP_003",
+          "name": "shadow_consistency",
+          "weight": 0.20,
+          "description": "Are shadows cast correctly from all light sources, consistent with geometry, and do they evolve naturally through time?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "shadow_projection_analysis_and_temporal_consistency_check",
+          "scoring_rubric": {
+            "10": "All shadows properly cast, geometrically correct, moving smoothly with light sources, no artifacts",
+            "9": "Shadows correct with minor temporal inconsistencies",
+            "8": "Shadows mostly correct, some geometric or temporal anomalies",
+            "7": "General shadow direction correct, detailed geometry approximate",
+            "6": "Shadows somewhat realistic but with notable inaccuracies",
+            "below_6": "Shadows physically impossible or missing — fail"
+          },
+          "technical_requirements": {
+            "shadow_algorithm": "ray_traced_or_pcf_shadow_maps_minimum",
+            "shadow_resolution_minimum": 2048,
+            "penumbra_simulation": "soft_shadows_required",
+            "self_shadowing": "correct",
+            "shadow_acne_prevention": "depth_bias_applied",
+            "temporal_coherence": true,
+            "contact_hardness": "varying_by_light_distance"
+          },
+          "shadow_analysis_points": [
+            "vehicle_1_shadow_from_sun",
+            "vehicle_2_shadow_from_sun",
+            "impact_zone_shadow_definition",
+            "ground_shadow_consistency",
+            "street_light_shadow_if_applicable",
+            "headlight_shadow_if_nighttime",
+            "moving_vehicle_shadow_progression",
+            "shadow_persistence_post_impact"
+          ]
+        },
+        {
+          "id": "PP_004",
+          "name": "vehicle_proportions",
+          "weight": 0.15,
+          "description": "Are vehicle models accurate to year/make/model? Do proportions, wheelbase, and stance match reference specifications?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "model_verification_against_oem_specifications",
+          "scoring_rubric": {
+            "10": "Vehicle models match OEM specs precisely, proportions perfect, wear patterns authentic",
+            "9": "Models accurate with minor dimension variations",
+            "8": "Models generally correct, some dimensional approximation",
+            "7": "Model recognizable and approximately correct, minor details approximate",
+            "6": "Model somewhat accurate but with notable dimensional errors",
+            "below_6": "Model incorrect or misidentified vehicle — fail"
+          },
+          "technical_requirements": {
+            "model_source": "oem_data_or_professionally_modeled",
+            "wheelbase_accuracy_meters": 0.05,
+            "track_width_accuracy_meters": 0.05,
+            "overall_length_accuracy_meters": 0.1,
+            "overall_height_accuracy_meters": 0.05,
+            "ground_clearance_accuracy_meters": 0.02,
+            "center_of_gravity_height_meters": 0.1,
+            "weight_distribution": "front_rear_accurate_for_model",
+            "suspension_geometry": "realistic_for_vehicle_type"
+          },
+          "verification_sources": [
+            "official_manufacturer_specifications",
+            "vin_decoder_database",
+            "photogrammetry_of_actual_vehicle",
+            "model_reference_images_multiple_angles",
+            "suspension_geometry_specifications",
+            "damage_pattern_verification_if_wrecked"
+          ]
+        },
+        {
+          "id": "PP_005",
+          "name": "environmental_accuracy",
+          "weight": 0.15,
+          "description": "Is the road geometry correct? Are environmental objects, buildings, and surroundings accurate to the incident location?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "site_reconstruction_verification_and_photogrammetry_comparison",
+          "scoring_rubric": {
+            "10": "Environment matches accident site precisely, road geometry verified, all objects correctly positioned",
+            "9": "Environment accurate with minor detail variations",
+            "8": "Environment generally correct, some object approximations",
+            "7": "General scene layout recognizable, specific details approximate",
+            "6": "Environment somewhat representative but with notable inaccuracies",
+            "below_6": "Environment incorrect or clearly different from actual site — fail"
+          },
+          "technical_requirements": {
+            "road_geometry_source": "survey_data_or_site_visit",
+            "intersection_markings": "verified_against_photographs",
+            "traffic_signage": "accurate_placement_and_condition",
+            "utility_poles_trees": "positioned_correctly",
+            "building_facades": "verified_against_photos",
+            "vehicle_parking": "matches_accident_time_context",
+            "pedestrian_positions": "if_applicable_verified",
+            "weather_conditions": "consistent_with_incident_report"
+          },
+          "environmental_elements": [
+            "road_surface_condition",
+            "lane_markings_and_signage",
+            "intersection_geometry",
+            "traffic_light_positions",
+            "utility_pole_positions",
+            "building_backgrounds",
+            "vegetation_seasonal_accuracy",
+            "parked_vehicle_positions",
+            "street_furniture_placement",
+            "weather_effects_visibility"
+          ]
+        }
+      ]
+    },
+    "cinematic_presentation": {
+      "track_id": "CP",
+      "weight": 0.25,
+      "minimum_gate": 6.5,
+      "description": "Composition, color grading, and motion quality — is the reconstruction professionally presented and visually compelling?",
+      "criticality": "medium",
+      "gate_failure_action": "rework_or_waive_with_justification",
+      "criteria": [
+        {
+          "id": "CP_001",
+          "name": "camera_composition",
+          "weight": 0.30,
+          "description": "Are camera angles chosen for clear evidence communication? Does composition follow forensic principles while maintaining visual interest?",
+          "target_score_range": [6.5, 10.0],
+          "assessment_method": "compositional_analysis_and_forensic_guideline_compliance",
+          "scoring_rubric": {
+            "10": "Camera angles exemplary, evidence clearly framed, multiple perspectives reinforce forensic narrative, no visual confusion",
+            "9": "Composition strong with minor angle refinements",
+            "8": "Composition solid, evidence well-framed, some angles could be more effective",
+            "7": "Composition adequate, evidence visible, some awkward framing",
+            "6": "Composition acceptable though uninspired, minor framing issues",
+            "below_6": "Composition confusing or obstructs forensic understanding — fail"
+          },
+          "technical_requirements": {
+            "rule_of_thirds_application": "where_forensically_appropriate",
+            "lead_room_in_motion": true,
+            "focal_point_clarity": "evidence_zone_primary_or_context_secondary",
+            "depth_layering": "foreground_midground_background",
+            "negative_space": "balanced_not_wasteful",
+            "aspect_ratio": "16:9_or_4:3_consistent"
+          },
+          "composition_principles": [
+            "evidence_in_primary_focal_zone",
+            "witness_perspectives_represented",
+            "spatial_context_clear",
+            "camera_movement_purpose_driven",
+            "no_camera_intersecting_geometry",
+            "no_excessive_tilt_unless_justified",
+            "fps_consistent_no_stuttering",
+            "aspect_ratio_maintained"
+          ]
+        },
+        {
+          "id": "CP_002",
+          "name": "color_grading",
+          "weight": 0.20,
+          "description": "Is the color palette appropriate to time/location? Is grading consistent, avoiding unrealistic saturation or unnatural color casts?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "color_analysis_and_grading_consistency_check",
+          "scoring_rubric": {
+            "10": "Color grading professional, appropriate to time/location, consistent throughout, no unnatural casts",
+            "9": "Grading strong with minor color refinements",
+            "8": "Grading solid, some color inconsistencies or slight unnaturalness",
+            "7": "General color tone appropriate, minor grading issues",
+            "6": "Color acceptable but with grading inconsistencies",
+            "below_6": "Color unnatural or inconsistent — fail"
+          },
+          "technical_requirements": {
+            "color_space": "rec709_or_dci_p3",
+            "white_balance": "accurate_to_lighting_conditions",
+            "saturation_modulation": "realistic_no_over_saturation",
+            "lift_gamma_gain": "applied_skillfully_not_excessively",
+            "lut_consistency": "applied_uniformly_across_shots",
+            "hue_shift": "avoided_unless_intentional",
+            "temporal_consistency": "no_flickering_or_jumps"
+          },
+          "grading_considerations": [
+            "daylight_white_balance_corrected",
+            "nighttime_amber_cast_if_applicable",
+            "temporal_transition_smooth",
+            "no_extreme_saturation",
+            "no_unnatural_color_casts",
+            "skin_tone_accuracy_if_pedestrians",
+            "vehicle_color_authenticity",
+            "road_surface_color_matching"
+          ]
+        },
+        {
+          "id": "CP_003",
+          "name": "depth_of_field",
+          "weight": 0.15,
+          "description": "Is depth of field applied judiciously to guide viewer focus without obscuring evidence? Or is it omitted appropriately for maximum clarity?",
+          "target_score_range": [6.5, 10.0],
+          "assessment_method": "focus_guide_analysis_and_evidence_visibility_check",
+          "scoring_rubric": {
+            "10": "DOF applied strategically to guide focus to evidence, focus pull smooth if dynamic, never obscures critical details",
+            "9": "DOF effective with minor focus adjustment",
+            "8": "DOF reasonable, occasional focus issues",
+            "7": "DOF present, generally appropriate, some misalignment with intended focus",
+            "6": "DOF acceptable but somewhat ineffective",
+            "below_6": "DOF obscures evidence or distracts viewer — fail"
+          },
+          "technical_requirements": {
+            "aperture_equivalent": [2.8, 5.6],
+            "focus_target": "evidence_zone_or_vehicle_of_interest",
+            "focus_pull_speed_frames": "smooth_over_30_60_frames",
+            "bokeh_quality": "natural_circular_not_distracting",
+            "dof_avoid_scenarios": ["evidence_markers", "damage_zones", "sight_lines"],
+            "full_focus_option": "available_if_maximum_clarity_required"
+          }
+        },
+        {
+          "id": "CP_004",
+          "name": "motion_smoothness",
+          "weight": 0.20,
+          "description": "Are camera and object movements smooth and believable? Are collision dynamics realistic and free of jitter or unrealistic accelerations?",
+          "target_score_range": [7.0, 10.0],
+          "assessment_method": "temporal_continuity_analysis_and_physics_plausibility_check",
+          "scoring_rubric": {
+            "10": "All motion smooth and natural, collision dynamics realistic, no jitter or artifacts, temporal flow logical",
+            "9": "Motion smooth with minor physics refinement",
+            "8": "Motion generally smooth, minor timing or physics issues",
+            "7": "Motion acceptable, some jitter or timing awkwardness",
+            "6": "Motion somewhat jerky but interpretable",
+            "below_6": "Motion unrealistic or distracting — fail"
+          },
+          "technical_requirements": {
+            "framerate_consistent": [24, 30, 60],
+            "animation_interpolation": "spline_or_physics_based",
+            "collision_physics": "realistic_spring_friction_constants",
+            "vehicle_rotation": "angular_acceleration_realistic",
+            "camera_pan_tilt_smooth": "easing_applied",
+            "no_frame_skipping": true,
+            "temporal_sampling": "sufficient_for_motion_clarity"
+          },
+          "motion_verification": [
+            "vehicle_acceleration_plausible",
+            "collision_deformation_timing",
+            "post_impact_trajectory_realistic",
+            "tumble_rotation_if_applicable_believable",
+            "friction_slide_realistic",
+            "bounce_or_rebound_if_applicable",
+            "camera_movement_motivated",
+            "jitter_detection_and_smoothing"
+          ]
+        },
+        {
+          "id": "CP_005",
+          "name": "overall_polish",
+          "weight": 0.15,
+          "description": "Is the final product professional, free of artifacts, and ready for presentation? Are rendering, compression, and format suitable for courtroom use?",
+          "target_score_range": [6.5, 10.0],
+          "assessment_method": "visual_artifact_inspection_and_format_compliance_check",
+          "scoring_rubric": {
+            "10": "Professional quality, no artifacts, pristine format, courtroom-ready, all technical specs met",
+            "9": "High quality with minor technical refinements",
+            "8": "Good quality, minor artifacts or format adjustments needed",
+            "7": "Acceptable quality, minor polish issues",
+            "6": "Presentable but with noticeable quality issues",
+            "below_6": "Quality issues prevent professional use — fail"
+          },
+          "technical_requirements": {
+            "rendering_artifacts_zero": true,
+            "noise_grain": "appropriate_to_scene_type",
+            "compression_artifacts_minimal": true,
+            "codec": ["h264_high_profile", "prores_422", "dnxhd"],
+            "bitrate_minimum_mbps": 15,
+            "resolution_minimum": "1920x1080",
+            "color_bit_depth": 10,
+            "audio_quality": "48khz_stereo_or_spatial",
+            "file_format_compatibility": ["mp4", "mov", "mxf"]
+          },
+          "quality_checklist": [
+            "no_render_passes_visible",
+            "no_flicker_or_temporal_artifacts",
+            "no_compression_blockiness",
+            "consistent_frame_exposure",
+            "clean_alpha_channel_if_overlay",
+            "proper_file_metadata",
+            "color_profile_embedded",
+            "timecode_correct",
+            "subtitle_accuracy_if_present",
+            "logo_placement_professional"
+          ]
+        }
+      ]
+    }
+  },
+  "gate_logic": {
+    "description": "ALL track minimum gates must pass for overall approval. Score >= 8.5 AND all tracks >= their minimum thresholds.",
+    "overall_score_formula": "(forensic_clarity_score * 0.40) + (physical_plausibility_score * 0.35) + (cinematic_presentation_score * 0.25)",
+    "pass_criteria": [
+      "overall_score >= 8.5",
+      "forensic_clarity >= 7.0",
+      "physical_plausibility >= 7.0",
+      "cinematic_presentation >= 6.5"
+    ],
+    "fail_criteria": [
+      "overall_score < 8.5",
+      "any_track_below_minimum",
+      "confidence_interval_std > 0.5"
+    ],
+    "gate_waiver_criteria": [
+      {
+        "condition": "cinematic_presentation_6.0_to_6.5",
+        "action": "waive_if_forensic_clarity_and_physical_plausibility_both_greater_than_7.5",
+        "approval_required": "qa_lead_and_legal_counsel"
+      },
+      {
+        "condition": "track_score_borderline_7.0_to_7.2",
+        "action": "increase_sample_count_to_5_and_reassess",
+        "approval_required": "qa_lead"
+      }
+    ]
+  },
+  "confidence_intervals": {
+    "description": "Multi-sample audit with exposure variance computes confidence band and flags inconsistent results",
+    "enabled": true,
+    "sample_count": 3,
+    "exposure_variance_ev": [-0.5, 0.0, 0.5],
+    "exposure_variance_description": "Render at reduced, normal, and increased exposure to test robustness across display conditions",
+    "report_statistics": {
+      "mean_score": true,
+      "standard_deviation": true,
+      "confidence_interval_95_percent": true,
+      "coefficient_of_variation": true
+    },
+    "min_confidence": 0.8,
+    "low_confidence_action": "resample_with_increased_count",
+    "resample_protocol": {
+      "high_variance_trigger_std": 0.5,
+      "new_sample_count": 5,
+      "additional_exposure_points": [-1.0, 0.25, 0.75, 1.0]
+    },
+    "confidence_reporting": {
+      "format": "mean_score +/- 1_std (95% CI: lower, upper)",
+      "example": "8.2 +/- 0.3 (95% CI: 7.9-8.5)",
+      "interpretation_guidance": "Std < 0.3: High consistency; 0.3-0.5: Moderate consistency; > 0.5: Low consistency, resample"
+    }
+  },
+  "fix_effectiveness_tracking": {
+    "description": "Log every fix action with before/after scores to auto-promote effective fixes and demote ineffective ones",
+    "enabled": true,
+    "tracking_schema": {
+      "fix_code": "string format UQA_YYYYMMDD_001",
+      "fix_family": "string [lighting, geometry, materials, composition, grading, physics]",
+      "fix_description": "string detailed description of action taken",
+      "pre_score": "float overall score before fix",
+      "post_score": "float overall score after fix",
+      "delta": "float post_score - pre_score",
+      "affected_tracks": ["array", "of", "track_ids"],
+      "affected_criteria": ["array", "of", "criterion_ids"],
+      "timestamp_utc": "ISO8601",
+      "duration_minutes": "integer time spent on fix",
+      "promoted": "boolean auto-promoted based on threshold",
+      "iterations": "integer number of refinements within fix family",
+      "confidence_delta": "float change in std dev"
+    },
+    "persistence": {
+      "save_to": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/reports/fix-effectiveness-log.jsonl",
+      "format": "jsonl one fix record per line",
+      "retention": "keep all historical records"
+    },
+    "auto_promotion_logic": {
+      "threshold_delta": 0.3,
+      "threshold_duration_minutes": 60,
+      "action": "mark_as_high_roi_method",
+      "effect": "prioritize_similar_fixes_in_future_cycles"
+    },
+    "auto_demotion_logic": {
+      "threshold_delta": -0.1,
+      "threshold_failure_count": 2,
+      "action": "mark_as_low_roi_method",
+      "effect": "deprioritize_until_methodology_improves"
+    },
+    "effectiveness_analytics": {
+      "compute_roi_by_family": true,
+      "report_frequency_cycles": 10,
+      "top_fixes_by_delta": true,
+      "time_cost_analysis": true
+    }
+  },
+  "rework_budget": {
+    "description": "Automatic strategy escalation when ROI drops below threshold over multiple cycles",
+    "enabled": true,
+    "min_gain_per_cycle": 0.15,
+    "max_same_strategy_cycles": 3,
+    "strategy_progression": [
+      {
+        "phase": 1,
+        "strategy": "incremental_refinement",
+        "description": "Make focused adjustments within current scene/approach",
+        "allowed_cycles": 3,
+        "min_gain_per_cycle": 0.15
+      },
+      {
+        "phase": 2,
+        "strategy": "research_new_techniques",
+        "description": "Investigate new rendering methods, materials approaches, or simulation parameters",
+        "allowed_cycles": 2,
+        "min_gain_per_cycle": 0.20
+      },
+      {
+        "phase": 3,
+        "strategy": "switch_fix_family",
+        "description": "Pivot from lighting focus to physics focus, or materials to composition",
+        "allowed_cycles": 2,
+        "min_gain_per_cycle": 0.25
+      },
+      {
+        "phase": 4,
+        "strategy": "rebuild_scene_from_scratch",
+        "description": "Discard current iteration, return to base scene, restart with improved methodology",
+        "allowed_cycles": 1,
+        "min_gain_per_cycle": 0.50
+      }
+    ],
+    "escalation_triggers": {
+      "consecutive_zero_gain_cycles": 2,
+      "average_gain_below_threshold": true,
+      "confidence_degradation": true
+    },
+    "escalation_notification": {
+      "send_to": ["qa_lead", "render_supervisor"],
+      "escalation_action_required": true
+    }
+  },
+  "regression_suite": {
+    "description": "Hall of failures — re-test against known failure modes every rework cycle to prevent regression",
+    "enabled": true,
+    "testing_frequency": "every_3_render_cycles",
+    "known_failures": [
+      {
+        "failure_id": "v9_black_frames",
+        "severity": "critical",
+        "failure_type": "RENDER_BLACK_FRAMES",
+        "root_cause": "Light count or intensity zero; scene unlit",
+        "detection_test": "mean_brightness > 10 and std_dev > 2",
+        "prevention_check": "verify_light_count >= 3 and light_intensity >= 0.5"
+      },
+      {
+        "failure_id": "v9_no_lights",
+        "severity": "critical",
+        "failure_type": "LIGHT_UNDEREXPOSED",
+        "root_cause": "Headlights disabled in nighttime scene; fallback ambient insufficient",
+        "detection_test": "brightness_histogram_mode < 30",
+        "prevention_check": "nighttime_scene_requires_headlights_enabled and intensity >= 500"
+      },
+      {
+        "failure_id": "over_dark_interior",
+        "severity": "high",
+        "failure_type": "CAMERA_OCCLUDED_INTERIOR",
+        "root_cause": "Camera placed inside vehicle body; no visibility to scene",
+        "detection_test": "interior_brightness < 30 and exterior_visible_area < 5%",
+        "prevention_check": "camera_position_validation and interior_light_checks"
+      },
+      {
+        "failure_id": "blown_highlights",
+        "severity": "high",
+        "failure_type": "LIGHT_OVEREXPOSED",
+        "root_cause": "Direct light on camera lens; no aperture stops or exposure limit",
+        "detection_test": "clipped_pixels_percentage > 10",
+        "prevention_check": "clipped_pixels < 5% and max_exposure_ev <= 1.0"
+      },
+      {
+        "failure_id": "no_depth_cues",
+        "severity": "medium",
+        "failure_type": "COMPOSITION_NO_DEPTH",
+        "root_cause": "Flat composition; all objects same distance; no layering",
+        "detection_test": "depth_variance < 0.1 or depth_range_meters < 2",
+        "prevention_check": "depth_variance > 0.3 and multiple_depth_layers >= 3"
+      },
+      {
+        "failure_id": "marker_illegible",
+        "severity": "high",
+        "failure_type": "FORENSIC_MARKER_VISIBILITY",
+        "root_cause": "Low contrast labels; small font; poor color choice",
+        "detection_test": "marker_contrast_ratio < 1.5 or marker_pixel_size < 10",
+        "prevention_check": "all_markers_contrast >= 1.8 and pixel_size >= 12"
+      },
+      {
+        "failure_id": "temporal_jitter",
+        "severity": "medium",
+        "failure_type": "MOTION_INCONSISTENCY",
+        "root_cause": "Physics simulation instability; animation keyframe misalignment",
+        "detection_test": "frame_to_frame_pixel_variance > 5% in static regions",
+        "prevention_check": "temporal_coherence_check passes and physics_substeps >= 5"
+      },
+      {
+        "failure_id": "color_shift_between_frames",
+        "severity": "medium",
+        "failure_type": "GRADING_TEMPORAL_FLICKER",
+        "root_cause": "LUT application inconsistency; exposure compensation mismatch",
+        "detection_test": "color_delta_between_frames > 0.05 in neutral regions",
+        "prevention_check": "lut_uniformity_verified and exposure_locked_per_scene"
+      }
+    ],
+    "regression_testing_workflow": {
+      "step_1": "Render test samples at baseline quality settings",
+      "step_2": "Run each known_failure detection test against samples",
+      "step_3": "If any test fails, flag before releasing render",
+      "step_4": "Log regression result to regression-log.jsonl",
+      "step_5": "Escalate to supervisor if new regression introduced"
+    },
+    "regression_log_location": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/reports/regression-test-log.jsonl"
+  },
+  "human_checkpoint": {
+    "description": "Human review triggered only at phase gates, not every cycle, to balance efficiency and oversight",
+    "enabled": true,
+    "checkpoints": [
+      {
+        "checkpoint_id": "HCP_01",
+        "trigger_condition": "overall_score >= 8.5 and all_tracks_above_minimum",
+        "checkpoint_name": "Pre-Publication Review",
+        "action": "notify_qa_lead_for_final_review",
+        "reviewer_role": "Quality Assurance Lead",
+        "approval_required": true,
+        "timeline_hours": 2,
+        "review_focus": ["forensic_accuracy", "legal_defensibility", "presentation_quality"]
+      },
+      {
+        "checkpoint_id": "HCP_02",
+        "trigger_condition": "publish_ready_flag_set",
+        "checkpoint_name": "Legal/Courtroom Approval",
+        "action": "require_legal_counsel_sign_off",
+        "reviewer_role": "Attorney or Legal Counsel",
+        "approval_required": true,
+        "timeline_hours": 4,
+        "review_focus": ["expert_defensibility", "admissibility_concerns", "ethical_compliance"]
+      },
+      {
+        "checkpoint_id": "HCP_03",
+        "trigger_condition": "any_track_below_minimum_gate",
+        "checkpoint_name": "Strategy Review Meeting",
+        "action": "notify_supervisor_for_rework_strategy_discussion",
+        "reviewer_role": "Render Supervisor",
+        "approval_required": false,
+        "timeline_hours": 1,
+        "review_focus": ["root_cause_analysis", "fix_strategy", "budget_implications"]
+      }
+    ]
+  },
+  "audit_reporting": {
+    "description": "Structured audit report generation after each render cycle",
+    "report_template": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/templates/audit-report-template.md",
+    "report_output_location": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/reports/audit-reports/",
+    "report_sections": [
+      "executive_summary_scores",
+      "per_track_detailed_assessment",
+      "confidence_intervals_and_statistics",
+      "identified_issues_and_severity",
+      "fixes_applied_this_cycle",
+      "effectiveness_analysis",
+      "next_steps_recommendation",
+      "gate_pass_fail_determination"
+    ],
+    "report_archival": {
+      "keep_all_reports": true,
+      "organized_by": ["date", "case_id", "render_version"],
+      "audit_trail_completeness": "required_for_legal_defensibility"
+    }
+  }
+}

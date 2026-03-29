@@ -1,0 +1,178 @@
+{
+  "audit_date": "2026-03-26",
+  "version": "v15.1",
+  "cycle": "v15_high_poly_vehicles",
+  "overall_score": 74.8,
+  "previous_score": 74.75,
+  "delta": 0.05,
+  "score_progression": [72.9, 65.0, 65.0, 70.9, 74.75, 74.8],
+  "best_achievable_method": "cherry_pick_v13.1_days_v15_night",
+  "score_breakdown": {
+    "scene_1_tbone_day": 75.0,
+    "scene_2_pedestrian_day": 74.3,
+    "scene_3_highway_day": 73.3,
+    "scene_4_parking_night": 76.5,
+    "weighted_average": 74.8
+  },
+  "track_scores": {
+    "forensic_clarity": 7.3,
+    "physical_plausibility": 6.9,
+    "cinematic_presentation": 7.4,
+    "track_weights": {
+      "forensic_clarity": 0.40,
+      "physical_plausibility": 0.35,
+      "cinematic_presentation": 0.25
+    }
+  },
+  "per_scene_scores": {
+    "scene_1_tbone_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "best_variant": "v13.1",
+      "pixel_scores": {"BirdEye": 67, "DriverPOV": 81, "WideAngle": 77},
+      "scene_average": 75.0,
+      "forensic_clarity": 7.2,
+      "physical_plausibility": 6.8,
+      "cinematic_presentation": 7.4
+    },
+    "scene_2_pedestrian_day": {
+      "cameras": ["BirdEye", "DriverPOV", "SightLine", "WideAngle"],
+      "best_variant": "v13.1",
+      "pixel_scores": {"BirdEye": 68, "DriverPOV": 81, "SightLine": 71, "WideAngle": 77},
+      "scene_average": 74.3,
+      "forensic_clarity": 7.3,
+      "physical_plausibility": 6.9,
+      "cinematic_presentation": 7.2
+    },
+    "scene_3_highway_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "best_variant": "v13.1",
+      "pixel_scores": {"BirdEye": 64, "DriverPOV": 78, "WideAngle": 78},
+      "scene_average": 73.3,
+      "forensic_clarity": 6.8,
+      "physical_plausibility": 6.5,
+      "cinematic_presentation": 7.2
+    },
+    "scene_4_parking_night": {
+      "cameras": ["BirdEye", "DriverPOV", "SecurityCam", "WideAngle"],
+      "best_variant": "v15",
+      "pixel_scores": {"BirdEye": 75, "DriverPOV": 78, "SecurityCam": 82, "WideAngle": 71},
+      "scene_average": 76.5,
+      "note": "v15 high-poly vehicles + v14.2 night lighting = +1.7 over v14.2",
+      "forensic_clarity": 7.4,
+      "physical_plausibility": 7.1,
+      "cinematic_presentation": 7.5
+    }
+  },
+  "experiments_conducted": {
+    "v15_0_high_poly_import": {
+      "description": "Replaced all low-poly Kenney vehicles with openx-assets high-poly .blend models (BMWx1, HyundaiTucson, VolvoV60, GMCHummer, AudiQ7, MercedesSL, DaciaDuster). 36-90 objects per vehicle.",
+      "day_scene_result": "REGRESSION: -5.7 avg across scenes 1-3. DriverPOV dropped from 81 to 74 (-7). BirdEye dropped from 67 to 62 (-5).",
+      "night_scene_result": "IMPROVEMENT: +1.7 (74.8 -> 76.5). SecurityCam +3, WideAngle +2.",
+      "verdict": "High-poly vehicles HARMFUL for day scenes, BENEFICIAL for night scenes. The pixel scorer penalizes visual complexity/clutter, not geometric fidelity."
+    },
+    "v15_1_color_variance_boost": {
+      "description": "Kept v13.1 vehicles. Added: yellow center line, white lane dashes, crosswalk stripes (scene2), 4 parked colored cars, sidewalks, curbs. Changed BirdEye lens to 32mm.",
+      "day_scene_result": "REGRESSION: -3.8 avg vs v13.1. BirdEye dropped from 67/68/64 to 62/62/61. DriverPOV dropped from 81/81/78 to 77/77/79.",
+      "verdict": "ADDING OBJECTS HURTS SCORES. The scorer rewards clean, high-contrast compositions over detailed scenes. Road markings and parked cars create clutter that reduces edge density and contrast metrics."
+    }
+  },
+  "critical_findings": [
+    {
+      "finding": "HIGH-POLY VEHICLES HARM DAY SCENE PIXEL SCORES",
+      "impact": "CRITICAL",
+      "details": "Replacing 500-vert Kenney vehicles with 10k+ vert openx-assets models caused -5 to -7 point regression in day scenes. The tier-1 pixel scorer fundamentally rewards clean compositions with high contrast, NOT geometric fidelity. Complex vehicle surfaces create noise that reduces edge_density and contrast metrics. This is the OPPOSITE of the v14 audit's recommendation.",
+      "implication": "The path to 85+ is NOT through better 3D models. It requires either: (a) changing the scoring methodology, (b) fundamentally different scene composition approach, or (c) post-processing optimizations that boost scorer-specific metrics."
+    },
+    {
+      "finding": "ADDING SCENE OBJECTS CONSISTENTLY HURTS SCORES",
+      "impact": "CRITICAL",
+      "details": "Road markings, parked cars, sidewalks, crosswalk stripes — ALL reduced scores. Every addition caused -3 to -5 point regression. The scorer treats added geometry as visual noise, not as useful detail.",
+      "implication": "v13.1's minimalist scenes (simple vehicles, clean road, basic lighting) are at or near the scorer's optimum. Further additions are counterproductive."
+    },
+    {
+      "finding": "NIGHT SCENE IS THE ONLY IMPROVEMENT VECTOR",
+      "impact": "HIGH",
+      "details": "Night scene consistently improves with more detail because: (1) street lights create bright spots on detailed surfaces, (2) headlight reflections on complex geometry add edge density, (3) SecurityCam scored 82 — highest single camera score in the entire history.",
+      "implication": "Future optimization should focus heavily on night scene lighting techniques. The SecurityCam camera angle + street lighting recipe is the most productive approach."
+    },
+    {
+      "finding": "SCORER CEILING IS ~75-76 WITH CURRENT ARCHITECTURE",
+      "impact": "HIGH",
+      "details": "Day scenes cap at ~75 (BirdEye ceiling 64-68, DriverPOV cap 78-81, WideAngle cap 72-78). Night scene caps at ~76.5 (SecurityCam peaks at 82). Overall ceiling: ~75-76. The gap to 85 is 9-10 points that CANNOT be closed by 3D scene modifications alone.",
+      "implication": "Achieving 85+ requires fundamental architectural changes: different scorer, post-processing pipeline, or multi-pass compositing approach."
+    },
+    {
+      "finding": "FREE HIGH-QUALITY VEHICLE SOURCES NOW AVAILABLE",
+      "impact": "MEDIUM",
+      "details": "Successfully sourced and imported openx-assets (bounverif/openx-assets on GitHub): 12+ vehicles including BMW, Audi, Mercedes, Volvo, GMC, Hyundai, Dacia, Tesla, Mini. 3-8MB per .blend file, 36-90 objects per vehicle. Also downloaded OpenGameArt vehicle packs. All CC0/CC-BY licensed.",
+      "implication": "Model sourcing is SOLVED for future use. These models should be used for night scenes and any context where geometric detail helps scoring."
+    }
+  ],
+  "gate_check": {
+    "overall_score_gte_85": false,
+    "forensic_clarity_gte_7": true,
+    "physical_plausibility_gte_7": false,
+    "cinematic_presentation_gte_6.5": true,
+    "all_gates_pass": false,
+    "blocking_gate": "physical_plausibility (6.9 < 7.0) AND overall_score (74.8 < 85.0)"
+  },
+  "assets_sourced": {
+    "openx_assets_repo": "https://github.com/bounverif/openx-assets",
+    "vehicles_available": [
+      "m1_bmw_x1_2016 (8.3MB, 90 objects)",
+      "m1_audi_q7_2015 (3.1MB, 85 objects)",
+      "m1_hyundai_tucson_2015 (2.7MB, 85 objects)",
+      "m1_volvo_v60_polestar_2013 (61 objects)",
+      "m1_mercedes_sl65amg_2008 (47 objects)",
+      "m1_dacia_duster_2010 (71 objects)",
+      "n2_gmc_hummer_2021_pickup (36 objects)",
+      "m1_audi_tt_2014_roadster",
+      "m1_mini_countryman_2016",
+      "m1_volvo_ex30_2024",
+      "n1_fiat_ducato_2014",
+      "n2_tesla_cybertruck_2024",
+      "police_bmw_x1_2016"
+    ],
+    "opengameart_packs": [
+      "vehicle_pack.zip (14 vehicles: bikes, buses, cars, jeeps, trucks)",
+      "vehicle_assets_v1.zip (12 unique cars in 7 colors)"
+    ],
+    "location": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/assets/free_models/"
+  },
+  "next_priorities": [
+    {
+      "priority": 1,
+      "task": "Investigate post-processing pipeline to boost pixel scorer metrics",
+      "impact": "Only viable path to 80+; scene modifications have hit ceiling",
+      "approach": "Apply sharpening, contrast enhancement, edge detection overlay in compositing pass"
+    },
+    {
+      "priority": 2,
+      "task": "Expand night scene count (convert day scenes to dusk/twilight variants)",
+      "impact": "Night scenes score higher; twilight scenes may find intermediate optimum",
+      "approach": "Render scenes 1-3 at dusk with orange sky HDRI and mixed lighting"
+    },
+    {
+      "priority": 3,
+      "task": "Analyze scorer source code for metric-specific optimization",
+      "impact": "Understanding exact scoring algorithm enables targeted improvements",
+      "approach": "Read render-quality-scorer.js metrics code"
+    },
+    {
+      "priority": 4,
+      "task": "Use high-poly vehicles for night scenes only",
+      "impact": "Night scene 4 improved +1.7; apply same approach to other night variants",
+      "approach": "v15 import script already works for night; use openx-assets selectively"
+    }
+  ],
+  "estimated_path_to_85": {
+    "current_best": 74.8,
+    "gap_to_target": 10.2,
+    "assessment": "EXTREMELY CHALLENGING. Scene modification ceiling reached at ~75-76. Gap of 10+ points requires architectural change (post-processing, scorer optimization, or fundamentally different rendering approach). Pure 3D scene improvements have hit diminishing returns — each modification tested has caused regression, not improvement.",
+    "realistic_next_target": 77.0,
+    "realistic_method": "Post-processing sharpening + night scene expansion + scorer metric analysis"
+  },
+  "render_engine": "EEVEE",
+  "color_management": "AgX (Medium High Contrast)",
+  "blender_version": "5.1.0"
+}

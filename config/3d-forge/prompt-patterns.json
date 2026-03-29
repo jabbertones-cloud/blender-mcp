@@ -1,0 +1,55 @@
+{
+  "_version": "1.0",
+  "_description": "Auto-updated by autoresearch agent. Tracks which Blender MCP step patterns are reliable vs unreliable.",
+  "reliable_patterns": [
+    {
+      "sequence": ["blender_create_object", "blender_modify_object", "blender_apply_modifier:SOLIDIFY"],
+      "success_rate": null,
+      "sample_size": 0,
+      "note": "Basic geometry with wall thickness — expected to be highly reliable"
+    },
+    {
+      "sequence": ["blender_create_object", "blender_boolean_operation:DIFFERENCE", "blender_apply_modifier:BEVEL"],
+      "success_rate": null,
+      "sample_size": 0,
+      "note": "Cut-out details with beveled edges — core of functional prints"
+    },
+    {
+      "sequence": ["blender_create_object", "blender_apply_modifier:MIRROR", "blender_apply_modifier:SUBSURF"],
+      "success_rate": null,
+      "sample_size": 0,
+      "note": "Symmetrical smooth objects — mirrors then subdivides"
+    }
+  ],
+  "unreliable_patterns": [],
+  "modifier_success_rates": {
+    "SUBSURF": null,
+    "SOLIDIFY": null,
+    "BEVEL": null,
+    "MIRROR": null,
+    "BOOLEAN": null,
+    "DECIMATE": null,
+    "ARRAY": null,
+    "REMESH": null,
+    "DISPLACE": null,
+    "SMOOTH": null,
+    "SIMPLE_DEFORM": null,
+    "WIREFRAME": null,
+    "SHRINKWRAP": null
+  },
+  "tool_success_rates": {
+    "blender_create_object": null,
+    "blender_modify_object": null,
+    "blender_execute_python": null,
+    "blender_boolean_operation": null,
+    "blender_apply_modifier": null,
+    "blender_set_material": null,
+    "blender_shader_nodes": null,
+    "blender_uv_operations": null,
+    "blender_cleanup": null,
+    "blender_export_file": null,
+    "blender_render": null,
+    "blender_set_render_settings": null,
+    "blender_set_world": null
+  }
+}

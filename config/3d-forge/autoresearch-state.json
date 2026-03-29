@@ -1,0 +1,478 @@
+{
+  "last_run": "2026-03-26T22:08:33.760Z",
+  "run_count": 4,
+  "total_assets_analyzed": 50,
+  "kpis": {
+    "production_success_rate": 5000,
+    "validation_pass_rate": 0,
+    "visual_quality_avg": 4.933333333333334,
+    "mechanical_pass_rate": 4,
+    "revision_rate": 6,
+    "reject_rate": 2,
+    "cost_per_asset_usd": null,
+    "time_per_asset_seconds": 10.142857142857142,
+    "steps_failed_rate": 10.13888888888889,
+    "trend_to_asset_hours": -0.004708796296296297,
+    "ref_images_per_concept": null,
+    "concepts_per_trend": null,
+    "production_quality_score_avg": 66.5,
+    "geometry_step_success_rate": 79.88505747126436,
+    "render_step_success_rate": 98.69565217391305,
+    "export_step_success_rate": 100,
+    "visual_reject_rate": 33.33333333333333,
+    "mechanical_check_breakdown": {
+      "manifold": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "tri_count": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "loose_verts": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "degenerate_faces": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "wall_thickness": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "bounding_box": {
+        "pass_rate": 66.7,
+        "total": 3
+      }
+    },
+    "three_track_score_avg": null,
+    "forensic_clarity_avg": null,
+    "physical_plausibility_avg": null,
+    "cinematic_presentation_avg": null,
+    "shot_gate_fail_rate": null,
+    "confidence_margin_avg": null
+  },
+  "kpi_history": [
+    {
+      "date": "2026-03-24T22:18:54.334Z",
+      "kpis": {
+        "production_success_rate": 100,
+        "validation_pass_rate": 0,
+        "visual_quality_avg": 2.1,
+        "mechanical_pass_rate": 0,
+        "revision_rate": 5.128205128205128,
+        "reject_rate": 2.564102564102564,
+        "cost_per_asset_usd": null,
+        "time_per_asset_seconds": 7.076923076923077,
+        "steps_failed_rate": 11.241610738255034,
+        "trend_to_asset_hours": -0.02230814814814815,
+        "ref_images_per_concept": null,
+        "concepts_per_trend": null,
+        "production_quality_score_avg": 51.666666666666664,
+        "geometry_step_success_rate": 78.77813504823152,
+        "render_step_success_rate": 99.42857142857143,
+        "export_step_success_rate": 100,
+        "visual_reject_rate": 100,
+        "mechanical_check_breakdown": {
+          "manifold": {
+            "pass_rate": 100,
+            "total": 2
+          },
+          "tri_count": {
+            "pass_rate": 100,
+            "total": 2
+          },
+          "loose_verts": {
+            "pass_rate": 100,
+            "total": 2
+          },
+          "degenerate_faces": {
+            "pass_rate": 100,
+            "total": 2
+          },
+          "wall_thickness": {
+            "pass_rate": 100,
+            "total": 2
+          },
+          "bounding_box": {
+            "pass_rate": 0,
+            "total": 2
+          }
+        }
+      }
+    },
+    {
+      "date": "2026-03-26T10:52:39.745Z",
+      "kpis": {
+        "production_success_rate": 100,
+        "validation_pass_rate": 0,
+        "visual_quality_avg": 4.933333333333334,
+        "mechanical_pass_rate": 4,
+        "revision_rate": 6,
+        "reject_rate": 2,
+        "cost_per_asset_usd": null,
+        "time_per_asset_seconds": 10.142857142857142,
+        "steps_failed_rate": 10.13888888888889,
+        "trend_to_asset_hours": -0.004708796296296297,
+        "ref_images_per_concept": null,
+        "concepts_per_trend": null,
+        "production_quality_score_avg": 66.5,
+        "geometry_step_success_rate": 79.88505747126436,
+        "render_step_success_rate": 98.69565217391305,
+        "export_step_success_rate": 100,
+        "visual_reject_rate": 33.33333333333333,
+        "mechanical_check_breakdown": {
+          "manifold": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "tri_count": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "loose_verts": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "degenerate_faces": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "wall_thickness": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "bounding_box": {
+            "pass_rate": 66.7,
+            "total": 3
+          }
+        }
+      }
+    },
+    {
+      "date": "2026-03-26T11:52:54.627Z",
+      "kpis": {
+        "production_success_rate": 100,
+        "validation_pass_rate": 0,
+        "visual_quality_avg": 4.933333333333334,
+        "mechanical_pass_rate": 4,
+        "revision_rate": 6,
+        "reject_rate": 2,
+        "cost_per_asset_usd": null,
+        "time_per_asset_seconds": 10.142857142857142,
+        "steps_failed_rate": 10.13888888888889,
+        "trend_to_asset_hours": -0.004708796296296297,
+        "ref_images_per_concept": null,
+        "concepts_per_trend": null,
+        "production_quality_score_avg": 66.5,
+        "geometry_step_success_rate": 79.88505747126436,
+        "render_step_success_rate": 98.69565217391305,
+        "export_step_success_rate": 100,
+        "visual_reject_rate": 33.33333333333333,
+        "mechanical_check_breakdown": {
+          "manifold": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "tri_count": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "loose_verts": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "degenerate_faces": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "wall_thickness": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "bounding_box": {
+            "pass_rate": 66.7,
+            "total": 3
+          }
+        }
+      }
+    },
+    {
+      "date": "2026-03-26T22:08:33.760Z",
+      "kpis": {
+        "production_success_rate": 5000,
+        "validation_pass_rate": 0,
+        "visual_quality_avg": 4.933333333333334,
+        "mechanical_pass_rate": 4,
+        "revision_rate": 6,
+        "reject_rate": 2,
+        "cost_per_asset_usd": null,
+        "time_per_asset_seconds": 10.142857142857142,
+        "steps_failed_rate": 10.13888888888889,
+        "trend_to_asset_hours": -0.004708796296296297,
+        "ref_images_per_concept": null,
+        "concepts_per_trend": null,
+        "production_quality_score_avg": 66.5,
+        "geometry_step_success_rate": 79.88505747126436,
+        "render_step_success_rate": 98.69565217391305,
+        "export_step_success_rate": 100,
+        "visual_reject_rate": 33.33333333333333,
+        "mechanical_check_breakdown": {
+          "manifold": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "tri_count": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "loose_verts": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "degenerate_faces": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "wall_thickness": {
+            "pass_rate": 100,
+            "total": 3
+          },
+          "bounding_box": {
+            "pass_rate": 66.7,
+            "total": 3
+          }
+        },
+        "three_track_score_avg": null,
+        "forensic_clarity_avg": null,
+        "physical_plausibility_avg": null,
+        "cinematic_presentation_avg": null,
+        "shot_gate_fail_rate": null,
+        "confidence_margin_avg": null
+      }
+    }
+  ],
+  "category_rankings": [
+    {
+      "category": "unknown",
+      "visual_quality_avg": 0,
+      "production_quality_avg": 0,
+      "demand_score": 1,
+      "combined_score": 0,
+      "count": 1
+    }
+  ],
+  "prompt_pattern_scores": {
+    "new_scene": 0,
+    "geometry": 0,
+    "subsurf_modifier": 0,
+    "shade_smooth": 0,
+    "apply_materials": 0,
+    "smart_project_uv": 0,
+    "export": 0,
+    "save_blend": 0,
+    "render": 0
+  },
+  "recurring_issues": [
+    {
+      "issue": "inconsistent sphere positioning across renders - sphere placement varies between images",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "flat platform lacks proper surfacing details and edge definition",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "sphere appears to have minor deformation/clipping on one side (image 3)",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "missing base/support structure context for the platform",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "no reference images provided for comparison validation",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "minimal detail and texture - surfaces appear overly smooth and generic",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+    },
+    {
+      "issue": "unclear product purpose or functional design intent",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] standardize sphere position relative to platform center across all renders",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] add beveled or chamfered edges to the platform for professional appearance",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] increase geometric detail with proper edge loops and surface variation",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] add subtle surface texture or material variation to base platform",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+    },
+    {
+      "issue": "[fix] include dimensional reference or scale indicator (grid, ruler, or object)",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] provide multiple consistent viewing angles with same lighting setup",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add 3-point lighting setup step before renders. Use EEVEE for faster iteration."
+    },
+    {
+      "issue": "[fix] add rim/border detail to platform edges for finished product appearance",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] consider adding subtle imperfections or wear patterns for realism",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    }
+  ],
+  "learnings_log": [
+    {
+      "date": "2026-03-24T22:18:54.334Z",
+      "type": "problematic_steps_detected",
+      "steps": [
+        "shade_smooth",
+        "geometry_step_5",
+        "geometry_step_2",
+        "geometry_step_4",
+        "geometry_step_7",
+        "geometry_step_8",
+        "geometry_step_9",
+        "geometry_step_11",
+        "geometry_step_12",
+        "geometry_step_3",
+        "geometry_step_6",
+        "geometry_step_10",
+        "geometry_step_14",
+        "geometry_step_15",
+        "geometry_step_16"
+      ],
+      "detail": "15 steps below 90% success rate"
+    },
+    {
+      "date": "2026-03-26T10:52:39.745Z",
+      "type": "problematic_steps_detected",
+      "steps": [
+        "geometry_step_5",
+        "shade_smooth",
+        "geometry_step_2",
+        "geometry_step_4",
+        "geometry_step_9",
+        "geometry_step_11",
+        "geometry_step_12",
+        "geometry_step_3",
+        "geometry_step_6",
+        "geometry_step_7",
+        "geometry_step_8",
+        "geometry_step_10",
+        "geometry_step_15",
+        "geometry_step_16"
+      ],
+      "detail": "14 steps below 90% success rate"
+    },
+    {
+      "date": "2026-03-26T11:52:54.627Z",
+      "type": "problematic_steps_detected",
+      "steps": [
+        "geometry_step_5",
+        "shade_smooth",
+        "geometry_step_2",
+        "geometry_step_4",
+        "geometry_step_9",
+        "geometry_step_11",
+        "geometry_step_12",
+        "geometry_step_3",
+        "geometry_step_6",
+        "geometry_step_7",
+        "geometry_step_8",
+        "geometry_step_10",
+        "geometry_step_15",
+        "geometry_step_16"
+      ],
+      "detail": "14 steps below 90% success rate"
+    },
+    {
+      "date": "2026-03-26T22:08:33.760Z",
+      "type": "problematic_steps_detected",
+      "steps": [
+        "geometry_step_5",
+        "shade_smooth",
+        "geometry_step_2",
+        "geometry_step_4",
+        "geometry_step_9",
+        "geometry_step_11",
+        "geometry_step_12",
+        "geometry_step_3",
+        "geometry_step_6",
+        "geometry_step_7",
+        "geometry_step_8",
+        "geometry_step_10",
+        "geometry_step_15",
+        "geometry_step_16"
+      ],
+      "detail": "14 steps below 90% success rate"
+    }
+  ],
+  "remediations_applied": [],
+  "blender_instance": {
+    "host": "127.0.0.1",
+    "port": "9876"
+  },
+  "regression_check_results": {
+    "total_checks": 20,
+    "regressions_found": 1,
+    "critical_regressions": 0,
+    "results": [
+      {
+        "learning_id": "mesh_aggregation",
+        "file": "blender-producer.js",
+        "status": "REGRESSION",
+        "severity": "HIGH",
+        "message": "getMeshData must aggregate ALL visible mesh objects, not require active selection. bpy.context.active_object is unreliable.",
+        "fix": "Iterate bpy.data.objects with visible_get() filter instead of active_object"
+      }
+    ]
+  },
+  "last_feedback_loop": "2026-03-26T21:58:25.167Z",
+  "last_refinements_applied": 5
+}

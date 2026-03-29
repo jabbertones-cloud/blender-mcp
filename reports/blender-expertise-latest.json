@@ -1,0 +1,265 @@
+{
+  "generated_at": "2026-03-26T13:57:07.596Z",
+  "agent": "autoresearch-blender-expertise",
+  "baseline_version": "v5",
+  "version": 1,
+  "kpis": {
+    "knowledge_entries": 32,
+    "material_presets": 23,
+    "lighting_rigs": 6,
+    "camera_styles": 3,
+    "demo_count": 5,
+    "recipe_count": 5,
+    "tutorial_sources": 38,
+    "last_improvement_date": "2026-03-26T13:28:53.266Z",
+    "quality_score": 91,
+    "technique_coverage": 80,
+    "gap_count": 8,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  },
+  "benchmarks": {
+    "material_realism": {
+      "our_score": 95,
+      "industry_target": 95,
+      "notes": "Missing displacement maps and anisotropic brushing"
+    },
+    "lighting_quality": {
+      "our_score": 95,
+      "industry_target": 95,
+      "notes": "Good 3-point setups. Need IES profiles and light linking"
+    },
+    "camera_motion": {
+      "our_score": 95,
+      "industry_target": 95,
+      "notes": "Turntable + hero + detail covers 90% of use cases"
+    },
+    "render_quality": {
+      "our_score": 93,
+      "industry_target": 95,
+      "notes": "Cycles with AgX is industry standard. Need higher samples for glass"
+    },
+    "animation_timing": {
+      "our_score": 85,
+      "industry_target": 95,
+      "notes": "Good f-curve control. Need more shot transition options"
+    },
+    "overall_readiness": {
+      "our_score": 91,
+      "industry_target": 95,
+      "notes": "Can produce hireable work. Polish needed on details."
+    }
+  },
+  "gaps": [
+    {
+      "id": "edit_mode_mesh",
+      "description": "Direct edit-mode mesh operations (bridge, loop cut at specific location)",
+      "severity": "medium",
+      "workaround": "execute_python with bpy.ops.mesh.*"
+    },
+    {
+      "id": "displacement_maps",
+      "description": "Texture-based displacement for surface detail (leather grain, fabric weave)",
+      "severity": "medium",
+      "workaround": "Use procedural_material or noise-based displacement via execute_python"
+    },
+    {
+      "id": "motion_graphics_text",
+      "description": "Animated text reveals with per-character timing",
+      "severity": "low",
+      "workaround": "Create text object + keyframe visibility per character"
+    },
+    {
+      "id": "fluid_sim_product",
+      "description": "Fluid simulation for liquid pouring/splash",
+      "severity": "low",
+      "workaround": "Use physics tools but setup is complex"
+    },
+    {
+      "id": "grease_pencil_annotations",
+      "description": "2D annotations/callouts on 3D product",
+      "severity": "low",
+      "workaround": "Post-processing in compositor or After Effects"
+    },
+    {
+      "id": "anisotropic_brushing",
+      "description": "Directional brushed metal texture (requires tangent map)",
+      "severity": "medium",
+      "workaround": "execute_python to set anisotropic + tangent"
+    },
+    {
+      "id": "ies_lights",
+      "description": "IES light profiles for realistic light patterns",
+      "severity": "low",
+      "workaround": "Use area lights with proper sizing"
+    },
+    {
+      "id": "lightmap_baking",
+      "description": "Baking light information for real-time viewers",
+      "severity": "low",
+      "workaround": "Use export with material baking"
+    }
+  ],
+  "baseline_compliance": {
+    "compliance": 100,
+    "passed": [
+      {
+        "kpi": "material_realism",
+        "current": 95,
+        "minimum": 93,
+        "baseline": 95,
+        "status": "PASS"
+      },
+      {
+        "kpi": "lighting_quality",
+        "current": 95,
+        "minimum": 92,
+        "baseline": 94,
+        "status": "PASS"
+      },
+      {
+        "kpi": "render_quality",
+        "current": 93,
+        "minimum": 90,
+        "baseline": 92,
+        "status": "PASS"
+      },
+      {
+        "kpi": "overall_readiness",
+        "current": 91,
+        "minimum": 91,
+        "baseline": 93,
+        "status": "PASS"
+      }
+    ],
+    "failed": []
+  },
+  "mandatory_features": {
+    "compliance": 95,
+    "passed": [
+      {
+        "feature": "hdri_environment",
+        "status": "PASS",
+        "rationale": "HDRI environment detected in build script"
+      },
+      {
+        "feature": "volume_absorption_glass",
+        "status": "PASS",
+        "rationale": "Volume Absorption on glass detected"
+      },
+      {
+        "feature": "volume_absorption_liquid",
+        "status": "PASS",
+        "rationale": "Volume Absorption on liquid detected"
+      },
+      {
+        "feature": "solidify_modifier",
+        "status": "PASS",
+        "rationale": "Solidify modifier detected"
+      },
+      {
+        "feature": "min_bounce_count",
+        "status": "PASS",
+        "rationale": "Bounce count 12 >= minimum 12"
+      },
+      {
+        "feature": "min_light_count",
+        "status": "PASS",
+        "rationale": "Light count ~6 >= minimum 5"
+      },
+      {
+        "feature": "transparent_shadow_mix",
+        "status": "PASS",
+        "rationale": "Transparent BSDF shadow mix detected"
+      },
+      {
+        "feature": "light_blockers",
+        "status": "PASS",
+        "rationale": "Light blocker planes detected"
+      },
+      {
+        "feature": "oidn_denoiser",
+        "status": "PASS",
+        "rationale": "OIDN denoiser detected in build script"
+      },
+      {
+        "feature": "denoising_data_passes",
+        "status": "PASS",
+        "rationale": "Denoising data passes detected"
+      },
+      {
+        "feature": "filter_glossy",
+        "status": "PASS",
+        "rationale": "Filter Glossy (blur_glossy) detected"
+      },
+      {
+        "feature": "clamp_indirect",
+        "status": "PASS",
+        "rationale": "Clamp indirect detected"
+      },
+      {
+        "feature": "caustics_off",
+        "status": "PASS",
+        "rationale": "Caustics OFF setting detected"
+      },
+      {
+        "feature": "preset_system",
+        "status": "PASS",
+        "rationale": "Preset system (micro/fast/quality/ultra) detected"
+      },
+      {
+        "feature": "vehicle_geometry_score",
+        "status": "PASS",
+        "rationale": "Vehicle detail geometry features detected in forensic scripts"
+      },
+      {
+        "feature": "pedestrian_figure_score",
+        "status": "PASS",
+        "rationale": "Realistic pedestrian figure techniques detected"
+      },
+      {
+        "feature": "impact_deformation_required",
+        "status": "PASS",
+        "rationale": "Impact deformation techniques detected in forensic scripts"
+      },
+      {
+        "feature": "exhibit_standards_compliance",
+        "status": "PASS",
+        "rationale": "Exhibit overlay features detected (3/3 core checks)"
+      },
+      {
+        "feature": "driver_pov_interior",
+        "status": "PASS",
+        "rationale": "Driver POV interior geometry features detected"
+      }
+    ],
+    "failed": [
+      {
+        "feature": "physics_validation",
+        "status": "FAIL",
+        "rationale": "FORENSIC CRITICAL: No physics validation method found. Collision dynamics using pure keyframe interpolation will fail Daubert challenge."
+      }
+    ],
+    "script": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/scripts/perfume_v7_fast_quality.py"
+  },
+  "inventory": {
+    "materials": 23,
+    "lighting_rigs": 6,
+    "camera_styles": 3,
+    "demos": 5,
+    "recipes": 5
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "action": "MANDATORY FEATURE MISSING: physics_validation — FORENSIC CRITICAL: No physics validation method found. Collision dynamics using pure keyframe interpolation will fail Daubert challenge.",
+      "expected_improvement": "Restore mandatory feature immediately"
+    }
+  ],
+  "stats": {
+    "total_scans": 5,
+    "total_techniques_learned": 0,
+    "total_improvements_made": 7,
+    "total_gaps_closed": 0
+  }
+}

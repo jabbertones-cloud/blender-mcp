@@ -1,0 +1,9 @@
+{
+  "asset_id": "42d5f5e7-8512-47c5-80c9-4dfe0ac065be",
+  "audited_at": "2026-03-26T12:09:14.401Z",
+  "pass": true,
+  "flicker": 4.14,
+  "shimmer": 3.31,
+  "exposure_pumping": 2.49,
+  "frame_count": 5
+}

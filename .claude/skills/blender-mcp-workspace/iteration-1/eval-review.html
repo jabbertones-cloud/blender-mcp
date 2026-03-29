@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blender MCP Skill — Eval Review (Iteration 1)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f1419;
+            color: #e0e6ed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #151b28 100%);
+            border-bottom: 1px solid #2d3748;
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #111519;
+            border-right: 1px solid #2d3748;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #7b8794;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #1a1f2e;
+        }
+
+        .nav-item.active {
+            background-color: #1e2938;
+            border-left-color: #10b981;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #2d3748;
+            background-color: #111519;
+            padding: 0 24px;
+        }
+
+        .tab {
+            padding: 16px 20px;
+            border: none;
+            background: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #cbd5e0;
+        }
+
+        .tab.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .eval-case {
+            background-color: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .eval-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .eval-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .eval-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #a0aec0;
+        }
+
+        .prompt-section {
+            background-color: #0f1419;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #cbd5e0;
+            border-left: 3px solid #4b5563;
+        }
+
+        .outputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .output-block {
+            background-color: #0f1419;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .output-header {
+            background-color: #141a27;
+            padding: 12px;
+            border-bottom: 1px solid #2d3748;
+            font-size: 13px;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .output-header.without {
+            color: #ef4444;
+        }
+
+        .output-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #cbd5e0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+        }
+
+        .grading-section {
+            background-color: #0f1419;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .grading-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #7b8794;
+            margin-bottom: 8px;
+        }
+
+        .assertion {
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            border-left: 3px solid transparent;
+        }
+
+        .assertion.pass {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+            color: #86efac;
+        }
+
+        .assertion.fail {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .assertion-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .badge-pass {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .badge-fail {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .evidence-toggle {
+            cursor: pointer;
+            color: #60a5fa;
+            font-size: 12px;
+            margin-top: 4px;
+            text-decoration: underline;
+        }
+
+        .evidence {
+            display: none;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .evidence.show {
+            display: block;
+        }
+
+        .feedback-area {
+            background-color: #0f1419;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #2d3748;
+        }
+
+        .feedback-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #7b8794;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            background-color: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 4px;
+            color: #cbd5e0;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            background-color: #1e2938;
+        }
+
+        .benchmark-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background-color: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #a0aec0;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+        }
+
+        .benchmark-table th {
+            background-color: #141a27;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a0aec0;
+            text-transform: uppercase;
+            border-bottom: 2px solid #2d3748;
+        }
+
+        .benchmark-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2d3748;
+            font-size: 13px;
+        }
+
+        .benchmark-table tr:hover {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .analysis-section {
+            background-color: #0f1419;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            border-left: 3px solid #60a5fa;
+        }
+
+        .analysis-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #60a5fa;
+        }
+
+        .analysis-text {
+            font-size: 13px;
+            color: #cbd5e0;
+            line-height: 1.6;
+        }
+
+        .analysis-list {
+            margin-top: 8px;
+            margin-left: 16px;
+        }
+
+        .analysis-list li {
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #cbd5e0;
+        }
+
+        .footer {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-top: 1px solid #2d3748;
+            background-color: #111519;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #1a1f2e;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            color: #cbd5e0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #1e2938;
+            border-color: #4b5563;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .submit-btn {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background-color: #059669;
+            border-color: #059669;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .stat {
+            display: flex;
+            gap: 4px;
+        }
+
+        .stat-label {
+            color: #7b8794;
+        }
+
+        .stat-value {
+            color: #cbd5e0;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Blender MCP Skill — Eval Review (Iteration 1)</h1>
+        <p class="header-subtitle">Comprehensive evaluation of blender-mcp skill across 3 test cases with skill vs. baseline comparison</p>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Navigation</div>
+                <button class="nav-item active" onclick="switchTab('outputs')">📊 Outputs</button>
+                <button class="nav-item" onclick="switchTab('benchmark')">📈 Benchmark</button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Evaluation Cases</div>
+                <div class="nav-item active" onclick="switchEval(0)" data-eval="0">
+                    <strong>eval-0</strong><br>
+                    <span style="font-size:12px; color:#7b8794;">Produce Asset (Table)</span>
+                </div>
+                <div class="nav-item" onclick="switchEval(1)" data-eval="1">
+                    <strong>eval-1</strong><br>
+                    <span style="font-size:12px; color:#7b8794;">Debug Validation</span>
+                </div>
+                <div class="nav-item" onclick="switchEval(2)" data-eval="2">
+                    <strong>eval-2</strong><br>
+                    <span style="font-size:12px; color:#7b8794;">Fix Render Quality</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('outputs')">Outputs</button>
+                <button class="tab" onclick="switchTab('benchmark')">Benchmark</button>
+            </div>
+
+            <div id="outputs-tab" class="tab-content active">
+                <div id="eval-container">
+                    <!-- Dynamically populated by JavaScript -->
+                </div>
+            </div>
+
+            <div id="benchmark-tab" class="tab-content">
+                <!-- Benchmark content populated by JavaScript -->
+            </div>
+
+            <div class="footer">
+                <div class="nav-buttons">
+                    <button onclick="prevEval()" id="prev-btn">← Previous</button>
+                    <span style="font-size:13px; color:#7b8794;">
+                        <span id="eval-counter">1</span> / 3
+                    </span>
+                    <button onclick="nextEval()" id="next-btn">Next →</button>
+                </div>
+                <button class="submit-btn" onclick="downloadFeedback()">⬇ Download Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const evals = [
+            {
+                id: 0,
+                name: 'eval-0-produce-asset',
+                title: 'Produce Asset (Table)',
+                prompt: 'Create a JavaScript module that interfaces with Blender MCP to produce a simple table asset (flat top + 4 legs), apply finishing touches, render hero/top-down shots, and export as STL+FBX.',
+                with_skill: {
+                    output: `#!/usr/bin/env node
+
+/**
+ * Blender MCP Producer Script: Table Generation
+ *
+ * Creates a simple table (flat top surface with 4 legs), applies finishing touches,
+ * renders hero and top-down shots, exports as STL and FBX, and saves the .blend file.
+ */
+
+const net = require('net');
+const path = require('path');
+const fs = require('fs');
+const { promisify } = require('util');
+
+const DEFAULT_PORT = 9876;
+const DEFAULT_OUTPUT_DIR = path.join(process.cwd(), 'outputs');
+const TIMEOUT_MS = 30000;
+
+const TABLE_CONFIG = {
+  top_width: 1000,
+  top_depth: 800,
+  top_thickness: 50,
+  leg_height: 700,
+  leg_size: 40,
+  leg_offset: 100,
+};
+
+class BlenderMCPClient {
+  constructor(port = DEFAULT_PORT) {
+    this.port = port;
+    this.socket = null;
+    this.nextId = 1;
+    this.pendingRequests = new Map();
+    this.connected = false;
+    this.receiveBuffer = '';
+  }
+
+  async connect() {
+    return new Promise((resolve, reject) => {
+      this.socket = net.createConnection(this.port, 'localhost', () => {
+        this.connected = true;
+        this.socket.on('data', (data) => this._handleData(data));
+        this.socket.on('error', (err) => this._handleError(err));
+        this.socket.on('close', () => {
+          this.connected = false;
+        });
+        resolve();
+      });
+
+      this.socket.on('error', (err) => {
+        this.connected = false;
+        reject(new Error(\`Failed to connect to Blender MCP on port \${this.port}: \${err.message}\`));
+      });
+    });
+  }
+
+  disconnect() {
+    if (this.socket) {
+      this.socket.destroy();
+      this.socket = null;
+      this.connected = false;
+    }
+  }
+
+  async call(command, params = {}, timeoutMs = TIMEOUT_MS) {
+    if (!this.connected) {
+      throw new Error('Not connected to Blender MCP server');
+    }
+
+    const id = this.nextId++;
+    const request = { id, command, params };
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.pendingRequests.delete(id);
+        reject(new Error(\`Command "\${command}" timed out after \${timeoutMs}ms\`));
+      }, timeoutMs);
+
+      this.pendingRequests.set(id, { resolve, reject, timeout });
+
+      try {
+        const jsonStr = JSON.stringify(request);
+        this.socket.write(jsonStr);
+      } catch (err) {
+        this.pendingRequests.delete(id);
+        clearTimeout(timeout);
+        reject(new Error(\`Failed to send command: \${err.message}\`));
+      }
+    });
+  }
+
+  _handleData(data) {
+    this.receiveBuffer += data.toString();
+    this._processBuffer();
+  }
+
+  _processBuffer() {
+    let braceDepth = 0;
+    let inString = false;
+    let escape = false;
+    let messageStart = 0;
+
+    for (let i = 0; i < this.receiveBuffer.length; i++) {
+      const char = this.receiveBuffer[i];
+
+      if (escape) {
+        escape = false;
+        continue;
+      }
+
+      if (char === '\\\\') {
+        escape = true;
+        continue;
+      }
+
+      if (char === '"' && !escape) {
+        inString = !inString;
+        continue;
+      }
+
+      if (!inString) {
+        if (char === '{') braceDepth++;
+        if (char === '}') braceDepth--;
+
+        if (braceDepth === 0 && i > messageStart) {
+          const messageStr = this.receiveBuffer.substring(messageStart, i + 1);
+          this._handleMessage(messageStr);
+          messageStart = i + 1;
+        }
+      }
+    }
+
+    this.receiveBuffer = this.receiveBuffer.substring(messageStart);
+  }
+
+  _handleMessage(messageStr) {
+    try {
+      const msg = JSON.parse(messageStr);
+      if (msg.id && this.pendingRequests.has(msg.id)) {
+        const { resolve, reject, timeout } = this.pendingRequests.get(msg.id);
+        clearTimeout(timeout);
+        this.pendingRequests.delete(msg.id);
+
+        if (msg.error) {
+          reject(new Error(msg.error));
+        } else {
+          let result = msg.result;
+          if (result && typeof result === 'object' && 'result' in result) {
+            result = result.result;
+          }
+          resolve(result);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to parse message:', messageStr, err);
+    }
+  }
+
+  _handleError(err) {
+    console.error('Socket error:', err);
+    this.connected = false;
+  }
+}
+
+(async () => {
+  // Main execution
+  console.log('Blender MCP Table Producer started');
+})();`,
+                    grading: {
+                        pass_rate: 0.92,
+                        passed: 12,
+                        total: 13,
+                        assertions: [
+                            { text: 'no_blender_prefix', passed: true, evidence: 'Lines 196-204: client.call unprefixed commands' },
+                            { text: 'single_quotes_python', passed: false, evidence: 'Mixed quote usage (borderline)' },
+                            { text: 'brace_depth_parser', passed: true, evidence: 'Lines 107-147: explicit brace-depth counting' },
+                            { text: 'scene_cleanup_correct', passed: true, evidence: 'Lines 195-225: save_file with use_empty:true' },
+                            { text: 'shade_smooth_execute_python', passed: true, evidence: 'Per-object loop with execute_python' },
+                            { text: 'stl_via_execute_python', passed: true, evidence: 'bpy.ops.wm.stl_export via execute_python' },
+                            { text: 'render_output_path', passed: true, evidence: 'render calls use output_path parameter' },
+                            { text: 'gray_background', passed: true, evidence: 'World bg set to 0.18 gray' },
+                            { text: 'light_energy_sufficient', passed: true, evidence: 'Area lights 200-500W' },
+                            { text: 'camera_bounding_box', passed: true, evidence: 'Camera from model bounding box' },
+                            { text: 'ground_plane_named', passed: true, evidence: 'Ground plane named _ground_plane' },
+                            { text: 'result_double_unwrap', passed: true, evidence: 'Double-unwrap logic at lines 151-154' },
+                            { text: 'engine_lowercase', passed: true, evidence: 'render engine set as lowercase eevee' }
+                        ],
+                        tokens: 116634,
+                        duration: 60.5
+                    }
+                },
+                without_skill: {
+                    output: `#!/usr/bin/env node
+
+/**
+ * Blender MCP Table Production Script
+ * Creates a simple table model with proper topology, applies modifiers,
+ * renders hero and top-down shots, and exports to STL and FBX formats.
+ */
+
+const net = require("net");
+const path = require("path");
+const fs = require("fs");
+const { EventEmitter } = require("events");
+
+class BlenderMCPClient extends EventEmitter {
+  constructor(host = "localhost", port = 9876) {
+    super();
+    this.host = host;
+    this.port = port;
+    this.socket = null;
+    this.requestId = 0;
+    this.pendingRequests = new Map();
+    this.buffer = "";
+  }
+
+  async connect() {
+    return new Promise((resolve, reject) => {
+      this.socket = net.createConnection(this.port, this.host, () => {
+        console.log(\`[MCP] Connected to Blender on \${this.host}:\${this.port}\`);
+        resolve();
+      });
+
+      this.socket.on("data", (data) => this._handleData(data));
+      this.socket.on("error", (err) => {
+        console.error(\`[MCP] Connection error:\`, err.message);
+        reject(err);
+      });
+      this.socket.on("close", () => {
+        console.log("[MCP] Connection closed");
+        this.emit("closed");
+      });
+
+      setTimeout(() => {
+        reject(new Error("Connection timeout"));
+      }, 10000);
+    });
+  }
+
+  _handleData(data) {
+    this.buffer += data.toString();
+    const lines = this.buffer.split("\\n");
+    this.buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      try {
+        const response = JSON.parse(line);
+        this._handleResponse(response);
+      } catch (err) {
+        console.error("[MCP] Failed to parse response:", line, err.message);
+      }
+    }
+  }
+
+  _handleResponse(response) {
+    if (response.id && this.pendingRequests.has(response.id)) {
+      const { resolve, reject, timeout } = this.pendingRequests.get(response.id);
+      clearTimeout(timeout);
+      this.pendingRequests.delete(response.id);
+
+      if (response.error) {
+        reject(new Error(\`\${response.error.message || "Unknown error"}\`));
+      } else {
+        resolve(response.result);
+      }
+    } else if (response.method) {
+      this.emit("notification", response);
+    }
+  }
+
+  async request(method, params = {}, timeoutMs = 30000) {
+    if (!this.socket) throw new Error("Not connected");
+
+    const id = ++this.requestId;
+    const request = { jsonrpc: "2.0", id, method, params };
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.pendingRequests.delete(id);
+        reject(new Error(\`Request timeout: \${method}\`));
+      }, timeoutMs);
+
+      this.pendingRequests.set(id, { resolve, reject, timeout });
+
+      try {
+        this.socket.write(JSON.stringify(request) + "\\n");
+      } catch (err) {
+        this.pendingRequests.delete(id);
+        clearTimeout(timeout);
+        reject(err);
+      }
+    });
+  }
+
+  async execute_bpy_script(script, description = "") {
+    const params = { script };
+    if (description) params.description = description;
+    return this.request("execute_bpy_script", params, 60000);
+  }
+
+  async close() {
+    if (this.socket) {
+      this.socket.end();
+      return new Promise((resolve) => {
+        this.socket.on("close", resolve);
+      });
+    }
+  }
+}`,
+                    grading: {
+                        pass_rate: 0.38,
+                        passed: 5,
+                        total: 13,
+                        assertions: [
+                            { text: 'no_blender_prefix', passed: true, evidence: 'execute_bpy_script used unprefixed' },
+                            { text: 'single_quotes_python', passed: true, evidence: 'Consistent single quotes in Python' },
+                            { text: 'brace_depth_parser', passed: false, evidence: 'Line-based parsing with split on newline' },
+                            { text: 'scene_cleanup_correct', passed: false, evidence: 'No save_file with use_empty:true' },
+                            { text: 'shade_smooth_execute_python', passed: true, evidence: 'Uses execute_bpy_script' },
+                            { text: 'stl_via_execute_python', passed: true, evidence: 'bpy.ops.export_mesh.stl used' },
+                            { text: 'render_output_path', passed: false, evidence: 'Uses filepath not output_path' },
+                            { text: 'gray_background', passed: false, evidence: 'Background strength 0.8 (too bright)' },
+                            { text: 'light_energy_sufficient', passed: false, evidence: 'Lights have energy 2.0, 0.8, 0.5 (too low)' },
+                            { text: 'camera_bounding_box', passed: false, evidence: 'Hardcoded camera location (3,3,2)' },
+                            { text: 'ground_plane_named', passed: false, evidence: 'No ground plane created' },
+                            { text: 'result_double_unwrap', passed: false, evidence: 'No result unwrapping logic' },
+                            { text: 'engine_lowercase', passed: false, evidence: 'No render engine set' }
+                        ],
+                        tokens: 105919,
+                        duration: 40.7
+                    }
+                }
+            },
+            {
+                id: 1,
+                name: 'eval-1-debug-validation',
+                title: 'Debug Validation Issue',
+                prompt: 'A validator reports impossible bounding box dimensions (156000×156000×8500 mm) for a 50mm chess piece. Diagnose the root cause and provide a detailed fix with explanations.',
+                with_skill: {
+                    output: `# 3D Asset Validator Bounding Box Issue Diagnosis
+
+## Problem Summary
+The asset validator reports an impossible bounding box of **156000×156000×8500 mm** for a chess piece that should be ~50mm. The validator is measuring stale scene data instead of the actual produced model.
+
+## Root Cause Analysis
+
+### Cause #1: Validator Never Opens the .blend File (Critical)
+The path escaping bug in validate() method silently fails to open the correct .blend file.
+
+**Example failure:**
+- Input: \`/path/to/chess piece/model.blend\`
+- The unescaped spaces break the Python string literal
+- Python syntax error → silent exception catch
+- Blender continues with whatever scene was previously loaded
+
+**Evidence:** 156000×156000×8500 mm is characteristic of stale accumulated geometry from multiple runs.
+
+### Cause #2: Ground Plane Not Excluded (Secondary)
+The exclusion filter only works if the validator successfully opened the correct .blend file.
+
+### Cause #3: Dimension Calculation Uses Raw Blender Coordinates (Minor)
+Conversion 1 Blender unit = 1mm amplifies errors from stale geometry.
+
+## Fix Implementation
+
+### Fix #1: Properly Escape the File Path
+\`\`\`javascript
+const escapedPath = JSON.stringify(absPath);
+await this.blenderClient.executePython(
+  \`import bpy\\\\nbpy.ops.wm.open_mainfile(filepath=\${escapedPath})\\\\n...\`
+);
+\`\`\`
+
+### Fix #2: Verify File Opening Succeeded
+\`\`\`javascript
+const verifyCode = \`import bpy
+opened_file = bpy.data.filepath
+expected_path = \${JSON.stringify(absPath)}
+__result__ = {'success': opened_file == expected_path, ...}\`;
+
+const openResult = await this.blenderClient.executePython(verifyCode);
+if (!openResult.success) {
+  throw new Error(\`Failed to open .blend file\`);
+}
+\`\`\`
+
+### Fix #3: Improve Ground Plane Handling
+Exclude ground plane variants and suspicious geometry.
+
+### Fix #4: Add Bounding Box Sanity Check
+Warn if dimensions are implausibly large for the model type.`,
+                    grading: {
+                        pass_rate: 0.80,
+                        passed: 4,
+                        total: 5,
+                        assertions: [
+                            { text: 'identifies_stale_scene', passed: true, evidence: 'Explicitly identifies measuring stale scene data' },
+                            { text: 'open_mainfile_fix', passed: true, evidence: 'Provides bpy.ops.wm.open_mainfile fix' },
+                            { text: 'ground_plane_mention', passed: true, evidence: 'Mentions excluding _ground_plane' },
+                            { text: 'scene_persistence_explanation', passed: false, evidence: 'Does not explain post-disconnect revert' },
+                            { text: 'single_quotes_in_fix', passed: true, evidence: 'All Python code uses single quotes' }
+                        ],
+                        tokens: 144194,
+                        duration: 172.4
+                    }
+                },
+                without_skill: {
+                    output: `# 3D Forge Asset Validator — Bounding Box Diagnosis
+
+## Executive Summary
+The validator is reporting **156,000×156,000×8,500 mm** because **the Blender scene contains leftover ground plane or auxiliary geometry at massive scale**.
+
+## Root Cause Analysis
+
+### 1. **Scene Contamination (Primary Issue)**
+The .blend file is correctly opened. However, the subsequent getMeshData() call should exclude ground planes, but either:
+- The ground plane is named differently (not \`_ground_plane\`)
+- Multiple geometry objects exist (e.g., 156×156 mm floor + 50mm piece)
+- The .blend has imported assets from another project
+
+### 2. **Why 156,000 mm?**
+The value suggests:
+- Blender defaults to 1.0 = 1 meter
+- A 156-meter ground plane exists
+- World coordinates: (0,0,0) to (156,156,8.5) meters
+
+### 3. **Concept Metadata Mismatch**
+The concept generator is scaling geometry incorrectly, OR working at 1000:1 scale.
+
+## Validator Logic Issues
+
+### Issue 1: Mesh Exclusion Logic Incomplete
+Only excludes \`_ground_plane\` prefix. Misses: ground_plane, Camera_Ground, Plane.001, GroundPlane
+
+### Issue 2: No Dimension Validation
+No detection for unreasonable dimensions relative to concept type.
+
+### Issue 3: Bounding Box Check Too Permissive
+5000mm limit for game assets is too large (should be <1000mm)
+
+## The Fix
+
+### Step 1: Exclude All Ground Plane Variants
+\`\`\`python
+GROUND_PLANE_PATTERNS = ['ground', 'plane', 'floor', 'staging', 'camera_plane']
+meshes = [o for o in bpy.data.objects if o.type == 'MESH' and ... and not is_ground_plane(o.name)]
+\`\`\``,
+                    grading: {
+                        pass_rate: 0.40,
+                        passed: 2,
+                        total: 5,
+                        assertions: [
+                            { text: 'identifies_stale_scene', passed: false, evidence: 'Attributes to scene contamination not measuring wrong scene' },
+                            { text: 'open_mainfile_fix', passed: true, evidence: 'Shows code already opens file' },
+                            { text: 'ground_plane_mention', passed: true, evidence: 'Mentions ground plane exclusion patterns' },
+                            { text: 'scene_persistence_explanation', passed: false, evidence: 'No mention of post-disconnect behavior' },
+                            { text: 'single_quotes_in_fix', passed: false, evidence: 'Some double quote usage in code' }
+                        ],
+                        tokens: 122004,
+                        duration: 165.8
+                    }
+                }
+            },
+            {
+                id: 2,
+                name: 'eval-2-fix-render-quality',
+                title: 'Fix Render Quality',
+                prompt: 'Renders are scoring 1.5/10 from the vision API due to washed-out appearance. Diagnose the lighting and material setup issues, then provide corrected code.',
+                with_skill: {
+                    output: `# 3D Forge Render Quality Fix Guide
+
+## Diagnosis Summary
+Renders score 1.5/10 from vision API due to:
+1. Washed Out Lighting & Background (Primary)
+2. shade_smooth Implementation Error (Secondary)
+
+## Issue 1: Washed Out Renders (Vision API 1.5/10)
+
+### Root Causes
+
+**Problem A: White Background (0.95 instead of 0.18)**
+White backgrounds eliminate shadow definition and make models appear flat/overexposed.
+- White (0.95): 1.6/10 vision score
+- Medium gray (0.18): 6/10 vision score
+
+**Problem B: Insufficient Light Energy**
+Current setup: Single 10W point light (60x too dim)
+Proper studio lighting: 500W key + 200W fill + 300W rim
+
+### Corrected Lighting & Background Setup
+
+\`\`\`javascript
+await client.call('execute_python', {
+  code: \`import bpy, mathutils
+
+# Find model center and bounding box
+meshes = [o for o in bpy.data.objects if o.type == 'MESH']
+if meshes:
+    all_coords = [obj.matrix_world @ mathutils.Vector(corner) for obj in meshes for corner in obj.bound_box]
+    xs = [c.x for c in all_coords]
+    center = mathutils.Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, (min(zs)+max(zs))/2))
+    size = max(max(xs)-min(xs), max(ys)-min(ys), max(zs)-min(zs))
+else:
+    center = mathutils.Vector((0,0,0))
+    size = 2.0
+
+# CRITICAL: World background MEDIUM GRAY (0.18), NOT white
+world = bpy.context.scene.world
+world.use_nodes = True
+bg = world.node_tree.nodes.get('Background')
+bg.inputs[0].default_value = (0.18, 0.18, 0.2, 1.0)  # Medium gray
+bg.inputs[1].default_value = 1.0
+
+# Calculate light distance relative to model size
+d = max(size * 2.0, 3.0)
+
+# 3-point AREA lighting with proper energies
+lighting_config = [
+    ('key_light', (d, d, d*0.8), 500.0),
+    ('fill_light', (-d*0.6, d*0.6, d*0.5), 200.0),
+    ('rim_light', (0, -d*0.8, d*0.5), 300.0)
+]
+
+for name, loc_offset, energy in lighting_config:
+    light_data = bpy.data.lights.new(name=name, type='AREA')
+    light_data.energy = energy  # >= 200W
+    light_data.size = size * 0.5
+    
+    light_obj = bpy.data.objects.new(name=name, object_data=light_data)
+    bpy.context.scene.collection.objects.link(light_obj)
+    light_obj.location = center + mathutils.Vector(loc_offset)
+    direction = center - light_obj.location
+    rotation_quat = direction.to_track_quat('-Z', 'Y')
+    light_obj.rotation_euler = rotation_quat.to_euler()
+
+# Ground plane
+bpy.ops.mesh.primitive_plane_add(size=size*4, location=(center.x, center.y, min(zs) - 0.01))
+ground = bpy.context.active_object
+ground.name = '_ground_plane'
+\`
+});
+\`\`\`
+
+### Key Changes
+| Parameter | Old | New | Impact |
+|-----------|-----|-----|--------|
+| Background | (1.0,1.0,1.0) white | (0.18,0.18,0.2) gray | Eliminates washout; +4 vision points |
+| Light type | Point | Area | Softer, professional shadows |
+| Key energy | 10W | 500W | 50x brighter |
+| Fill energy | none | 200W | Fills shadows |
+| Rim energy | none | 300W | Separates from background |
+
+## Issue 2: shade_smooth Implementation Error
+
+### Root Cause
+Using \`blender_cleanup\` with shade_smooth fails because it's not the right tool.
+
+### Corrected Implementation
+\`\`\`javascript
+await client.call('execute_python', {
+  code: \`import bpy
+
+for obj in bpy.data.objects:
+    if obj.type == 'MESH' and not obj.name.startswith('_ground_plane'):
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.shade_smooth()
+        obj.select_set(False)
+
+__result__ = {'shaded': True}
+\`
+});
+\`\`\``,
+                    grading: {
+                        pass_rate: 0.71,
+                        passed: 5,
+                        total: 7,
+                        assertions: [
+                            { text: 'gray_bg_fix', passed: true, evidence: 'Identifies white (0.95) problem, recommends gray (0.18)' },
+                            { text: 'area_lights_fix', passed: true, evidence: 'Recommends area lights with 500W, 200W, 300W' },
+                            { text: 'three_point_lighting', passed: true, evidence: 'Key, fill, rim setup positioned relative to model' },
+                            { text: 'engine_lowercase_fix', passed: true, evidence: 'States eevee lowercase not EEVEE' },
+                            { text: 'shade_smooth_fix', passed: true, evidence: 'Explains failure and provides execute_python per-object loop' },
+                            { text: 'camera_framing_advice', passed: false, evidence: 'Not included in output' },
+                            { text: 'no_blender_prefix_advice', passed: false, evidence: 'Not explicitly stated' }
+                        ],
+                        tokens: 113071,
+                        duration: 60.3
+                    }
+                },
+                without_skill: {
+                    output: `# Blender MCP Render Quality Fix Guide
+
+## Executive Summary
+Two separate issues:
+1. Washed-out renders (1.5/10 vision score)
+2. shade_smooth bpy_prop_collection error
+
+## Issue 1: Washed-Out Renders
+
+### Root Causes
+1. White background + high point light energy
+2. Missing color management
+3. No world AO or fill lighting
+4. EEVEE shadow precision underscore
+5. Possible missing material roughness
+
+### Diagnosis
+When rendering with:
+- White background (RGB 1,1,1)
+- Point light (5,5,5) energy 10
+- No exposure/tone mapping
+- EEVEE engine
+
+Result: Linear RGB output without sRGB gamma correction → washed out.
+
+### Corrected Code
+
+#### Fix 1A: Proper Color Management
+
+\`\`\`python
+def set_render_settings_fixed(engine="EEVEE", resolution=2048):
+    scene = bpy.context.scene
+    
+    scene.render.engine = engine
+    scene.render.resolution_x = resolution
+    scene.render.resolution_y = resolution
+    scene.render.samples = 256
+    
+    # Color Management
+    scene.display_settings.display_device = "sRGB"
+    scene.view_settings.view_transform = "Filmic"
+    scene.view_settings.exposure = 0.5
+    scene.view_settings.gamma = 1.0
+    
+    # EEVEE Settings
+    eevee = scene.eevee
+    eevee.use_bloom = True
+    eevee.bloom_intensity = 0.1
+    eevee.shadow_pool_size = "512"
+    eevee.use_gtao = True
+\`\`\`
+
+#### Fix 1B: Improved Lighting
+
+\`\`\`python
+def setup_lighting_fixed():
+    import bpy
+    
+    scene = bpy.context.scene
+    
+    # Key Light - REDUCED energy
+    light_data = bpy.data.lights.new(name="KeyLight", type="POINT")
+    light_data.energy = 2.5  # REDUCED from 10
+    light_data.shadow_soft_size = 0.1
+    
+    light_obj = bpy.data.objects.new("KeyLight", light_data)
+    scene.collection.objects.link(light_obj)
+    light_obj.location = (5, 5, 5)
+    
+    # Fill Light
+    fill_light_data = bpy.data.lights.new(name="FillLight", type="POINT")
+    fill_light_data.energy = 0.8
+    fill_light_data.color = (0.8, 0.8, 1.0)
+    
+    # Background - OFF-WHITE not pure white
+    world = scene.world
+    world.use_nodes = True
+    bg_node = world.node_tree.nodes["Background"]
+    bg_node.inputs[0].default_value = (0.95, 0.95, 0.95, 1.0)  # Off-white
+    bg_node.inputs[1].default_value = 1.0
+\`\`\`
+
+## Issue 2: shade_smooth Error
+
+The guide defines and uses 'blender_cleanup_fixed()' function with per-object iteration.`,
+                    grading: {
+                        pass_rate: 0.14,
+                        passed: 1,
+                        total: 7,
+                        assertions: [
+                            { text: 'gray_bg_fix', passed: false, evidence: 'Recommends off-white (0.95) not gray (0.18)' },
+                            { text: 'area_lights_fix', passed: false, evidence: 'Uses point lights with 2.5W and 0.8W energy (too low)' },
+                            { text: 'three_point_lighting', passed: false, evidence: 'Only 2 lights (key + fill), no rim light' },
+                            { text: 'engine_lowercase_fix', passed: false, evidence: 'Uses uppercase EEVEE' },
+                            { text: 'shade_smooth_fix', passed: true, evidence: 'Explains error and provides per-object fix' },
+                            { text: 'camera_framing_advice', passed: false, evidence: 'Hardcoded camera position (8,8,6)' },
+                            { text: 'no_blender_prefix_advice', passed: false, evidence: 'Retains blender_ prefix in functions' }
+                        ],
+                        tokens: 105616,
+                        duration: 48.1
+                    }
+                }
+            }
+        ];
+
+        const benchmark = {
+            skill_name: 'blender-mcp',
+            iteration: 1,
+            timestamp: '2026-03-24T12:00:00Z',
+            configurations: [
+                { name: 'with_skill', pass_rate: 0.84, mean_tokens: 124633, mean_duration: 97.7 },
+                { name: 'without_skill', pass_rate: 0.32, mean_tokens: 111180, mean_duration: 84.9 }
+            ],
+            delta: {
+                pass_rate: '+52pp (0.84 vs 0.32)',
+                tokens: '+12% (124.6K vs 111.2K)',
+                duration: '+15% (97.7s vs 84.9s)'
+            },
+            evals: [
+                {
+                    name: 'eval-0-produce-asset',
+                    with_skill: { pass_rate: 0.92, passed: 12, total: 13, tokens: 116634, duration: 60.5 },
+                    without_skill: { pass_rate: 0.38, passed: 5, total: 13, tokens: 105919, duration: 40.7 }
+                },
+                {
+                    name: 'eval-1-debug-validation',
+                    with_skill: { pass_rate: 0.80, passed: 4, total: 5, tokens: 144194, duration: 172.4 },
+                    without_skill: { pass_rate: 0.40, passed: 2, total: 5, tokens: 122004, duration: 165.8 }
+                },
+                {
+                    name: 'eval-2-fix-render-quality',
+                    with_skill: { pass_rate: 0.71, passed: 5, total: 7, tokens: 113071, duration: 60.3 },
+                    without_skill: { pass_rate: 0.14, passed: 1, total: 7, tokens: 105616, duration: 48.1 }
+                }
+            ],
+            analysis: {
+                skill_impact: 'Strong positive. Pass rate jumps from 32% to 84% (+52pp). The skill provides critical domain-specific knowledge that general LLM training simply doesn\'t cover.',
+                strongest_impact: [
+                    'Render quality: 0.14 → 0.71 (+57pp)',
+                    'Production scripts: 0.38 → 0.92 (+54pp)'
+                ],
+                gaps: [
+                    'camera_framing_advice: Skill covers it but eval-2 didn\'t surface in debug context',
+                    'no_blender_prefix_advice: Skill covers convention but model doesn\'t generalize when debugging specific tool names',
+                    'scene_persistence_explanation: Needs stronger callout of producer-disconnect-revert scenario',
+                    'single_quotes_python: Needs more emphasis with examples'
+                ]
+            }
+        };
+
+        let currentEval = 0;
+        let currentTab = 'outputs';
+        const feedback = {};
+
+        function switchEval(idx) {
+            currentEval = idx;
+            document.querySelectorAll('.nav-item[data-eval]').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+            document.getElementById('eval-counter').textContent = idx + 1;
+            renderEval();
+            updateNavButtons();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach((el, i) => {
+                el.classList.toggle('active', (i === 0 && tab === 'outputs') || (i === 1 && tab === 'benchmark'));
+            });
+            document.querySelectorAll('.tab-content').forEach((el, i) => {
+                el.classList.toggle('active', (i === 0 && tab === 'outputs') || (i === 1 && tab === 'benchmark'));
+            });
+            if (tab === 'benchmark') {
+                renderBenchmark();
+            }
+        }
+
+        function nextEval() {
+            if (currentEval < evals.length - 1) switchEval(currentEval + 1);
+        }
+
+        function prevEval() {
+            if (currentEval > 0) switchEval(currentEval - 1);
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev-btn').disabled = currentEval === 0;
+            document.getElementById('next-btn').disabled = currentEval === evals.length - 1;
+        }
+
+        function renderEval() {
+            const eval_ = evals[currentEval];
+            const html = `
+                <div class="eval-case">
+                    <div class="eval-header">
+                        <div class="eval-title">${eval_.title}</div>
+                        <div class="eval-stats">
+                            <div class="stat">
+                                <span class="stat-label">With Skill:</span>
+                                <span class="stat-value">${(eval_.with_skill.grading.pass_rate * 100).toFixed(0)}%</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Without:</span>
+                                <span class="stat-value">${(eval_.without_skill.grading.pass_rate * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prompt-section">
+                        <strong>Prompt:</strong> ${eval_.prompt}
+                    </div>
+
+                    <div class="outputs-grid">
+                        <div class="output-block">
+                            <div class="output-header">✓ With Skill</div>
+                            <div class="output-content">${escapeHtml(eval_.with_skill.output)}</div>
+                        </div>
+                        <div class="output-block">
+                            <div class="output-header without">✗ Without Skill</div>
+                            <div class="output-content">${escapeHtml(eval_.without_skill.output)}</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-row" style="margin-bottom: 16px;">
+                        <div class="stat">
+                            <span class="stat-label">With Skill Tokens:</span>
+                            <span class="stat-value">${eval_.with_skill.grading.tokens.toLocaleString()}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Duration:</span>
+                            <span class="stat-value">${eval_.with_skill.grading.duration.toFixed(1)}s</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Without Tokens:</span>
+                            <span class="stat-value">${eval_.without_skill.grading.tokens.toLocaleString()}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Duration:</span>
+                            <span class="stat-value">${eval_.without_skill.grading.duration.toFixed(1)}s</span>
+                        </div>
+                    </div>
+
+                    <div class="grading-section">
+                        <div class="grading-title">Grading Results (With Skill)</div>
+                        ${eval_.with_skill.grading.assertions.map((a, i) => `
+                            <div class="assertion ${a.passed ? 'pass' : 'fail'}">
+                                <span class="assertion-badge ${a.passed ? 'badge-pass' : 'badge-fail'}">
+                                    ${a.passed ? 'PASS' : 'FAIL'}
+                                </span>
+                                <strong>${a.text}</strong>
+                                <div class="evidence-toggle" onclick="toggleEvidence('with_${currentEval}_${i}')">
+                                    show evidence →
+                                </div>
+                                <div id="with_${currentEval}_${i}" class="evidence">
+                                    ${a.evidence}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="grading-section">
+                        <div class="grading-title">Grading Results (Without Skill)</div>
+                        ${eval_.without_skill.grading.assertions.map((a, i) => `
+                            <div class="assertion ${a.passed ? 'pass' : 'fail'}">
+                                <span class="assertion-badge ${a.passed ? 'badge-pass' : 'badge-fail'}">
+                                    ${a.passed ? 'PASS' : 'FAIL'}
+                                </span>
+                                <strong>${a.text}</strong>
+                                <div class="evidence-toggle" onclick="toggleEvidence('without_${currentEval}_${i}')">
+                                    show evidence →
+                                </div>
+                                <div id="without_${currentEval}_${i}" class="evidence">
+                                    ${a.evidence}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="feedback-area">
+                        <div class="feedback-label">Your Feedback</div>
+                        <textarea id="feedback-${currentEval}" placeholder="Add any observations or notes about this eval..."></textarea>
+                    </div>
+                </div>
+            `;
+            document.getElementById('eval-container').innerHTML = html;
+            if (feedback[currentEval]) {
+                document.getElementById(`feedback-${currentEval}`).value = feedback[currentEval];
+            }
+        }
+
+        function renderBenchmark() {
+            const html = `
+                <h2 style="margin-bottom: 24px; font-size: 20px;">Overall Benchmark Results</h2>
+                
+                <div class="benchmark-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${(benchmark.configurations[0].pass_rate * 100).toFixed(0)}%</div>
+                        <div class="metric-label">With Skill Pass Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${(benchmark.configurations[1].pass_rate * 100).toFixed(0)}%</div>
+                        <div class="metric-label">Without Skill Pass Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">+52pp</div>
+                        <div class="metric-label">Pass Rate Improvement</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Per-Evaluation Breakdown</h3>
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Evaluation</th>
+                            <th>With Skill</th>
+                            <th>Without Skill</th>
+                            <th>Improvement</th>
+                            <th>Avg. Tokens (With)</th>
+                            <th>Avg. Duration (With)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${benchmark.evals.map((e, i) => {
+                            const with_ = e.with_skill;
+                            const without = e.without_skill;
+                            const delta = ((with_.pass_rate - without.pass_rate) * 100).toFixed(0);
+                            return `
+                                <tr>
+                                    <td><strong>${e.name.replace('eval-', 'eval ')}</strong></td>
+                                    <td style="color: #86efac;">${(with_.pass_rate * 100).toFixed(0)}% (${with_.passed}/${with_.total})</td>
+                                    <td style="color: #fca5a5;">${(without.pass_rate * 100).toFixed(0)}% (${without.passed}/${without.total})</td>
+                                    <td style="color: #60a5fa;">+${delta}pp</td>
+                                    <td>${with_.tokens.toLocaleString()}</td>
+                                    <td>${with_.duration.toFixed(1)}s</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+
+                <h3 style="margin-bottom: 16px; margin-top: 32px; font-size: 16px;">Delta Summary</h3>
+                <div class="analysis-section" style="border-left-color: #10b981;">
+                    <div class="analysis-title">Pass Rate Delta</div>
+                    <div class="analysis-text">${benchmark.delta.pass_rate}</div>
+                </div>
+                <div class="analysis-section" style="border-left-color: #f59e0b;">
+                    <div class="analysis-title">Token Usage Delta</div>
+                    <div class="analysis-text">${benchmark.delta.tokens}</div>
+                </div>
+                <div class="analysis-section" style="border-left-color: #f59e0b;">
+                    <div class="analysis-title">Duration Delta</div>
+                    <div class="analysis-text">${benchmark.delta.duration}</div>
+                </div>
+
+                <h3 style="margin-bottom: 16px; margin-top: 32px; font-size: 16px;">Analysis</h3>
+                <div class="analysis-section" style="border-left-color: #10b981;">
+                    <div class="analysis-title">Skill Impact</div>
+                    <div class="analysis-text">${benchmark.analysis.skill_impact}</div>
+                </div>
+
+                <div class="analysis-section" style="border-left-color: #10b981;">
+                    <div class="analysis-title">Strongest Impact Areas</div>
+                    <ul class="analysis-list">
+                        ${benchmark.analysis.strongest_impact.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="analysis-section" style="border-left-color: #ef4444;">
+                    <div class="analysis-title">Identified Gaps</div>
+                    <ul class="analysis-list">
+                        ${benchmark.analysis.gaps.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            document.getElementById('benchmark-tab').innerHTML = html;
+        }
+
+        function toggleEvidence(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function downloadFeedback() {
+            const feedbackEls = document.querySelectorAll('textarea');
+            feedbackEls.forEach((el, i) => {
+                const val = el.value.trim();
+                if (val) feedback[i] = val;
+            });
+
+            const data = {
+                generated_at: new Date().toISOString(),
+                skill: 'blender-mcp',
+                iteration: 1,
+                evals: evals.map((e, i) => ({
+                    eval_id: e.id,
+                    eval_name: e.name,
+                    feedback: feedback[i] || ''
+                }))
+            };
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'feedback.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextEval();
+            if (e.key === 'ArrowLeft') prevEval();
+        });
+
+        renderEval();
+        updateNavButtons();
+    </script>
+</body>
+</html>

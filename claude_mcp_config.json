@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/.venv/bin/python3.12",
+      "args": ["/Users/tatsheen/claw-architect/openclaw-blender-mcp/server/blender_mcp_server.py"],
+      "env": {}
+    },
+    "blender-2": {
+      "command": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/.venv/bin/python3.12",
+      "args": ["/Users/tatsheen/claw-architect/openclaw-blender-mcp/server/blender_mcp_server.py"],
+      "env": {
+        "BLENDER_PORT": "9877",
+        "OPENCLAW_PORT": "9877"
+      }
+    },
+    "blender-3": {
+      "command": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/.venv/bin/python3.12",
+      "args": ["/Users/tatsheen/claw-architect/openclaw-blender-mcp/server/blender_mcp_server.py"],
+      "env": {
+        "BLENDER_PORT": "9878",
+        "OPENCLAW_PORT": "9878"
+      }
+    }
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "version": "1.0",
+  "mappings": [
+    {
+      "failure_code": "RENDER_BLACK",
+      "fix_id": "FIX_ADD_LIGHTS_WORLD_ENV",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "LIGHT_UNDEREXPOSED",
+      "fix_id": "FIX_BOOST_LIGHT_EXPOSURE",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "LIGHT_OVEREXPOSED",
+      "fix_id": "FIX_REDUCE_LIGHT_TONE_MAP",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "CAMERA_OCCLUDED",
+      "fix_id": "FIX_MOVE_CAMERA_ADJUST_CLIP",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "CAMERA_MISFRAMED",
+      "fix_id": "FIX_AUTO_FRAME_PRIMARY_SUBJECT",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Review framing and adjust composition rule-of-thirds manually if auto-centering insufficient." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "MATERIAL_FLAT",
+      "fix_id": "FIX_ASSIGN_MATERIAL_PROPERTIES",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "MATERIAL_DEFAULT_GREY",
+      "fix_id": "FIX_REPLACE_DEFAULT_MATERIALS",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "GEOMETRY_PRIMITIVE",
+      "fix_id": "FIX_REMOVE_PLACEHOLDER_PRIMITIVES",
+      "deterministic": true,
+      "action": { "type": "research_escalation", "note": "Requires replacement model import; escalate to model library team." },
+      "max_attempts": 1
+    },
+    {
+      "failure_code": "GEOMETRY_LOW_POLY",
+      "fix_id": "FIX_ADD_SUBDIVISION_SURFACE",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "MOTION_UNREADABLE",
+      "fix_id": "FIX_ENABLE_MOTION_BLUR_SAMPLES",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "FORENSIC_NO_MARKERS",
+      "fix_id": "FIX_CREATE_FORENSIC_MARKERS",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Manual placement of markers at forensic points; requires case knowledge." },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "FORENSIC_NO_SCALE",
+      "fix_id": "FIX_CREATE_SCALE_BAR",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Manual positioning and labeling of scale reference in frame." },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "FORENSIC_NO_LABELS",
+      "fix_id": "FIX_ADD_CASE_EXHIBIT_LABELS",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Manual creation of case and exhibit text labels." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "COMPOSITION_EMPTY_SPACE",
+      "fix_id": "FIX_REFRAME_REDUCE_NEGATIVE_SPACE",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Camera repositioning and composition review required." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "COMPOSITION_NO_DEPTH",
+      "fix_id": "FIX_ADD_DEPTH_LAYERS_FOCUS",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Manual environmental layering and depth of field adjustment." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "DEFORMATION_ABSENT",
+      "fix_id": "FIX_APPLY_COLLISION_DAMAGE_SHAPEKEY",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "INTERIOR_MISSING",
+      "fix_id": "FIX_ENABLE_INTERIOR_GEOMETRY_MATERIALS",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "NIGHT_NO_EFFECT",
+      "fix_id": "FIX_CONFIGURE_NIGHTTIME_LIGHTING",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "TEMPORAL_FLICKER",
+      "fix_id": "FIX_STABILIZE_SAMPLES_SEEDS",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "TEMPORAL_DENOISE_SHIMMER",
+      "fix_id": "FIX_CONFIGURE_TEMPORAL_DENOISE",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "TEMPORAL_EXPOSURE_PUMP",
+      "fix_id": "FIX_REMOVE_EXPOSURE_KEYFRAMES",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "WITNESS_VISIBILITY_BLOCKED",
+      "fix_id": "FIX_VERIFY_SIGHTLINE_UNOBSTRUCTED",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Requires witness statement verification and camera POV adjustment." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "WEATHER_MISSING",
+      "fix_id": "FIX_ADD_VOLUMETRIC_WEATHER_EFFECTS",
+      "deterministic": false,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "LEGAL_DEMO_AID_MISSING",
+      "fix_id": "FIX_ADD_LEGAL_DISCLAIMER_TEXT",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Manual placement and styling of legal text overlay." },
+      "max_attempts": 3
+    },
+    {
+      "failure_code": "MECH_NON_MANIFOLD",
+      "fix_id": "FIX_FILL_HOLES_RECALC_NORMALS",
+      "deterministic": true,
+      "action": { "type": "validator_autofix" },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "MECH_BOUNDING_BOX",
+      "fix_id": "FIX_AUTO_SCALE_TO_PLATFORM",
+      "deterministic": true,
+      "action": { "type": "manual_followup", "note": "Apply platform scale correction in producer before re-validate." },
+      "max_attempts": 1
+    },
+    {
+      "failure_code": "VISUAL_LOW_SCORE",
+      "fix_id": "FIX_CAMERA_LIGHTING_PRESET_A",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Apply scene_lighting preset and camera auto-framing before re-render." },
+      "max_attempts": 2
+    },
+    {
+      "failure_code": "RENDER_INVALID_FRAME",
+      "fix_id": "FIX_RE_RENDER_AFTER_DIAGNOSE",
+      "deterministic": false,
+      "action": { "type": "manual_followup", "note": "Run render validation diagnostics and re-render invalid shots only." },
+      "max_attempts": 3
+    }
+  ]
+}

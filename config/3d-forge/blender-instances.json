@@ -1,0 +1,34 @@
+{
+  "_comment": "Multi-Blender instance registry. Each entry = one Blender process on a unique port. Agents claim instances via lock files to avoid collisions.",
+  "instances": [
+    {
+      "id": "blender-0",
+      "port": 9876,
+      "host": "127.0.0.1",
+      "status": "available",
+      "description": "Primary Blender instance"
+    },
+    {
+      "id": "blender-1",
+      "port": 9877,
+      "host": "127.0.0.1",
+      "status": "available",
+      "description": "Secondary Blender instance"
+    },
+    {
+      "id": "blender-2",
+      "port": 9878,
+      "host": "127.0.0.1",
+      "status": "available",
+      "description": "Tertiary Blender instance"
+    }
+  ],
+  "lock_dir": "data/3d-forge/locks",
+  "usage": {
+    "producer": "node blender-producer.js --concept-id ID --port 9877",
+    "validator": "node asset-validator.js --concept-id ID --port 9877",
+    "orchestrator": "node forge-orchestrator.js --full --port 9877",
+    "launch_blender": "Open Blender, install addon, change PORT in addon preferences to 9877"
+  },
+  "addon_port_config": "In Blender: Edit > Preferences > Add-ons > OpenClaw Blender Bridge > change PORT constant in script, or set env BLENDER_MCP_PORT before launching Blender"
+}

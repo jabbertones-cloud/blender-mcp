@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "fix-render-quality",
+  "prompt": "My 3D forge renders are coming out completely washed out - the vision API is scoring them 1.5/10. The model geometry looks fine when I open the .blend file manually. I'm using set_render_settings with engine EEVEE and 2048x2048. My lighting setup creates a point light at (5,5,5) with energy 10 and the background is white. Also shade_smooth keeps failing with a bpy_prop_collection error when I call blender_cleanup with action shade_smooth. Can you help me fix both issues?",
+  "assertions": [
+    {"id": "gray_bg_fix", "text": "Identifies white bg as problem, recommends gray ~0.18"},
+    {"id": "area_lights_fix", "text": "Recommends area lights with energy >= 200W"},
+    {"id": "three_point_lighting", "text": "Suggests 3-point lighting (key, fill, rim) relative to model"},
+    {"id": "engine_lowercase_fix", "text": "Identifies EEVEE should be lowercase eevee"},
+    {"id": "shade_smooth_fix", "text": "Provides execute_python per-object loop fix for shade_smooth"},
+    {"id": "camera_framing_advice", "text": "Mentions camera auto-framing from bounding box"},
+    {"id": "no_blender_prefix_advice", "text": "Corrects blender_cleanup and notes no blender_ prefix on MCP calls"}
+  ]
+}

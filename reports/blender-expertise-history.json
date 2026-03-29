@@ -1,0 +1,117 @@
+[
+  {
+    "date": "2026-03-24T21:38:42.220Z",
+    "quality_score": 91,
+    "knowledge_entries": 19,
+    "gap_count": 8,
+    "technique_coverage": 70
+  },
+  {
+    "date": "2026-03-26T10:49:07.436Z",
+    "quality_score": 90,
+    "knowledge_entries": 19,
+    "gap_count": 8,
+    "technique_coverage": 70,
+    "baseline_compliance": 25,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T10:51:29.443Z",
+    "quality_score": 91,
+    "knowledge_entries": 23,
+    "gap_count": 8,
+    "technique_coverage": 74,
+    "baseline_compliance": 75,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T10:52:19.710Z",
+    "quality_score": 91,
+    "knowledge_entries": 23,
+    "gap_count": 8,
+    "technique_coverage": 74,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T10:52:31.342Z",
+    "quality_score": 91,
+    "knowledge_entries": 23,
+    "gap_count": 8,
+    "technique_coverage": 74,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T10:56:21.250Z",
+    "quality_score": 91,
+    "knowledge_entries": 25,
+    "gap_count": 8,
+    "technique_coverage": 76,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T10:59:58.206Z",
+    "quality_score": 91,
+    "knowledge_entries": 25,
+    "gap_count": 8,
+    "technique_coverage": 76,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T11:07:39.885Z",
+    "quality_score": 91,
+    "knowledge_entries": 29,
+    "gap_count": 8,
+    "technique_coverage": 78,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 100
+  },
+  {
+    "date": "2026-03-26T11:34:31.377Z",
+    "quality_score": 91,
+    "knowledge_entries": 29,
+    "gap_count": 8,
+    "technique_coverage": 78,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  },
+  {
+    "date": "2026-03-26T11:52:49.408Z",
+    "quality_score": 91,
+    "knowledge_entries": 29,
+    "gap_count": 8,
+    "technique_coverage": 78,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  },
+  {
+    "date": "2026-03-26T12:00:50.197Z",
+    "quality_score": 91,
+    "knowledge_entries": 32,
+    "gap_count": 8,
+    "technique_coverage": 80,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  },
+  {
+    "date": "2026-03-26T13:28:53.264Z",
+    "quality_score": 91,
+    "knowledge_entries": 32,
+    "gap_count": 8,
+    "technique_coverage": 80,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  },
+  {
+    "date": "2026-03-26T13:57:07.596Z",
+    "quality_score": 91,
+    "knowledge_entries": 32,
+    "gap_count": 8,
+    "technique_coverage": 80,
+    "baseline_compliance": 100,
+    "mandatory_features_ok": 95
+  }
+]

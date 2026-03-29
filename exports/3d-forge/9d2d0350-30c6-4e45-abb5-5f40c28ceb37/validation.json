@@ -1,0 +1,77 @@
+{
+  "concept_id": "9d2d0350-30c6-4e45-abb5-5f40c28ceb37",
+  "validated_at": "2026-03-24T22:31:26.973Z",
+  "metadata": {
+    "platform": "game"
+  },
+  "mechanical": {
+    "passed": true,
+    "checks": {
+      "manifold": {
+        "passed": true,
+        "value": 0,
+        "description": "No non-manifold edges (STL requirement)"
+      },
+      "tri_count": {
+        "passed": true,
+        "value": 12,
+        "description": "Triangle count ≤ 50000"
+      },
+      "loose_verts": {
+        "passed": true,
+        "value": 0,
+        "description": "No loose/unconnected vertices"
+      },
+      "degenerate_faces": {
+        "passed": true,
+        "value": 0,
+        "description": "No degenerate faces"
+      },
+      "wall_thickness": {
+        "passed": true,
+        "value": "333.33",
+        "description": "Estimated wall thickness ≥ 1.5mm"
+      },
+      "bounding_box": {
+        "passed": true,
+        "value": "1000×1000×1000mm",
+        "description": "Within bounds (≤5000×5000×5000mm)"
+      }
+    },
+    "auto_fixes_applied": [],
+    "duration_ms": 148
+  },
+  "visual": {
+    "shape_accuracy": 7,
+    "proportion_accuracy": 6,
+    "detail_level": 4,
+    "material_quality": 8,
+    "marketplace_readiness": 5,
+    "average": 6,
+    "verdict": "NEEDS_REVISION",
+    "issues": [
+      "Inconsistent sphere positioning across renders - sphere placement varies between images",
+      "Flat platform lacks proper surfacing details and edge definition",
+      "Sphere appears to have minor deformation/clipping on one side (image 3)",
+      "Missing base/support structure context for the platform",
+      "No reference images provided for comparison validation",
+      "Minimal detail and texture - surfaces appear overly smooth and generic",
+      "Unclear product purpose or functional design intent"
+    ],
+    "suggested_fixes": [
+      "Standardize sphere position relative to platform center across all renders",
+      "Add beveled or chamfered edges to the platform for professional appearance",
+      "Increase geometric detail with proper edge loops and surface variation",
+      "Add subtle surface texture or material variation to base platform",
+      "Include dimensional reference or scale indicator (grid, ruler, or object)",
+      "Provide multiple consistent viewing angles with same lighting setup",
+      "Add rim/border detail to platform edges for finished product appearance",
+      "Consider adding subtle imperfections or wear patterns for realism"
+    ],
+    "duration_ms": 7061,
+    "lm_cost_cents": 0.75
+  },
+  "overall_verdict": "NEEDS_REVISION",
+  "production_quality_score": 80,
+  "total_duration_ms": 7214
+}

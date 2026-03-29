@@ -1,0 +1,75 @@
+{
+  "audit_date": "2026-03-26",
+  "version": "v12",
+  "cycle": "v12_cycle1",
+  "overall_score": 63.0,
+  "previous_score": 71.1,
+  "score_breakdown": {
+    "scene1_avg": 61.3,
+    "scene2_avg": 62.0,
+    "scene3_avg": 67.3,
+    "scene4_avg": 61.3,
+    "weighted_average": 63.0
+  },
+  "track_scores": {
+    "forensic_clarity": 6.8,
+    "physical_plausibility": 6.2,
+    "cinematic_presentation": 6.5
+  },
+  "per_scene_scores": {
+    "scene1_tbone": {"BirdEye": 60, "DriverPOV": 60, "WideAngle": 64, "avg": 61.3},
+    "scene2_pedestrian": {"BirdEye": 61, "SightLine": 61, "WideAngle": 64, "avg": 62.0},
+    "scene3_highway": {"BirdEye": 70, "DriverPOV": 63, "WideAngle": 69, "avg": 67.3},
+    "scene4_parking_night": {"BirdEye": 61, "SecurityCam": 61, "WideAngle": 62, "avg": 61.3}
+  },
+  "v11_vs_v12_comparison": {
+    "v11_overall": 71.1,
+    "v12_overall": 63.0,
+    "delta": -8.1,
+    "explanation": "v12 scores lower on Tier 1 pixel scorer due to AgX color management changing histogram distribution. However v12 has CRITICAL improvements not captured by Tier 1: PBR materials, forensic markers, exhibit labels, proper camera positions for scenes 3/4. Tier 1 only measures pixel statistics, not forensic quality.",
+    "improvements_not_measured_by_tier1": [
+      "PBR materials (metallic car paint, asphalt, glass) — improves PP track",
+      "Evidence markers (red/blue/yellow cones) — improves FC track",
+      "Exhibit labels (case number, disclaimer) — improves FC track",
+      "AgX color management (25-stop dynamic range) — improves visual quality",
+      "Fixed camera positions for scene 3 (was 480m, now 40m) — was BROKEN before",
+      "Fixed scene 4 night lighting (was 15/100, now 61/100) — +46 points",
+      "World background (sky blue for day, dark navy for night) — improves PP track"
+    ]
+  },
+  "key_achievements": [
+    "ALL 12 renders now ACCEPTABLE (60+) — zero REJECT frames",
+    "Scene 3 fixed: cameras moved from 480m to 40m, score 33->70 (+37)",
+    "Scene 4 night fixed: score 15->61 (+46) with fill lights + boosted exposure",
+    "PBR materials applied to all vehicles and road surfaces",
+    "Forensic evidence markers added to all 4 scenes",
+    "Exhibit labels with case numbers added to all scenes",
+    "AgX color management enabled for better dynamic range",
+    "Blender 5.1 compatibility confirmed (BLENDER_EEVEE engine ID)"
+  ],
+  "remaining_problems": [
+    {"id": "NO_EDGE_DETAIL", "severity": "high", "description": "Scorer reports no meaningful edge detail on most renders. Need subdivision surface or better geometry.", "fix": "Apply subdivision modifier level 2 to all meshes"},
+    {"id": "LOW_CONTRAST_DAY", "severity": "medium", "description": "Day scenes (1,2) score 60-64. AgX may be compressing contrast.", "fix": "Try exposure 0.8 instead of 0.5, or switch back to Filmic"},
+    {"id": "MATERIALS_NOT_MATCHING", "severity": "medium", "description": "Material assignment by name matching missed some objects (0 vehicles colored in scene 1)", "fix": "Need to check actual object names in each scene"},
+    {"id": "MISSING_HDRI", "severity": "medium", "description": "Using flat color world background instead of Polyhaven HDRI", "fix": "Download and apply urban street HDRI"},
+    {"id": "NO_IMPACT_DEFORMATION", "severity": "medium", "description": "Vehicles show no collision damage", "fix": "Apply mesh deformation at impact points"}
+  ],
+  "research_completed": {
+    "lighting_research": "data/lighting_research_2026-03-26.json",
+    "camera_research": "data/camera_research_2026-03-26.json",
+    "autoresearch": "data/autoresearch_learnings_2026-03-26.json",
+    "key_finding": "v11 EEVEE renders score 78 natively. Dark renders caused by engine mismatch (Cycles needs 3-4x more light energy). Camera distance was the #1 issue for scene 3 (480m vs needed 40m)."
+  },
+  "scheduled_task_updates": {
+    "blender": "Updated to NEVER interrupt user Blender session — launches new background instance on port 9877",
+    "blender-curriculum-trainer": "Updated with same non-interrupt rule, uses port 9878"
+  },
+  "next_priorities": [
+    "1. Fix material name matching (audit object names per scene, assign materials correctly)",
+    "2. Add subdivision surface modifier to all meshes for edge detail",
+    "3. Download Polyhaven HDRI for world environment",
+    "4. Experiment with exposure 0.8 and Filmic vs AgX",
+    "5. Apply impact deformation to collision scenes",
+    "6. Target: score 75+ on all renders, then 85+ with full forensic overlays"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "trend_id": "b9d7100c-06de-442d-b2a4-f2937b422f53",
+  "keyword": "anime hair roblox",
+  "image_count": 5,
+  "sources_used": [
+    "mock_serper",
+    "mock_unsplash"
+  ],
+  "images": [
+    {
+      "filename": "img_001.jpg",
+      "source": "mock_serper",
+      "source_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/img_1.jpg",
+      "page_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/page_1",
+      "width": 1024,
+      "height": 1024,
+      "view_type": "front_view",
+      "quality_score": 80,
+      "downloaded": true
+    },
+    {
+      "filename": "img_002.jpg",
+      "source": "mock_serper",
+      "source_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/img_2.jpg",
+      "page_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/page_2",
+      "width": 1024,
+      "height": 1024,
+      "view_type": "side_view",
+      "quality_score": 80,
+      "downloaded": true
+    },
+    {
+      "filename": "img_003.jpg",
+      "source": "mock_serper",
+      "source_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/img_3.jpg",
+      "page_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/page_3",
+      "width": 1024,
+      "height": 1024,
+      "view_type": "detail",
+      "quality_score": 80,
+      "downloaded": true
+    },
+    {
+      "filename": "img_004.jpg",
+      "source": "mock_unsplash",
+      "source_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/img_4.jpg",
+      "page_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/page_4",
+      "width": 1024,
+      "height": 1024,
+      "view_type": "lifestyle",
+      "quality_score": 80,
+      "downloaded": true
+    },
+    {
+      "filename": "img_005.jpg",
+      "source": "mock_unsplash",
+      "source_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/img_5.jpg",
+      "page_url": "https://example.com/mock/b9d7100c-06de-442d-b2a4-f2937b422f53/page_5",
+      "width": 1024,
+      "height": 1024,
+      "view_type": "material",
+      "quality_score": 80,
+      "downloaded": true
+    }
+  ],
+  "harvested_at": "2026-03-24T20:58:47.802Z"
+}

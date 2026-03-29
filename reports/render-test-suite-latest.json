@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-03-26T13:57:08.746Z",
+  "total": 28,
+  "passed": 21,
+  "failed": 0,
+  "skipped": 7,
+  "pass_rate": 100,
+  "duration_ms": 68,
+  "verdict": "PASS",
+  "results": [
+    {
+      "name": "MCP: TCP connection to Blender",
+      "category": "smoke",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "MCP: execute_python returns result",
+      "category": "smoke",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "MCP: scene cleanup works",
+      "category": "smoke",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "MCP: basic render produces file",
+      "category": "smoke",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "Scripts: render-quality-scorer.js loads",
+      "category": "smoke",
+      "status": "PASS",
+      "duration_ms": 19
+    },
+    {
+      "name": "Scripts: render-improvement-loop.js loads",
+      "category": "smoke",
+      "status": "PASS",
+      "duration_ms": 8
+    },
+    {
+      "name": "Scripts: lib modules load",
+      "category": "smoke",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Scripts: forge-orchestrator.js exists",
+      "category": "smoke",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Regression: no blender_ prefix in MCP calls",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 9
+    },
+    {
+      "name": "Regression: Python code uses single quotes only",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 3
+    },
+    {
+      "name": "Regression: validator opens .blend before measuring",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Regression: ground plane exclusion in validator",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Regression: EXPORTS_DIR uses REPO_ROOT not cwd (new scripts)",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 1
+    },
+    {
+      "name": "Regression: brace-depth parser in MCP clients",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Regression: fix catalog covers known issue types",
+      "category": "regression",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Quality: Tier 1 scorer handles missing file gracefully",
+      "category": "quality",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Quality: Tier 1 returns valid structure",
+      "category": "quality",
+      "status": "PASS",
+      "duration_ms": 15
+    },
+    {
+      "name": "Quality: scoreRender auto-tier works",
+      "category": "quality",
+      "status": "PASS",
+      "duration_ms": 5
+    },
+    {
+      "name": "Quality: fix-effectiveness tracking works",
+      "category": "quality",
+      "status": "PASS",
+      "duration_ms": 1
+    },
+    {
+      "name": "Perf: MCP round-trip latency <500ms",
+      "category": "performance",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "Perf: Tier 1 scoring <200ms",
+      "category": "performance",
+      "status": "PASS",
+      "duration_ms": 2
+    },
+    {
+      "name": "Perf: EEVEE render <10s (256x256)",
+      "category": "performance",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    },
+    {
+      "name": "Integration: full render → score → improve cycle (dry-run)",
+      "category": "integration",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Integration: autoresearch operational learnings loaded",
+      "category": "integration",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Integration: pipeline stages exist",
+      "category": "integration",
+      "status": "PASS",
+      "duration_ms": 1
+    },
+    {
+      "name": "Integration: new render scripts load as modules",
+      "category": "integration",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Integration: lib modules consistent",
+      "category": "integration",
+      "status": "PASS",
+      "duration_ms": 0
+    },
+    {
+      "name": "Integration: MCP → render → score (live)",
+      "category": "integration",
+      "status": "SKIP",
+      "reason": "skip-blender",
+      "duration_ms": 0
+    }
+  ]
+}

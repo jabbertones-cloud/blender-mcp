@@ -1,0 +1,1047 @@
+{
+  "generated_at": "2026-03-26T22:15:11.499Z",
+  "total_raw_trends": 314,
+  "total_deduplicated": 209,
+  "total_scored": 209,
+  "category_filter": null,
+  "limit": 20,
+  "trends": [
+    {
+      "trend_id": "9271ec18-d5d8-4e72-a41c-6f198a573211",
+      "keywords": [
+        "printed",
+        "desk",
+        "organizer",
+        "ideas"
+      ],
+      "primary_keyword": "3d printed desk organizer ideas",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 48,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "3d printed desk organizer ideas - basic",
+        "3d printed desk organizer ideas - premium",
+        "3d printed desk organizer ideas - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "printed",
+            "desk",
+            "organizer",
+            "ideas"
+          ],
+          "primary_keyword": "3d printed desk organizer ideas",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "printed",
+            "desk",
+            "organizer"
+          ],
+          "primary_keyword": "3d printed desk organizer",
+          "source": "google_trends",
+          "engagement_signal": 0.5,
+          "velocity": "stable"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "e387c1db-472a-4310-bf31-2d7a7fdddb3e",
+      "keywords": [
+        "best",
+        "printed",
+        "phone",
+        "stand",
+        "cute"
+      ],
+      "primary_keyword": "best 3d printed phone stand",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends",
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 47,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "best 3d printed phone stand - basic",
+        "best 3d printed phone stand - premium",
+        "best 3d printed phone stand - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "best",
+            "printed",
+            "phone",
+            "stand"
+          ],
+          "primary_keyword": "best 3d printed phone stand",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "cute",
+            "printed",
+            "phone",
+            "stand"
+          ],
+          "primary_keyword": "cute 3d printed phone stand",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "best",
+            "printed",
+            "phone",
+            "stand"
+          ],
+          "primary_keyword": "best 3d printed phone stand",
+          "source": "google_trends",
+          "engagement_signal": 0.5,
+          "velocity": "stable"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "bf686b92-876e-43d5-9ef8-c2deced783df",
+      "keywords": [
+        "adjustable",
+        "phone",
+        "stand",
+        "print",
+        "simple"
+      ],
+      "primary_keyword": "adjustable phone stand 3d print",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 47,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "adjustable phone stand 3d print - basic",
+        "adjustable phone stand 3d print - premium",
+        "adjustable phone stand 3d print - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "adjustable",
+            "phone",
+            "stand",
+            "print"
+          ],
+          "primary_keyword": "adjustable phone stand 3d print",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "simple",
+            "phone",
+            "stand",
+            "print"
+          ],
+          "primary_keyword": "simple phone stand 3d print",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "13c5ace2-09d7-4716-aaac-7470218c9367",
+      "keywords": [
+        "cool",
+        "things",
+        "print",
+        "and",
+        "sell"
+      ],
+      "primary_keyword": "cool things to 3d print and sell",
+      "category": "miniature",
+      "sources": [
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 46,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": true
+      },
+      "suggested_products": [
+        "cool things to 3d print and sell - basic",
+        "cool things to 3d print and sell - premium",
+        "cool things to 3d print and sell - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "cool",
+            "things",
+            "print",
+            "and",
+            "sell"
+          ],
+          "primary_keyword": "cool things to 3d print and sell",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "cool",
+            "things",
+            "print",
+            "for",
+            "gamers"
+          ],
+          "primary_keyword": "cool things to 3d print for gamers",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.494Z"
+    },
+    {
+      "trend_id": "3a97e1f0-366f-42c0-ac16-ee4afdda2390",
+      "keywords": [
+        "trending",
+        "roblox",
+        "ugc",
+        "accessories",
+        "robux"
+      ],
+      "primary_keyword": "trending roblox ugc accessories robux",
+      "category": "miniature",
+      "sources": [
+        "google_trends",
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 46,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": true,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "trending roblox ugc accessories robux - basic",
+        "trending roblox ugc accessories robux - premium",
+        "trending roblox ugc accessories robux - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "trending",
+            "roblox",
+            "ugc",
+            "accessories",
+            "robux"
+          ],
+          "primary_keyword": "trending roblox ugc accessories robux",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "trending",
+            "roblox",
+            "ugc",
+            "accessories",
+            "codes"
+          ],
+          "primary_keyword": "trending roblox ugc accessories codes",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "trending",
+            "roblox",
+            "ugc",
+            "accessories",
+            "2021"
+          ],
+          "primary_keyword": "trending roblox ugc accessories 2021",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "935e094c-3da8-410f-9627-2d0991b81807",
+      "keywords": [
+        "articulated",
+        "print",
+        "popular",
+        "free",
+        "reddit"
+      ],
+      "primary_keyword": "articulated 3d print popular free",
+      "category": "miniature",
+      "sources": [
+        "google_trends",
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 46,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "articulated 3d print popular free - basic",
+        "articulated 3d print popular free - premium",
+        "articulated 3d print popular free - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "articulated",
+            "print",
+            "popular",
+            "free"
+          ],
+          "primary_keyword": "articulated 3d print popular free",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "articulated",
+            "print",
+            "popular",
+            "reddit"
+          ],
+          "primary_keyword": "articulated 3d print popular reddit",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "articulated",
+            "print",
+            "popular",
+            "for",
+            "beginners"
+          ],
+          "primary_keyword": "articulated 3d print popular for beginners",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.497Z"
+    },
+    {
+      "trend_id": "ee19c69a-5c6b-44bb-9360-a4aaf1477024",
+      "keywords": [
+        "popular",
+        "cosplay",
+        "props",
+        "print",
+        "reddit"
+      ],
+      "primary_keyword": "popular cosplay props to 3d print reddit",
+      "category": "cosplay_prop",
+      "sources": [
+        "google_trends",
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 44,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": true,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "popular cosplay props to 3d print reddit - basic",
+        "popular cosplay props to 3d print reddit - premium",
+        "popular cosplay props to 3d print reddit - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "popular",
+            "cosplay",
+            "props",
+            "print",
+            "reddit"
+          ],
+          "primary_keyword": "popular cosplay props to 3d print reddit",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "popular",
+            "cosplay",
+            "props",
+            "print",
+            "free"
+          ],
+          "primary_keyword": "popular cosplay props to 3d print free",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "popular",
+            "cosplay",
+            "props",
+            "print",
+            "for",
+            "sale"
+          ],
+          "primary_keyword": "popular cosplay props to 3d print for sale",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "db3d222a-02ea-4f01-b888-bddf954be2cf",
+      "keywords": [
+        "printed",
+        "cosplay",
+        "armor",
+        "weapons"
+      ],
+      "primary_keyword": "3d printed cosplay armor",
+      "category": "cosplay_prop",
+      "sources": [
+        "google_trends",
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 44,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": true,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "3d printed cosplay armor - basic",
+        "3d printed cosplay armor - premium",
+        "3d printed cosplay armor - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "printed",
+            "cosplay",
+            "armor"
+          ],
+          "primary_keyword": "3d printed cosplay armor",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "printed",
+            "cosplay",
+            "weapons"
+          ],
+          "primary_keyword": "3d printed cosplay weapons",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "printed",
+            "cosplay"
+          ],
+          "primary_keyword": "3d printed cosplay",
+          "source": "google_trends",
+          "engagement_signal": 0.5,
+          "velocity": "stable"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "f729f88c-7a5d-48d2-8a08-95b67f7d7d8c",
+      "keywords": [
+        "game",
+        "assets",
+        "free",
+        "market"
+      ],
+      "primary_keyword": "game assets free",
+      "category": "game_prop",
+      "sources": [
+        "google_trends",
+        "google_trends"
+      ],
+      "demand_score": 44,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": true
+      },
+      "suggested_products": [
+        "game assets free - basic",
+        "game assets free - premium",
+        "game assets free - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "game",
+            "assets",
+            "free"
+          ],
+          "primary_keyword": "game assets free",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        },
+        {
+          "keywords": [
+            "game",
+            "assets",
+            "market"
+          ],
+          "primary_keyword": "game assets market",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "ad85f76e-07c8-48dc-ab9f-df2eb5bff1db",
+      "keywords": [
+        "desk",
+        "organizer",
+        "model",
+        "free"
+      ],
+      "primary_keyword": "desk organizer 3d model free",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "desk organizer 3d model free - basic",
+        "desk organizer 3d model free - premium",
+        "desk organizer 3d model free - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "desk",
+            "organizer",
+            "model",
+            "free"
+          ],
+          "primary_keyword": "desk organizer 3d model free",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "a99073b4-dec8-4c77-9fbc-7a5c8b61b68e",
+      "keywords": [
+        "most",
+        "popular",
+        "print",
+        "desk",
+        "organizer"
+      ],
+      "primary_keyword": "most popular 3d print desk organizer",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "most popular 3d print desk organizer - basic",
+        "most popular 3d print desk organizer - premium",
+        "most popular 3d print desk organizer - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "most",
+            "popular",
+            "print",
+            "desk",
+            "organizer"
+          ],
+          "primary_keyword": "most popular 3d print desk organizer",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "de6d34c5-5cf3-45e5-802c-a9e66c85e4eb",
+      "keywords": [
+        "popular",
+        "print",
+        "desk",
+        "organizer",
+        "amazon"
+      ],
+      "primary_keyword": "popular 3d print desk organizer amazon",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "popular 3d print desk organizer amazon - basic",
+        "popular 3d print desk organizer amazon - premium",
+        "popular 3d print desk organizer amazon - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "popular",
+            "print",
+            "desk",
+            "organizer",
+            "amazon"
+          ],
+          "primary_keyword": "popular 3d print desk organizer amazon",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "dfbc83ad-c0ad-4e2e-a9f5-2b969d81203d",
+      "keywords": [
+        "desk",
+        "organizer",
+        "print"
+      ],
+      "primary_keyword": "desk organizer 3d print",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "desk organizer 3d print - basic",
+        "desk organizer 3d print - premium",
+        "desk organizer 3d print - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "desk",
+            "organizer",
+            "print"
+          ],
+          "primary_keyword": "desk organizer 3d print",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "42db0458-9aef-4ab4-8d31-10fcb54b477b",
+      "keywords": [
+        "desk",
+        "organizer",
+        "print",
+        "thingiverse"
+      ],
+      "primary_keyword": "desk organizer 3d print thingiverse",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "desk organizer 3d print thingiverse - basic",
+        "desk organizer 3d print thingiverse - premium",
+        "desk organizer 3d print thingiverse - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "desk",
+            "organizer",
+            "print",
+            "thingiverse"
+          ],
+          "primary_keyword": "desk organizer 3d print thingiverse",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "345da1e7-bc95-4135-a46b-bcc8606776d8",
+      "keywords": [
+        "modular",
+        "desk",
+        "organizer",
+        "print"
+      ],
+      "primary_keyword": "modular desk organizer 3d print",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "modular desk organizer 3d print - basic",
+        "modular desk organizer 3d print - premium",
+        "modular desk organizer 3d print - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "modular",
+            "desk",
+            "organizer",
+            "print"
+          ],
+          "primary_keyword": "modular desk organizer 3d print",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "e768c379-b7d9-451a-b868-363e7cc473b4",
+      "keywords": [
+        "print",
+        "drawer",
+        "organizer",
+        "generator"
+      ],
+      "primary_keyword": "3d print drawer organizer generator",
+      "category": "desk_organizer",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 43,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "3d print drawer organizer generator - basic",
+        "3d print drawer organizer generator - premium",
+        "3d print drawer organizer generator - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "print",
+            "drawer",
+            "organizer",
+            "generator"
+          ],
+          "primary_keyword": "3d print drawer organizer generator",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.495Z"
+    },
+    {
+      "trend_id": "c6d1ade2-e560-41e8-91e8-abdafc2a2ca4",
+      "keywords": [
+        "printed",
+        "phone",
+        "stand",
+        "with",
+        "charger"
+      ],
+      "primary_keyword": "3d printed phone stand with charger",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 42,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "3d printed phone stand with charger - basic",
+        "3d printed phone stand with charger - premium",
+        "3d printed phone stand with charger - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "printed",
+            "phone",
+            "stand",
+            "with",
+            "charger"
+          ],
+          "primary_keyword": "3d printed phone stand with charger",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "a612e65d-1c6a-4c4b-9b6f-d840cd2d7bab",
+      "keywords": [
+        "multiple",
+        "phone",
+        "holder",
+        "print"
+      ],
+      "primary_keyword": "multiple phone holder 3d print",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 42,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "multiple phone holder 3d print - basic",
+        "multiple phone holder 3d print - premium",
+        "multiple phone holder 3d print - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "multiple",
+            "phone",
+            "holder",
+            "print"
+          ],
+          "primary_keyword": "multiple phone holder 3d print",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "5ac8895a-488f-48db-be27-8c2ba9273bb3",
+      "keywords": [
+        "phone",
+        "stand",
+        "model",
+        "free"
+      ],
+      "primary_keyword": "phone stand 3d model free",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 42,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "phone stand 3d model free - basic",
+        "phone stand 3d model free - premium",
+        "phone stand 3d model free - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "phone",
+            "stand",
+            "model",
+            "free"
+          ],
+          "primary_keyword": "phone stand 3d model free",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    },
+    {
+      "trend_id": "df46be7d-f792-4349-b686-1795a2c450a5",
+      "keywords": [
+        "printed",
+        "phone",
+        "stand",
+        "stl",
+        "file"
+      ],
+      "primary_keyword": "3d printed phone stand stl file",
+      "category": "phone_stand",
+      "sources": [
+        "google_trends"
+      ],
+      "demand_score": 42,
+      "velocity": "rising",
+      "platform_fit": {
+        "etsy_stl": true,
+        "roblox_ugc": false,
+        "cults3d": true,
+        "game_asset": false
+      },
+      "suggested_products": [
+        "3d printed phone stand stl file - basic",
+        "3d printed phone stand stl file - premium",
+        "3d printed phone stand stl file - colorful"
+      ],
+      "source_data": [
+        {
+          "keywords": [
+            "printed",
+            "phone",
+            "stand",
+            "stl",
+            "file"
+          ],
+          "primary_keyword": "3d printed phone stand stl file",
+          "source": "google_trends",
+          "engagement_signal": 0.7,
+          "velocity": "rising"
+        }
+      ],
+      "timestamp": "2026-03-26T22:15:11.496Z"
+    }
+  ]
+}

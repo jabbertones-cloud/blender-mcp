@@ -1,0 +1,7 @@
+{
+  "version": "v1",
+  "generated_at": "2026-03-26T00:00:00.000Z",
+  "notes": "Seed hall-of-failures dataset. Add real cases with hall-of-failures-manager.js.",
+  "cases": []
+}
+

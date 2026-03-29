@@ -1,0 +1,154 @@
+{
+  "skill_name": "blender-mcp",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need to write a Node.js script that connects to the Blender MCP server on port 9876, creates a simple table (a flat top surface with 4 legs), exports it as STL and FBX, renders a hero shot and a top-down shot, then saves the .blend file. The script should handle scene cleanup at the start, apply subdivision surface and smooth shading, and set up proper lighting. Write the complete script.",
+      "expected_output": "A complete Node.js script that correctly uses the MCP protocol (no blender_ prefix on wire calls), single quotes in Python code, brace-depth JSON parsing, proper scene cleanup (save_file use_empty + Python nuke), execute_python for shade_smooth (not blender_cleanup), STL via execute_python (not export_file), render with output_path (not filepath), gray background studio lighting with 500/200/300W area lights, camera auto-framing from bounding box, and _ground_plane naming convention.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "no_blender_prefix",
+          "text": "MCP calls use command names without blender_ prefix (e.g., execute_python not blender_execute_python)",
+          "type": "code_pattern"
+        },
+        {
+          "id": "single_quotes_python",
+          "text": "All Python code inside JS strings uses single quotes, never double quotes",
+          "type": "code_pattern"
+        },
+        {
+          "id": "brace_depth_parser",
+          "text": "Socket data handler uses brace-depth counting, not readline or line-based parsing",
+          "type": "code_pattern"
+        },
+        {
+          "id": "scene_cleanup_correct",
+          "text": "Scene cleanup uses save_file with use_empty:true AND a Python nuke of objects/meshes/materials",
+          "type": "code_pattern"
+        },
+        {
+          "id": "shade_smooth_execute_python",
+          "text": "Shade smooth uses execute_python with per-object loop, NOT blender_cleanup action",
+          "type": "code_pattern"
+        },
+        {
+          "id": "stl_via_execute_python",
+          "text": "STL export uses execute_python with bpy.ops.wm.stl_export(), not export_file",
+          "type": "code_pattern"
+        },
+        {
+          "id": "render_output_path",
+          "text": "Render calls use output_path parameter, not filepath",
+          "type": "code_pattern"
+        },
+        {
+          "id": "gray_background",
+          "text": "World background is gray (~0.18), not white (0.95 or 1.0)",
+          "type": "code_pattern"
+        },
+        {
+          "id": "light_energy_sufficient",
+          "text": "Area lights have energy >= 200W (not default 2.0 or 10.0)",
+          "type": "code_pattern"
+        },
+        {
+          "id": "camera_bounding_box",
+          "text": "Camera position is calculated from model bounding box, not hardcoded coordinates",
+          "type": "code_pattern"
+        },
+        {
+          "id": "ground_plane_named",
+          "text": "Ground plane object is named _ground_plane",
+          "type": "code_pattern"
+        },
+        {
+          "id": "result_double_unwrap",
+          "text": "execute_python results are double-unwrapped (result.result) or documented as such",
+          "type": "code_pattern"
+        },
+        {
+          "id": "engine_lowercase",
+          "text": "Render engine name is lowercase (eevee not EEVEE)",
+          "type": "code_pattern"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "My 3D forge validator is reporting a bounding box of 156000x156000x8500mm and failing the mechanical check, even though the model I produced is just a small chess piece. The validator script connects to Blender MCP and runs getMeshData(). The concept file says the piece should be about 50mm tall. What's going wrong and how do I fix the asset-validator.js?",
+      "expected_output": "Correctly identifies that the validator is measuring a stale Blender scene (not the saved .blend file), explains that after the producer disconnects Blender may revert to a previously loaded scene, and provides the fix: add bpy.ops.wm.open_mainfile(filepath=...) before getMeshData(). Should also mention excluding _ground_plane from bounding box measurement.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "identifies_stale_scene",
+          "text": "Correctly identifies the root cause as measuring a stale/wrong scene in Blender, not the saved .blend file",
+          "type": "reasoning"
+        },
+        {
+          "id": "open_mainfile_fix",
+          "text": "Provides the fix: use bpy.ops.wm.open_mainfile() to open the .blend file before measuring",
+          "type": "code_pattern"
+        },
+        {
+          "id": "ground_plane_mention",
+          "text": "Mentions excluding _ground_plane from bounding box measurements",
+          "type": "reasoning"
+        },
+        {
+          "id": "scene_persistence_explanation",
+          "text": "Explains the scene persistence gotcha - that Blender may revert to a previous scene after producer disconnects",
+          "type": "reasoning"
+        },
+        {
+          "id": "single_quotes_in_fix",
+          "text": "Any Python code provided in the fix uses single quotes only",
+          "type": "code_pattern"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My 3D forge renders are coming out completely washed out - the vision API is scoring them 1.5/10. The model geometry looks fine when I open the .blend file manually. I'm using set_render_settings with engine EEVEE and 2048x2048. My lighting setup creates a point light at (5,5,5) with energy 10 and the background is white. Also shade_smooth keeps failing with a bpy_prop_collection error when I call blender_cleanup with action shade_smooth. Can you help me fix both issues?",
+      "expected_output": "Identifies all problems: (1) white background washes out models - change to gray 0.18, (2) point light at energy 10 is invisible - use 3-point area lighting at 500/200/300W positioned relative to model, (3) engine must be lowercase 'eevee' not 'EEVEE', (4) shade_smooth via blender_cleanup always fails - must use execute_python with per-object loop. Provides corrected code for each.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "gray_bg_fix",
+          "text": "Identifies white background as a problem and recommends gray (~0.18) instead",
+          "type": "reasoning"
+        },
+        {
+          "id": "area_lights_fix",
+          "text": "Recommends area lights (not point) with energy values >= 200W",
+          "type": "code_pattern"
+        },
+        {
+          "id": "three_point_lighting",
+          "text": "Suggests 3-point lighting setup (key, fill, rim) positioned relative to model",
+          "type": "code_pattern"
+        },
+        {
+          "id": "engine_lowercase_fix",
+          "text": "Identifies that EEVEE should be lowercase eevee",
+          "type": "reasoning"
+        },
+        {
+          "id": "shade_smooth_fix",
+          "text": "Explains blender_cleanup shade_smooth fails 100% and provides execute_python per-object loop fix",
+          "type": "code_pattern"
+        },
+        {
+          "id": "camera_framing_advice",
+          "text": "Mentions or advises camera auto-framing from bounding box rather than hardcoded position",
+          "type": "reasoning"
+        },
+        {
+          "id": "no_blender_prefix_advice",
+          "text": "Corrects the blender_cleanup reference and notes that MCP calls don't use blender_ prefix",
+          "type": "reasoning"
+        }
+      ]
+    }
+  ]
+}

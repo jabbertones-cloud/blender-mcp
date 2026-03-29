@@ -1,0 +1,1160 @@
+{
+  "generated_at": "2026-03-26T22:08:33.762Z",
+  "run_number": 4,
+  "blender_instance": {
+    "host": "127.0.0.1",
+    "port": "9876"
+  },
+  "assets_analyzed": 50,
+  "concepts_analyzed": 1,
+  "trends_analyzed": 0,
+  "kpis": {
+    "production_success_rate": 5000,
+    "validation_pass_rate": 0,
+    "visual_quality_avg": 4.933333333333334,
+    "mechanical_pass_rate": 4,
+    "revision_rate": 6,
+    "reject_rate": 2,
+    "cost_per_asset_usd": null,
+    "time_per_asset_seconds": 10.142857142857142,
+    "steps_failed_rate": 10.13888888888889,
+    "trend_to_asset_hours": -0.004708796296296297,
+    "ref_images_per_concept": null,
+    "concepts_per_trend": null,
+    "production_quality_score_avg": 66.5,
+    "geometry_step_success_rate": 79.88505747126436,
+    "render_step_success_rate": 98.69565217391305,
+    "export_step_success_rate": 100,
+    "visual_reject_rate": 33.33333333333333,
+    "mechanical_check_breakdown": {
+      "manifold": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "tri_count": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "loose_verts": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "degenerate_faces": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "wall_thickness": {
+        "pass_rate": 100,
+        "total": 3
+      },
+      "bounding_box": {
+        "pass_rate": 66.7,
+        "total": 3
+      }
+    },
+    "three_track_score_avg": null,
+    "forensic_clarity_avg": null,
+    "physical_plausibility_avg": null,
+    "cinematic_presentation_avg": null,
+    "shot_gate_fail_rate": null,
+    "confidence_margin_avg": null
+  },
+  "step_patterns": {
+    "step_success_rates": {
+      "new_scene": {
+        "success_rate": 100,
+        "total": 49,
+        "failed": 0
+      },
+      "geometry_step_0": {
+        "success_rate": 95.9,
+        "total": 49,
+        "failed": 2
+      },
+      "subsurf_modifier": {
+        "success_rate": 100,
+        "total": 47,
+        "failed": 0
+      },
+      "shade_smooth": {
+        "success_rate": 2.1,
+        "total": 47,
+        "failed": 46
+      },
+      "apply_materials": {
+        "success_rate": 100,
+        "total": 47,
+        "failed": 0
+      },
+      "smart_project_uv": {
+        "success_rate": 100,
+        "total": 47,
+        "failed": 0
+      },
+      "export_stl": {
+        "success_rate": 100,
+        "total": 46,
+        "failed": 0
+      },
+      "save_blend": {
+        "success_rate": 100,
+        "total": 47,
+        "failed": 0
+      },
+      "render_hero": {
+        "success_rate": 100,
+        "total": 46,
+        "failed": 0
+      },
+      "render_front": {
+        "success_rate": 97.8,
+        "total": 46,
+        "failed": 1
+      },
+      "render_side": {
+        "success_rate": 100,
+        "total": 46,
+        "failed": 0
+      },
+      "render_top": {
+        "success_rate": 100,
+        "total": 46,
+        "failed": 0
+      },
+      "render_detail": {
+        "success_rate": 95.7,
+        "total": 46,
+        "failed": 2
+      },
+      "geometry_step_1": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_2": {
+        "success_rate": 25,
+        "total": 4,
+        "failed": 3
+      },
+      "geometry_step_3": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_4": {
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      "geometry_step_5": {
+        "success_rate": 0,
+        "total": 4,
+        "failed": 4
+      },
+      "geometry_step_6": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_7": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_8": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_9": {
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      "geometry_step_10": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_11": {
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      "geometry_step_12": {
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      "geometry_step_13": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_14": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_15": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_16": {
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      "geometry_step_17": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_18": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_19": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_20": {
+        "success_rate": 100,
+        "total": 4,
+        "failed": 0
+      },
+      "geometry_step_21": {
+        "success_rate": 100,
+        "total": 3,
+        "failed": 0
+      },
+      "geometry_step_22": {
+        "success_rate": 100,
+        "total": 3,
+        "failed": 0
+      },
+      "geometry_step_23": {
+        "success_rate": 100,
+        "total": 3,
+        "failed": 0
+      },
+      "geometry_step_24": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_25": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_26": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_27": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_28": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_29": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_30": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_31": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_32": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_33": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      },
+      "geometry_step_34": {
+        "success_rate": 100,
+        "total": 2,
+        "failed": 0
+      }
+    },
+    "problematic_steps": [
+      {
+        "step": "geometry_step_5",
+        "success_rate": 0,
+        "total": 4,
+        "failed": 4
+      },
+      {
+        "step": "shade_smooth",
+        "success_rate": 2.1,
+        "total": 47,
+        "failed": 46
+      },
+      {
+        "step": "geometry_step_2",
+        "success_rate": 25,
+        "total": 4,
+        "failed": 3
+      },
+      {
+        "step": "geometry_step_4",
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      {
+        "step": "geometry_step_9",
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      {
+        "step": "geometry_step_11",
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      {
+        "step": "geometry_step_12",
+        "success_rate": 50,
+        "total": 4,
+        "failed": 2
+      },
+      {
+        "step": "geometry_step_3",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_6",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_7",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_8",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_10",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_15",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      },
+      {
+        "step": "geometry_step_16",
+        "success_rate": 75,
+        "total": 4,
+        "failed": 1
+      }
+    ],
+    "top_errors": [
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x3166af360> returned a re",
+        "count": 19,
+        "affected_steps": [
+          "shade_smooth",
+          "geometry_step_12",
+          "geometry_step_16"
+        ],
+        "first_seen": "2026-03-24T22:14:48.469Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x3166af280> returned a re",
+        "count": 15,
+        "affected_steps": [
+          "shade_smooth",
+          "geometry_step_5",
+          "geometry_step_11",
+          "geometry_step_12",
+          "geometry_step_4"
+        ],
+        "first_seen": "2026-03-24T22:14:43.665Z"
+      },
+      {
+        "error": "Converting py args to operator properties: MESH_OT_primitive_cube_add.size expec",
+        "count": 7,
+        "affected_steps": [
+          "geometry_step_0",
+          "geometry_step_4",
+          "geometry_step_6",
+          "geometry_step_2",
+          "geometry_step_9",
+          "geometry_step_11"
+        ],
+        "first_seen": "2026-03-24T22:14:59.731Z"
+      },
+      {
+        "error": "unsupported operand type(s) for /: 'list' and 'int'",
+        "count": 4,
+        "affected_steps": [
+          "geometry_step_9",
+          "geometry_step_10",
+          "geometry_step_5",
+          "geometry_step_7"
+        ],
+        "first_seen": "2026-03-24T22:14:59.731Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x3166af7c0> returned a re",
+        "count": 3,
+        "affected_steps": [
+          "geometry_step_8",
+          "shade_smooth"
+        ],
+        "first_seen": "2026-03-24T22:14:59.731Z"
+      },
+      {
+        "error": "Error: Cannot render, no camera\n",
+        "count": 3,
+        "affected_steps": [
+          "render_detail",
+          "render_front"
+        ],
+        "first_seen": "2026-03-24T22:18:37.815Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x316378500> returned a re",
+        "count": 3,
+        "affected_steps": [
+          "shade_smooth"
+        ],
+        "first_seen": "2026-03-24T22:18:47.605Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x3142511b0> returned a re",
+        "count": 3,
+        "affected_steps": [
+          "shade_smooth"
+        ],
+        "first_seen": "2026-03-24T22:19:14.198Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x3164e3d00> returned a re",
+        "count": 3,
+        "affected_steps": [
+          "shade_smooth"
+        ],
+        "first_seen": "2026-03-24T22:20:13.187Z"
+      },
+      {
+        "error": "<built-in method get of bpy_prop_collection object at 0x315f3c570> returned a re",
+        "count": 2,
+        "affected_steps": [
+          "geometry_step_2",
+          "geometry_step_5"
+        ],
+        "first_seen": "2026-03-24T21:54:20.364Z"
+      }
+    ],
+    "total_steps_analyzed": 720
+  },
+  "prompt_patterns": {
+    "reliable_patterns": [],
+    "unreliable_patterns": [
+      {
+        "modifier": "new_scene",
+        "success_rate": 0,
+        "count": 49
+      },
+      {
+        "modifier": "geometry",
+        "success_rate": 0,
+        "count": 160
+      },
+      {
+        "modifier": "subsurf_modifier",
+        "success_rate": 0,
+        "count": 47
+      },
+      {
+        "modifier": "shade_smooth",
+        "success_rate": 0,
+        "count": 47
+      },
+      {
+        "modifier": "apply_materials",
+        "success_rate": 0,
+        "count": 47
+      },
+      {
+        "modifier": "smart_project_uv",
+        "success_rate": 0,
+        "count": 47
+      },
+      {
+        "modifier": "export",
+        "success_rate": 0,
+        "count": 46
+      },
+      {
+        "modifier": "save_blend",
+        "success_rate": 0,
+        "count": 47
+      },
+      {
+        "modifier": "render",
+        "success_rate": 0,
+        "count": 230
+      }
+    ],
+    "modifier_success_rates": {
+      "new_scene": 0,
+      "geometry": 0,
+      "subsurf_modifier": 0,
+      "shade_smooth": 0,
+      "apply_materials": 0,
+      "smart_project_uv": 0,
+      "export": 0,
+      "save_blend": 0,
+      "render": 0
+    }
+  },
+  "category_rankings": [
+    {
+      "category": "unknown",
+      "visual_quality_avg": 0,
+      "production_quality_avg": 0,
+      "demand_score": 1,
+      "combined_score": 0,
+      "count": 1
+    }
+  ],
+  "recurring_issues": [
+    {
+      "issue": "inconsistent sphere positioning across renders - sphere placement varies between images",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "flat platform lacks proper surfacing details and edge definition",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "sphere appears to have minor deformation/clipping on one side (image 3)",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "missing base/support structure context for the platform",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "no reference images provided for comparison validation",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "minimal detail and texture - surfaces appear overly smooth and generic",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+    },
+    {
+      "issue": "unclear product purpose or functional design intent",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] standardize sphere position relative to platform center across all renders",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] add beveled or chamfered edges to the platform for professional appearance",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] increase geometric detail with proper edge loops and surface variation",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] add subtle surface texture or material variation to base platform",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+    },
+    {
+      "issue": "[fix] include dimensional reference or scale indicator (grid, ruler, or object)",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    },
+    {
+      "issue": "[fix] provide multiple consistent viewing angles with same lighting setup",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add 3-point lighting setup step before renders. Use EEVEE for faster iteration."
+    },
+    {
+      "issue": "[fix] add rim/border detail to platform edges for finished product appearance",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+    },
+    {
+      "issue": "[fix] consider adding subtle imperfections or wear patterns for realism",
+      "frequency": 0.25,
+      "count": 1,
+      "suggested_fix": "Review reference images and concept prompt for clarity."
+    }
+  ],
+  "output_completeness": {
+    "total": 50,
+    "with_stl": 46,
+    "with_fbx": 0,
+    "with_glb": 0,
+    "with_blend": 47,
+    "with_renders": 46,
+    "avg_render_count": 4.6,
+    "avg_file_count": 7.8
+  },
+  "regression_checks": {
+    "total_checks": 20,
+    "regressions_found": 1,
+    "critical_regressions": 0,
+    "results": [
+      {
+        "learning_id": "mesh_aggregation",
+        "file": "blender-producer.js",
+        "status": "REGRESSION",
+        "severity": "HIGH",
+        "message": "getMeshData must aggregate ALL visible mesh objects, not require active selection. bpy.context.active_object is unreliable.",
+        "fix": "Iterate bpy.data.objects with visible_get() filter instead of active_object"
+      }
+    ]
+  },
+  "remediations_detected": 0,
+  "remediations": [],
+  "operational_learnings_count": 20,
+  "fix_priority": {
+    "generated_at": "2026-03-26T22:08:33.760Z",
+    "window_runs": 4,
+    "fix_rankings": [],
+    "recommended_default_order": []
+  },
+  "temporal_report": {
+    "generated_at": "2026-03-26T12:09:14.425Z",
+    "assets_analyzed": 50,
+    "temporal_flicker_avg": 4.475,
+    "temporal_shimmer_avg": 3.788,
+    "temporal_exposure_pumping_avg": 3.043,
+    "temporal_stability_pass_rate": 74,
+    "results": [
+      {
+        "asset_id": "01dd84b2-49f1-4000-aa2f-a5075b9311ce",
+        "audited_at": "2026-03-26T12:09:14.395Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "0378f4b0-e803-49d9-9cc7-2dfb55ccd713",
+        "audited_at": "2026-03-26T12:09:14.398Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "1325c28a-d402-4e3f-baf3-39bd699ebc7c",
+        "audited_at": "2026-03-26T12:09:14.399Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "1fadd7e2-420d-47e9-9242-ba9616342408",
+        "audited_at": "2026-03-26T12:09:14.399Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "28357ccd-e6de-4042-a6ca-8da275ac160e",
+        "audited_at": "2026-03-26T12:09:14.400Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 10,
+        "exposure_pumping": 10,
+        "reason": "no_frames"
+      },
+      {
+        "asset_id": "2eec3283-273f-44dd-83d4-6029a453eb53",
+        "audited_at": "2026-03-26T12:09:14.400Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "42d5f5e7-8512-47c5-80c9-4dfe0ac065be",
+        "audited_at": "2026-03-26T12:09:14.401Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "43374840-d300-4abd-b49f-15e4a04018a1",
+        "audited_at": "2026-03-26T12:09:14.401Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "444d8e9b-5a60-43db-936c-030d3256e948",
+        "audited_at": "2026-03-26T12:09:14.402Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "4e6cf717-3455-4045-acbf-6650a84f77dc",
+        "audited_at": "2026-03-26T12:09:14.403Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "52de0f2f-56a8-49a9-a79c-e9711b14aa09",
+        "audited_at": "2026-03-26T12:09:14.404Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "552e4fce-eabb-493e-ac16-623168143605",
+        "audited_at": "2026-03-26T12:09:14.404Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "5b58ffe8-3909-403d-bdc3-ebf3568f148f",
+        "audited_at": "2026-03-26T12:09:14.405Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "60990035-af89-46c5-80b5-0b728b544806",
+        "audited_at": "2026-03-26T12:09:14.405Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "71f99104-e71a-490f-a77f-2be01ddc4a3a",
+        "audited_at": "2026-03-26T12:09:14.406Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "76a9a629-1fc2-4d93-beec-b582ef41bfed",
+        "audited_at": "2026-03-26T12:09:14.406Z",
+        "pass": true,
+        "flicker": 4.14,
+        "shimmer": 3.31,
+        "exposure_pumping": 2.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "76edd021-7a70-4aba-9a37-8e49404c8d54",
+        "audited_at": "2026-03-26T12:09:14.407Z",
+        "pass": false,
+        "flicker": 6.38,
+        "shimmer": 5.1,
+        "exposure_pumping": 3.83,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "7cbfe1cc-53f6-4cb3-ae24-e428f8e9c9ad",
+        "audited_at": "2026-03-26T12:09:14.407Z",
+        "pass": false,
+        "flicker": 6.32,
+        "shimmer": 5.06,
+        "exposure_pumping": 3.79,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "7eb0c26d-0d05-4b0b-8006-b8bff322fcf7",
+        "audited_at": "2026-03-26T12:09:14.408Z",
+        "pass": true,
+        "flicker": 3.95,
+        "shimmer": 3.16,
+        "exposure_pumping": 2.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "820f751c-0cc7-463b-b41d-411f59f57c93",
+        "audited_at": "2026-03-26T12:09:14.408Z",
+        "pass": true,
+        "flicker": 3.95,
+        "shimmer": 3.16,
+        "exposure_pumping": 2.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "88fb9b66-5324-467a-b35b-67f65d47b146",
+        "audited_at": "2026-03-26T12:09:14.408Z",
+        "pass": true,
+        "flicker": 3.95,
+        "shimmer": 3.16,
+        "exposure_pumping": 2.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "8b9447e1-801f-47b7-98c5-c3a75baceb61",
+        "audited_at": "2026-03-26T12:09:14.409Z",
+        "pass": true,
+        "flicker": 3.95,
+        "shimmer": 3.16,
+        "exposure_pumping": 2.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "8caa998e-6d2a-4935-8177-17ec1f20a2cd",
+        "audited_at": "2026-03-26T12:09:14.410Z",
+        "pass": false,
+        "flicker": 6.32,
+        "shimmer": 5.06,
+        "exposure_pumping": 3.79,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "93f06829-aa00-4490-ba91-72d48a992b8b",
+        "audited_at": "2026-03-26T12:09:14.411Z",
+        "pass": true,
+        "flicker": 3.37,
+        "shimmer": 2.7,
+        "exposure_pumping": 2.02,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "9be54ed2-fe44-4ec2-8417-13f1914644f3",
+        "audited_at": "2026-03-26T12:09:14.412Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 10,
+        "exposure_pumping": 10,
+        "reason": "no_frames"
+      },
+      {
+        "asset_id": "9c997ebc-d0b5-4601-80d3-70bb865a45b3",
+        "audited_at": "2026-03-26T12:09:14.412Z",
+        "pass": true,
+        "flicker": 3.95,
+        "shimmer": 3.16,
+        "exposure_pumping": 2.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "9d2d0350-30c6-4e45-abb5-5f40c28ceb37",
+        "audited_at": "2026-03-26T12:09:14.413Z",
+        "pass": true,
+        "flicker": 0.47,
+        "shimmer": 0.37,
+        "exposure_pumping": 0.28,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "a4227d21-bddd-4045-8a1b-79403f33452d",
+        "audited_at": "2026-03-26T12:09:14.413Z",
+        "pass": true,
+        "flicker": 0.6,
+        "shimmer": 0.48,
+        "exposure_pumping": 0.36,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "ad0e455c-8f6c-47bf-9cf6-bffd05130802",
+        "audited_at": "2026-03-26T12:09:14.414Z",
+        "pass": false,
+        "flicker": 6.51,
+        "shimmer": 5.21,
+        "exposure_pumping": 3.9,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "b21a1ad0-2b8b-40d2-aea7-7d9d6ca89c28",
+        "audited_at": "2026-03-26T12:09:14.415Z",
+        "pass": true,
+        "flicker": 0.47,
+        "shimmer": 0.38,
+        "exposure_pumping": 0.28,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "b990a9dd-18bc-43e7-91bc-0a2e71e23a06",
+        "audited_at": "2026-03-26T12:09:14.415Z",
+        "pass": true,
+        "flicker": 0.6,
+        "shimmer": 0.48,
+        "exposure_pumping": 0.36,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "c1b1a024-9b6d-4f13-b4af-a33c255de9c6",
+        "audited_at": "2026-03-26T12:09:14.416Z",
+        "pass": true,
+        "flicker": 0.78,
+        "shimmer": 0.62,
+        "exposure_pumping": 0.47,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "c2ba4479-4d30-4723-9823-7107613192d3",
+        "audited_at": "2026-03-26T12:09:14.416Z",
+        "pass": true,
+        "flicker": 0.47,
+        "shimmer": 0.38,
+        "exposure_pumping": 0.28,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "c44c43a9-5755-4069-acc9-bb8d7a1643e0",
+        "audited_at": "2026-03-26T12:09:14.417Z",
+        "pass": true,
+        "flicker": 0.47,
+        "shimmer": 0.38,
+        "exposure_pumping": 0.28,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "c78d3059-b34d-4f09-b1f2-f5985e29296f",
+        "audited_at": "2026-03-26T12:09:14.417Z",
+        "pass": true,
+        "flicker": 0.82,
+        "shimmer": 0.66,
+        "exposure_pumping": 0.49,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "c81b47fc-4ce5-4487-bdb3-e53887dc96a2",
+        "audited_at": "2026-03-26T12:09:14.418Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 9.9,
+        "exposure_pumping": 7.43,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "d2a98842-e8c1-47a1-98d7-df75f55e6e20",
+        "audited_at": "2026-03-26T12:09:14.419Z",
+        "pass": true,
+        "flicker": 4.67,
+        "shimmer": 3.74,
+        "exposure_pumping": 2.8,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "d5da2d9c-183b-4c0e-b709-9f6830a15a11",
+        "audited_at": "2026-03-26T12:09:14.419Z",
+        "pass": false,
+        "flicker": 6.68,
+        "shimmer": 5.34,
+        "exposure_pumping": 4.01,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "ddab5b45-31df-496b-9761-402b995ac896",
+        "audited_at": "2026-03-26T12:09:14.420Z",
+        "pass": true,
+        "flicker": 2.76,
+        "shimmer": 2.21,
+        "exposure_pumping": 1.66,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "deef312d-9e70-4bc2-b1f4-f51eafd60f3b",
+        "audited_at": "2026-03-26T12:09:14.421Z",
+        "pass": false,
+        "flicker": 8.33,
+        "shimmer": 6.66,
+        "exposure_pumping": 5,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "e444c282-5960-47ce-ae9e-ef34f93f11fb",
+        "audited_at": "2026-03-26T12:09:14.421Z",
+        "pass": true,
+        "flicker": 3.38,
+        "shimmer": 2.7,
+        "exposure_pumping": 2.03,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "e44b6b50-2d1b-4169-886a-7ff26829ebc8",
+        "audited_at": "2026-03-26T12:09:14.421Z",
+        "pass": true,
+        "flicker": 2.1,
+        "shimmer": 1.68,
+        "exposure_pumping": 1.26,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "e69ef4a1-67c0-4395-be62-40dfd7e21810",
+        "audited_at": "2026-03-26T12:09:14.422Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 10,
+        "exposure_pumping": 10,
+        "frame_count": 6
+      },
+      {
+        "asset_id": "ebb4a7c0-a1f5-457c-895b-a496e66309bc",
+        "audited_at": "2026-03-26T12:09:14.423Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 8.57,
+        "exposure_pumping": 6.43,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "f108150b-1734-4e70-a7a7-c257bcb3fb55",
+        "audited_at": "2026-03-26T12:09:14.423Z",
+        "pass": true,
+        "flicker": 4.77,
+        "shimmer": 3.81,
+        "exposure_pumping": 2.86,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "f3b5aae6-8ded-48aa-b967-1b3880bd8443",
+        "audited_at": "2026-03-26T12:09:14.424Z",
+        "pass": true,
+        "flicker": 0.84,
+        "shimmer": 0.67,
+        "exposure_pumping": 0.5,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "f7613053-3912-4e51-889d-142dee898535",
+        "audited_at": "2026-03-26T12:09:14.424Z",
+        "pass": true,
+        "flicker": 3.57,
+        "shimmer": 2.85,
+        "exposure_pumping": 2.14,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "f9b07328-29b6-4044-9968-af638d27beb5",
+        "audited_at": "2026-03-26T12:09:14.424Z",
+        "pass": false,
+        "flicker": 7.29,
+        "shimmer": 5.83,
+        "exposure_pumping": 4.37,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "fe649652-3dbb-43a0-bc45-e656c810c6d4",
+        "audited_at": "2026-03-26T12:09:14.425Z",
+        "pass": true,
+        "flicker": 3.91,
+        "shimmer": 3.13,
+        "exposure_pumping": 2.35,
+        "frame_count": 5
+      },
+      {
+        "asset_id": "unknown",
+        "audited_at": "2026-03-26T12:09:14.425Z",
+        "pass": false,
+        "flicker": 10,
+        "shimmer": 10,
+        "exposure_pumping": 10,
+        "reason": "no_frames"
+      }
+    ]
+  },
+  "regression_suite_report": {
+    "generated_at": "2026-03-26T12:09:15.566Z",
+    "total_cases": 0,
+    "pass_rate": 100,
+    "checks": []
+  },
+  "self_improvement_cycle": null,
+  "rapid_iteration_result": null,
+  "quality_ratchet_status": {
+    "escalate": true,
+    "broken_floor": 85,
+    "current_min": 79.88505747126436
+  },
+  "skill_registry": {},
+  "improvement_history_size": 0,
+  "quality_floor": 85
+}

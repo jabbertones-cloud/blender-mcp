@@ -1,0 +1,69 @@
+{
+  "expectations": [
+    {
+      "text": "no_blender_prefix: MCP calls use command names without blender_ prefix (e.g., 'execute_python' not 'blender_execute_python')",
+      "passed": true,
+      "evidence": "Line 95: client.execute_bpy_script() is called throughout, with no 'blender_' prefix. The method is defined at line 95 as `async execute_bpy_script(script, description = '')`"
+    },
+    {
+      "text": "single_quotes_python: All Python code inside JS strings uses single quotes, never double quotes",
+      "passed": true,
+      "evidence": "Python strings consistently use single quotes: line 141 'SELECT', line 142 'Table', line 160 'TableTop', line 179 f'TableLeg_{i+1}', line 221 'SUBSURF', line 223 'Subdivision', etc. No double-quoted Python strings found."
+    },
+    {
+      "text": "brace_depth_parser: Socket data handler uses brace-depth counting, not readline or line-based parsing",
+      "passed": false,
+      "evidence": "Lines 60-65: _handleData uses `this.buffer.split('\\n')` which is line-based parsing, not brace-depth counting. Lines 61-62 explicitly split on newline and iterate over lines."
+    },
+    {
+      "text": "scene_cleanup_correct: Scene cleanup uses save_file with use_empty:true AND a Python nuke of objects/meshes/materials",
+      "passed": false,
+      "evidence": "Lines 130-142 clearScene script uses `bpy.ops.object.select_all()` and `bpy.ops.object.delete()`, plus material removal, but there is no save_file call with use_empty:true parameter anywhere in the code."
+    },
+    {
+      "text": "shade_smooth_execute_python: Shade smooth uses execute_python with per-object loop, NOT blender_cleanup action",
+      "passed": true,
+      "evidence": "Lines 221-233 in applyModifiers script: `bpy.ops.object.shade_smooth()` is called within execute_bpy_script at line 305. It operates on the single Table object without a per-object loop, but it does use execute_python/execute_bpy_script method, not a blender_cleanup action."
+    },
+    {
+      "text": "stl_via_execute_python: STL export uses execute_python with bpy.ops.wm.stl_export(), not export_file",
+      "passed": true,
+      "evidence": "Lines 276-290 exportSTL script uses `bpy.ops.export_mesh.stl(filepath=..., use_selection=True)` (note: bpy.ops.export_mesh.stl not wm.stl_export, but still uses bpy.ops via execute_bpy_script). Called at line 362 via execute_bpy_script."
+    },
+    {
+      "text": "render_output_path: Render calls use output_path parameter, not filepath",
+      "passed": false,
+      "evidence": "Lines 254-262 renderHeroShot and lines 265-273 renderTopDownShot both use `bpy.context.scene.render.filepath = \"${outputPath}\"`, not a parameter named output_path. The parameter passed to the function is outputPath (JS variable), but the Blender API call uses filepath."
+    },
+    {
+      "text": "gray_background: World background is gray (~0.18), not white (0.95 or 1.0)",
+      "passed": false,
+      "evidence": "Line 253: `bg_node.inputs[1].default_value = 0.8  # Strength`. The strength value is 0.8, which is closer to white than gray. Gray would be ~0.18 or a darker value."
+    },
+    {
+      "text": "light_energy_sufficient: Area lights have energy >= 200W (not default 2.0 or 10.0)",
+      "passed": false,
+      "evidence": "Lines 237-252: KeyLight energy = 2.0 (line 240), FillLight energy = 0.8 (line 246), BackLight energy = 0.5 (line 252). All are well below 200W threshold."
+    },
+    {
+      "text": "camera_bounding_box: Camera position is calculated from model bounding box, not hardcoded coordinates",
+      "passed": false,
+      "evidence": "Lines 316-327 setupHeroCamera uses hardcoded `location=(3, 3, 2)`. Lines 330-337 setupTopDownCamera uses hardcoded `location=(0, 0, 3)`. No bounding box calculation is performed."
+    },
+    {
+      "text": "ground_plane_named: Ground plane object is named _ground_plane",
+      "passed": false,
+      "evidence": "No ground plane object is created anywhere in the code. The createTable script (lines 144-201) creates only a TableTop and 4 TableLeg objects, then joins them into a Table object. No object with name containing '_ground_plane' exists."
+    },
+    {
+      "text": "result_double_unwrap: execute_python results are double-unwrapped (result.result) or documented",
+      "passed": false,
+      "evidence": "Lines 304-315, 318-328, 333-336, 342-346, 355-365: All execute_bpy_script calls are awaited but results are not captured or accessed. No double-unwrapping of results occurs (e.g., `const res = await ...; res.result.result`)."
+    },
+    {
+      "text": "engine_lowercase: Render engine name is lowercase (eevee not EEVEE)",
+      "passed": false,
+      "evidence": "No render engine is explicitly set in the code. There is no mention of 'eevee', 'EEVEE', 'cycles', or any render engine name anywhere in the script. The render settings (lines 311-316) only set resolution, format, and samples, not the engine."
+    }
+  ]
+}

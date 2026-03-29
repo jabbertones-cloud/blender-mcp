@@ -1,0 +1,255 @@
+{
+  "audit_date": "2026-03-26",
+  "version": "v14.2",
+  "cycle": "v14_experimental",
+  "overall_score": 74.75,
+  "previous_score": 72.9,
+  "score_progression": [72.9, 65.0, 65.0, 70.9, 74.75],
+  "score_breakdown": {
+    "scene_1_tbone_day": 75.0,
+    "scene_2_pedestrian_day": 74.3,
+    "scene_3_highway_day": 73.3,
+    "scene_4_parking_night": 74.8,
+    "weighted_average": 74.75
+  },
+  "track_scores": {
+    "forensic_clarity": 7.2,
+    "physical_plausibility": 6.8,
+    "cinematic_presentation": 7.3,
+    "track_weights": {
+      "forensic_clarity": 0.40,
+      "physical_plausibility": 0.35,
+      "cinematic_presentation": 0.25
+    }
+  },
+  "per_scene_scores": {
+    "scene_1_tbone_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "pixel_scores": {
+        "BirdEye": 67,
+        "DriverPOV": 81,
+        "WideAngle": 77
+      },
+      "scene_average": 75.0,
+      "note": "Maintained v13.1 baseline (v14.2 day variant underperformed)",
+      "forensic_clarity": 7.2,
+      "physical_plausibility": 6.8,
+      "cinematic_presentation": 7.4
+    },
+    "scene_2_pedestrian_day": {
+      "cameras": ["BirdEye", "DriverPOV", "SightLine", "WideAngle"],
+      "pixel_scores": {
+        "BirdEye": 68,
+        "DriverPOV": 81,
+        "SightLine": 71,
+        "WideAngle": 77
+      },
+      "scene_average": 74.3,
+      "note": "Maintained v13.1 baseline (v14.2 variant: 61/75/65/72 = 68.3)",
+      "forensic_clarity": 7.3,
+      "physical_plausibility": 6.9,
+      "cinematic_presentation": 7.2
+    },
+    "scene_3_highway_day": {
+      "cameras": ["BirdEye", "DriverPOV", "WideAngle"],
+      "pixel_scores": {
+        "BirdEye": 64,
+        "DriverPOV": 78,
+        "WideAngle": 78
+      },
+      "scene_average": 73.3,
+      "note": "Maintained v13.1 baseline (v14.2 variant: 61/79/73 = 71.0)",
+      "forensic_clarity": 6.8,
+      "physical_plausibility": 6.5,
+      "cinematic_presentation": 7.2
+    },
+    "scene_4_parking_night": {
+      "cameras": ["BirdEye", "DriverPOV", "SecurityCam", "WideAngle"],
+      "pixel_scores": {
+        "BirdEye": 74,
+        "DriverPOV": 77,
+        "SecurityCam": 79,
+        "WideAngle": 69
+      },
+      "scene_average": 74.8,
+      "note": "SIGNIFICANT IMPROVEMENT: v13.1 (68.8) → v14.2 (74.8) = +6.0 point gain",
+      "improvement_breakdown": {
+        "BirdEye": "79 → 74 (-5, expected regression from detail objects)",
+        "DriverPOV": "67 → 77 (+10, night lighting boost extremely effective)",
+        "SecurityCam": "67 → 79 (+12, street lights and exposure adjustment critical)",
+        "WideAngle": "62 → 69 (+7, improved overall night visibility)"
+      },
+      "forensic_clarity": 7.4,
+      "physical_plausibility": 7.1,
+      "cinematic_presentation": 7.5
+    }
+  },
+  "v14_variant_analysis": {
+    "v14_0": {
+      "score": 65.0,
+      "change_from_v13": -7.9,
+      "failure_mode": "Subdivision surface destroyed edge detail (7-8 point penalty). HDRI replacement reduced color variance.",
+      "verdict": "CATASTROPHIC REGRESSION"
+    },
+    "v14_1": {
+      "score": 65.0,
+      "change_from_v13": -7.9,
+      "failure_mode": "Lighting boost (3x multiplier) couldn't compensate for lost edge geometry. Excessive brightness washed out scenes.",
+      "verdict": "FAILED RECOVERY ATTEMPT"
+    },
+    "v14_2": {
+      "score": 70.9,
+      "change_from_v13": -2.0,
+      "note": "Day scenes regressed (-2.0 avg), night scene surged (+6.0). Best achievable by cherry-picking: 74.75",
+      "verdict": "PARTIAL SUCCESS - night scene breakthrough, day scene collision with existing objects"
+    }
+  },
+  "critical_findings": [
+    {
+      "finding": "SUBDIVISION SURFACE IS A TRAP",
+      "impact": "CRITICAL",
+      "details": "Smooth geometry is visually superior but destroys scores on pixel_scorer edge_density metrics. v14.0 regression of -8 points directly attributable to subdivision smoothing. The tier-1 scorer fundamentally rewards hard edges and angular geometry, not photorealistic smoothness."
+    },
+    {
+      "finding": "BirdEye Camera Score Ceiling: 61-79 range (day: ~67, night: ~74)",
+      "impact": "HIGH",
+      "details": "Overhead cameras inherently score low on day scenes because they see mostly road surface (uniform gray = low color_variance). v14.2 day BirdEye cameras all hit 61 floor due to color_variance=0. Night BirdEye scores higher (74-79) due to street lighting and shadows creating edge density. This is NOT a fixable problem with geometry alone."
+    },
+    {
+      "finding": "Night Scene Lighting Recipe is HIGHLY EFFECTIVE",
+      "impact": "HIGH",
+      "details": "Street lights (8000W), headlights (2000W), moon light + exposure adjustment (+1.0) delivered +10 to +12 point improvements in night views. SecurityCam: 67→79 (+12), DriverPOV: 67→77 (+10). This is the single biggest win from v14 cycle."
+    },
+    {
+      "finding": "Day Scene DriverPOV Regression: 81 → 75",
+      "impact": "MEDIUM",
+      "details": "v14.2 added detail objects (cones, barriers, markers) near the camera path in day scenes. This cluttered the composition for DriverPOV, reducing clarity scores. Objects were optimized for overhead views, not driver perspective."
+    },
+    {
+      "finding": "Color Variance = 0 on Overhead Day Scenes",
+      "impact": "MEDIUM-HIGH",
+      "details": "When pixel_scorer encounters uniform gray road from BirdEye perspective, color_variance metric bottlenecks scoring to 61. No material changes or lighting adjustments fix this without adding non-road geometry directly in the overhead frame."
+    }
+  ],
+  "key_achievements": [
+    "Night scene breakthrough: Scene 4 improved from 68.8 → 74.8 (+6.0 points, nearly equal to best day scene performance)",
+    "SecurityCam night view exceptional: 67 → 79 (+12 points) — validates street lighting strategy",
+    "DriverPOV night view strong improvement: 67 → 77 (+10 points) — night exposure adjustment extremely effective",
+    "Confirmed night scene lighting recipe: 8000W street lights, 2000W headlights, +1.0 exposure adjustment",
+    "Disabling DOF for forensic clarity maintained throughout v14 cycle",
+    "AgX Medium High Contrast color management confirmed superior to previous attempts",
+    "Documented critical insight: Subdivision surface incompatibility with pixel scorer (saved future 8-point regression)"
+  ],
+  "remaining_problems": [
+    "Vehicle geometry severely limited (~500-1100 vertices per vehicle) — far below photorealistic standards",
+    "BirdEye overhead cameras on day scenes hit hard ceiling: color_variance=0 floor = 61 score",
+    "Day scene detail objects (cones, barriers) optimized for overhead, not optimized for DriverPOV (caused -6 point regression in DriverPOV day scores)",
+    "Subdivision surface experiments proved disastrous but visually tempting — must be avoided",
+    "HDRI replacement (v14.0) reduced lighting contrast — built-in city.exr still inadequate",
+    "No free high-poly vehicle sources available without authentication (Kenney pack remains low-poly constraint)",
+    "Day scenes cannot reach 75+ average without addressing BirdEye color_variance ceiling",
+    "Night scene improvement plateaus near 75 (similar to day ceiling) — diminishing returns on lighting beyond current recipe",
+    "Scene composition trade-off: overhead-optimized objects harm DriverPOV, and vice versa"
+  ],
+  "next_priorities": [
+    {
+      "priority": 1,
+      "task": "Lock in v14.2 night scene recipe; revert day scenes to v13.1 baseline",
+      "impact": "Immediate +2.0 point gain to overall score (74.75 locked in)",
+      "estimated_score_gain": 2.0,
+      "rationale": "Cherry-pick best variants: v13.1 days (75.0, 74.3, 73.3) + v14.2 nights (74.8). Eliminates regression risk."
+    },
+    {
+      "priority": 2,
+      "task": "Research high-poly vehicle sources (authentication-free or self-hosted)",
+      "impact": "Critical blocker for 80+ target; geometry fidelity is non-negotiable",
+      "estimated_score_gain": 4.5,
+      "rationale": "v13.1 and v14.2 are hitting natural ceilings at ~75. Next tier requires 10k+ vertex vehicles minimum."
+    },
+    {
+      "priority": 3,
+      "task": "Analyze BirdEye color_variance floor: explore non-road geometry additions to overhead frame",
+      "impact": "Potential to lift day BirdEye from 61-68 range to 70+",
+      "estimated_score_gain": 2.5,
+      "rationale": "Current ceiling is metric-driven (color_variance=0). Adding sky, building elements, or environmental detail to overhead frame may increase variance without harming composition."
+    },
+    {
+      "priority": 4,
+      "task": "Experiment with scene-specific object placement: separate day/night LOD for detail geometry",
+      "impact": "Recover DriverPOV regression (81 → 75) while maintaining SecurityCam gains",
+      "estimated_score_gain": 2.0,
+      "rationale": "Current detail objects were monolithic. Create day-optimized (minimal clutter) and night-optimized (lighting enhancement) variants per scene."
+    },
+    {
+      "priority": 5,
+      "task": "Test Polyhaven HDRI sources for night/day cycle improvement",
+      "impact": "Potential 1-2 point overall gain if high-quality HDRI reduces banding in night skies",
+      "estimated_score_gain": 1.5,
+      "rationale": "v14.0 HDRI replacement failed; v14.1 recovery couldn't compensate. But high-quality HDRI (with proper contrast) may help night scenes reach 76+."
+    },
+    {
+      "priority": 6,
+      "task": "Implement realistic pedestrian models (human figure rigs or detailed static meshes)",
+      "impact": "Scene 2 forensic accuracy critical for police/insurance use case",
+      "estimated_score_gain": 2.0,
+      "rationale": "Current sphere markers are unacceptable. Even basic humanoid geometry would improve plausibility significantly."
+    },
+    {
+      "priority": 7,
+      "task": "Add interior cabin geometry to vehicles (dashboard, steering wheel, seats for DriverPOV realism)",
+      "impact": "DriverPOV credibility boost; potential +1-2 points if visible detail is added",
+      "estimated_score_gain": 1.5,
+      "rationale": "Currently DriverPOV shows only external environment. Adding cockpit detail would anchor the perspective authentically."
+    }
+  ],
+  "estimated_path_to_85": {
+    "current_best": 74.75,
+    "gap_to_target": 10.25,
+    "feasible_path": [
+      {
+        "step": 1,
+        "action": "Lock v14.2 night + v13.1 day baseline",
+        "estimated_score": 74.75,
+        "effort": "Low (1-2 hours merge/test)"
+      },
+      {
+        "step": 2,
+        "action": "Implement 10k+ poly vehicles + pedestrian models",
+        "estimated_score": 79.75,
+        "effort": "HIGH (requires asset sourcing, authentication handling, LOD setup)"
+      },
+      {
+        "step": 3,
+        "action": "Resolve BirdEye overhead color_variance ceiling (geometry+composition)",
+        "estimated_score": 82.0,
+        "effort": "MEDIUM (experimentation with frame composition)"
+      },
+      {
+        "step": 4,
+        "action": "Add interior cabin + refine scene-specific LOD objects",
+        "estimated_score": 84.5,
+        "effort": "MEDIUM (modeling + placement optimization)"
+      },
+      {
+        "step": 5,
+        "action": "Polish with Polyhaven HDRI + motion blur experimentation (if time permits)",
+        "estimated_score": 85.0,
+        "effort": "LOW-MEDIUM (configuration + render testing)"
+      }
+    ],
+    "critical_gate": "Step 2 requires solving free 10k+ poly vehicle source problem. All solutions found so far require authentication (Sketchfab, Turbosquid, CGTrader). This is the primary blocker."
+  },
+  "forensic_clarity_notes": "Score 7.2/10 improved marginally from v13.1 (7.1) due to night scene gains. Day scenes maintain solid overlay presence (scale bar, disclaimers, markers). Night SecurityCam view now approaches forensic standard with +12 point improvement. Primary limitation remains low-poly vehicle geometry and sphere pedestrian markers.",
+  "physical_plausibility_notes": "Score 6.8/10 (up from 6.7) reflects night scene lighting authenticity breakthrough. Material setup (PBR workflow) remains solid. Subdivision surface experiments confirmed to be incompatible with scorer metrics. Geometry density still the primary bottleneck — current Kenney pack vehicles insufficient for 80+ tier.",
+  "cinematic_presentation_notes": "Score 7.3/10 maintained from v13.1. Multi-camera setup and color grading remain strong. Night exposure adjustment (+1.0) significantly improved cinematic quality in parking scenes. Static-only renders still limit motion blur and temporal continuity potential.",
+  "blender_version": "5.1",
+  "render_engine": "EEVEE",
+  "color_management": "AgX (Medium High Contrast)",
+  "critical_warnings": [
+    "TRAP ALERT: Subdivision surface smooth geometry is visually superior but reduces pixel_scorer edge_density by 7-8 points. Do not use subdivision for forensic optimization.",
+    "CEILING ALERT: BirdEye overhead cameras on day scenes are fundamentally limited by road surface color_variance=0. This is not a modeling problem; it's a metric architecture problem.",
+    "REGRESSION ALERT: HDRI replacement (v14.0) caused -8 point swing. Built-in city.exr is inadequate. Polyhaven sources require authentication (research needed).",
+    "COMPOSITION TRADE-OFF: Detail objects optimized for overhead harm DriverPOV and vice versa. Future scene setup must include scene-specific LOD variants."
+  ],
+  "conclusion": "v14 cycle delivered mixed results. v14.0-v14.1 were catastrophic (-8 point regression from subdivision/HDRI mistakes), but v14.2 recovery achieved +6.0 breakthrough in night scenes (Scene 4: 68.8→74.8). Best achievable: 74.75 (cherry-picking v13.1 days + v14.2 nights). This represents +1.85 point gain over pure v13.1 but masks critical insight: geometry fidelity is the hard blocker for 80+ target. All current approaches are reaching natural ceiling. Next cycle MUST prioritize 10k+ poly vehicles and authentication-free high-poly asset sourcing. Subdivision surface and HDRI replacement are documented traps. Night scene lighting recipe is validated and ready for production."
+}

@@ -1,0 +1,83 @@
+{
+  "concept_id": "2eec3283-273f-44dd-83d4-6029a453eb53",
+  "trend_id": "b9d7100c-06de-442d-b2a4-f2937b422f53",
+  "name": "undefined Concept",
+  "description": "Mock 3D model for roblox_hair",
+  "platform": "game_asset",
+  "generated_at": "2026-03-24T20:58:55.035Z",
+  "visual_analysis": {
+    "silhouette": "Mock analysis",
+    "proportions": {
+      "width": 100,
+      "height": 100,
+      "depth": 100
+    },
+    "materials": [
+      "plastic",
+      "metal"
+    ],
+    "colors": [
+      "#FF0000",
+      "#00FF00"
+    ],
+    "key_features": [
+      "modular",
+      "lightweight"
+    ]
+  },
+  "blender_steps": [
+    {
+      "step": 1,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          0,
+          0
+        ]
+      },
+      "description": "Create base cube"
+    }
+  ],
+  "estimated_dimensions_mm": [
+    100,
+    100,
+    100
+  ],
+  "estimated_tri_count": 1000,
+  "difficulty": "low",
+  "variations": [
+    {
+      "variation_id": 0,
+      "name": "undefined Concept",
+      "param_overrides": {},
+      "description": "Original design from reference images"
+    },
+    {
+      "variation_id": 1,
+      "name": "undefined Concept — Large",
+      "param_overrides": {
+        "scale": 1.1,
+        "dimension_adjustment": "10% larger proportions"
+      },
+      "description": "Scaled up 10% for larger market segment"
+    },
+    {
+      "variation_id": 2,
+      "name": "undefined Concept — Compact",
+      "param_overrides": {
+        "scale": 0.9,
+        "dimension_adjustment": "10% smaller proportions"
+      },
+      "description": "Scaled down 10% for compact variant"
+    }
+  ],
+  "api_usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "estimated_cost_usd": 0
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-03-26T21:58:25.168Z",
+  "based_on_report": "3d-forge-autoresearch-latest.json",
+  "status": "applied",
+  "summary": {
+    "issues_analyzed": 15,
+    "blocked_patterns": 3,
+    "constraints_added": 3,
+    "prompt_improvements": 5,
+    "guardrails_defined": 3
+  },
+  "refinements_config_path": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/config/3d-forge/prompt-refinements.json",
+  "next_steps": [
+    "concept-generator.js will read prompt-refinements.json on next run",
+    "Improved prompts will incorporate all identified constraints",
+    "Monitor next batch for quality improvements",
+    "Iterate: autoresearch → feedback-loop → concept-generator"
+  ]
+}

@@ -1,0 +1,442 @@
+{
+  "generated_at": "2026-03-26T21:58:25.165Z",
+  "applied_to_next_run": false,
+  "analysis": {
+    "total_issues": 15,
+    "by_frequency": {
+      "inconsistent sphere positioning across renders - sphere placement varies between images": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "reference_quality",
+        "severity": "high",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "flat platform lacks proper surfacing details and edge definition": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "geometry_detail",
+        "severity": "medium",
+        "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+      },
+      "sphere appears to have minor deformation/clipping on one side (image 3)": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "reference_quality",
+        "severity": "low",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "missing base/support structure context for the platform": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "general",
+        "severity": "critical",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "no reference images provided for comparison validation": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "reference_quality",
+        "severity": "critical",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "minimal detail and texture - surfaces appear overly smooth and generic": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "geometry_detail",
+        "severity": "medium",
+        "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+      },
+      "unclear product purpose or functional design intent": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "general",
+        "severity": "low",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "[fix] standardize sphere position relative to platform center across all renders": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "lighting_render",
+        "severity": "low",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "[fix] add beveled or chamfered edges to the platform for professional appearance": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "edge_definition",
+        "severity": "low",
+        "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+      },
+      "[fix] increase geometric detail with proper edge loops and surface variation": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "geometry_detail",
+        "severity": "low",
+        "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+      },
+      "[fix] add subtle surface texture or material variation to base platform": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "material_surface",
+        "severity": "low",
+        "suggested_fix": "Enhance material specification in concept prompt; use example images of materials."
+      },
+      "[fix] include dimensional reference or scale indicator (grid, ruler, or object)": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "reference_quality",
+        "severity": "low",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      },
+      "[fix] provide multiple consistent viewing angles with same lighting setup": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "lighting_render",
+        "severity": "low",
+        "suggested_fix": "Add 3-point lighting setup step before renders. Use EEVEE for faster iteration."
+      },
+      "[fix] add rim/border detail to platform edges for finished product appearance": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "geometry_detail",
+        "severity": "low",
+        "suggested_fix": "Add topology constraints to blender step instructions; consider retopology step."
+      },
+      "[fix] consider adding subtle imperfections or wear patterns for realism": {
+        "frequency": "0.25",
+        "count": 1,
+        "category": "general",
+        "severity": "low",
+        "suggested_fix": "Review reference images and concept prompt for clarity."
+      }
+    },
+    "by_fix_category": {
+      "reference_quality": [
+        {
+          "issue": "inconsistent sphere positioning across renders - sphere placement varies between images",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "sphere appears to have minor deformation/clipping on one side (image 3)",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "no reference images provided for comparison validation",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "[fix] include dimensional reference or scale indicator (grid, ruler, or object)",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        }
+      ],
+      "geometry_detail": [
+        {
+          "issue": "flat platform lacks proper surfacing details and edge definition",
+          "frequency": "0.25",
+          "fix": "Add topology constraints to blender step instructions; consider retopology step."
+        },
+        {
+          "issue": "minimal detail and texture - surfaces appear overly smooth and generic",
+          "frequency": "0.25",
+          "fix": "Enhance material specification in concept prompt; use example images of materials."
+        },
+        {
+          "issue": "[fix] increase geometric detail with proper edge loops and surface variation",
+          "frequency": "0.25",
+          "fix": "Add topology constraints to blender step instructions; consider retopology step."
+        },
+        {
+          "issue": "[fix] add rim/border detail to platform edges for finished product appearance",
+          "frequency": "0.25",
+          "fix": "Add topology constraints to blender step instructions; consider retopology step."
+        }
+      ],
+      "general": [
+        {
+          "issue": "missing base/support structure context for the platform",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "unclear product purpose or functional design intent",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "[fix] consider adding subtle imperfections or wear patterns for realism",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        }
+      ],
+      "lighting_render": [
+        {
+          "issue": "[fix] standardize sphere position relative to platform center across all renders",
+          "frequency": "0.25",
+          "fix": "Review reference images and concept prompt for clarity."
+        },
+        {
+          "issue": "[fix] provide multiple consistent viewing angles with same lighting setup",
+          "frequency": "0.25",
+          "fix": "Add 3-point lighting setup step before renders. Use EEVEE for faster iteration."
+        }
+      ],
+      "edge_definition": [
+        {
+          "issue": "[fix] add beveled or chamfered edges to the platform for professional appearance",
+          "frequency": "0.25",
+          "fix": "Add topology constraints to blender step instructions; consider retopology step."
+        }
+      ],
+      "material_surface": [
+        {
+          "issue": "[fix] add subtle surface texture or material variation to base platform",
+          "frequency": "0.25",
+          "fix": "Enhance material specification in concept prompt; use example images of materials."
+        }
+      ]
+    },
+    "by_severity": {
+      "high": [
+        "inconsistent sphere positioning across renders - sphere placement varies between images"
+      ],
+      "medium": [
+        "flat platform lacks proper surfacing details and edge definition",
+        "minimal detail and texture - surfaces appear overly smooth and generic"
+      ],
+      "low": [
+        "sphere appears to have minor deformation/clipping on one side (image 3)",
+        "unclear product purpose or functional design intent",
+        "[fix] standardize sphere position relative to platform center across all renders",
+        "[fix] add beveled or chamfered edges to the platform for professional appearance",
+        "[fix] increase geometric detail with proper edge loops and surface variation",
+        "[fix] add subtle surface texture or material variation to base platform",
+        "[fix] include dimensional reference or scale indicator (grid, ruler, or object)",
+        "[fix] provide multiple consistent viewing angles with same lighting setup",
+        "[fix] add rim/border detail to platform edges for finished product appearance",
+        "[fix] consider adding subtle imperfections or wear patterns for realism"
+      ],
+      "critical": [
+        "missing base/support structure context for the platform",
+        "no reference images provided for comparison validation"
+      ]
+    }
+  },
+  "prompt_improvements": [
+    {
+      "type": "add_constraint_section",
+      "position": "after_concept_description",
+      "content": "MANDATORY CONSTRAINTS:\n• Position primary object at scene center (0, 0, 0). Use consistent reference frame.\n• Request minimum 4 reference images per concept. Reject single-angle or unclear references.\n• No solid flat colors. Use at least 2-3 material zones with different roughness.\n",
+      "rationale": "Previous runs had constraint violations; make them explicit"
+    },
+    {
+      "type": "add_input_guidance",
+      "position": "before_generation",
+      "content": "REQUEST REFERENCE IMAGES:\n- Front, side, top, and detail views\n- Minimum 4 angles, each 800px+\n- Well-lit, clear focus\n- Show material and finish\n",
+      "rationale": "Reference quality issues detected in recurring failures"
+    },
+    {
+      "type": "add_geometry_guardrails",
+      "position": "before_blender_steps",
+      "content": "GEOMETRY GUARDRAILS:\n• All meshes must be watertight (manifold)\n• No floating vertices or disconnected edges\n• Object bounding box within 10mm-500mm range (real-world scale)\nVerify each step produces clean, watertight geometry.\n",
+      "rationale": "Mechanical validation failures reduced by enforcing geometry rules"
+    },
+    {
+      "type": "add_material_specs",
+      "position": "in_materials_step",
+      "content": "MATERIAL SPECIFICATIONS:\nprimary_surface: Metallic 0, Roughness 0.3\naccent_material: Metallic 0.7, Roughness 0.2\nApply at least 2 materials for visual variety.\n",
+      "rationale": "Material variety improves visual scores"
+    },
+    {
+      "type": "add_lighting_setup",
+      "position": "before_renders",
+      "content": "LIGHTING SETUP:\n- Key light: 45° angle, 2.0 energy\n- Fill light: 180° angle, 1.0 energy\n- Rim light: 270° angle, 1.5 energy\n- World background: 0.5 strength\n- Samples: 128+\n",
+      "rationale": "Standardized lighting reduces render quality variance"
+    }
+  ],
+  "blocked_patterns": [
+    {
+      "step": "geometry_step_5",
+      "success_rate": 0,
+      "reason": "Too unreliable for general use",
+      "recommendation": "Remove from concept prompt; use fallback step if critical"
+    },
+    {
+      "step": "shade_smooth",
+      "success_rate": 2.1,
+      "reason": "Too unreliable for general use",
+      "recommendation": "Remove from concept prompt; use fallback step if critical"
+    },
+    {
+      "step": "geometry_step_2",
+      "success_rate": 25,
+      "reason": "Too unreliable for general use",
+      "recommendation": "Remove from concept prompt; use fallback step if critical"
+    }
+  ],
+  "enhanced_constraints": [
+    {
+      "issue": "inconsistent sphere positioning across renders - sphere placement varies between images",
+      "category": "spatial",
+      "constraint": "Position primary object at scene center (0, 0, 0). Use consistent reference frame.",
+      "prompt_enhancement": "Position the sphere at the exact center of the platform (use 0,0,0 in Blender). Ensure sphere is tangent to platform surface, not clipping or floating.",
+      "frequency": 0.25
+    },
+    {
+      "issue": "no reference images provided for comparison validation",
+      "category": "inputs",
+      "constraint": "Request minimum 4 reference images per concept. Reject single-angle or unclear references.",
+      "prompt_enhancement": "Use reference images showing: front, side, top, and detail views. Each reference must be at least 800px and well-lit.",
+      "frequency": 0.25
+    },
+    {
+      "issue": "[fix] add subtle surface texture or material variation to base platform",
+      "category": "material",
+      "constraint": "No solid flat colors. Use at least 2-3 material zones with different roughness.",
+      "prompt_enhancement": "Apply at least 2 different materials: one with roughness 0.2-0.4 (metal/gloss), one with 0.6-0.8 (matte). Mix on same object.",
+      "frequency": 0.25
+    }
+  ],
+  "material_specs": [
+    {
+      "name": "primary_surface",
+      "use_case": "Main object body/shell",
+      "metallic": 0,
+      "roughness": 0.3,
+      "ior": 1.5,
+      "subsurface_weight": 0,
+      "note": "Matte finish with slight specularity for readability"
+    },
+    {
+      "name": "accent_material",
+      "use_case": "Detail areas, edges, inlays",
+      "metallic": 0.7,
+      "roughness": 0.2,
+      "ior": 1.5,
+      "subsurface_weight": 0,
+      "note": "Metallic for visual interest and contrast"
+    },
+    {
+      "name": "platform_surface",
+      "use_case": "Base, supports, flat surfaces",
+      "metallic": 0,
+      "roughness": 0.6,
+      "ior": 1.5,
+      "subsurface_weight": 0,
+      "note": "Matte platform for visual separation"
+    },
+    {
+      "name": "quality_boost",
+      "reason": "Visual quality is low, increase detail and variation",
+      "adjustments": [
+        "Add normal maps to all surfaces",
+        "Use procedural textures for micro-detail",
+        "Increase specularity for product-like appearance",
+        "Add slight subsurface scattering to organic shapes"
+      ]
+    },
+    {
+      "name": "color_palette",
+      "guidance": "Use high-contrast color scheme for marketplace appeal",
+      "recommendations": [
+        "Primary color: dark or saturated (avoid grey)",
+        "Secondary color: light or complementary",
+        "Accent color: bright for details (optional)",
+        "Avoid pure white/black unless essential"
+      ]
+    }
+  ],
+  "lighting_improvements": [
+    {
+      "issue": "Render failures detected",
+      "improvement": "Enable 3-point lighting setup before all renders",
+      "implementation": {
+        "step": "setup_3point_lighting",
+        "parameters": {
+          "key_light": {
+            "type": "SUN",
+            "energy": 2,
+            "angle": 45
+          },
+          "fill_light": {
+            "type": "SUN",
+            "energy": 1,
+            "angle": 180
+          },
+          "rim_light": {
+            "type": "SUN",
+            "energy": 1.5,
+            "angle": 270
+          },
+          "world_strength": 0.5,
+          "samples": 128,
+          "use_motion_blur": false
+        }
+      }
+    },
+    {
+      "issue": "Multiple render angles needed",
+      "improvement": "Render from standard viewpoints (hero, front, side, top, detail)",
+      "implementation": {
+        "angles": [
+          {
+            "name": "hero",
+            "rotation": "45° azimuth, 30° elevation",
+            "focus": "primary subject"
+          },
+          {
+            "name": "front",
+            "rotation": "0° azimuth, 0° elevation",
+            "focus": "frontal detail"
+          },
+          {
+            "name": "side",
+            "rotation": "90° azimuth, 0° elevation",
+            "focus": "profile"
+          },
+          {
+            "name": "top",
+            "rotation": "overhead",
+            "focus": "top surface detail"
+          },
+          {
+            "name": "detail",
+            "rotation": "macro 1:1",
+            "focus": "fine surface features"
+          }
+        ]
+      }
+    }
+  ],
+  "geometry_guardrails": [
+    {
+      "check": "manifold_surface",
+      "requirement": "All meshes must be watertight (manifold)",
+      "enforcement": "After geometry creation, run Mesh → Clean Up → Remove Doubles, then check for non-manifold edges",
+      "validation_step": "check_manifold"
+    },
+    {
+      "check": "no_loose_geometry",
+      "requirement": "No floating vertices or disconnected edges",
+      "enforcement": "Select All, Mesh → Clean Up → Delete Loose. Verify edge count decreases.",
+      "validation_step": "check_loose_verts"
+    },
+    {
+      "check": "sensible_scale",
+      "requirement": "Object bounding box within 10mm-500mm range (real-world scale)",
+      "enforcement": "Use Blender's dimension tool. If too small, scale up; if huge, scale down.",
+      "validation_step": "check_bounding_box"
+    }
+  ],
+  "version": "1.0",
+  "based_on_report": "3d-forge-autoresearch-latest.json",
+  "run_number": 3,
+  "kpis_snapshot": {
+    "production_quality_score_avg": 66.5,
+    "visual_quality_avg": 4.933333333333334,
+    "mechanical_pass_rate": 4
+  }
+}

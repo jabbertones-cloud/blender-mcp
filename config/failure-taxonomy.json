@@ -1,0 +1,320 @@
+{
+  "version": "1.0",
+  "failure_codes": {
+    "RENDER_BLACK": {
+      "description": "Render output is completely black (mean brightness < 10/255)",
+      "severity": "critical",
+      "causes": ["no_lights", "no_world_env", "camera_inside_object", "render_engine_disabled"],
+      "fix_playbook": {
+        "step_1": "Check light count: if 0, add 3-point lighting (KeySun 2.0, FillSun 1.0, RimSun 1.5)",
+        "step_2": "Check world: if None, create world with background strength 1.0",
+        "step_3": "Check camera: ensure active camera exists and is not inside any mesh",
+        "step_4": "Verify Cycles is enabled and samples >= 64",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nif len(bpy.data.lights) == 0:\n    sun_key = bpy.data.lights.new('KeySun', 'SUN')\n    sun_key.energy = 2.0\n    sun_fill = bpy.data.lights.new('FillSun', 'SUN')\n    sun_fill.energy = 1.0\nif scene.world is None:\n    world = bpy.data.worlds.new('World')\n    scene.world = world\nscene.world.use_nodes = True\nscene.world.node_tree.nodes['Background'].inputs[1].default_value = 1.0\nscene.render.engine = 'CYCLES'\nscene.cycles.samples = 64",
+        "expected_fix_time": "45s",
+        "regression_test": "mean_brightness > 15 after fix"
+      }
+    },
+    "LIGHT_UNDEREXPOSED": {
+      "description": "Image too dark overall (mean brightness 10-80/255), forensic details invisible",
+      "severity": "critical",
+      "causes": ["insufficient_light_power", "world_background_too_dim", "exposure_undercompensated"],
+      "fix_playbook": {
+        "step_1": "Measure current mean brightness; if < 80, increase all light energies by 2x",
+        "step_2": "Check world background strength; if < 0.8, increase to 1.0",
+        "step_3": "In compositor, add Exposure node and increase by 0.5-1.0 stops",
+        "bpy_code": "import bpy\nfor light in bpy.data.lights:\n    if light.type in ['SUN', 'AREA', 'POINT']:\n        light.energy *= 2.0\nscene = bpy.context.scene\nif scene.world and scene.world.use_nodes:\n    bg_node = scene.world.node_tree.nodes.get('Background')\n    if bg_node:\n        bg_node.inputs[1].default_value = 1.0",
+        "expected_fix_time": "30s",
+        "regression_test": "mean_brightness > 100 after fix"
+      }
+    },
+    "LIGHT_OVEREXPOSED": {
+      "description": "Image too bright (mean brightness > 240/255), detail blown out, forensic markers unreadable",
+      "severity": "critical",
+      "causes": ["excessive_light_power", "world_background_too_bright", "exposure_overcompensated"],
+      "fix_playbook": {
+        "step_1": "Reduce all light energies by 50%",
+        "step_2": "Reduce world background strength to 0.5-0.7",
+        "step_3": "In compositor, add Exposure node and decrease by 0.5-1.0 stops",
+        "step_4": "Enable tone mapping in render settings",
+        "bpy_code": "import bpy\nfor light in bpy.data.lights:\n    if light.type in ['SUN', 'AREA', 'POINT']:\n        light.energy *= 0.5\nscene = bpy.context.scene\nif scene.world and scene.world.use_nodes:\n    bg_node = scene.world.node_tree.nodes.get('Background')\n    if bg_node:\n        bg_node.inputs[1].default_value = 0.6\nscene.render.use_high_quality_normals = True",
+        "expected_fix_time": "40s",
+        "regression_test": "mean_brightness < 200 after fix"
+      }
+    },
+    "CAMERA_OCCLUDED": {
+      "description": "Camera view blocked by geometry (expected scene not visible)",
+      "severity": "critical",
+      "causes": ["camera_clipping_plane_too_close", "camera_inside_object", "camera_behind_obstacle"],
+      "fix_playbook": {
+        "step_1": "Move camera 1-2 units away from nearest geometry",
+        "step_2": "Reduce camera clip start from 1.0 to 0.1",
+        "step_3": "Check camera is not parented to moving geometry",
+        "bpy_code": "import bpy\ncamera = bpy.context.scene.camera\nif camera:\n    camera.data.clip_start = 0.01\n    camera.location.z += 2.0\n    camera.data.clip_end = 1000.0\n    bpy.context.scene.camera = camera",
+        "expected_fix_time": "20s",
+        "regression_test": "primary_subject_visible in viewport"
+      }
+    },
+    "CAMERA_MISFRAMED": {
+      "description": "Primary subject (vehicle, pedestrian) partially or entirely out of frame",
+      "severity": "critical",
+      "causes": ["camera_position_wrong", "subject_position_wrong", "focal_length_wrong"],
+      "fix_playbook": {
+        "step_1": "Adjust camera X/Y position to center primary subject",
+        "step_2": "Adjust focal length (24mm for wide, 50mm for medium, 85mm for tight)",
+        "step_3": "Verify rule-of-thirds composition: subject at grid intersection",
+        "bpy_code": "import bpy\ncamera = bpy.context.scene.camera\nsubject = bpy.data.objects.get('Vehicle') or bpy.data.objects.get('Pedestrian')\nif camera and subject:\n    target_x = subject.location.x\n    target_y = subject.location.y - 3.0\n    camera.location.x = target_x\n    camera.location.y = target_y\n    camera.data.lens = 50.0",
+        "expected_fix_time": "35s",
+        "regression_test": "subject_center_offset < 0.15 screen_width"
+      }
+    },
+    "MATERIAL_FLAT": {
+      "description": "Materials have no specular/metallic variation, appear unrealistic flat",
+      "severity": "high",
+      "causes": ["no_roughness_variation", "all_materials_fully_rough", "missing_metallic_maps"],
+      "fix_playbook": {
+        "step_1": "For vehicle bodies: set Metallic 0.7-1.0, Roughness 0.2-0.4",
+        "step_2": "For glass: set Metallic 0.0, Roughness 0.0, IOR 1.45",
+        "step_3": "For asphalt: set Metallic 0.0, Roughness 0.8-0.95",
+        "bpy_code": "import bpy\nfor material in bpy.data.materials:\n    if material.use_nodes:\n        bsdf = material.node_tree.nodes.get('Principled BSDF')\n        if bsdf:\n            if 'Glass' in material.name or 'glass' in material.name.lower():\n                bsdf.inputs['Metallic'].default_value = 0.0\n                bsdf.inputs['Roughness'].default_value = 0.0\n                bsdf.inputs['IOR'].default_value = 1.45\n            elif 'Vehicle' in material.name or 'vehicle' in material.name.lower():\n                bsdf.inputs['Metallic'].default_value = 0.8\n                bsdf.inputs['Roughness'].default_value = 0.3\n            else:\n                bsdf.inputs['Roughness'].default_value = 0.7",
+        "expected_fix_time": "45s",
+        "regression_test": "specular_highlights_visible on main subject"
+      }
+    },
+    "MATERIAL_DEFAULT_GREY": {
+      "description": "Objects retain Blender default grey material (255,127,127) unmodified",
+      "severity": "high",
+      "causes": ["materials_not_customized", "procedural_texture_missing", "principled_bsdf_unused"],
+      "fix_playbook": {
+        "step_1": "Identify all objects with default grey material",
+        "step_2": "For vehicles: assign automotive paint (0.95 base color, 0.3 roughness)",
+        "step_3": "For environment: assign appropriate material (asphalt, concrete, grass)",
+        "bpy_code": "import bpy\ndefault_grey = (0.8, 0.8, 0.8)\nfor obj in bpy.data.objects:\n    if obj.type == 'MESH' and obj.data.materials:\n        for mat in obj.data.materials:\n            if mat.use_nodes:\n                bsdf = mat.node_tree.nodes.get('Principled BSDF')\n                if bsdf:\n                    current = bsdf.inputs['Base Color'].default_value\n                    if abs(current[0] - 0.8) < 0.05:\n                        if 'Vehicle' in obj.name or 'Car' in obj.name:\n                            bsdf.inputs['Base Color'].default_value = (0.1, 0.1, 0.15, 1.0)\n                        elif 'Road' in obj.name or 'Asphalt' in obj.name:\n                            bsdf.inputs['Base Color'].default_value = (0.2, 0.2, 0.22, 1.0)",
+        "expected_fix_time": "60s",
+        "regression_test": "zero_default_grey_materials in final render"
+      }
+    },
+    "GEOMETRY_PRIMITIVE": {
+      "description": "Scene contains obvious primitive shapes (perfect cubes, spheres, planes) as stand-ins",
+      "severity": "high",
+      "causes": ["placeholders_not_replaced", "low_detail_stand_ins", "missing_imported_models"],
+      "fix_playbook": {
+        "step_1": "List all objects; identify cubes, spheres, planes with generic names",
+        "step_2": "Replace with actual 3D models (import FBX/OBJ of real vehicles/pedestrians)",
+        "step_3": "Delete or hide all Cube/Sphere/Plane objects",
+        "bpy_code": "import bpy\nprimitives = ['Cube', 'Sphere', 'Plane', 'Cylinder', 'Cone']\nfor obj in bpy.data.objects:\n    if obj.type == 'MESH':\n        if any(prim in obj.name for prim in primitives):\n            bpy.data.objects.remove(obj, do_unlink=True)\nprint('Removed placeholder primitives')",
+        "expected_fix_time": "90s",
+        "regression_test": "no_primitive_shapes in render"
+      }
+    },
+    "GEOMETRY_LOW_POLY": {
+      "description": "Primary subject (vehicle, pedestrian) has visibly low polygon count causing jagged edges or missing detail",
+      "severity": "high",
+      "causes": ["low_detail_import", "decimation_too_aggressive", "missing_subdivision_surface"],
+      "fix_playbook": {
+        "step_1": "Add Subdivision Surface modifier with 2-3 subdivision levels",
+        "step_2": "Import higher-detail model if available",
+        "step_3": "If already subdivided, increase levels to 3-4 for hero subject",
+        "bpy_code": "import bpy\nfor obj in bpy.data.objects:\n    if obj.type == 'MESH' and ('Vehicle' in obj.name or 'Pedestrian' in obj.name or 'Car' in obj.name):\n        subsurf = obj.modifiers.new(name='SubSurf', type='SUBSURF')\n        subsurf.levels = 3\n        subsurf.render_levels = 4\n        obj.data.use_smooth = True",
+        "expected_fix_time": "50s",
+        "regression_test": "subject_geometry_smooth in viewport"
+      }
+    },
+    "MOTION_UNREADABLE": {
+      "description": "Motion blur/velocity vectors not visible; cannot determine speed or direction from animation",
+      "severity": "high",
+      "causes": ["motion_blur_disabled", "samples_too_low", "velocity_pass_missing"],
+      "fix_playbook": {
+        "step_1": "Enable motion blur in Cycles render settings",
+        "step_2": "Increase samples to 128+ for smooth motion",
+        "step_3": "Enable Vector pass in Compositing for post-motion enhancement",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nscene.render.engine = 'CYCLES'\nscene.cycles.use_motion_blur = True\nscene.cycles.motion_blur_position = 'CENTER'\nscene.cycles.samples = 128\nscene.render.use_motion_blur = True\nscene.render.motion_blur_shutter = 0.5",
+        "expected_fix_time": "30s",
+        "regression_test": "motion_blur_visible on moving objects"
+      }
+    },
+    "FORENSIC_NO_MARKERS": {
+      "description": "Forensic markers (distance markers, evidence tags, scale references) completely absent",
+      "severity": "critical",
+      "causes": ["markers_not_created", "marker_layer_hidden", "markers_deleted"],
+      "fix_playbook": {
+        "step_1": "Create evidence marker objects at key points (impact zone, sight lines, victim location)",
+        "step_2": "Add text labels with case reference and marker numbers",
+        "step_3": "Ensure markers visible in viewport with distinct material (bright color)",
+        "bpy_code": "import bpy\nmarker_location = (5.0, 0.0, 0.0)\nbpy.ops.mesh.primitive_uv_sphere_add(radius=0.3, location=marker_location)\nmarker = bpy.context.active_object\nmarker.name = 'ForensicMarker_01'\nmat = bpy.data.materials.new(name='MarkerMat')\nmat.use_nodes = True\nbsdf = mat.node_tree.nodes['Principled BSDF']\nbsdf.inputs['Base Color'].default_value = (1.0, 0.2, 0.2, 1.0)\nmarker.data.materials.append(mat)\nprint('Created forensic marker at', marker_location)",
+        "expected_fix_time": "60s",
+        "regression_test": "forensic_markers_visible_in_frame"
+      }
+    },
+    "FORENSIC_NO_SCALE": {
+      "description": "Scale reference (metric ruler, scale bar) missing; impossible to verify dimensions",
+      "severity": "critical",
+      "causes": ["scale_object_not_created", "scale_not_positioned_in_frame", "scale_too_small_to_read"],
+      "fix_playbook": {
+        "step_1": "Create scale bar object (1 meter long, 5cm tall) with text label",
+        "step_2": "Position in frame foreground or corner, clearly visible and unobstructed",
+        "step_3": "Add measurement text: '1 Meter' or '100cm' with case reference",
+        "bpy_code": "import bpy\nbpy.ops.mesh.primitive_cube_add(size=1.0, location=(0.0, 0.0, -1.0))\nscale_bar = bpy.context.active_object\nscale_bar.name = 'ScaleBar_1M'\nscale_bar.scale = (1.0, 0.05, 0.05)\nmat = bpy.data.materials.new(name='ScaleBarMat')\nmat.use_nodes = True\nbsdf = mat.node_tree.nodes['Principled BSDF']\nbsdf.inputs['Base Color'].default_value = (0.9, 0.9, 0.1, 1.0)\nscale_bar.data.materials.append(mat)\nprint('Created 1-meter scale bar')",
+        "expected_fix_time": "45s",
+        "regression_test": "scale_bar_clearly_visible_and_readable"
+      }
+    },
+    "FORENSIC_NO_LABELS": {
+      "description": "Case number, exhibit reference, or scene identification labels completely absent",
+      "severity": "high",
+      "causes": ["text_objects_deleted", "text_layer_hidden", "case_info_not_added"],
+      "fix_playbook": {
+        "step_1": "Create text object with case number (e.g., 'Case #2024-0521')",
+        "step_2": "Create text object with exhibit reference (e.g., 'Exhibit A-3: Impact Zone')",
+        "step_3": "Position in frame corner with high contrast (white text, dark background)",
+        "bpy_code": "import bpy\nbpy.ops.object.text_add(location=(0.0, 5.0, 0.0))\ntext_obj = bpy.context.active_object\ntext_obj.name = 'CaseLabel'\ntext_obj.data.body = 'Case #2024-0521\\nExhibit A-3'\ntext_obj.scale = (0.5, 0.5, 0.5)\nmat = bpy.data.materials.new(name='TextMat')\nmat.use_nodes = True\nbsdf = mat.node_tree.nodes['Principled BSDF']\nbsdf.inputs['Base Color'].default_value = (1.0, 1.0, 1.0, 1.0)\ntext_obj.data.materials.append(mat)\nprint('Added case label')",
+        "expected_fix_time": "30s",
+        "regression_test": "case_label_visible_in_render"
+      }
+    },
+    "COMPOSITION_EMPTY_SPACE": {
+      "description": "Frame contains excessive empty space (> 30% black/empty areas), composition unbalanced",
+      "severity": "medium",
+      "causes": ["camera_too_far", "subject_not_centered", "framing_waste"],
+      "fix_playbook": {
+        "step_1": "Move camera closer to primary subject",
+        "step_2": "Reposition camera to follow rule of thirds",
+        "step_3": "Add environmental context if needed to fill frame",
+        "bpy_code": "import bpy\ncamera = bpy.context.scene.camera\nsubject = bpy.data.objects.get('Vehicle') or bpy.data.objects.get('Pedestrian')\nif camera and subject:\n    dist_to_subject = (subject.location - camera.location).length\n    new_dist = max(dist_to_subject * 0.7, 3.0)\n    direction = (subject.location - camera.location).normalized()\n    camera.location = subject.location - (direction * new_dist)\n    camera.rotation_euler = (0, 0, 0)",
+        "expected_fix_time": "25s",
+        "regression_test": "empty_space_ratio < 0.2"
+      }
+    },
+    "COMPOSITION_NO_DEPTH": {
+      "description": "Scene appears 2D flat; no sense of depth or layering (vehicles appear pasted on)",
+      "severity": "medium",
+      "causes": ["all_objects_same_distance", "shallow_depth_of_field", "no_occlusion"],
+      "fix_playbook": {
+        "step_1": "Add foreground elements (trees, poles, buildings) 2-3 units from camera",
+        "step_2": "Add background elements (buildings, sky) 50+ units from camera",
+        "step_3": "Enable depth of field with f-stop 4-8 to blur background",
+        "bpy_code": "import bpy\ncamera = bpy.context.scene.camera\nif camera:\n    camera.data.dof.use_dof = True\n    camera.data.dof.aperture_fstop = 5.0\n    camera.data.dof.focus_distance = 10.0\n    for obj in bpy.data.objects:\n        if 'BG' in obj.name or 'Background' in obj.name:\n            obj.location.z -= 50.0",
+        "expected_fix_time": "35s",
+        "regression_test": "depth_cues_visible_in_render"
+      }
+    },
+    "DEFORMATION_ABSENT": {
+      "description": "Vehicle deformation from collision not visible; impact zone appears undamaged",
+      "severity": "high",
+      "causes": ["damage_geometry_not_applied", "driver_mesh_shape_key_disabled", "collision_frame_timing_wrong"],
+      "fix_playbook": {
+        "step_1": "Ensure collision frame shows damaged mesh geometry (fender crumple, hood buckle)",
+        "step_2": "If using shape keys, enable damage shape key at frame N (impact frame)",
+        "step_3": "Verify collision happens at exact frame; preview timeline to confirm",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nfor obj in bpy.data.objects:\n    if obj.type == 'MESH' and 'Vehicle' in obj.name:\n        if obj.data.shape_keys:\n            for key_block in obj.data.shape_keys.key_blocks:\n                if 'Damage' in key_block.name or 'Impact' in key_block.name:\n                    key_block.keyframe_insert('value', frame=120)\n                    key_block.value = 1.0\nprint('Applied deformation keyframes')",
+        "expected_fix_time": "40s",
+        "regression_test": "visible_deformation_at_impact_frame"
+      }
+    },
+    "INTERIOR_MISSING": {
+      "description": "Vehicle interior (dashboard, seats, steering wheel) not visible through windows in close-up shots",
+      "severity": "medium",
+      "causes": ["interior_geometry_not_modeled", "interior_layer_hidden", "interior_material_black"],
+      "fix_playbook": {
+        "step_1": "Model or import vehicle interior geometry (dashboard, seats, headrests)",
+        "step_2": "Create interior materials with appropriate colors and details",
+        "step_3": "Ensure interior visible through windows in driver POV or side shots",
+        "bpy_code": "import bpy\nfor obj in bpy.data.objects:\n    if obj.type == 'MESH' and ('Interior' in obj.name or 'Dashboard' in obj.name or 'Seat' in obj.name):\n        obj.hide_render = False\n        obj.hide_set(False)\n        if obj.data.materials:\n            for mat in obj.data.materials:\n                if mat.use_nodes:\n                    bsdf = mat.node_tree.nodes.get('Principled BSDF')\n                    if bsdf:\n                        bsdf.inputs['Base Color'].default_value = (0.3, 0.3, 0.35, 1.0)",
+        "expected_fix_time": "55s",
+        "regression_test": "interior_visible_through_windshield"
+      }
+    },
+    "NIGHT_NO_EFFECT": {
+      "description": "Night scene lacks nighttime visual characteristics (too bright, no shadows, no artificial lighting effects)",
+      "severity": "high",
+      "causes": ["world_brightness_not_reduced", "no_street_lights", "no_vehicle_headlights", "no_shadow_depth"],
+      "fix_playbook": {
+        "step_1": "Reduce world background strength to 0.1-0.2 to darken sky",
+        "step_2": "Add street lights (point lights with warm color ~2500K) every 20 units along road",
+        "step_3": "Add vehicle headlights (spotlights) with forward-facing cones",
+        "step_4": "Enable shadow depth in lights and increase shadow samples",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nif scene.world and scene.world.use_nodes:\n    bg_node = scene.world.node_tree.nodes.get('Background')\n    if bg_node:\n        bg_node.inputs[1].default_value = 0.15\nfor i in range(5):\n    light = bpy.data.lights.new(f'StreetLight_{i}', 'POINT')\n    light.energy = 150.0\n    light.color = (1.0, 0.9, 0.7)\n    light_obj = bpy.data.objects.new(f'StreetLight_{i}', light)\n    bpy.context.collection.objects.link(light_obj)\n    light_obj.location = (i * 20.0, -5.0, 8.0)\nscene.cycles.samples = 256",
+        "expected_fix_time": "70s",
+        "regression_test": "scene_reads_as_nighttime"
+      }
+    },
+    "TEMPORAL_FLICKER": {
+      "description": "Rendered animation has temporal flicker (brightness oscillations) frame to frame",
+      "severity": "high",
+      "causes": ["sample_count_too_low", "adaptive_sampling_enabled", "light_energy_time_varying"],
+      "fix_playbook": {
+        "step_1": "Disable adaptive sampling; use fixed samples minimum 128",
+        "step_2": "Increase seed variance to zero (fixed seed)",
+        "step_3": "Verify all light energies are constant (no keyframes on light.energy)",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nscene.cycles.use_adaptive_sampling = False\nscene.cycles.samples = 256\nscene.cycles.use_denoising = True\nscene.cycles.denoiser = 'OPENIMAGEDENOISE'\nfor light in bpy.data.lights:\n    if light.animation_data:\n        light.animation_data_clear()\nfor world in bpy.data.worlds:\n    if world.animation_data:\n        world.animation_data_clear()\nprint('Configured for stable temporal render')",
+        "expected_fix_time": "50s",
+        "regression_test": "brightness_variance_per_frame < 5"
+      }
+    },
+    "TEMPORAL_DENOISE_SHIMMER": {
+      "description": "Denoising artifact creates shimmer or texture crawl during camera motion or animation",
+      "severity": "medium",
+      "causes": ["temporal_denoise_not_configured", "denoise_mode_wrong", "denoising_strength_too_high"],
+      "fix_playbook": {
+        "step_1": "Use OptiX or OpenImageDenoise (not OIDN with temporal)",
+        "step_2": "Enable temporal consistency in denoiser settings",
+        "step_3": "Reduce prefilter intensity if shimmer persists",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nscene.cycles.use_denoising = True\nscene.cycles.denoiser = 'OPENIMAGEDENOISE'\nscene.render.use_motion_blur = False\nscene.cycles.samples = 192\nif hasattr(scene.cycles, 'denoising_temporal'):\n    scene.cycles.denoising_temporal = True\nif hasattr(scene.cycles, 'denoising_temporal_passes'):\n    scene.cycles.denoising_temporal_passes = 2",
+        "expected_fix_time": "40s",
+        "regression_test": "no_shimmer_on_static_geometry"
+      }
+    },
+    "TEMPORAL_EXPOSURE_PUMP": {
+      "description": "Global exposure oscillates frame-to-frame; scene brightens and darkens rhythmically",
+      "severity": "high",
+      "causes": ["exposure_animated_incorrectly", "world_strength_keyframed", "compositor_exposure_node_varying"],
+      "fix_playbook": {
+        "step_1": "Remove all keyframes from world background strength and light energies",
+        "step_2": "In compositor, verify Exposure node has no animation curves",
+        "step_3": "Use fixed exposure value (typically 0.0 to 1.0 range)",
+        "bpy_code": "import bpy\nfor light in bpy.data.lights:\n    if light.animation_data:\n        for action in light.animation_data.nla_tracks:\n            light.animation_data.nla_tracks.remove(action)\nfor world in bpy.data.worlds:\n    if world.animation_data:\n        world.animation_data_clear()\nscene = bpy.context.scene\nif scene.use_nodes:\n    for node in scene.node_tree.nodes:\n        if node.type == 'EXPOSURE':\n            node.inputs['Exposure'].default_value = 0.5\nprint('Removed exposure animation')",
+        "expected_fix_time": "30s",
+        "regression_test": "mean_brightness_variance_per_frame < 3"
+      }
+    },
+    "WITNESS_VISIBILITY_BLOCKED": {
+      "description": "Witness/driver line-of-sight to critical event is obstructed or implausible",
+      "severity": "high",
+      "causes": ["sight_line_blocked_by_geometry", "camera_position_implausible", "obstructed_view_not_shown"],
+      "fix_playbook": {
+        "step_1": "Reposition camera to location matching witness statement (e.g., driver seat, sidewalk)",
+        "step_2": "Verify direct unobstructed line of sight to impact zone",
+        "step_3": "Add sight-line visualization (optional: thin line from viewpoint to impact)",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\ncamera = scene.camera\nimpact_zone = bpy.data.objects.get('ImpactZone')\nif camera and impact_zone:\n    direction = (impact_zone.location - camera.location).normalized()\n    hit_distance = (impact_zone.location - camera.location).length\n    result = bpy.context.scene.ray_cast(bpy.context.view_layer.depsgraph, camera.location, direction)\n    if result[0] and result[2] < hit_distance:\n        print('WARNING: Sight line is obstructed')\n    else:\n        print('Sight line is clear')",
+        "expected_fix_time": "45s",
+        "regression_test": "sight_line_unobstructed_to_impact"
+      }
+    },
+    "WEATHER_MISSING": {
+      "description": "Environmental conditions (rain, fog, snow, sun angle) do not match scenario description",
+      "severity": "medium",
+      "causes": ["volumetric_effects_missing", "sun_angle_wrong", "weather_particles_not_added"],
+      "fix_playbook": {
+        "step_1": "Adjust sun rotation to match time of day (morning=low angle east, noon=high angle)",
+        "step_2": "If rain/wet road stated: add volume scatter and wet material to road",
+        "step_3": "If fog stated: add volumetric fog using World Volume Scatter",
+        "bpy_code": "import bpy\nscene = bpy.context.scene\nfor light in bpy.data.lights:\n    if light.type == 'SUN':\n        light.angle = 0.05\nif scene.world and scene.world.use_nodes:\n    links = scene.world.node_tree.links\n    volume_scatter = scene.world.node_tree.nodes.new('ShaderNodeVolumeScatter')\n    volume_scatter.inputs['Density'].default_value = 0.1\n    volume_scatter.inputs['Anisotropy'].default_value = 0.5\n    bg_node = scene.world.node_tree.nodes.get('Background')\n    if bg_node:\n        links.new(volume_scatter.outputs['Volume'], scene.world.node_tree.nodes['World Output'].inputs['Volume'])\nprint('Added volumetric effects')",
+        "expected_fix_time": "55s",
+        "regression_test": "weather_conditions_visible_in_render"
+      }
+    },
+    "LEGAL_DEMO_AID_MISSING": {
+      "description": "DEMONSTRATIVE AID disclaimer or legal notice not present in render",
+      "severity": "critical",
+      "causes": ["disclaimer_text_not_added", "legal_text_layer_hidden", "metadata_not_embedded"],
+      "fix_playbook": {
+        "step_1": "Create text object with legal disclaimer: 'DEMONSTRATIVE AID - NOT TO SCALE'",
+        "step_2": "Add case reference and scene description",
+        "step_3": "Position in frame corner with high contrast and legible font size",
+        "bpy_code": "import bpy\nbpy.ops.object.text_add(location=(0.0, -6.0, 0.0))\nlegal_text = bpy.context.active_object\nlegal_text.name = 'LegalDisclaimer'\nlegal_text.data.body = 'DEMONSTRATIVE AID\\nNOT TO SCALE'\nlegal_text.data.size = 0.5\nlegal_text.scale = (1.5, 1.5, 1.5)\nmat = bpy.data.materials.new(name='LegalTextMat')\nmat.use_nodes = True\nbsdf = mat.node_tree.nodes['Principled BSDF']\nbsdf.inputs['Base Color'].default_value = (1.0, 0.0, 0.0, 1.0)\nlegal_text.data.materials.append(mat)\nprint('Added legal disclaimer')",
+        "expected_fix_time": "25s",
+        "regression_test": "legal_text_visible_in_render"
+      }
+    }
+  }
+}

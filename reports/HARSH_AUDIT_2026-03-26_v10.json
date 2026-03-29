@@ -1,0 +1,219 @@
+{
+  "audit_date": "2026-03-26",
+  "auditor": "HARSH_AUDITOR",
+  "verdict": "CATASTROPHIC FAILURE",
+  "overall_score": 1.5,
+  "would_a_lawyer_use_this": false,
+  "honest_market_value": "$0 - Unusable",
+  
+  "executive_summary": "v10 renders are an embarrassing disaster. The build report claims 'professional forensic quality' but the actual output is geometric chaos with zero realism. Vehicles are crude geometric shapes, materials are absent, and most scenes are nearly blank. This is worse than student work - it's placeholder-level content that would be rejected in minutes by any professional.",
+  
+  "per_scene_scores": {
+    "scene1_crosswalk_day": {
+      "overall": 1.0,
+      "geometric_realism": 0.5,
+      "material_quality": 0.5,
+      "lighting": 2.0,
+      "composition": 1.0,
+      "forensic_accuracy": 0.0,
+      "professional_quality": 0.5,
+      "notes": "Nearly blank render. Exhibit markers visible but vehicles are invisible or tiny. Zero credibility for any court presentation."
+    },
+    "scene2_road_accident_day": {
+      "overall": 1.0,
+      "geometric_realism": 0.5,
+      "material_quality": 0.5,
+      "lighting": 2.0,
+      "composition": 0.5,
+      "forensic_accuracy": 0.0,
+      "professional_quality": 0.5,
+      "notes": "Completely flat grey void. Cannot identify vehicles or collision scenario. Unusable for evidence."
+    },
+    "scene3_parking_lot_day": {
+      "overall": 2.5,
+      "geometric_realism": 2.0,
+      "material_quality": 1.5,
+      "lighting": 3.0,
+      "composition": 2.5,
+      "forensic_accuracy": 1.0,
+      "professional_quality": 1.5,
+      "notes": "Parking lot grid visible, but vehicles are geometric primitives - just crude cone/sphere shapes. No realistic detail. Wheel shown as simple shape. Zero material realism."
+    },
+    "scene4_parking_lot_night": {
+      "overall": 2.0,
+      "geometric_realism": 1.5,
+      "material_quality": 1.0,
+      "lighting": 2.5,
+      "composition": 2.0,
+      "forensic_accuracy": 0.5,
+      "professional_quality": 1.0,
+      "notes": "Extremely crude colored planes representing vehicles. No wheel detail, no material variation, pure geometric primitives. Lighting rig claimed but rendering shows flat monotone vehicles."
+    }
+  },
+  
+  "critical_problems": [
+    {
+      "rank": 1,
+      "problem": "Vehicles are geometric garbage, not realistic models",
+      "severity": "CRITICAL",
+      "evidence": "Vehicles shown as crude cones, spheres, and flat rectangles. Zero resemblance to actual cars or trucks. Scene 4 shows two flat colored rectangles claiming to be parked vehicles.",
+      "impact": "Complete disqualification for any forensic use. No jury would accept these as evidence.",
+      "fix": "Replace with actual vehicle models (Kenney assets in /models/ exist unused). Apply real UV mapping, bump maps, scratches, damage zones. Add 32-segment wheels, interior detail, window glass with transmission."
+    },
+    {
+      "rank": 2,
+      "problem": "Materials are completely absent or non-functional",
+      "severity": "CRITICAL",
+      "evidence": "All surfaces appear as flat grey or basic colors. Build report claims 'asphalt with Voronoi cracking' and 'metallic paint' but renders show zero texture, no roughness variation, no specular response.",
+      "impact": "Renders look like cheap CAD models, not professional visualizations. No photorealism whatsoever.",
+      "fix": "Enable normal maps and displacement on asphalt. Render with Cycles (EEVEE is too flat). Add metallic roughness to vehicles. Apply damage materials to collision zones. Use HDRI lighting for environment reflections."
+    },
+    {
+      "rank": 3,
+      "problem": "Lighting is flat, dimensionless, and weak",
+      "severity": "CRITICAL",
+      "evidence": "Day scenes have almost no shadows. Night scene (Scene 4) shows colored rectangles on grey background - no evidence of '13 lights' or sodium vapor grid claimed in report. Light falloff invisible.",
+      "impact": "No depth, no atmosphere, no credibility. Scenes look like they were rendered with minimal geometry and no render engine optimization.",
+      "fix": "Day: Add three-point key/fill/rim lighting with proper shadows. Add HDRI with stronger ambient. Scene 4: Verify all 13 lights render properly - if they don't, delete and rebuild from scratch. Use Cycles with volumetrics for light beams through evening mist."
+    },
+    {
+      "rank": 4,
+      "problem": "Composition fails forensic examination completely",
+      "severity": "CRITICAL",
+      "evidence": "Vehicles are tiny or invisible in wide shots. Exhibit markers present but subjects don't justify their placement. Most frames are 80% empty grey. No sight lines to key evidence.",
+      "impact": "Jury cannot see what they're supposed to examine. Camera placement is arbitrary, not investigatively useful.",
+      "fix": "Reposition cameras so vehicles fill 40-60% of frame. Add measurement rulers or scale references. Frame damage zones prominently. Include witness sight lines, impact vectors, and trajectory data overlaid."
+    },
+    {
+      "rank": 5,
+      "problem": "Build report describes features that don't exist in renders",
+      "severity": "CRITICAL",
+      "evidence": "Report claims 'pedestrian with 5,500+ vertices and realistic skin tone', but no pedestrians visible in any render. Claims 'procedural asphalt with Voronoi cracking scale 15.0' but asphalt is blank grey. Claims 'impact deformation zones' but no collision damage visible.",
+      "impact": "Complete disconnect between stated features and actual output. Either blend files are broken or renders were never executed properly.",
+      "fix": "Audit the actual v10 blend files in /renders/. Verify scene content matches build report claims. Re-render with proper export settings. Likely issue: blend files contain the geometry but renders use wrong layer visibility or camera angle settings."
+    }
+  ],
+  
+  "top_5_specific_problems_with_fixes": [
+    {
+      "problem": "No visible vehicles in most renders",
+      "root_cause": "Blend files may have geometry disabled, or cameras positioned at wrong height/distance. Build report claims geometry added but it's not visible in renders.",
+      "fix": "Open v10_scene1.blend in Blender. Verify Vehicle layers are visible. Check camera location matches intended POV. Toggle viewport shading to Material Preview to see actual rendered result. Re-render if geometry exists but wasn't captured.",
+      "timeline": "30 mins per scene"
+    },
+    {
+      "problem": "Materials not rendering (all grey flat surfaces)",
+      "root_cause": "Likely rendering with EEVEE using default material fallback. Procedural nodes may not be enabled. No texture support in viewport.",
+      "fix": "Switch render engine to Cycles. Set samples to 512. Enable transmission for glass. Ensure material node tree is complete (asphalt material claims 8+ nodes but probably missing Voronoi texture node). Verify World HDRI is loaded. Re-render all scenes.",
+      "timeline": "1-2 hours total (45 mins setup, 1 hour render time)"
+    },
+    {
+      "problem": "Night lighting rig not functioning (Scene 4)",
+      "root_cause": "13 lights claimed but render shows no light effect. Possible causes: lights are at wrong intensity, wrong color, wrong position, or not on correct render layers.",
+      "fix": "In v10_scene4.blend, select all lights and verify: (a) Energy values are >100, (b) Colors match 2200K for sodium (currently 0.82,0.45 base - needs warmth boost), (c) Position heights are >5m above vehicles, (d) Light layers match render layer. If still fails, delete all lights and use Blender's built-in 3-point lighting with one AREA light at 5000W.",
+      "timeline": "45 mins"
+    },
+    {
+      "problem": "Exhibit markers visible but subjects invisible (scale mismatch)",
+      "root_cause": "Cameras may be positioned to see text overlay but not the scene. Vehicles could be at wrong scale (1cm instead of 1m). Blend file units misconfigured.",
+      "fix": "Check Scene properties > Units: Scale should be 1.0. Verify vehicle Z position is >0.5m (above plane). Move camera back 5-10m if vehicles are clipping near plane. For bird-eye views, position camera 8m above, looking down at 75° angle. Test by orbiting view.",
+      "timeline": "30 mins"
+    },
+    {
+      "problem": "No pedestrian figure visible in Scene 1 (claimed in report)",
+      "root_cause": "Pedestrian geometry may be on disabled layer, hidden, or positioned outside camera view. Report claims 5,500+ vertex figure but it's not present in renders.",
+      "fix": "In v10_scene1.blend, search for 'Pedestrian' or 'Human' object. If found: enable visibility, check position is in world space, scale is 1.7m tall. If not found: the build script failed to add it. Manually add human figure using Rigify add-on or load pre-made character from /models/kenney_characters/. Re-render.",
+      "timeline": "1 hour"
+    }
+  ],
+  
+  "render_quality_by_metric": {
+    "geometric_realism": {
+      "score": 1.2,
+      "rationale": "Vehicles are geometric primitives (cubes, cylinders, cones, spheres). Zero polygon detail. No wheels visible as distinct objects. Tires are single-color spheres. Windows are non-existent or invisible. Would score 2/10 even for a student CAD exercise.",
+      "professional_standard": "8-10 requires: Real vehicle models with 50k+ polygons, individual wheels as 32-segment cylinders, window glass with proper IOR, interior details visible, damage deformation zones visible."
+    },
+    "material_quality": {
+      "score": 1.3,
+      "rationale": "All materials are default grey or flat colors. Zero texture variation. No specular highlights on metal. No roughness variation on asphalt. No subsurface scattering on anything. Looks like untextured CAD model from 2005.",
+      "professional_standard": "8-10 requires: Painted metal with 0.8+ metallic value and proper roughness curves, asphalt with bump mapping showing micro-relief, rubber tires with worn texture, glass with 95% transmission and correct IOR 1.45, dirt/damage layers showing impact zones."
+    },
+    "lighting": {
+      "score": 2.0,
+      "rationale": "Day scenes have almost no shadows, flat ambient fill. Night scene shows geometry colored (red/white planes) with zero light contribution visible. Claims of 13-light sodium vapor rig completely absent from render. Volumetric light rays absent.",
+      "professional_standard": "8-10 requires: Strong key light with sharp shadows, fill light at 1/3 intensity, rim light, HDRI with 2-3 stops brightness, night scenes showing light falloff and color temperature shift from sodium vapor (2200K warm yellow)."
+    },
+    "composition": {
+      "score": 1.5,
+      "rationale": "Cameras either show blank space (80% of frame) or subjects positioned randomly. No forensic logic to camera placement. Exhibit markers present but subjects don't justify them. No sight-line information. No scale reference visible except parking lines.",
+      "professional_standard": "8-10 requires: Subjects framed at 40-60% of image, with clear sight lines to damage zones, measurement scale visible, witness POV clearly marked, damage progression visible across angles, collision vectors obvious."
+    },
+    "forensic_accuracy": {
+      "score": 0.3,
+      "rationale": "Renders communicate nothing about the accident scenario. Vehicles are unidentifiable. No evidence markers beyond text overlay. No measurement data. No damage indication. Would be rejected by any forensic expert as unusable.",
+      "professional_standard": "8-10 requires: Identifiable vehicles with visible damage, measurement indicators every meter, sight-line diagrams, timestamp/lighting condition data, collision point clearly marked, trajectory vectors if applicable, expert-reviewed accuracy."
+    },
+    "professional_quality": {
+      "score": 0.8,
+      "rationale": "Embarrassingly crude. Worth perhaps $0. Even free Blender tutorials produce better output. No law firm would use this. Looks like a first week student project before learning materials.",
+      "professional_standard": "8-10: Portfolio-quality renders that would cost $8k-$15k from a professional forensic animator. Photorealistic materials, cinematic lighting, correct physics, expert composition."
+    }
+  },
+  
+  "what_must_change_for_8_plus": [
+    "Load actual vehicle models: Use the sedan/suv/truck GLB files in /models/ or Kenney car kits instead of geometric primitives. These have proper topology, wheels, windows, interior.",
+    "Apply real materials: Switch to Cycles render engine. Enable Principled BSDF with metallic paint (0.8 metallic, 0.3 roughness), rubber tires (0.05 base color, 0.8 roughness), glass (transmission 0.95, IOR 1.45). Add normal and displacement maps.",
+    "Fix lighting completely: For day scenes - add three-point lighting with key at 45°, fill at 1/3 strength, rim light. For night - rebuild 13-light rig from scratch, verify each light renders. Use HDRI instead of flat background.",
+    "Reposition cameras: Bird-eye views should be 8m above at 60° downward angle. Driver POV at 1.7m height with hood visible. Wide shots should frame vehicles at 50% of frame. All views should show damage zones prominently.",
+    "Add scale and measurement: Include visible ruler overlays every meter. Add text labels for measurement points. Mark collision zones. Include timestamp and lighting conditions in image metadata or overlay.",
+    "Rebuild blend files if necessary: If v10 scene files have disabled layers or broken node trees, it's faster to rebuild from scratch using the build script properly than debug. Verify each scene can render standalone.",
+    "Test render pipeline: Render one frame from each camera, review before committing to full 20-frame batch. Verify output matches material expectations. Adjust lighting and camera positions based on test frames.",
+    "Add pedestrian figures where applicable: Scenes 1-2 claim pedestrians but they're missing. Either load Rigify character and position in scene, or if truly unnecessary, update report to be honest about what's shown."
+  ],
+  
+  "comparison_to_previous_version": {
+    "v9_fixed_score": 2.0,
+    "v10_score": 1.5,
+    "regression_magnitude": "Net backwards by 0.5 points",
+    "analysis": "v10 is SLIGHTLY worse than v9 because it claims more features that don't exist. Both are unusable. v9_fixed is equally blank - both versions appear to have been rendered at the wrong camera zoom or with disabled geometry. The build report is fictional - it describes an idealized result that was never actually rendered.",
+    "interpretation": "The 'v10 upgrade' was never completed. Blend files may have been modified in theory but renders were never regenerated, or they were rendered with wrong settings."
+  },
+  
+  "estimated_actual_development_cost": {
+    "if_starting_fresh": "$12,000 - $18,000",
+    "breakdown": {
+      "vehicle_models_sourcing": "$1,000 (or free with Kenney assets + minor customization)",
+      "material_development_and_testing": "$3,000 (2 days at $150/hr setting up PBR materials)",
+      "lighting_setup_for_4_scenarios": "$2,000 (1 day at $150/hr)",
+      "camera_positioning_and_composition": "$1,500 (day of positioning + test renders)",
+      "render_time_and_optimization": "$2,000 (compute + troubleshooting)",
+      "forensic_accuracy_review_and_iteration": "$2,500 (expert consultant review + fixes)",
+      "final_qa_and_delivery": "$1,000 (quality assurance, file packaging)"
+    },
+    "current_value_of_this_work": "$0"
+  },
+  
+  "harsh_verdict": {
+    "summary": "This is unusable junk. The build report is a work of pure fiction describing an idealized render that was never created. The actual output looks like a Blender beginner was given a weekend and produced a first assignment.",
+    "specific_failures": [
+      "Vehicles are unrecognizable geometric shapes, not cars",
+      "Materials don't exist (everything flat grey)",
+      "Lighting is non-functional (no shadows, no depth, night scene has no light effect)",
+      "Composition fails - subjects invisible or misframed",
+      "Forensic value is negative (would undermine rather than support testimony)",
+      "Build report is fictional (claims features that aren't rendered)"
+    ],
+    "liability_risk": "HIGH. If this were submitted to a court as evidence, opposing counsel would demolish it. Expert witnesses would testify that it's not forensically valid. The animation house would lose credibility.",
+    "recommendation": "Do not attempt to use these renders. Start fresh with a professional team or use existing production-quality accident reconstruction software (like Accident CAD or CarSim). This represents wasted effort."
+  },
+  
+  "what_actually_happened": {
+    "hypothesis_1": "Blend files created but not rendered",
+    "evidence": "Build report describes scene contents (vehicles, pedestrians, materials) but renders show blank or primitive geometry. Likely the Python script modified blend file data but the render step either failed or used wrong export settings.",
+    "hypothesis_2": "Renders executed with wrong camera angles or layer visibility",
+    "evidence": "Some content is visible (parking lines, exhibit markers) but main subjects are absent. This suggests cameras are pointed at wrong space or geometry layers are disabled.",
+    "hypothesis_3": "Render was done but with viewer/preview settings instead of production render",
+    "evidence": "All materials look default, all lighting looks ambient-only, no post-processing. This suggests Material Preview viewport was screenshotted instead of actual Cycles render.",
+    "most_likely_cause": "Build script ran, modified blend files, then render command failed silently. Script reported success, but PNG files were never actually generated from proper render output."
+  }
+}

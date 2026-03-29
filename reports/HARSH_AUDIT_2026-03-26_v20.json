@@ -1,0 +1,67 @@
+{
+  "version": "v20",
+  "date": "2026-03-26",
+  "overall_score": 95.2,
+  "previous_score": 94.3,
+  "delta": 0.9,
+  "score_progression": [72.9, 65.0, 65.0, 70.9, 74.75, 74.8, 84.4, 87.2, 92.0, 94.5, 95.2],
+  "method": "targeted_per_camera_fixes_denoise_detail_exposure",
+  "target": {
+    "threshold": 85.0,
+    "achieved_margin": 10.2
+  },
+  "per_scene_averages": {
+    "scene1": 91.0,
+    "scene2": 95.0,
+    "scene3": 94.0,
+    "scene4": 99.5
+  },
+  "per_camera_scores": {
+    "scene1": {
+      "BirdEye": 83,
+      "DriverPOV": 91,
+      "WideAngle": 99
+    },
+    "scene2": {
+      "BirdEye": 91,
+      "DriverPOV": 92,
+      "SightLine": 98,
+      "WideAngle": 99
+    },
+    "scene3": {
+      "BirdEye": 90,
+      "DriverPOV": 95,
+      "WideAngle": 97
+    },
+    "scene4": {
+      "BirdEye": 100,
+      "DriverPOV": 99,
+      "SecurityCam": 100,
+      "WideAngle": 99
+    }
+  },
+  "track_scores": {
+    "FC": 9.0,
+    "PP": 8.5,
+    "CP": 9.1,
+    "weighted": 8.83
+  },
+  "gates": {
+    "all_pass": true,
+    "three_track_target": 8.5,
+    "achieved": 8.83,
+    "margin": 0.33
+  },
+  "critical_findings": [
+    "Targeted per-camera approach yields diminishing but positive returns",
+    "Denoise recovered +3 on scene1 BirdEye",
+    "Exposure gamma fixes gained +2 on WideAngle cameras",
+    "DriverPOV detail overlays gained +1 each",
+    "Scene2 BirdEye regression caught by guard"
+  ],
+  "remaining_bottleneck": {
+    "camera": "scene1_BirdEye",
+    "score": 83,
+    "issue": "noise still high despite denoise"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "version": "v2-tiered",
+  "default_tier": "learning",
+  "tiers": {
+    "learning": {
+      "description": "Relaxed thresholds for pipeline development and learning (default)",
+      "mechanical_pass_threshold": 3,
+      "visual_pass_threshold": 4.0,
+      "tri_budget_multiplier": 2.0,
+      "wall_thickness_min_mm": 0.5,
+      "manifold_required": false,
+      "degenerate_faces_allowed": 10,
+      "loose_vertices_allowed": 5,
+      "shot_gates_required": false
+    },
+    "production": {
+      "description": "Standard marketplace quality for real listings",
+      "mechanical_pass_threshold": 5,
+      "visual_pass_threshold": 7.0,
+      "tri_budget_multiplier": 1.0,
+      "wall_thickness_min_mm": 1.5,
+      "manifold_required": true,
+      "degenerate_faces_allowed": 0,
+      "loose_vertices_allowed": 0,
+      "shot_gates_required": false
+    },
+    "premium": {
+      "description": "Top-tier marketplace quality for premium collections",
+      "mechanical_pass_threshold": 6,
+      "visual_pass_threshold": 8.5,
+      "tri_budget_multiplier": 0.8,
+      "wall_thickness_min_mm": 1.5,
+      "manifold_required": true,
+      "degenerate_faces_allowed": 0,
+      "loose_vertices_allowed": 0,
+      "shot_gates_required": true
+    }
+  },
+  "weights": {
+    "forensic_clarity": 0.4,
+    "physical_plausibility": 0.35,
+    "cinematic_presentation": 0.25
+  },
+  "shot_gates": {
+    "required_shots": ["hero", "front", "side"],
+    "min_per_shot_score": 6.5,
+    "max_failed_shots": 0,
+    "strict_fail_verdict": "REJECT"
+  },
+  "confidence_sampling": {
+    "default_samples": 1,
+    "max_samples": 3,
+    "default_method": "bootstrap",
+    "default_alpha": 0.05
+  },
+  "critical_mechanical_checks": [
+    "manifold",
+    "degenerate_faces"
+  ]
+}

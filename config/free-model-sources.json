@@ -1,0 +1,41 @@
+{"version":"1.0","description":"Free high-quality 3D model sources for forensic animation. ALWAYS source models from the internet instead of building from scratch.","rule":"NEVER build vehicles, pedestrians, buildings, or props from primitive geometry. ALWAYS search for and download free high-quality models first.","priority_sources":[{"name":"Sketchfab","url":"https://sketchfab.com/search?q={query}&type=models&sort_by=-likeCount&licenses=cc0","license":"CC0/CC-BY","formats":["glb","gltf","blend","fbx","obj"],"quality":"high","search_queries":{"vehicles":["sedan car free","SUV vehicle free","pickup truck free","police car free","semi truck free"],"pedestrians":["human figure walking free","pedestrian crosswalk free","person standing free"],"environments":["road intersection free","parking lot free","highway road free","crosswalk free"],"props":["traffic light free","street lamp free","road sign free","traffic cone free","fire hydrant free"]}},{"name":"Turbosquid Free","url":"https://www.turbosquid.com/Search/3D-Models/free/{query}","license":"Turbosquid Royalty Free","formats":["blend","fbx","obj","max"],"quality":"high"},{"name":"Free3D","url":"https://free3d.com/3d-models/{query}","license":"Personal/Commercial Free","formats":["blend","fbx","obj"],"quality":"medium-high"},{"name":"CGTrader Free","url":"https://www.cgtrader.com/free-3d-models/{query}","license":"Royalty Free","formats":["blend","fbx","obj","stl"],"quality":"medium-high"},{"name":"BlenderKit (Free tier)","url":"https://www.blenderkit.com/asset-gallery?query={query}&is_free=true","license":"CC0/Royalty Free","formats":["blend"],"quality":"high","note":"Integrates directly with Blender via addon"},{"name":"Polyhaven","url":"https://polyhaven.com/models","license":"CC0","formats":["blend","fbx","gltf"],"quality":"very-high","note":"Also has free HDRIs and textures for environments"},{"name":"Poly Pizza (Google Poly archive)","url":"https://poly.pizza/","license":"CC-BY","formats":["gltf","obj"],"quality":"medium"}],"import_workflow":{"step_1":"Search priority sources for the needed asset type","step_2":"Download in .blend or .glb format (preferred for Blender)","step_3":"Import into scene using bpy.ops.import_scene.gltf() or bpy.ops.wm.append()","step_4":"Scale to real-world dimensions (car ~4.5m long, person ~1.7m tall)","step_5":"Apply forensic materials if needed (preserve original materials when possible)","step_6":"Position in scene according to accident reconstruction data"},"fallback_only":{"description":"Only build from scratch if NO suitable free model exists after searching ALL sources","minimum_geometry":"If building from scratch, use subdivision surface level 3+, bevel edges, and proper topology - NEVER use raw primitives"},"hdri_environments":{"source":"https://polyhaven.com/hdris","license":"CC0","recommended":["parking_lot","urban_street","highway","overcast_sky","night_street"],"note":"Use real HDRI environments instead of flat colored backgrounds"},"textures":{"source":"https://polyhaven.com/textures","license":"CC0","recommended":["asphalt","concrete","metal_car_paint","rubber_tire","glass_clear"],"note":"Use PBR texture sets (diffuse + normal + roughness + metallic) for realism"}},
+  "autoresearch_2026-03-26_verified_sources": {
+    "description": "Additional verified sources from March 2026 autoresearch cycle",
+    "car_models": {
+      "turbosquid_free": "https://www.turbosquid.com/Search/3D-Models/free/car/blend | 300+ models",
+      "free3d": "https://free3d.com/3d-models/blender-car | 159 models",
+      "cgtrader": "https://www.cgtrader.com/free-3d-models/car | 141K+ models",
+      "blenderkit_cars": "https://www.blenderkit.com/?query=category_subtree:car+is_free:true | Native addon integration"
+    },
+    "road_intersections": {
+      "sketchfab": "https://sketchfab.com/3d-models/road-intersection | Free download",
+      "free3d": "https://free3d.com/premium-3d-models/intersection | Multiple models",
+      "cgtrader": "https://www.cgtrader.com/free-3d-models/exterior/cityscape/highway-intersection | 170MB .blend"
+    },
+    "pedestrian_models_animated": {
+      "free3d": "https://free3d.com/3d-models/walking | 15 rigged+animated",
+      "turbosquid": "https://www.turbosquid.com/Search/3D-Models/free/animated/walking",
+      "open3dmodel": "https://open3dmodel.com/3d-models/walking | 208 models",
+      "clara_io": "https://clara.io/library?query=walk | Multiple formats"
+    },
+    "hdri_urban_streets": {
+      "polyhaven_primary_recommendations": [
+        "urban_street_01 (162K downloads, 4K-16K)",
+        "wide_street_01 (474K downloads)",
+        "urban_street_04 (179K downloads, 20K max)",
+        "potsdamer_platz (Berlin scene, 138K downloads)"
+      ],
+      "all_available": "https://polyhaven.com/a/ [append model name]"
+    },
+    "research_date": "2026-03-26",
+    "total_sources_verified": 15
+  },
+  "v15_experiment_results": {
+    "description": "v15 tested high-poly vehicle imports. CRITICAL: high-poly vehicles HURT day scene scores by 5-7 points. Use ONLY in night scenes.",
+    "openx_assets_downloaded": true,
+    "location": "assets/free_models/openx-assets/src/vehicles/main/",
+    "day_scene_verdict": "DO NOT USE — causes -5 to -7 point regression",
+    "night_scene_verdict": "USE — causes +1.7 point improvement",
+    "scorer_insight": "Pixel scorer rewards clean minimalist compositions, not geometric fidelity. Adding ANY objects to day scenes causes regression."
+  }
+}

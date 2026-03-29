@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "debug-validation",
+  "prompt": "My 3D forge validator is reporting a bounding box of 156000x156000x8500mm and failing the mechanical check, even though the model I produced is just a small chess piece. The validator script connects to Blender MCP and runs getMeshData(). The concept file says the piece should be about 50mm tall. What's going wrong and how do I fix the asset-validator.js?",
+  "assertions": [
+    {"id": "identifies_stale_scene", "text": "Identifies root cause as measuring stale/wrong Blender scene"},
+    {"id": "open_mainfile_fix", "text": "Provides bpy.ops.wm.open_mainfile() fix"},
+    {"id": "ground_plane_mention", "text": "Mentions _ground_plane exclusion from bounding box"},
+    {"id": "scene_persistence_explanation", "text": "Explains scene persistence gotcha after producer disconnects"},
+    {"id": "single_quotes_in_fix", "text": "Python code in fix uses single quotes only"}
+  ]
+}

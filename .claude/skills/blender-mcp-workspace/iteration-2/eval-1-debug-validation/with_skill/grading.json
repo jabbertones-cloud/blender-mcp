@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "identifies_stale_scene: Correctly identifies root cause as measuring stale/wrong Blender scene",
+      "passed": true,
+      "evidence": "Executive Summary states: 'The validator is measuring a **stale scene** left over from a previous Blender session, not the model that was just produced.' Section 2 'Why this happens' explicitly documents: 'After the producer script disconnects from the MCP socket, Blender does NOT keep the scene the producer built. It reverts to whatever was previously loaded.'"
+    },
+    {
+      "text": "open_mainfile_fix: Provides bpy.ops.wm.open_mainfile() fix",
+      "passed": true,
+      "evidence": "Section 'The Fix' > 'Step 1' provides complete fix using `bpy.ops.wm.open_mainfile(filepath=...)`. Also shown in complete fixed code section with triple-quoted string approach: `bpy.ops.wm.open_mainfile(filepath=filepath)` and `bpy.ops.wm.open_mainfile(filepath=filepath)` in validation code."
+    },
+    {
+      "text": "ground_plane_mention: Mentions _ground_plane exclusion from bounding box",
+      "passed": true,
+      "evidence": "Section 'Why You See 156000mm' states: 'The validator's `getMeshData()` function does filter out `_ground_plane` objects' and shows the code: `meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.visible_get() and not o.name.startswith('_ground_plane')]`. Also in fixed code: `if not o.name.startswith('_ground_plane')`"
+    },
+    {
+      "text": "scene_persistence_explanation: Explains scene persistence gotcha — specifically that Blender reverts to previous scene AFTER the producer disconnects from the TCP socket",
+      "passed": true,
+      "evidence": "Section 3 'Why This Happens' is entirely devoted to this. Explicitly states: 'This is a **Scene Persistence Gotcha** documented in the Blender MCP skill (section 3.3).' Root Cause Chain section shows: 'Blender reverts to stale scene (from undo history or previous load)' after 'Producer creates model → saves as model.blend → disconnects'"
+    },
+    {
+      "text": "single_quotes_in_fix: Python code in fix uses single quotes only",
+      "passed": true,
+      "evidence": "All Python code blocks in the fix section use single quotes exclusively. Examples: `bpy.ops.wm.open_mainfile(filepath=filepath)`, `__result__ = {'error': f'File does not exist: {filepath}'}`, `'File does not exist: {filepath}'`, `bpy.data.filepath`, etc. No double quotes found in Python code strings."
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "concept_id": "f3b5aae6-8ded-48aa-b967-1b3880bd8443",
+  "validated_at": "2026-03-24T23:50:38.355Z",
+  "metadata": {
+    "platform": "game"
+  },
+  "mechanical": {
+    "passed": true,
+    "checks": {
+      "manifold": {
+        "passed": true,
+        "value": 0,
+        "description": "No non-manifold edges (STL requirement)"
+      },
+      "tri_count": {
+        "passed": true,
+        "value": 7396,
+        "description": "Triangle count ≤ 50000"
+      },
+      "loose_verts": {
+        "passed": true,
+        "value": 0,
+        "description": "No loose/unconnected vertices"
+      },
+      "degenerate_faces": {
+        "passed": true,
+        "value": 0,
+        "description": "No degenerate faces"
+      },
+      "wall_thickness": {
+        "passed": true,
+        "value": "272.62",
+        "description": "Estimated wall thickness ≥ 1.5mm"
+      },
+      "bounding_box": {
+        "passed": true,
+        "value": "1108.8×1108.8×970mm",
+        "description": "Within bounds (≤5000×5000×5000mm)"
+      }
+    },
+    "auto_fixes_applied": [],
+    "duration_ms": 146
+  },
+  "visual": {
+    "shape_accuracy": 7,
+    "proportion_accuracy": 6,
+    "detail_level": 5,
+    "material_quality": 7,
+    "marketplace_readiness": 6,
+    "average": 6.2,
+    "verdict": "NEEDS_REVISION",
+    "issues": [
+      "Inconsistent silhouette between renders - image 1 shows different proportions than images 2-3",
+      "No reference product photos provided for comparison",
+      "Missing lid detail and edge definition on top rim",
+      "Band/stripe placement inconsistent across views",
+      "Lack of surface texture or realistic finish details",
+      "Base appears too thick relative to jar body",
+      "No visible opening or mouth definition on the jar"
+    ],
+    "suggested_fixes": [
+      "Provide actual reference product photos for accurate comparison",
+      "Standardize proportions across all three renders - body height to diameter ratio needs consistency",
+      "Add crisp edge definition at the lid-to-jar transition",
+      "Increase surface detail with micro-facets, subtle scratches, or matte finish variations",
+      "Refine the base thickness to better match typical container proportions",
+      "Add visible rim/opening detail to clarify this is a functional container",
+      "Adjust the band position to align consistently in all rotational views",
+      "Consider adding a subtle gloss gradient or reflection for more convincing material representation"
+    ],
+    "duration_ms": 7832,
+    "lm_cost_cents": 0.75
+  },
+  "overall_verdict": "NEEDS_REVISION",
+  "production_quality_score": 81,
+  "total_duration_ms": 7983
+}

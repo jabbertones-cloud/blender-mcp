@@ -1,0 +1,15 @@
+{
+  "scene": 4,
+  "name": "Parking Lot Hit-and-Run",
+  "hdri": "cobblestone_street_night_2k.exr",
+  "vehicles": [
+    "n2_gmc_hummer_2021_pickup",
+    "m1_mini_countryman_2016"
+  ],
+  "engine": "CYCLES",
+  "samples": 128,
+  "resolution": "1920x1080",
+  "blend_file": "/Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/hyperrealistic/hyperrealistic_scene4.blend",
+  "rendered": true,
+  "time_of_day": "night"
+}

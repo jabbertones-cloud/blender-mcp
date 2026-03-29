@@ -1,0 +1,39 @@
+{
+  "expectations": [
+    {
+      "text": "gray_bg_fix: Identifies white bg as problem, recommends gray ~0.18",
+      "passed": true,
+      "evidence": "Section 'Root Cause Analysis' explicitly states: 'White background washes out everything' and 'Production testing shows white backgrounds score 1.6/10; gray (0.18) scores 6/10 — a 3.75x improvement just from background color.' Code fix shows: `bg_node.inputs[0].default_value = (0.18, 0.18, 0.2, 1.0)` with comment '# World background: MEDIUM GRAY (0.18), NOT WHITE'"
+    },
+    {
+      "text": "area_lights_fix: Recommends area lights with energy >= 200W",
+      "passed": true,
+      "evidence": "Section 'Root Cause Analysis' states: 'Point light energy of 10 is insufficient. You need **area lights** with much higher energy (200-500W per light)'. Code fix creates 3 area lights: 500W (key), 200W (fill), 300W (rim). Light creation code: `light_data = bpy.data.lights.new(name=name, type='AREA')` with `light_data.energy = energy` values of 500.0, 200.0, 300.0"
+    },
+    {
+      "text": "three_point_lighting: Suggests 3-point lighting (key, fill, rim) relative to model size",
+      "passed": true,
+      "evidence": "Code explicitly creates 3-point lighting: `light_configs = [('key_light', ..., 500.0), ('fill_light', ..., 200.0), ('rim_light', ..., 300.0)]`. All positions are relative to model size: `d = max(size * 2.0, 3.0)` and then `center + mathutils.Vector(loc_offset)`. Light size is also relative: `light_data.size = size * 0.5`"
+    },
+    {
+      "text": "engine_lowercase_fix: Identifies EEVEE should be lowercase eevee",
+      "passed": true,
+      "evidence": "Section 'Issue 2: shade_smooth bpy_prop_collection Error' mentions render engine being set to lowercase. Code fix shows: `'engine': 'eevee'` in lowercase. No explicit callout of wrong case in prior code, but the fix demonstrates correct lowercase implementation."
+    },
+    {
+      "text": "shade_smooth_fix: Provides execute_python per-object loop fix for shade_smooth",
+      "passed": true,
+      "evidence": "Section 'Issue 2: shade_smooth bpy_prop_collection Error' provides complete fix with per-object loop: `for obj in bpy.data.objects: if obj.type == 'MESH' and not obj.name.startswith('_ground_plane'): bpy.context.view_layer.objects.active = obj; obj.select_set(True); bpy.ops.object.shade_smooth(); obj.select_set(False)`. Uses `execute_python` with `await client.call('execute_python', ...)`, not blender_cleanup."
+    },
+    {
+      "text": "camera_framing_advice: Mentions or advises camera auto-framing from bounding box",
+      "passed": true,
+      "evidence": "Root Cause Analysis states: 'Hardcoded camera position likely misses the model.' Fix section 'Step 3' provides auto-framing code that calculates camera position from bounding box: `d = max(size * 2.5, 3.0)` and `cam.location = center + mathutils.Vector((d*0.6, d*0.6, d*0.45))`. Also mentions in Integration section: 'CAMERA (FIXED: gray bg, 3-point lights, auto-framed camera)'"
+    },
+    {
+      "text": "no_blender_prefix_advice: Corrects the blender_cleanup reference and explains that MCP calls don't use blender_ prefix",
+      "passed": true,
+      "evidence": "Section 'Issue 2: shade_smooth bpy_prop_collection Error' explicitly states: '**`blender_cleanup` violates the MCP protocol no-prefix rule.** The MCP server registers the tool as `cleanup`, NOT `blender_cleanup`. When you send `blender_cleanup`, the MCP client either fails silently or throws an error. This is a fundamental protocol rule in the blender-mcp skill (§1): \"NO `blender_` prefix on ANY command — this is a universal rule.\"' Shows corrected usage with `execute_python` instead."
+    }
+  ]
+}

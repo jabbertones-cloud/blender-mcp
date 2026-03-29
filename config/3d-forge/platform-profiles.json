@@ -1,0 +1,103 @@
+{
+  "etsy_stl": {
+    "name": "Etsy STL (3D Print)",
+    "format": "stl",
+    "watertight": true,
+    "min_wall_thickness_mm": 1.5,
+    "max_tris": null,
+    "max_file_size_mb": 20,
+    "render_resolution": [2048, 2048],
+    "render_engine": "CYCLES",
+    "render_samples": 128,
+    "export_settings": {
+      "use_selection": false,
+      "global_scale": 1.0,
+      "ascii": false
+    },
+    "listing": {
+      "max_files": 5,
+      "image_count": 5,
+      "title_format": "{name} — STL File for 3D Printing",
+      "tags_max": 13
+    },
+    "revenue_share": 0.65,
+    "avg_price_usd": [2.99, 14.99]
+  },
+  "cults3d": {
+    "name": "Cults3D STL",
+    "format": "stl",
+    "watertight": true,
+    "min_wall_thickness_mm": 1.5,
+    "max_tris": null,
+    "max_file_size_mb": 50,
+    "render_resolution": [2048, 2048],
+    "render_engine": "CYCLES",
+    "render_samples": 128,
+    "export_settings": {
+      "use_selection": false,
+      "global_scale": 1.0,
+      "ascii": false
+    },
+    "listing": {
+      "image_count": 5,
+      "title_format": "{name} — 3D Printable Model",
+      "tags_max": 20
+    },
+    "revenue_share": 0.80,
+    "avg_price_usd": [1.99, 9.99]
+  },
+  "roblox_ugc": {
+    "name": "Roblox UGC Accessory",
+    "format": "fbx",
+    "watertight": false,
+    "max_tris": 4000,
+    "max_texture_size": 256,
+    "attachment_points": ["Hat", "Hair", "Face", "Neck", "Shoulder", "Front", "Back", "Waist"],
+    "avatar_compatibility": ["R15", "R6"],
+    "render_resolution": [512, 512],
+    "render_engine": "EEVEE",
+    "render_samples": 64,
+    "export_settings": {
+      "use_selection": true,
+      "global_scale": 0.01,
+      "apply_unit": true,
+      "apply_scale": "FBX_SCALE_ALL"
+    },
+    "listing": {
+      "title_format": "{name}",
+      "description_max_chars": 1000
+    },
+    "revenue_share": 0.70,
+    "avg_price_robux": [50, 300],
+    "robux_to_usd": 0.0035
+  },
+  "game_asset": {
+    "name": "Game-Ready Asset (Unity/Unreal/Sketchfab)",
+    "formats": ["glb", "fbx"],
+    "watertight": false,
+    "max_tris": 50000,
+    "pbr_required": true,
+    "lod_levels": [1.0, 0.5, 0.25],
+    "render_resolution": [2048, 2048],
+    "render_engine": "CYCLES",
+    "render_samples": 128,
+    "export_settings": {
+      "use_selection": false,
+      "global_scale": 1.0,
+      "export_animations": false,
+      "export_tangents": true
+    },
+    "listing": {
+      "image_count": 5,
+      "requires_documentation": true,
+      "title_format": "{name} — Game Ready, PBR Textured"
+    },
+    "platforms": {
+      "unity": { "revenue_share": 0.70, "review_weeks": [2, 4] },
+      "unreal": { "revenue_share": 0.88, "review_weeks": [2, 6] },
+      "sketchfab": { "revenue_share": 0.80, "review_weeks": [0, 1] },
+      "cgtrader": { "revenue_share": 0.85, "review_weeks": [0, 1] }
+    },
+    "avg_price_usd": [4.99, 49.99]
+  }
+}

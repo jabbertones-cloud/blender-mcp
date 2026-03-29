@@ -1,0 +1,437 @@
+{
+  "name": "3D Printed Phone Stand - Multi-Color Desktop Organizer",
+  "description": "A versatile, 3D-printed phone stand featuring a clean, minimalist design with branded logo cutouts. Available in multiple vibrant colors (orange, teal, purple, red, white, black, blue, green). The stand elevates phones at a comfortable viewing angle while maintaining a compact desktop footprint. Perfect for desk organization, streaming, video calls, and content creation. The design combines functionality with aesthetic appeal, making it ideal for tech enthusiasts and professionals.",
+  "visual_analysis": {
+    "silhouette": "Compact L-shaped stand with angled back panel (60-75° tilt) and front feet for stability. Curved edges and smooth surfaces. Logo cutout (Apple or Android mascot) as key design feature.",
+    "proportions": {
+      "width_mm": 85,
+      "depth_mm": 65,
+      "height_mm": 95,
+      "back_panel_thickness_mm": 8,
+      "foot_height_mm": 12,
+      "cutout_diameter_mm": 35
+    },
+    "materials": [
+      "3D-printed thermoplastic (PLA/PETG)",
+      "Matte finish with glossy accents",
+      "Lightweight polymer composite"
+    ],
+    "colors": [
+      "#FF6633",
+      "#FF1493",
+      "#1E90FF",
+      "#20B2AA",
+      "#FFFFFF",
+      "#000000",
+      "#9932CC",
+      "#228B22"
+    ],
+    "key_features": [
+      "Branded logo cutout (Apple or Android)",
+      "Anti-slip rubber contact points on feet",
+      "Ergonomic 65-75° viewing angle",
+      "Minimal material usage for 3D print optimization",
+      "Hollow interior for material efficiency",
+      "Decorative sphere accents on sides (optional detail)",
+      "Universal phone compatibility (4-7 inch phones)",
+      "Desk-friendly compact base"
+    ]
+  },
+  "blender_steps": [
+    {
+      "step": 1,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          0,
+          0.4
+        ]
+      },
+      "description": "Create main back panel base structure"
+    },
+    {
+      "step": 2,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube",
+        "scale": [
+          0.85,
+          0.08,
+          0.95
+        ],
+        "location": [
+          0,
+          0,
+          0.45
+        ]
+      },
+      "description": "Scale to back panel proportions (85mm wide, 8mm thick, 95mm tall)"
+    },
+    {
+      "step": 3,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nobj = bpy.context.active_object\nbpy.context.view_layer.objects.active = obj\nobj.rotation_euler = (0.1047, 0, 0)\nbpy.ops.object.transform_apply(rotation=True)"
+      },
+      "description": "Rotate back panel 6 degrees forward for viewing angle"
+    },
+    {
+      "step": 4,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cube",
+        "size": 1,
+        "location": [
+          0,
+          -0.3,
+          0.06
+        ]
+      },
+      "description": "Create front stabilizer foot"
+    },
+    {
+      "step": 5,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cube.001",
+        "scale": [
+          0.85,
+          0.3,
+          0.12
+        ],
+        "location": [
+          0,
+          -0.35,
+          0.06
+        ]
+      },
+      "description": "Scale front foot to 85mm wide, 30mm deep, 12mm tall"
+    },
+    {
+      "step": 6,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cylinder",
+        "size": 0.08,
+        "location": [
+          -0.35,
+          -0.28,
+          0.06
+        ]
+      },
+      "description": "Create left contact sphere for grip point"
+    },
+    {
+      "step": 7,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cylinder",
+        "scale": [
+          1,
+          1,
+          0.5
+        ],
+        "location": [
+          -0.35,
+          -0.28,
+          0.06
+        ]
+      },
+      "description": "Scale to hemisphere for contact point"
+    },
+    {
+      "step": 8,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cylinder",
+        "size": 0.08,
+        "location": [
+          0.35,
+          -0.28,
+          0.06
+        ]
+      },
+      "description": "Create right contact sphere"
+    },
+    {
+      "step": 9,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cylinder.001",
+        "scale": [
+          1,
+          1,
+          0.5
+        ],
+        "location": [
+          0.35,
+          -0.28,
+          0.06
+        ]
+      },
+      "description": "Mirror left contact point to right side"
+    },
+    {
+      "step": 10,
+      "tool": "blender_create_object",
+      "params": {
+        "type": "cylinder",
+        "size": 0.35,
+        "location": [
+          0,
+          0,
+          0.45
+        ]
+      },
+      "description": "Create logo cutout cylinder"
+    },
+    {
+      "step": 11,
+      "tool": "blender_modify_object",
+      "params": {
+        "object_name": "Cylinder.002",
+        "scale": [
+          1,
+          0.1,
+          1
+        ],
+        "location": [
+          0,
+          0.08,
+          0.45
+        ]
+      },
+      "description": "Flatten cylinder for boolean cutout operation"
+    },
+    {
+      "step": 12,
+      "tool": "blender_boolean_operation",
+      "params": {
+        "object": "Cube",
+        "target": "Cylinder.002",
+        "operation": "DIFFERENCE"
+      },
+      "description": "Cut logo opening in back panel"
+    },
+    {
+      "step": 13,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "remove_doubles"
+      },
+      "description": "Remove duplicate vertices"
+    },
+    {
+      "step": 14,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "recalculate_normals"
+      },
+      "description": "Recalculate mesh normals for proper shading"
+    },
+    {
+      "step": 15,
+      "tool": "blender_apply_modifier",
+      "params": {
+        "object_name": "Cube",
+        "modifier_type": "SUBSURF",
+        "params": {
+          "levels": 2,
+          "render_levels": 3
+        }
+      },
+      "description": "Apply subdivision surface for smooth edges (1000-1200 tris)"
+    },
+    {
+      "step": 16,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube",
+        "color": [
+          1,
+          0.4,
+          0.2,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.6,
+        "specular": 0.5
+      },
+      "description": "Apply orange matte plastic material to back panel"
+    },
+    {
+      "step": 17,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cube.001",
+        "color": [
+          1,
+          0.4,
+          0.2,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.6,
+        "specular": 0.5
+      },
+      "description": "Apply matching orange material to front foot"
+    },
+    {
+      "step": 18,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cylinder",
+        "color": [
+          0.95,
+          0.95,
+          0.95,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.7,
+        "specular": 0.3
+      },
+      "description": "Apply light gray rubber material to left contact point"
+    },
+    {
+      "step": 19,
+      "tool": "blender_set_material",
+      "params": {
+        "object_name": "Cylinder.001",
+        "color": [
+          0.95,
+          0.95,
+          0.95,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.7,
+        "specular": 0.3
+      },
+      "description": "Apply matching gray to right contact point"
+    },
+    {
+      "step": 20,
+      "tool": "blender_cleanup",
+      "params": {
+        "action": "shade_smooth"
+      },
+      "description": "Apply smooth shading for polished appearance"
+    },
+    {
+      "step": 21,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nscn = bpy.context.scene\nscn.render.engine = 'CYCLES'\nscn.cycles.samples = 64\nscn.cycles.use_denoising = True"
+      },
+      "description": "Configure Cycles render for PBR materials"
+    },
+    {
+      "step": 22,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nfor obj in bpy.context.scene.objects:\n    if obj.type == 'MESH':\n        bpy.context.view_layer.objects.active = obj\n        obj.select_set(True)\n        bpy.ops.object.shade_smooth()\n        obj.select_set(False)"
+      },
+      "description": "Apply smooth shading to all mesh objects"
+    },
+    {
+      "step": 23,
+      "tool": "blender_execute_python",
+      "params": {
+        "code": "import bpy\nobjs = bpy.context.scene.objects\nif len(objs) > 0:\n    ctx = bpy.context.copy()\n    ctx['selected_objects'] = list(objs)\n    with bpy.context.temp_override(**ctx):\n        bpy.ops.object.join()\n    bpy.context.active_object.name = 'PhoneStand'"
+      },
+      "description": "Join all objects into single unified mesh"
+    },
+    {
+      "step": 24,
+      "tool": "blender_export_file",
+      "params": {
+        "filepath": "phone_stand_orange.glb",
+        "format": "glb"
+      },
+      "description": "Export final model as GLB for web/game engine compatibility"
+    }
+  ],
+  "estimated_dimensions_mm": [
+    85,
+    65,
+    95
+  ],
+  "estimated_tri_count": 2800,
+  "difficulty": "medium",
+  "production_notes": {
+    "3d_print_settings": {
+      "material": "PLA or PETG",
+      "infill": "15-20%",
+      "support_needed": true,
+      "print_time_hours": "2-3",
+      "weight_grams": "15-25"
+    },
+    "color_variants": [
+      "Vibrant Orange (#FF6633)",
+      "Hot Pink (#FF1493)",
+      "Royal Blue (#1E90FF)",
+      "Teal (#20B2AA)",
+      "Pure White (#FFFFFF)",
+      "Jet Black (#000000)",
+      "Blue Violet (#9932CC)",
+      "Forest Green (#228B22)"
+    ],
+    "customization_options": [
+      "Custom logo cutout (Apple, Android, brand logos)",
+      "Anti-slip rubber feet installation",
+      "Weighted base insert for stability",
+      "Finger grip texture on back panel"
+    ],
+    "market_positioning": "Premium 3D-printed desk accessory for tech professionals, streamers, and content creators. Highly Instagrammable design with functionality. Low production cost, high perceived value.",
+    "seo_keywords": [
+      "3D printed phone stand",
+      "desktop phone holder",
+      "adjustable phone stand",
+      "colorful phone stand",
+      "3D printer design",
+      "phone stand STL",
+      "desk organizer"
+    ]
+  },
+  "concept_id": "db145f4c-61de-4f56-9e52-bbe230a28c89",
+  "trend_id": "e387c1db-472a-4310-bf31-2d7a7fdddb3e",
+  "platform": "glb",
+  "generated_at": "2026-03-26T22:19:35.297Z",
+  "api_usage": {
+    "input_tokens": 9050,
+    "output_tokens": 3317,
+    "total_tokens": 12367,
+    "estimated_cost_usd": 0.076905,
+    "provider": "claude-haiku-4.5"
+  },
+  "variations": [
+    {
+      "variation_id": 0,
+      "name": "3D Printed Phone Stand - Multi-Color Desktop Organizer",
+      "param_overrides": {},
+      "description": "Original design from reference images"
+    },
+    {
+      "variation_id": 1,
+      "name": "3D Printed Phone Stand - Multi-Color Desktop Organizer — Large",
+      "param_overrides": {
+        "scale": 1.1,
+        "dimension_adjustment": "10% larger proportions"
+      },
+      "description": "Scaled up 10% for larger market segment"
+    },
+    {
+      "variation_id": 2,
+      "name": "3D Printed Phone Stand - Multi-Color Desktop Organizer — Compact",
+      "param_overrides": {
+        "scale": 0.9,
+        "dimension_adjustment": "10% smaller proportions"
+      },
+      "description": "Scaled down 10% for compact variant"
+    }
+  ]
+}

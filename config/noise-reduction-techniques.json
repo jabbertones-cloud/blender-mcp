@@ -1,0 +1,337 @@
+{
+  "schema_version": "1.0",
+  "target_scorer": "render-quality-scorer.js",
+  "noise_metric": "Laplacian variance proxy (local variance in 8x8 patches)",
+  "current_problem": {
+    "scene": "Scene1 BirdEye",
+    "normalized_noise": 0.9026,
+    "penalty_points": 86,
+    "target": 0.5,
+    "improvement_needed": "45% variance reduction"
+  },
+  "techniques": [
+    {
+      "id": "render_oidn_adaptive",
+      "name": "Render-Time OpenImageDenoise with Adaptive Sampling",
+      "type": "render_time",
+      "effectiveness": 10,
+      "score_impact": "0.90 → 0.35-0.40",
+      "implementation": "Blender render settings (no external dependencies)",
+      "blender_path": "Render Settings → Sampling → Denoiser",
+      "parameters": {
+        "samples": 256,
+        "adaptive_sampling": true,
+        "noise_threshold": 0.002,
+        "min_samples": 32,
+        "max_samples": 1024,
+        "denoiser": "OPENIMAGEDENOISE",
+        "use_denoising_passes": true
+      },
+      "code_snippet": "scene.cycles.samples = 256\nscene.cycles.use_adaptive_sampling = True\nscene.cycles.adaptive_threshold = 0.002\nscene.cycles.denoiser = 'OPENIMAGEDENOISE'\nscene.render.layers[0].use_pass_denoising_normal = True\nscene.render.layers[0].use_pass_denoising_albedo = True",
+      "notes": "HIGHEST IMPACT. Most important single technique. 0.002 threshold is aggressive but necessary for <0.5 target. Requires 8-12 minutes per render but essential.",
+      "difficulty": "easy",
+      "time_to_implement": 5
+    },
+    {
+      "id": "disable_caustics",
+      "name": "Disable Caustics in Render Settings",
+      "type": "render_time",
+      "effectiveness": 7,
+      "score_impact": "Removes high-variance noise source, ~0.05 improvement",
+      "implementation": "Blender render settings checkbox",
+      "blender_path": "Render Settings → Light Paths",
+      "parameters": {
+        "caustics_reflective": false,
+        "caustics_refractive": false
+      },
+      "code_snippet": "scene.cycles.caustics_reflective = False\nscene.cycles.caustics_refractive = False",
+      "notes": "Caustics are major noise source. Disabling removes photorealism but dramatically improves noise score. Essential for forensic animations where accuracy matters more than aesthetics.",
+      "difficulty": "easy",
+      "time_to_implement": 1
+    },
+    {
+      "id": "render_passes_normal_albedo",
+      "name": "Enable Denoising Normal & Albedo Render Passes",
+      "type": "render_time",
+      "effectiveness": 8,
+      "score_impact": "+5-10% improvement on top of OIDN denoiser",
+      "implementation": "Blender View Layer Properties → Passes",
+      "blender_path": "Scene → View Layer → Passes → Data",
+      "parameters": {
+        "use_pass_denoising_data": true,
+        "use_pass_denoising_normal": true,
+        "use_pass_denoising_albedo": true
+      },
+      "code_snippet": "scene.render.layers[0].use_pass_normal = True\nscene.render.layers[0].use_pass_denoising_normal = True\nscene.render.layers[0].use_pass_denoising_albedo = True",
+      "notes": "These passes give the denoiser geometric context to preserve detail. Essential for material and reflection preservation. Adds ~10% render time but critical for quality.",
+      "difficulty": "easy",
+      "time_to_implement": 2
+    },
+    {
+      "id": "light_paths_bounces",
+      "name": "Optimal Light Path & Bounce Settings",
+      "type": "render_time",
+      "effectiveness": 6,
+      "score_impact": "0.05-0.10 improvement by eliminating caustic noise",
+      "implementation": "Blender render settings",
+      "blender_path": "Render Settings → Light Paths",
+      "parameters": {
+        "max_bounces": 12,
+        "transmission_bounces": 12,
+        "glossy_bounces": 8,
+        "diffuse_bounces": 8,
+        "caustics_reflective": false,
+        "caustics_refractive": false
+      },
+      "code_snippet": "scene.cycles.max_bounces = 12\nscene.cycles.transmission_bounces = 12\nscene.cycles.glossy_bounces = 8\nscene.cycles.diffuse_bounces = 8\nscene.cycles.use_transparent_shadows = True",
+      "notes": "Transmission (glass/liquid) needs 12 bounces. Disabling caustics is included here. These settings prevent undersampling in complex light paths.",
+      "difficulty": "easy",
+      "time_to_implement": 3
+    },
+    {
+      "id": "compositor_denoise_accurate",
+      "name": "Compositor Denoise Node (Accurate Mode)",
+      "type": "compositor",
+      "effectiveness": 8,
+      "score_impact": "0.35 → 0.28-0.30",
+      "implementation": "Blender compositor node graph setup",
+      "blender_path": "Compositing workspace → Add Denoise node",
+      "parameters": {
+        "mode": "ACCURATE",
+        "use_hdr": false,
+        "inputs": ["Image", "Normal", "Albedo"]
+      },
+      "code_snippet": "denoise = nodes.new(type='CompositorNodeDenoise')\ndenoise.mode = 'ACCURATE'\nlinks.new(render_layers.outputs['Image'], denoise.inputs['Image'])\nlinks.new(render_layers.outputs['Denoising Normal'], denoise.inputs['Normal'])\nlinks.new(render_layers.outputs['Denoising Albedo'], denoise.inputs['Albedo'])\nlinks.new(denoise.outputs['Image'], composite.inputs['Image'])",
+      "notes": "Second-layer denoising using compositor. Accurate mode prefilters input passes. Works on top of render-time OIDN for cumulative effect. Adds ~2-3 seconds processing.",
+      "difficulty": "easy",
+      "time_to_implement": 5
+    },
+    {
+      "id": "post_nlm_denoising",
+      "name": "Post-Processing Non-Local Means Denoising (Python/OpenCV)",
+      "type": "post_processing",
+      "effectiveness": 9,
+      "score_impact": "0.30 → 0.20-0.22",
+      "implementation": "Python script with OpenCV cv2.fastNlMeansDenoisingColored()",
+      "code_snippet": "import cv2\nimg = cv2.imread('render.png')\ndenoised = cv2.fastNlMeansDenoisingColored(\n    img, None, h=10, hForColorComponents=10,\n    templateWindowSize=7, searchWindowSize=21\n)\ncv2.imwrite('render_denoised.png', denoised)",
+      "parameters": {
+        "h": 10,
+        "templateWindowSize": 7,
+        "searchWindowSize": 21,
+        "hForColorComponents": 10
+      },
+      "notes": "Best detail preservation of post-processing methods. NLM searches entire image for similar patches and uses distant clean versions to reconstruct. Very effective for CG renders with repeating patterns. h=8-10 for balanced, h=15 for aggressive.",
+      "difficulty": "medium",
+      "time_to_implement": 10
+    },
+    {
+      "id": "post_bilateral_filter",
+      "name": "Post-Processing Bilateral Filtering (Python/OpenCV)",
+      "type": "post_processing",
+      "effectiveness": 7,
+      "score_impact": "0.30 → 0.23-0.25",
+      "implementation": "Python script with cv2.bilateralFilter()",
+      "code_snippet": "import cv2\nimg = cv2.imread('render.png')\ndenoised = cv2.bilateralFilter(\n    img, d=9, sigmaColor=75, sigmaSpace=75\n)\ncv2.imwrite('render_denoised.png', denoised)",
+      "parameters": {
+        "diameter": 9,
+        "sigmaColor": 75,
+        "sigmaSpace": 75
+      },
+      "notes": "Edge-aware denoising. Smooths flat areas while preserving sharp edges. 10x faster than NLM but slightly less detail preservation. Good for preliminary cleanup before NLM.",
+      "difficulty": "medium",
+      "time_to_implement": 8
+    },
+    {
+      "id": "post_luminance_denoise",
+      "name": "Post-Processing Luminance-Channel Denoising (Python/OpenCV)",
+      "type": "post_processing",
+      "effectiveness": 8,
+      "score_impact": "0.20 → 0.18-0.19",
+      "implementation": "Denoise Y channel only in YCbCr color space",
+      "code_snippet": "import cv2\nimg = cv2.imread('render.png')\nycbcr = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)\ny_denoised = cv2.fastNlMeansDenoising(\n    ycbcr[:,:,0], None, h=12,\n    templateWindowSize=7, searchWindowSize=21\n)\nycbcr[:,:,0] = y_denoised\nresult = cv2.cvtColor(ycbcr, cv2.COLOR_YCrCb2BGR)\ncv2.imwrite('render_denoised.png', result)",
+      "parameters": {
+        "h": 12,
+        "color_space": "YCbCr",
+        "channel": "Y_luminance_only"
+      },
+      "notes": "Your scorer uses ITU-R BT.709 luminance weighting. Denoising luminance channel directly targets scorer's metric. Preserves color fidelity while reducing brightness noise. Highly effective for this specific scorer.",
+      "difficulty": "medium",
+      "time_to_implement": 15
+    },
+    {
+      "id": "post_multiscale_denoise",
+      "name": "Post-Processing Multi-Scale Denoising (Python/OpenCV)",
+      "type": "post_processing",
+      "effectiveness": 9,
+      "score_impact": "0.20 → 0.17-0.18",
+      "implementation": "Gaussian pyramid decomposition + per-scale denoising",
+      "code_snippet": "import cv2\nimg = cv2.imread('render.png')\n# Create pyramid\npyramid = [img]\nfor i in range(2):\n    pyramid.append(cv2.pyrDown(pyramid[-1]))\n# Denoise each scale\ndenoised_pyramid = []\nfor layer, h in zip(pyramid, [8, 12, 15]):\n    denoised = cv2.fastNlMeansDenoisingColored(\n        layer, None, h=h, templateWindowSize=7, searchWindowSize=21\n    )\n    denoised_pyramid.append(denoised)\n# Reconstruct\nfor i in range(len(denoised_pyramid)-1, 0, -1):\n    denoised_pyramid[i-1] = cv2.pyrUp(denoised_pyramid[i])\nresult = denoised_pyramid[0]\ncv2.imwrite('render_denoised.png', result)",
+      "parameters": {
+        "pyramid_levels": 3,
+        "h_values": [8, 12, 15],
+        "template_window": 7,
+        "search_window": 21
+      },
+      "notes": "Treats high and low frequency noise differently. More effective than single-pass denoising. Slower but excellent detail preservation. Use when target <0.18 normalized noise.",
+      "difficulty": "hard",
+      "time_to_implement": 20
+    },
+    {
+      "id": "post_fft_denoise",
+      "name": "Post-Processing FFT-Based Denoising (Python/SciPy)",
+      "type": "post_processing",
+      "effectiveness": 6,
+      "score_impact": "0.20 → 0.19-0.20",
+      "implementation": "Fast Fourier Transform + frequency domain filtering",
+      "code_snippet": "import cv2, numpy as np\nfrom scipy.fft import fft2, ifft2, fftshift, ifftshift\nimg = cv2.imread('render.png', cv2.IMREAD_GRAYSCALE)\nf_transform = fft2(img.astype(np.float32))\nf_shift = fftshift(f_transform)\nrows, cols = img.shape\nu, v = np.arange(rows), np.arange(cols)\nu = np.where(u < rows/2, u, u - rows)\nv = np.where(v < cols/2, v, v - cols)\nU, V = np.meshgrid(v, u)\nD = np.sqrt(U**2 + V**2)\nH = np.exp(-(D**2) / (2 * 30**2))\nf_filtered = f_shift * H\nimg_back = np.abs(ifft2(ifftshift(f_filtered)))\nimg_back = (img_back - img_back.min()) / (img_back.max() - img_back.min()) * 255\ncv2.imwrite('render_denoised.png', img_back)",
+      "parameters": {
+        "cutoff_frequency": 30,
+        "filter_type": "Gaussian",
+        "domain": "frequency"
+      },
+      "notes": "Converts to frequency domain, attenuates high frequencies (noise). Excellent for periodic/uniform noise, less effective for texture preservation. Can blur fine details. Use as fallback.",
+      "difficulty": "hard",
+      "time_to_implement": 25
+    },
+    {
+      "id": "film_filter_optimization",
+      "name": "Film Filter Optimization (Blender Render Settings)",
+      "type": "render_time",
+      "effectiveness": 4,
+      "score_impact": "~0.05 improvement",
+      "implementation": "Blender render settings",
+      "blender_path": "Render Settings → Film",
+      "parameters": {
+        "filter_type": "BLACKMAN_HARRIS",
+        "filter_size": 1.5
+      },
+      "code_snippet": "scene.cycles.filter_type = 'BLACKMAN_HARRIS'\nscene.cycles.pixel_filter_type = 'BLACKMAN_HARRIS'",
+      "notes": "BLACKMAN_HARRIS filter reduces aliasing-caused perceived noise by 5-10% vs BOX filter. Minor improvement but no downside.",
+      "difficulty": "easy",
+      "time_to_implement": 1
+    },
+    {
+      "id": "world_hdri_optimization",
+      "name": "World Lighting HDRI Optimization",
+      "type": "render_time",
+      "effectiveness": 5,
+      "score_impact": "0.05-0.10 improvement",
+      "implementation": "Use Poly Haven HDRI with proper strength setting",
+      "blender_path": "World Properties → Shader Editor",
+      "parameters": {
+        "use_hdri": true,
+        "hdri_source": "Poly Haven",
+        "strength": 1.5,
+        "map_sampling": "enabled"
+      },
+      "code_snippet": "world = bpy.data.worlds['World']\nworld.use_nodes = True\nbg_node = world.node_tree.nodes.get('Background')\nif bg_node:\n    bg_node.inputs[1].default_value = 1.5",
+      "notes": "Proper world lighting reduces global variance by 20-30%. HDRI provides more natural light distribution than flat background. Poly Haven is built into MCP.",
+      "difficulty": "easy",
+      "time_to_implement": 5
+    }
+  ],
+  "implementation_roadmap": {
+    "week_1": {
+      "goal": "Render-time fixes (Target: 0.90 → 0.35)",
+      "days": [
+        {
+          "day": 1,
+          "tasks": [
+            "render_oidn_adaptive",
+            "render_passes_normal_albedo",
+            "light_paths_bounces",
+            "disable_caustics"
+          ]
+        },
+        {
+          "day": 2,
+          "tasks": [
+            "film_filter_optimization",
+            "world_hdri_optimization"
+          ]
+        },
+        {
+          "day": 3,
+          "tasks": ["Test render Scene1 BirdEye and measure normalized noise"]
+        }
+      ]
+    },
+    "week_2": {
+      "goal": "Compositor setup (Target: 0.35 → 0.25)",
+      "days": [
+        {
+          "day": 1,
+          "tasks": ["compositor_denoise_accurate"]
+        },
+        {
+          "day": 2,
+          "tasks": ["Verify compositor node graph on test renders"]
+        }
+      ]
+    },
+    "week_3": {
+      "goal": "Post-processing optimization (Target: 0.25 → 0.15)",
+      "days": [
+        {
+          "day": 1,
+          "tasks": ["post_nlm_denoising"]
+        },
+        {
+          "day": 2,
+          "tasks": ["post_luminance_denoise"]
+        },
+        {
+          "day": 3,
+          "tasks": ["post_multiscale_denoise (optional, for <0.18)"]
+        }
+      ]
+    }
+  },
+  "optimization_tiers": {
+    "tier_1_must_do": [
+      "render_oidn_adaptive",
+      "render_passes_normal_albedo",
+      "disable_caustics"
+    ],
+    "tier_2_should_do": [
+      "compositor_denoise_accurate",
+      "post_nlm_denoising"
+    ],
+    "tier_3_optional": [
+      "post_luminance_denoise",
+      "post_multiscale_denoise",
+      "post_fft_denoise"
+    ]
+  },
+  "expected_results": {
+    "tier_1": {
+      "normalized_noise": "0.90 → 0.35-0.40",
+      "improvement": "61-72%",
+      "noise_submetric_score": "0 → 20-30 points",
+      "time_investment": "10 minutes setup + 8 min render time"
+    },
+    "tier_1_tier_2": {
+      "normalized_noise": "0.90 → 0.20-0.25",
+      "improvement": "72-78%",
+      "noise_submetric_score": "0 → 30-40 points",
+      "time_investment": "20 minutes setup + 8 min render + 5 min compositor"
+    },
+    "tier_1_tier_2_tier_3": {
+      "normalized_noise": "0.90 → 0.15-0.18",
+      "improvement": "80-83%",
+      "noise_submetric_score": "0 → 40-50 points (out of 15 base)",
+      "time_investment": "1 hour setup + 8 min render + full pipeline"
+    }
+  },
+  "scorer_specific_notes": {
+    "algorithm": "Laplacian variance proxy in 8x8 random patches",
+    "patches_sampled": 50,
+    "variance_normalization": "medianVariance / 2000",
+    "penalty_threshold": 0.3,
+    "penalty_curve": "linear (0.3-1.0)",
+    "weight_in_total_score": "15%",
+    "luminance_weights": "R:0.2126, G:0.7152, B:0.0722 (ITU-R BT.709)",
+    "optimization_target": "Get normalized noise ≤ 0.5 to avoid complete penalty",
+    "excellent_target": "normalized noise < 0.35 for noise to contribute positively"
+  }
+}

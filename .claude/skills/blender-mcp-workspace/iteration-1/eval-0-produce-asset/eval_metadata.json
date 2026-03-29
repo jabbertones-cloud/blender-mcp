@@ -1,0 +1,20 @@
+{
+  "eval_id": 0,
+  "eval_name": "produce-asset",
+  "prompt": "I need to write a Node.js script that connects to the Blender MCP server on port 9876, creates a simple table (a flat top surface with 4 legs), exports it as STL and FBX, renders a hero shot and a top-down shot, then saves the .blend file. The script should handle scene cleanup at the start, apply subdivision surface and smooth shading, and set up proper lighting. Write the complete script.",
+  "assertions": [
+    {"id": "no_blender_prefix", "text": "MCP calls use command names without blender_ prefix"},
+    {"id": "single_quotes_python", "text": "All Python code inside JS strings uses single quotes only"},
+    {"id": "brace_depth_parser", "text": "Socket data handler uses brace-depth counting, not readline"},
+    {"id": "scene_cleanup_correct", "text": "Scene cleanup uses save_file with use_empty AND Python nuke"},
+    {"id": "shade_smooth_execute_python", "text": "Shade smooth uses execute_python, NOT blender_cleanup"},
+    {"id": "stl_via_execute_python", "text": "STL export uses execute_python with bpy.ops.wm.stl_export()"},
+    {"id": "render_output_path", "text": "Render calls use output_path parameter, not filepath"},
+    {"id": "gray_background", "text": "World background is gray (~0.18), not white"},
+    {"id": "light_energy_sufficient", "text": "Area lights have energy >= 200W"},
+    {"id": "camera_bounding_box", "text": "Camera position calculated from model bounding box"},
+    {"id": "ground_plane_named", "text": "Ground plane is named _ground_plane"},
+    {"id": "result_double_unwrap", "text": "execute_python results are double-unwrapped"},
+    {"id": "engine_lowercase", "text": "Render engine is lowercase eevee"}
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "expectations": [
+    {
+      "text": "no_blender_prefix: MCP calls use command names without blender_ prefix",
+      "passed": true,
+      "evidence": "All MCP calls use unprefixed command names: `call('save_file', ...)`, `call('execute_python', ...)`, `call('set_render_settings', ...)`, `call('export_file', ...)`, `call('render', ...)`"
+    },
+    {
+      "text": "single_quotes_python: ALL Python code inside JS strings uses single quotes, NEVER double quotes anywhere",
+      "passed": true,
+      "evidence": "All Python code blocks use single quotes consistently. Examples: `'Subsurf'`, `'SUBSURF'`, `'MESH'`, `'AREA'`, `'Principled BSDF'`, `'Base Color'`, etc. No double quotes found in Python strings."
+    },
+    {
+      "text": "brace_depth_parser: Socket data handler uses brace-depth counting, not readline",
+      "passed": true,
+      "evidence": "processBuffer() method at line 77 implements full brace-depth parsing: tracks `depth` variable, handles string escaping, and increments/decrements depth on '{' and '}' characters. Uses state machine approach, not readline."
+    },
+    {
+      "text": "scene_cleanup_correct: Scene cleanup uses save_file with use_empty AND Python nuke of all data blocks",
+      "passed": true,
+      "evidence": "cleanScene() function (line 268): calls `save_file` with `{action: 'new', use_empty: true}`, then `executePython()` with code that loops through `bpy.data.objects`, `bpy.data.meshes`, `bpy.data.materials`, `bpy.data.cameras`, and `bpy.data.lights` with `.remove()` calls."
+    },
+    {
+      "text": "shade_smooth_execute_python: Shade smooth uses execute_python with per-object loop, NOT blender_cleanup",
+      "passed": true,
+      "evidence": "applySmoothing() function (line 336): uses `executePython()` with per-object loop. Code sets active object, calls `bpy.ops.object.shade_smooth()` for each mesh object, and explicitly excludes '_ground_plane' with `not obj.name.startswith('_ground_plane')`"
+    },
+    {
+      "text": "stl_via_execute_python: STL export uses execute_python with bpy.ops.wm.stl_export()",
+      "passed": true,
+      "evidence": "exportSTL() function (line 451): uses `executePython()` with `bpy.ops.wm.stl_export(filepath='${stlPath}')` call directly in Python code."
+    },
+    {
+      "text": "render_output_path: Render calls use output_path parameter, not filepath",
+      "passed": true,
+      "evidence": "renderShot() function (line 429): calls `render()` with `{output_path: outputPath}` parameter. NOT `filepath`."
+    },
+    {
+      "text": "gray_background: World background is gray (~0.18), not white",
+      "passed": true,
+      "evidence": "setupLighting() function sets world background: `bg.inputs[0].default_value = (0.18, 0.18, 0.2, 1.0)`. Explicitly gray, not white."
+    },
+    {
+      "text": "light_energy_sufficient: Area lights have energy >= 200W",
+      "passed": true,
+      "evidence": "setupLighting() function creates 3-point lighting with: key_light 500W, fill_light 200W, rim_light 300W. All >= 200W. Code: `[('key_light', ..., 500.0), ('fill_light', ..., 200.0), ('rim_light', ..., 300.0)]`"
+    },
+    {
+      "text": "camera_bounding_box: Camera position calculated from model bounding box, not hardcoded",
+      "passed": true,
+      "evidence": "positionCamera() function (line 403): calculates center and size from all mesh object bounding boxes, then computes distance `d = max(size * 2.5, 3.0)`. Camera position is then calculated relative to center: e.g. `center + mathutils.Vector((d*0.6, d*0.6, d*0.45))` for hero shot, not hardcoded world coordinates."
+    },
+    {
+      "text": "ground_plane_named: Ground plane is named _ground_plane",
+      "passed": true,
+      "evidence": "setupLighting() function creates ground plane with: `ground.name = '_ground_plane'`. Explicitly uses underscore prefix and correct name."
+    },
+    {
+      "text": "result_double_unwrap: execute_python results are double-unwrapped (result.result)",
+      "passed": true,
+      "evidence": "executePython() method (line 202): returns `response.result?.result` — double unwrap with optional chaining. Comment explains: 'Double-nested result: { result: { result: actual_value } }'"
+    },
+    {
+      "text": "engine_lowercase: Render engine is lowercase eevee",
+      "passed": true,
+      "evidence": "setRenderSettings() function uses `engine: 'eevee'` in lowercase. Comment notes: 'Use lowercase engine name 'eevee' (NOT 'EEVEE')'"
+    }
+  ]
+}

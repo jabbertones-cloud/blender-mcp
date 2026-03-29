@@ -1,0 +1,14 @@
+{
+  "concept_id": "unknown",
+  "validated_at": "2026-03-24T21:49:48.385Z",
+  "metadata": {
+    "platform": "game"
+  },
+  "mechanical": {
+    "passed": false,
+    "error": "No mesh objects in scene"
+  },
+  "overall_verdict": "REJECT",
+  "production_quality_score": 50,
+  "total_duration_ms": 59
+}

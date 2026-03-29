@@ -1,0 +1,114 @@
+{
+  "audit_date": "2026-03-26",
+  "audit_type": "scheduled_daily",
+  "system_scores": {
+    "mcp_server": 7.5,
+    "blender_addon": 7.0,
+    "auto_learner": 6.0,
+    "auto_research": 7.0,
+    "3d_forge": 5.5,
+    "forensic_renders": 4.2,
+    "product_animation": 9.1
+  },
+  "forensic_scene_selected": {
+    "scene": "scene2_pedestrian_crosswalk",
+    "reason": "Most legally critical scene — pedestrian visibility/sightline is core evidentiary claim. Worst human figure quality. Driver POV has no interior, which is legally misleading.",
+    "current_score": 3.8,
+    "target_score": 6.0,
+    "p0_issues": [
+      "Pedestrian figure: disconnected primitives, 150 verts — needs 2000+ vert continuous mesh",
+      "Vehicle interior: empty box — needs dashboard/steering/A-pillars for driver POV credibility",
+      "Impact markers: cartoonish red rings — needs numbered forensic evidence tents"
+    ],
+    "p1_issues": [
+      "Sightline visualization: thick solid lines — needs thin dotted with distance labels",
+      "Crosswalk detail: flat white rectangles — needs textured paint with wear",
+      "Exhibit overlay: not applied — v8_exhibit_overlay.py must be wired in"
+    ],
+    "p2_issues": [
+      "Road surface: flat grey — apply pro_asphalt_material()",
+      "Street furniture: empty roadside — add traffic signal, crosswalk button, curb",
+      "Camera DOF: none — add per-camera f-stop"
+    ]
+  },
+  "youtube_learning": [
+    {
+      "title": "JeanYan 3D — Blender 4 Realistic Car Animation Tutorial",
+      "year": 2025,
+      "platform": "YouTube (free)",
+      "relevance": "HIGH — path-based vehicle animation, Rigacar addon, steering mechanics",
+      "adopt": ["Rigacar addon for wheel animation", "Path-based vehicle trajectories", "Road creation workflow"],
+      "skip": ["Cinematic camera motion (not forensic-appropriate)"],
+      "research_next": ["Blender vehicle interior modeling", "A-pillar obstruction simulation"]
+    },
+    {
+      "title": "Blender procedural asphalt materials (multiple sources)",
+      "year": 2025,
+      "platform": "BlenderKit + Creative Shrimp + Blender Artists",
+      "relevance": "MEDIUM — road surface realism upgrade",
+      "adopt": ["Voronoi cracking + Noise aggregate node setup", "BlenderKit free procedural cracked asphalt reference"]
+    },
+    {
+      "title": "PIXXO 3D + Grant Abbitt — Low poly character modeling",
+      "year": 2024,
+      "platform": "YouTube (free)",
+      "relevance": "HIGH — pedestrian figure upgrade from primitives to proper mesh",
+      "adopt": ["Single mesh body construction", "Basic UV unwrap for clothing distinction"]
+    }
+  ],
+  "new_techniques_indexed": [
+    {
+      "name": "Rigacar Addon",
+      "category": "animation",
+      "description": "Automated vehicle rigging (wheels, steering, suspension)",
+      "source": "JeanYan 3D YouTube",
+      "forensic_relevance": "Replace manual wheel cylinder animation"
+    },
+    {
+      "name": "Blender Roads Addon",
+      "category": "modeling",
+      "description": "Procedural textured road generation via vertex extrusion",
+      "source": "digitalproduction.com Nov 2025",
+      "forensic_relevance": "Replace manual road plane construction"
+    },
+    {
+      "name": "Forensic Rock + Cesium 3D Tiles",
+      "category": "environment",
+      "description": "Google Photorealistic 3D Tiles for real-world scene geometry",
+      "source": "cesium.com Nov 2025",
+      "forensic_relevance": "GAME-CHANGING — real satellite data instead of manual environment modeling"
+    },
+    {
+      "name": "Poly-MCP Blender Server",
+      "category": "infrastructure",
+      "description": "51-tool MCP server with thread-safe execution",
+      "source": "github.com/poly-mcp March 2026",
+      "forensic_relevance": "Benchmark our 30-tool server for missing capabilities"
+    },
+    {
+      "name": "Blender Visual Investigation Training",
+      "category": "competition",
+      "description": "Professional forensic 3D viz training platform",
+      "source": "blendervisualinvestigation.com",
+      "forensic_relevance": "Direct competitor — study their methodology"
+    }
+  ],
+  "auto_research_status": {
+    "auto_learner_closes_loop": false,
+    "forensic_module_exists": false,
+    "cron_active": false,
+    "pm2_configured": false,
+    "shade_smooth_fix_needed": true,
+    "weekly_target_items": 21,
+    "items_per_day": 3
+  },
+  "week_targets": {
+    "week_1": "Scene 2 re-render with v8 materials + lighting + exhibits → 6.0/10",
+    "week_2": "Auto-fix pipeline operational",
+    "week_3": "Scene 1+3+4 re-renders with v8 improvements",
+    "week_4": "Quality gate automated, regression detection",
+    "week_5": "Vehicle geometry via asset library",
+    "week_6": "Full portfolio re-render → 7.5/10"
+  },
+  "next_audit": "2026-03-27T03:00:00"
+}

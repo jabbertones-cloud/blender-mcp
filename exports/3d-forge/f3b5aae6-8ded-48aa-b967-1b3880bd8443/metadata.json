@@ -1,0 +1,11 @@
+{
+  "concept_id": "f3b5aae6-8ded-48aa-b967-1b3880bd8443",
+  "produced_at": "2026-03-24T23:47:00.000Z",
+  "steps_executed": 18,
+  "steps_failed": 0,
+  "exports": {
+    "stl": "model.stl",
+    "blend": "model.blend"
+  },
+  "renders": ["hero.png", "front.png", "side.png", "top.png", "detail.png"]
+}

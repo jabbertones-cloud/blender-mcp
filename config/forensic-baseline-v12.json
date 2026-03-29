@@ -1,0 +1,95 @@
+{
+  "version": "v12",
+  "created": "2026-03-26",
+  "description": "Forensic animation quality baseline — validated camera, lighting, and material settings for EEVEE renders",
+  "blender_version": "5.1.0",
+  "engine": {
+    "name": "BLENDER_EEVEE",
+    "note": "Blender 5.1 renamed EEVEE_NEXT back to BLENDER_EEVEE. Use version check: bpy.app.version >= (5,0,0)",
+    "samples": 64,
+    "resolution": [1920, 1080]
+  },
+  "color_management": {
+    "view_transform": "AgX",
+    "note": "AgX provides 25-stop dynamic range. May score slightly lower on Tier 1 pixel scorer but looks better visually.",
+    "exposure_day": 0.5,
+    "exposure_night": 1.5
+  },
+  "camera_positions": {
+    "note": "CRITICAL: Camera distance was #1 quality killer. Scene 3 cameras at 480m scored 33; at 40m scored 70.",
+    "BirdEye": {
+      "height_m": "25-60 (scales with scene size)",
+      "rotation": "straight down (-90 deg X or (0,0,0) euler)",
+      "lens_mm": 35,
+      "clip_start": 0.1,
+      "clip_end": 1000
+    },
+    "DriverPOV": {
+      "height_m": 1.7,
+      "offset_from_vehicle": "5-8m behind, 2-3m lateral",
+      "lens_mm": 35,
+      "note": "Must add cabin lighting if inside vehicle"
+    },
+    "WideAngle": {
+      "distance_m": "20-30 from scene center",
+      "height_m": "5-8",
+      "lens_mm": 28
+    },
+    "SecurityCam": {
+      "height_m": "3-5 (mounted on structure)",
+      "lens_mm": 8,
+      "note": "Wide angle security camera lens, tilted 30-45 deg down"
+    }
+  },
+  "lighting": {
+    "day_scenes": {
+      "engine": "EEVEE",
+      "sun_energy": 5.0,
+      "sun_angle_deg": 0.545,
+      "fill_area_energy": 200,
+      "fill_area_size": 5.0,
+      "world_background_color": [0.55, 0.65, 0.8],
+      "world_strength": 1.8,
+      "note": "EEVEE SUN at 5W is correct brightness. Do NOT use Cycles values (need 3-4x more)."
+    },
+    "night_scenes": {
+      "engine": "EEVEE",
+      "fill_lights_count": 3,
+      "fill_light_energy": 300,
+      "fill_light_size": 5.0,
+      "fill_light_color": [1.0, 0.85, 0.6],
+      "world_background_color": [0.02, 0.02, 0.04],
+      "world_strength": 0.3,
+      "exposure": 1.5,
+      "note": "Night needs 3+ area fill lights with warm sodium color. World strength 0.3 (not 0.05)."
+    }
+  },
+  "materials": {
+    "car_paint": {"metallic": 0.9, "roughness": 0.15},
+    "asphalt": {"metallic": 0.0, "roughness": 0.75, "base_color": [0.05, 0.05, 0.055]},
+    "glass": {"transmission": 0.8, "ior": 1.5, "roughness": 0.05},
+    "note": "Material name matching is fragile. Always audit object names per scene before assigning."
+  },
+  "forensic_overlays": {
+    "evidence_markers": "Emissive cones (R/B/Y), radius 0.3m, height 0.8m, emission strength 3.0",
+    "exhibit_label": "3D text on ground plane, case number + disclaimer",
+    "scale_bar": "1m cube scaled to (1.0, 0.05, 0.02), yellow emissive"
+  },
+  "validated_scores": {
+    "v12_cycle1": {
+      "scene1": {"BirdEye": 60, "DriverPOV": 60, "WideAngle": 64, "avg": 61.3},
+      "scene2": {"BirdEye": 61, "SightLine": 61, "WideAngle": 64, "avg": 62.0},
+      "scene3": {"BirdEye": 70, "DriverPOV": 63, "WideAngle": 69, "avg": 67.3},
+      "scene4": {"BirdEye": 61, "SecurityCam": 61, "WideAngle": 62, "avg": 61.3}
+    }
+  },
+  "critical_rules": [
+    "NEVER switch from EEVEE to Cycles without adjusting light energy 3-4x",
+    "NEVER place cameras more than 60m from scene center",
+    "NEVER use world background strength < 0.1 for night scenes",
+    "ALWAYS audit camera positions before rendering (lsof check is not enough)",
+    "ALWAYS use --background flag for headless Blender (never open GUI from scheduled tasks)",
+    "ALWAYS check bpy.app.version for engine name selection",
+    "CLI rendering (--background --python) is more reliable than MCP for batch ops"
+  ]
+}

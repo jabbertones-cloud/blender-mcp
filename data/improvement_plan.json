@@ -1,0 +1,278 @@
+{
+  "plan_version": "1.0",
+  "strategy": "incremental_not_random",
+  "phase": "foundation",
+  "phase_status": "COMPLETE - ready_for_materials_with_edge_detail_fix",
+  "phases": [
+    {
+      "name": "foundation",
+      "goal": "Get all 12 renders above 50/100",
+      "focus": ["Fix lighting on all angles", "Fix Scene 4 night", "Ensure models visible"],
+      "exit_criteria": "all_renders_above_50",
+      "status": "ACHIEVED",
+      "cycles_required": 3,
+      "cycles_completed": 3,
+      "estimated_runs": 5,
+      "actual_runs": 3,
+      "techniques_required": ["3_point_area_lighting", "glb_model_import", "sodium_vapor_lighting"],
+      "techniques_applied": ["3_point_area_lighting", "glb_model_import", "sodium_vapor_lighting"],
+      "final_scores": {
+        "day_scenes_avg": 73.5,
+        "night_scenes_avg": 63.0,
+        "overall_weighted_avg": 71.1
+      },
+      "blocker_discovered": "edge_detail_detection_failure_on_all_12_renders"
+    },
+    {
+      "name": "materials",
+      "goal": "Get all renders above 65/100",
+      "focus": ["PBR materials on vehicles", "Asphalt textures", "Glass materials"],
+      "exit_criteria": "all_renders_above_65",
+      "status": "BLOCKED_PENDING_EDGE_DETAIL_FIX",
+      "blocking_issue": "Must fix edge detail before materials phase (scorer expects geometry detail)",
+      "estimated_runs": 8,
+      "estimated_score_improvement": "+10_to_25_points",
+      "techniques_required": ["pbr_materials", "texture_mapping", "shader_nodes", "edge_detail_geometry"],
+      "techniques_applied": [],
+      "prerequisites_complete": false,
+      "prerequisites_missing": ["edge_detail_issue_resolution"]
+    },
+    {
+      "name": "forensic_detail",
+      "goal": "Get all renders above 75/100",
+      "focus": ["Evidence markers", "Scale bars", "Impact deformation", "Sight lines"],
+      "exit_criteria": "all_renders_above_75",
+      "status": "NOT_STARTED",
+      "estimated_runs": 10,
+      "estimated_score_improvement": "+10_to_20_points",
+      "techniques_required": ["impact_simulation", "annotation_rendering", "geometry_deformation"],
+      "techniques_applied": [],
+      "prerequisites_complete": false
+    },
+    {
+      "name": "polish",
+      "goal": "Get overall audit above 8.5/10",
+      "focus": ["HDRI environments", "Volumetric lighting", "Debris particles", "Camera composition"],
+      "exit_criteria": "harsh_audit_above_8.5",
+      "status": "NOT_STARTED",
+      "estimated_runs": 12,
+      "estimated_score_improvement": "+5_to_15_points",
+      "techniques_required": ["advanced_lighting", "particle_systems", "composition_principles"],
+      "techniques_applied": []
+    }
+  ],
+  "current_phase_progress": {
+    "phase": "foundation",
+    "phase_status": "COMPLETE",
+    "renders_above_50": 12,
+    "renders_total": 12,
+    "renders_above_60": 12,
+    "renders_above_70": 9,
+    "blocking_issues": ["edge_detail_failure_critical", "no_pbr_materials", "no_forensic_overlays"],
+    "phase_start_date": "2026-03-26",
+    "phase_completion_date": "2026-03-26",
+    "runs_in_phase": 3,
+    "estimated_runs_remaining_in_phase": 0,
+    "advancement_blocked_by": "edge_detail_issue (all renders report 0.003-0.008 edge_density)",
+    "advancement_estimated_delay": "1_to_2_runs (diagnosis + fix)"
+  },
+  "success_metrics": {
+    "foundation": {
+      "min_avg_score": 50,
+      "actual_avg_score": 71.1,
+      "max_renders_below_threshold": 0,
+      "actual_renders_below_threshold": 0,
+      "required_renders_working": 12,
+      "actual_renders_working": 12,
+      "verdict": "PASSED"
+    },
+    "materials": {
+      "min_avg_score": 65,
+      "max_renders_below_threshold": 0,
+      "material_coverage_percent": 0,
+      "status": "BLOCKED_PENDING"
+    },
+    "forensic_detail": {
+      "min_avg_score": 75,
+      "max_renders_below_threshold": 0,
+      "all_annotations_visible": false,
+      "deformation_accurate": false,
+      "status": "NOT_STARTED"
+    },
+    "polish": {
+      "min_audit_score": 8.5,
+      "visual_quality_consistent": false,
+      "all_angles_professional": false,
+      "status": "NOT_STARTED"
+    }
+  },
+  "risk_mitigation": [
+    {
+      "risk": "Edge detail detection failure on all renders blocks advancement",
+      "mitigation": "Investigate root cause immediately (subdivision, scale, viewer). Diagnosis run scheduled.",
+      "owner": "PRIORITY_1",
+      "v11_status": "MATERIALIZED - MITIGATION_REQUIRED"
+    },
+    {
+      "risk": "Materials phase blocked by lack of Blender knowledge",
+      "mitigation": "Complete 3x YouTube tutorials on PBR materials before phase transition",
+      "owner": "priority_2",
+      "v11_status": "QUEUED"
+    },
+    {
+      "risk": "Forensic detail phase requires custom infrastructure not yet built",
+      "mitigation": "Create marker system, impact sim, annotation renderer in dedicated runs",
+      "owner": "priority_3",
+      "v11_status": "PLANNED"
+    },
+    {
+      "risk": "Time spent on low-impact refinements",
+      "mitigation": "Strict phase-gate reviews before moving to next phase",
+      "owner": "governance",
+      "v11_status": "IMPLEMENTED"
+    }
+  ],
+  "learning_checkpoints": [
+    {
+      "phase": "foundation",
+      "skill": "3_point_area_lighting",
+      "source": "Blender Guru - Lighting Fundamentals",
+      "practice_target": "apply_to_all_4_scenes",
+      "status": "COMPLETED",
+      "result": "SUCCESS - day_scenes_now_75_avg"
+    },
+    {
+      "phase": "foundation",
+      "skill": "glb_model_import_and_positioning",
+      "source": "Blender manual - GLB import workflow",
+      "practice_target": "import_all_4_vehicle_types",
+      "status": "COMPLETED",
+      "result": "SUCCESS - models_visible_on_all_renders"
+    },
+    {
+      "phase": "foundation",
+      "skill": "night_scene_lighting_sodium_vapor",
+      "source": "Polyhaven + Superhive research",
+      "practice_target": "fix_scene4_from_black_to_visible",
+      "status": "COMPLETED",
+      "result": "PARTIAL_SUCCESS - scene4_now_63_but_needs_HDRI"
+    },
+    {
+      "phase": "foundation",
+      "skill": "edge_detail_troubleshooting",
+      "source": "render-quality-scorer.js diagnostics",
+      "practice_target": "resolve_edge_density_0.003_issue",
+      "status": "IN_PROGRESS",
+      "result": "ISSUE_IDENTIFIED_NOT_YET_FIXED"
+    },
+    {
+      "phase": "materials",
+      "skill": "pbr_materials",
+      "source": "Blender Guru - PBR Material Setup",
+      "practice_target": "apply_to_car_models",
+      "status": "QUEUED"
+    },
+    {
+      "phase": "materials",
+      "skill": "texture_mapping",
+      "source": "Polyfjord - Texturing Workflow",
+      "practice_target": "asphalt_and_environment_textures",
+      "status": "QUEUED"
+    },
+    {
+      "phase": "forensic_detail",
+      "skill": "impact_simulation",
+      "source": "Blender Fundamentals - Rigid Body Dynamics",
+      "practice_target": "simulate_collision_deformation",
+      "status": "QUEUED"
+    },
+    {
+      "phase": "forensic_detail",
+      "skill": "annotation_rendering",
+      "source": "Custom Blender Python - marker system",
+      "practice_target": "position_evidence_markers_and_scale_bars",
+      "status": "QUEUED"
+    },
+    {
+      "phase": "polish",
+      "skill": "hdri_environment",
+      "source": "Polyhaven + Blender world setup",
+      "practice_target": "download_and_apply_hdri_to_all_scenes",
+      "status": "QUEUED"
+    },
+    {
+      "phase": "polish",
+      "skill": "advanced_composition",
+      "source": "Cinematography principles for forensics",
+      "practice_target": "optimize_all_12_camera_angles",
+      "status": "QUEUED"
+    }
+  ],
+  "daily_checklist": {
+    "start_of_run": [
+      "Load session_checkpoint.json",
+      "Review current_phase_progress and blocking_issues",
+      "Check next_priorities array (ranked by severity)",
+      "Identify critical_blockers vs nice_to_have improvements"
+    ],
+    "during_run": [
+      "Apply identified fix or learn queued skill",
+      "Render test images after each change",
+      "Log scores to temporary results file",
+      "Use render-quality-scorer.js --tier 1 for consistency",
+      "Compare new scores against v11_render_scores baseline"
+    ],
+    "end_of_run": [
+      "Aggregate all new scores into per_render format",
+      "Calculate new overall_score (average of 12)",
+      "Identify any NEW problems discovered",
+      "Update session_checkpoint.json with new scores",
+      "Update improvement_plan.json phase progress",
+      "Log summary to daily_learnings_YYYY-MM-DD_vXX.txt",
+      "Determine if ready to advance to next phase"
+    ]
+  },
+  "v11_cycle_summary": {
+    "cycle1_initial_build": {
+      "date": "2026-03-26",
+      "attempt": "Initial render with GLB models and 3-point lighting",
+      "result": "blank_renders_~20_avg",
+      "problem": "Camera placement outside models, lighting energy too low",
+      "action": "Reframe all cameras to bounding box center"
+    },
+    "cycle2_v2_lighting": {
+      "date": "2026-03-26",
+      "attempt": "Added sodium vapor spot lights for night scene",
+      "result": "scene4_improved_1.5_to_63_night_renders_visible",
+      "problem": "Day scenes still underlit, POV angles dark",
+      "action": "Added fine-tuned 3-point area lights with higher energy"
+    },
+    "cycle3_v3_final": {
+      "date": "2026-03-26",
+      "attempt": "Fine-tuned 3-point area lighting (500W/400W/500W), adjusted world background",
+      "result": "day_scenes_73_to_78_avg_foundation_phase_complete",
+      "problem": "Edge detail detection failure on all renders (blocker for advancement)",
+      "action": "Documented blocker, scheduled edge_detail_diagnosis for next run"
+    }
+  },
+  "next_phase_entrance_requirements": {
+    "materials_phase": {
+      "required_score": "all_renders_above_65",
+      "current_readiness": "NO - edge_detail_issue_blocks_advancement",
+      "blocking_issue": "edge_density_0.003_0.008_failing (expected 0.02+)",
+      "fix_required_before_advancement": "Resolve edge detail detection (likely subdivision modifier or scale issue)",
+      "estimated_runs_until_ready": 1,
+      "estimated_score_after_fix": "78_to_82"
+    }
+  },
+  "estimated_timeline_to_completion": {
+    "foundation_phase": "3 runs (COMPLETE)",
+    "edge_detail_fix": "1 run (PENDING)",
+    "materials_phase": "8 runs (PENDING)",
+    "forensic_detail_phase": "10 runs (PENDING)",
+    "polish_phase": "12 runs (PENDING)",
+    "total_estimated_runs": "34 runs",
+    "current_run_count": 16,
+    "runs_remaining": "18"
+  }
+}

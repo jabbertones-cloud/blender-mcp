@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "identifies_stale_scene: Correctly identifies the root cause as measuring a stale/wrong scene in Blender, not the saved .blend file",
+      "passed": false,
+      "evidence": "The diagnosis identifies the root cause as 'Scene Contamination' (section 1.1) — the .blend file is correctly opened, but it contains 'non-model geometry (e.g., a terrain, staging plane, or previous project's assets)' that inflates the bounding box. It states 'The validator script is correctly reading Blender's world-space dimensions, but the .blend file loaded by getMeshData() contains non-model geometry'. This is about stale/contaminated content IN the saved .blend file itself, not about measuring a wrong/stale scene after opening."
+    },
+    {
+      "text": "open_mainfile_fix: Provides the fix: use bpy.ops.wm.open_mainfile() to open the .blend file before measuring",
+      "passed": true,
+      "evidence": "The diagnosis shows the code already using bpy.ops.wm.open_mainfile() in section 1: 'When `MechanicalValidator.validate()` calls: `await this.blenderClient.executePython(`import bpy\\\\nbpy.ops.wm.open_mainfile(filepath='${absPath.replace(/'/g, \"\\\\\\\\'\")}')`);` The .blend file is **correctly** opened.' This confirms the fix is already documented as part of the diagnosis."
+    },
+    {
+      "text": "ground_plane_mention: Mentions excluding _ground_plane from bounding box measurements",
+      "passed": true,
+      "evidence": "Multiple references: (1) Executive summary mentions 'a leftover ground plane or auxiliary geometry', (2) Root cause section states 'The subsequent `getMeshData()` call: ```python meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.visible_get() and not o.name.startswith('_ground_plane')]` **Should** exclude ground planes', (3) Issue 1 section describes the `_ground_plane` exclusion logic and its limitations."
+    },
+    {
+      "text": "scene_persistence_explanation: Explains the scene persistence gotcha - that Blender may revert to a previous scene after producer disconnects",
+      "passed": false,
+      "evidence": "The diagnosis does not mention scene persistence or Blender reverting to a previous scene after disconnect. It focuses entirely on contaminated content (ground planes, auxiliary geometry) within the loaded .blend file. There is no discussion of a scene reversion gotcha or persistence issues."
+    },
+    {
+      "text": "single_quotes_in_fix: Any Python code provided in the fix uses single quotes only (no double quotes inside JS strings)",
+      "passed": false,
+      "evidence": "In the 'Complete Patched Code' section under getMeshData(), the Python code block contains double quotes. Example: `'No model meshes in scene (all were ground planes or hidden)'` is fine, but the pythonCode template string is a JS template literal. Examining the actual Python code provided: the string literals use single quotes (e.g., `'MESH'`, `'ground'`), but there is explicit mention in a comment: 'CRITICAL: Python code must use single quotes only — double quotes inside a JS template literal get escaped to \\\" by JSON.stringify'. However, checking the actual code blocks in the fix, they do correctly use single quotes throughout the provided Python code strings."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "image": "scene4_DriverPOV_BEST.png",
+    "initial_score": 84,
+    "final_score": 84,
+    "delta": 0,
+    "status": "PLATEAUED",
+    "rounds": 0,
+    "fixes_applied": [],
+    "output": "renders/FINAL_BEST/scene4_DriverPOV_BEST.png"
+  }
+]

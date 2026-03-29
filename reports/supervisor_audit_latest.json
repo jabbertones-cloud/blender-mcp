@@ -1,0 +1,383 @@
+{
+  "timestamp": "2026-03-26T20:00:20.924Z",
+  "type": "supervisor_audit",
+  "analysis": {
+    "total": 20,
+    "improvements": 17,
+    "regressions": 3,
+    "neutral": 0,
+    "by_fix_type": {
+      "denoise": {
+        "total": 10,
+        "wins": 10,
+        "avg_delta": 0.6699999999999999,
+        "deltas": [
+          0.5,
+          0.1,
+          0.4,
+          0.1,
+          0.2,
+          0.2,
+          0.3,
+          0.2,
+          3.1,
+          1.6
+        ],
+        "win_rate": 100
+      },
+      "detail": {
+        "total": 3,
+        "wins": 3,
+        "avg_delta": 20.2,
+        "deltas": [
+          19.4,
+          19.5,
+          21.7
+        ],
+        "win_rate": 100
+      },
+      "exposure": {
+        "total": 3,
+        "wins": 3,
+        "avg_delta": 1.9333333333333333,
+        "deltas": [
+          3.3,
+          0.2,
+          2.3
+        ],
+        "win_rate": 100
+      },
+      "contrast": {
+        "total": 1,
+        "wins": 1,
+        "avg_delta": 0.6,
+        "deltas": [
+          0.6
+        ],
+        "win_rate": 100
+      },
+      "overlay_forensic": {
+        "total": 3,
+        "wins": 0,
+        "avg_delta": -0.46666666666666673,
+        "deltas": [
+          -0.2,
+          -0.4,
+          -0.8
+        ],
+        "win_rate": 0
+      }
+    },
+    "by_camera": {
+      "scene1_BirdEye": {
+        "total": 8,
+        "wins": 8,
+        "best_fix": "denoise",
+        "best_delta": 0.5
+      },
+      "scene2_DriverPOV": {
+        "total": 2,
+        "wins": 1,
+        "best_fix": "detail",
+        "best_delta": 19.4
+      },
+      "scene3_BirdEye": {
+        "total": 2,
+        "wins": 2,
+        "best_fix": "exposure",
+        "best_delta": 3.3
+      },
+      "scene1_DriverPOV": {
+        "total": 2,
+        "wins": 1,
+        "best_fix": "detail",
+        "best_delta": 19.5
+      },
+      "scene2_BirdEye": {
+        "total": 2,
+        "wins": 2,
+        "best_fix": "denoise",
+        "best_delta": 3.1
+      },
+      "scene3_DriverPOV": {
+        "total": 2,
+        "wins": 1,
+        "best_fix": "detail",
+        "best_delta": 21.7
+      },
+      "scene3_WideAngle": {
+        "total": 2,
+        "wins": 2,
+        "best_fix": "contrast",
+        "best_delta": 0.6
+      }
+    },
+    "by_camera_fix": {
+      "scene1_BirdEye+denoise": {
+        "camera": "scene1_BirdEye",
+        "fix": "denoise",
+        "tries": 8,
+        "wins": 8,
+        "avg_delta": 0.25,
+        "deltas": [
+          0.5,
+          0.1,
+          0.4,
+          0.1,
+          0.2,
+          0.2,
+          0.3,
+          0.2
+        ],
+        "win_rate": 100
+      },
+      "scene2_DriverPOV+detail": {
+        "camera": "scene2_DriverPOV",
+        "fix": "detail",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 19.4,
+        "deltas": [
+          19.4
+        ],
+        "win_rate": 100
+      },
+      "scene3_BirdEye+exposure": {
+        "camera": "scene3_BirdEye",
+        "fix": "exposure",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 3.3,
+        "deltas": [
+          3.3
+        ],
+        "win_rate": 100
+      },
+      "scene1_DriverPOV+detail": {
+        "camera": "scene1_DriverPOV",
+        "fix": "detail",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 19.5,
+        "deltas": [
+          19.5
+        ],
+        "win_rate": 100
+      },
+      "scene2_BirdEye+denoise": {
+        "camera": "scene2_BirdEye",
+        "fix": "denoise",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 3.1,
+        "deltas": [
+          3.1
+        ],
+        "win_rate": 100
+      },
+      "scene3_DriverPOV+detail": {
+        "camera": "scene3_DriverPOV",
+        "fix": "detail",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 21.7,
+        "deltas": [
+          21.7
+        ],
+        "win_rate": 100
+      },
+      "scene3_WideAngle+exposure": {
+        "camera": "scene3_WideAngle",
+        "fix": "exposure",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 0.2,
+        "deltas": [
+          0.2
+        ],
+        "win_rate": 100
+      },
+      "scene3_WideAngle+contrast": {
+        "camera": "scene3_WideAngle",
+        "fix": "contrast",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 0.6,
+        "deltas": [
+          0.6
+        ],
+        "win_rate": 100
+      },
+      "scene2_BirdEye+exposure": {
+        "camera": "scene2_BirdEye",
+        "fix": "exposure",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 2.3,
+        "deltas": [
+          2.3
+        ],
+        "win_rate": 100
+      },
+      "scene3_BirdEye+denoise": {
+        "camera": "scene3_BirdEye",
+        "fix": "denoise",
+        "tries": 1,
+        "wins": 1,
+        "avg_delta": 1.6,
+        "deltas": [
+          1.6
+        ],
+        "win_rate": 100
+      },
+      "scene1_DriverPOV+overlay_forensic": {
+        "camera": "scene1_DriverPOV",
+        "fix": "overlay_forensic",
+        "tries": 1,
+        "wins": 0,
+        "avg_delta": -0.2,
+        "deltas": [
+          -0.2
+        ],
+        "win_rate": 0
+      },
+      "scene2_DriverPOV+overlay_forensic": {
+        "camera": "scene2_DriverPOV",
+        "fix": "overlay_forensic",
+        "tries": 1,
+        "wins": 0,
+        "avg_delta": -0.4,
+        "deltas": [
+          -0.4
+        ],
+        "win_rate": 0
+      },
+      "scene3_DriverPOV+overlay_forensic": {
+        "camera": "scene3_DriverPOV",
+        "fix": "overlay_forensic",
+        "tries": 1,
+        "wins": 0,
+        "avg_delta": -0.8,
+        "deltas": [
+          -0.8
+        ],
+        "win_rate": 0
+      }
+    },
+    "best_combos": [
+      {
+        "camera": "scene1_BirdEye",
+        "fix": "denoise",
+        "tries": 8,
+        "wins": 8,
+        "avg_delta": 0.25,
+        "deltas": [
+          0.5,
+          0.1,
+          0.4,
+          0.1,
+          0.2,
+          0.2,
+          0.3,
+          0.2
+        ],
+        "win_rate": 100
+      }
+    ],
+    "worst_combos": [
+      {
+        "camera": "scene1_BirdEye",
+        "fix": "denoise",
+        "tries": 8,
+        "wins": 8,
+        "avg_delta": 0.25,
+        "deltas": [
+          0.5,
+          0.1,
+          0.4,
+          0.1,
+          0.2,
+          0.2,
+          0.3,
+          0.2
+        ],
+        "win_rate": 100
+      }
+    ],
+    "streaks": {
+      "current_failures": 3,
+      "max_failures": 3
+    }
+  },
+  "recommendations": [
+    {
+      "type": "PREFER",
+      "fix": "denoise",
+      "reason": "denoise has 100% win rate over 10 trials (avg delta: 0.7)"
+    },
+    {
+      "type": "PREFER",
+      "fix": "detail",
+      "reason": "detail has 100% win rate over 3 trials (avg delta: 20.2)"
+    },
+    {
+      "type": "PREFER",
+      "fix": "exposure",
+      "reason": "exposure has 100% win rate over 3 trials (avg delta: 1.9)"
+    },
+    {
+      "type": "AVOID",
+      "fix": "overlay_forensic",
+      "reason": "overlay_forensic has only 0% win rate over 3 trials — not effective"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene1_BirdEye",
+      "fix": "denoise",
+      "reason": "Best fix for scene1_BirdEye is denoise (best delta: +0.5)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene2_DriverPOV",
+      "fix": "detail",
+      "reason": "Best fix for scene2_DriverPOV is detail (best delta: +19.4)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene3_BirdEye",
+      "fix": "exposure",
+      "reason": "Best fix for scene3_BirdEye is exposure (best delta: +3.3)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene1_DriverPOV",
+      "fix": "detail",
+      "reason": "Best fix for scene1_DriverPOV is detail (best delta: +19.5)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene2_BirdEye",
+      "fix": "denoise",
+      "reason": "Best fix for scene2_BirdEye is denoise (best delta: +3.1)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene3_DriverPOV",
+      "fix": "detail",
+      "reason": "Best fix for scene3_DriverPOV is detail (best delta: +21.7)"
+    },
+    {
+      "type": "PROVEN",
+      "camera": "scene3_WideAngle",
+      "fix": "contrast",
+      "reason": "Best fix for scene3_WideAngle is contrast (best delta: +0.6)"
+    }
+  ],
+  "summary": {
+    "total_experiments": 20,
+    "win_rate": 85,
+    "best_fix_type": "detail",
+    "plateau_detected": false,
+    "recommendations_count": 11
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "expectations": [
+    {
+      "text": "gray_bg_fix: Identifies white background as a problem and recommends gray (~0.18) instead",
+      "passed": false,
+      "evidence": "The guide identifies white background (1,1,1) as problematic and recommends off-white (0.95, 0.95, 0.95), not gray (~0.18). The code in Fix 1B shows: bg_node.inputs[0].default_value = (0.95, 0.95, 0.95, 1.0) with comment 'Off-white'. The 'Common Pitfalls' section also warns 'Do NOT use pure white (1, 1, 1) for background → Use off-white (0.95, 0.95, 0.95)'. This is off-white, not gray at ~0.18."
+    },
+    {
+      "text": "area_lights_fix: Recommends area lights (not point) with energy values >= 200W",
+      "passed": false,
+      "evidence": "The guide explicitly uses point lights, not area lights. Fix 1B code shows: light_data = bpy.data.lights.new(name='KeyLight', type='POINT') with energy 2.5 (not >=200W). Fill light is also POINT type with energy 0.8. The guide actually recommends REDUCED energy to prevent washout, not >=200W values."
+    },
+    {
+      "text": "three_point_lighting: Suggests 3-point lighting setup (key, fill, rim) positioned relative to model",
+      "passed": false,
+      "evidence": "The guide sets up only 2 lights (key + fill), not 3-point lighting. Fix 1B creates 'KeyLight' at (5,5,5) and 'FillLight' at (-3,-3,2). There is no rim light mentioned. The comment explicitly states '=== Fill Light (Optional, but improves contrast) ===' but no rim light component exists."
+    },
+    {
+      "text": "engine_lowercase_fix: Identifies that EEVEE should be lowercase eevee",
+      "passed": false,
+      "evidence": "The guide uses uppercase 'EEVEE' consistently: 'scene.render.engine = engine' with engine='EEVEE' in function signature. The note 'EEVEE render settings likely underscore shadow precision' and multiple references like 'EEVEE-Specific Settings' all use uppercase. No mention of correcting this to lowercase 'eevee'."
+    },
+    {
+      "text": "shade_smooth_fix: Explains blender_cleanup shade_smooth fails 100% and provides execute_python per-object loop fix",
+      "passed": true,
+      "evidence": "Section 'Issue 2: shade_smooth bpy_prop_collection Error' explicitly explains the failure mechanism and states 'This sometimes fails with certain Blender versions'. Fix 2A provides a per-object function shade_smooth_fixed(obj=None) with a loop approach in Fix 2B shade_smooth_all_fixed() that iterates through scene.objects and applies shade_smooth per-object. The code shows: 'for obj in scene.objects: if obj.type != 'MESH': continue; result = shade_smooth_fixed(obj)'."
+    },
+    {
+      "text": "camera_framing_advice: Mentions or advises camera auto-framing from bounding box rather than hardcoded position",
+      "passed": false,
+      "evidence": "The guide does NOT mention auto-framing or bounding box calculations. In the Complete Integration section, camera position is hardcoded: 'camera_obj.location = (8, 8, 6)' and rotation is hardcoded: 'camera_obj.rotation_euler = (1.1, 0, 0.785)'. No reference to computing frame from object bounds or auto-framing."
+    },
+    {
+      "text": "no_blender_prefix_advice: Corrects the blender_cleanup reference and notes that MCP calls don't use blender_ prefix",
+      "passed": false,
+      "evidence": "The guide defines and uses 'blender_cleanup_fixed()' function with the 'blender_' prefix throughout. Fix 2C is titled 'Integration with blender_cleanup' and the function signature is 'def blender_cleanup_fixed(action=\"shade_smooth\")'. There is NO mention of MCP calls, removing the prefix, or noting that MCP doesn't use 'blender_' prefix. The function retains the prefix structure."
+    }
+  ]
+}

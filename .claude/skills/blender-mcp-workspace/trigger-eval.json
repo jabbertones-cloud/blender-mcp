@@ -1,0 +1,21 @@
+[
+  {"query": "I need to write a script that connects to the Blender MCP server and creates a low-poly sword model with proper materials, exports it as FBX and STL, and renders 4 marketplace shots with studio lighting", "should_trigger": true},
+  {"query": "The asset validator keeps saying my model has a 200000mm bounding box but the actual object is only 50mm tall, what's going on with the validator measurement?", "should_trigger": true},
+  {"query": "My blender renders from the 3d forge pipeline are scoring 2/10 on the vision API, the background is all white and everything looks washed out. How do I fix the lighting setup in the producer?", "should_trigger": true},
+  {"query": "shade_smooth keeps crashing with bpy_prop_collection error every time I run the producer, I'm using blender_cleanup with action shade_smooth", "should_trigger": true},
+  {"query": "I want to add a new trend source to the 3d forge scanner that pulls from Etsy trending products and feeds concepts into the generate stage", "should_trigger": true},
+  {"query": "How do I set up multi-instance Blender for parallel asset production? I want 3 blender instances on different ports so the orchestrator can produce 3 models at once", "should_trigger": true},
+  {"query": "Can you help me write the Python code that goes inside an execute_python MCP call to create a procedural tree with branch geometry and leaf particles? I keep getting ECONNRESET when I send the code", "should_trigger": true},
+  {"query": "I need to add a new mechanical check to the asset-validator.js that verifies UV island overlap is below 5% for marketplace assets", "should_trigger": true},
+  {"query": "The autoresearch agent found a regression - someone reintroduced the blender_ prefix in a new MCP call in the producer. How do I add a new regression check to catch this pattern?", "should_trigger": true},
+  {"query": "Update the SkynPatch lead enrichment pipeline to add phone number scraping from business websites, the current enrich-leads-email.js only gets emails", "should_trigger": false},
+  {"query": "My PM2 processes keep restarting, the uptime is only 74/84. Can you help me diagnose what's crashing in the ecosystem config?", "should_trigger": false},
+  {"query": "I want to set up a new brand content niche pack for Plushtrap that generates unboxing haul UGC video scripts with hooks and CTAs", "should_trigger": false},
+  {"query": "Help me write a Stripe webhook handler for AutoPayAgent that processes subscription renewals and sends confirmation emails via Resend", "should_trigger": false},
+  {"query": "The NAS PostgreSQL keeps crashing when I run concurrent bulk UPDATE queries on the media_visual_catalog table. How do I fix the DB concurrency?", "should_trigger": false},
+  {"query": "I need to create a React dashboard component that shows the brand content queue with approve/reject buttons and connects to the brand dashboard server on port 4053", "should_trigger": false},
+  {"query": "Can you help me build a Blender addon in Python that adds custom panels to the 3D viewport? Not using MCP, just a regular Blender addon with bl_info", "should_trigger": false},
+  {"query": "Write me a Three.js scene with a rotating cube, ambient lighting, and orbit controls for my portfolio website", "should_trigger": false},
+  {"query": "How do I use the Ollama self-improvement agent to tune prompt templates for better JSON compliance? The validation harness is showing 60% pass rate", "should_trigger": false},
+  {"query": "I want to set up the media hub bulk tagger to retag all SkynPatch product photos on the NAS with the correct brand labels using the folder mapping", "should_trigger": false}
+]

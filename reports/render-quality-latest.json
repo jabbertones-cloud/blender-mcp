@@ -1,0 +1,305 @@
+{
+  "timestamp": "2026-03-26T12:14:45.520Z",
+  "total_assets": 50,
+  "scored": 47,
+  "passed": 8,
+  "needs_improvement": 2,
+  "rejected": 37,
+  "avg_score": 31,
+  "assets": [
+    {
+      "id": "01dd84b2-49f1-4000-aa2f-a5075b9311ce",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "0378f4b0-e803-49d9-9cc7-2dfb55ccd713",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "1325c28a-d402-4e3f-baf3-39bd699ebc7c",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "1fadd7e2-420d-47e9-9242-ba9616342408",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "28357ccd-e6de-4042-a6ca-8da275ac160e",
+      "issues_count": 0
+    },
+    {
+      "id": "2eec3283-273f-44dd-83d4-6029a453eb53",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "42d5f5e7-8512-47c5-80c9-4dfe0ac065be",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "43374840-d300-4abd-b49f-15e4a04018a1",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "444d8e9b-5a60-43db-936c-030d3256e948",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "4e6cf717-3455-4045-acbf-6650a84f77dc",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "52de0f2f-56a8-49a9-a79c-e9711b14aa09",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "552e4fce-eabb-493e-ac16-623168143605",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "5b58ffe8-3909-403d-bdc3-ebf3568f148f",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "60990035-af89-46c5-80b5-0b728b544806",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "71f99104-e71a-490f-a77f-2be01ddc4a3a",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "76a9a629-1fc2-4d93-beec-b582ef41bfed",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "76edd021-7a70-4aba-9a37-8e49404c8d54",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "7cbfe1cc-53f6-4cb3-ae24-e428f8e9c9ad",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "7eb0c26d-0d05-4b0b-8006-b8bff322fcf7",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "820f751c-0cc7-463b-b41d-411f59f57c93",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "88fb9b66-5324-467a-b35b-67f65d47b146",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "8b9447e1-801f-47b7-98c5-c3a75baceb61",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "8caa998e-6d2a-4935-8177-17ec1f20a2cd",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "93f06829-aa00-4490-ba91-72d48a992b8b",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "9be54ed2-fe44-4ec2-8417-13f1914644f3",
+      "issues_count": 0
+    },
+    {
+      "id": "9c997ebc-d0b5-4601-80d3-70bb865a45b3",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "9d2d0350-30c6-4e45-abb5-5f40c28ceb37",
+      "score": 70,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "a4227d21-bddd-4045-8a1b-79403f33452d",
+      "score": 65,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "ad0e455c-8f6c-47bf-9cf6-bffd05130802",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "b21a1ad0-2b8b-40d2-aea7-7d9d6ca89c28",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "b990a9dd-18bc-43e7-91bc-0a2e71e23a06",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "c1b1a024-9b6d-4f13-b4af-a33c255de9c6",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "c2ba4479-4d30-4723-9823-7107613192d3",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "c44c43a9-5755-4069-acc9-bb8d7a1643e0",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "c78d3059-b34d-4f09-b1f2-f5985e29296f",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "c81b47fc-4ce5-4487-bdb3-e53887dc96a2",
+      "score": 61,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "d2a98842-e8c1-47a1-98d7-df75f55e6e20",
+      "score": 61,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "d5da2d9c-183b-4c0e-b709-9f6830a15a11",
+      "score": 22,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "ddab5b45-31df-496b-9761-402b995ac896",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "deef312d-9e70-4bc2-b1f4-f51eafd60f3b",
+      "score": 56,
+      "verdict": "NEEDS_IMPROVEMENT",
+      "issues_count": 1
+    },
+    {
+      "id": "e444c282-5960-47ce-ae9e-ef34f93f11fb",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "e44b6b50-2d1b-4169-886a-7ff26829ebc8",
+      "score": 60,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 0
+    },
+    {
+      "id": "e69ef4a1-67c0-4395-be62-40dfd7e21810",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 3
+    },
+    {
+      "id": "ebb4a7c0-a1f5-457c-895b-a496e66309bc",
+      "score": 65,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "f108150b-1734-4e70-a7a7-c257bcb3fb55",
+      "score": 61,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "f3b5aae6-8ded-48aa-b967-1b3880bd8443",
+      "score": 60,
+      "verdict": "ACCEPTABLE",
+      "issues_count": 1
+    },
+    {
+      "id": "f7613053-3912-4e51-889d-142dee898535",
+      "score": 24,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "f9b07328-29b6-4044-9968-af638d27beb5",
+      "score": 23,
+      "verdict": "REJECT",
+      "issues_count": 2
+    },
+    {
+      "id": "fe649652-3dbb-43a0-bc45-e656c810c6d4",
+      "score": 37,
+      "verdict": "NEEDS_IMPROVEMENT",
+      "issues_count": 1
+    },
+    {
+      "id": "unknown",
+      "issues_count": 0
+    }
+  ]
+}

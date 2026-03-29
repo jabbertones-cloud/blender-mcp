@@ -1,0 +1,1 @@
+{"required_checkpoints":[{"id":"CP_PRE_PRODUCE","before_stage":"produce","approver_role":"operator"},{"id":"CP_PRE_VALIDATE","before_stage":"validate","approver_role":"qa_lead"},{"id":"CP_PRE_LEARN","before_stage":"learn","approver_role":"operator"},{"id":"CP_PUBLISH_READY","before_stage":"publish","approver_role":"legal_counsel"}]}

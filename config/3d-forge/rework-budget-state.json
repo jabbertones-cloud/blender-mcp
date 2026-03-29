@@ -1,0 +1,11 @@
+{
+  "current_mode": "balanced",
+  "last_switched_at": null,
+  "switch_reason": "initial",
+  "run_counters": {
+    "conservative_signals": 0,
+    "balanced_signals": 0,
+    "aggressive_signals": 0
+  }
+}
+

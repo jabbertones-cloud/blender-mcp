@@ -1,0 +1,293 @@
+[
+  {
+    "title": "Blender Full Car Crash Simulation - Full Tutorial",
+    "url": "https://www.blendernation.com/2022/06/27/blender-full-car-crash-simulation-full-tutorial/",
+    "techniques": [
+      "rigid_body_physics",
+      "vehicle_deformation",
+      "collision_simulation",
+      "impact_dynamics"
+    ],
+    "relevance_score": 9,
+    "key_topics": [
+      "physics_simulation",
+      "car_destruction",
+      "realistic_crash_mechanics"
+    ],
+    "applicable_scenes": [1, 2, 3],
+    "gaps_addressed": [
+      "vehicle_geometry",
+      "motion_graphics_text"
+    ],
+    "strength": "Comprehensive workflow for complete car crash with physics-driven deformations, directly applicable to T-Bone, pedestrian crosswalk, and rear-end collision scenes"
+  },
+  {
+    "title": "Create a Realistic Car Chase Animation in Blender",
+    "url": "https://www.skillshare.com/en/classes/create-a-realistic-car-chase-animation-in-blender/1625575614",
+    "techniques": [
+      "vehicle_animation",
+      "rigging",
+      "motion_tracking",
+      "realistic_dynamics"
+    ],
+    "relevance_score": 8,
+    "key_topics": [
+      "car_motion",
+      "animation_principles",
+      "scene_composition"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [
+      "motion_graphics_text",
+      "vehicle_geometry"
+    ],
+    "strength": "Professional course covering entire animation pipeline from modeling to final animation, applicable to all four forensic scenes"
+  },
+  {
+    "title": "3D Cars: Inside and Out in Blender (CG Masters)",
+    "url": "https://cgmasters.com/3d-cars-inside-and-out-in-blender/",
+    "techniques": [
+      "high_poly_modeling",
+      "vehicle_geometry",
+      "detail_work",
+      "uv_unwrapping"
+    ],
+    "relevance_score": 9,
+    "key_topics": [
+      "vehicle_modeling",
+      "professional_workflow",
+      "realistic_details"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [
+      "vehicle_geometry",
+      "edit_mode_mesh"
+    ],
+    "strength": "45-hour professional course covering complete vehicle modeling from first vertex to final render - strongest resource for vehicle geometry gap"
+  },
+  {
+    "title": "Cinematic Lighting in Blender (Superhive)",
+    "url": "https://superhivemarket.com/products/cinematic-lighting-in-blender",
+    "techniques": [
+      "area_lights",
+      "volumetric_scattering",
+      "shadow_rendering",
+      "night_lighting"
+    ],
+    "relevance_score": 8,
+    "key_topics": [
+      "parking_lot_lighting",
+      "night_scenes",
+      "cinematic_rendering"
+    ],
+    "applicable_scenes": [4],
+    "gaps_addressed": [
+      "ies_lights"
+    ],
+    "strength": "Step-by-step guide for night parking lot lighting with volumetric techniques - directly applicable to parking lot hit-and-run scene"
+  },
+  {
+    "title": "10 in 1 Procedural Asphalt Textures (Superhive)",
+    "url": "https://superhivemarket.com/products/10in1-procedural-asphalt-textures",
+    "techniques": [
+      "procedural_texturing",
+      "node_materials",
+      "texture_variation",
+      "procedural_noise"
+    ],
+    "relevance_score": 7,
+    "key_topics": [
+      "material_variety",
+      "texture_packs",
+      "realistic_surfaces"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [],
+    "note": "Collection of 10 procedural asphalt variations with nodes and realistic textures of stones, patches, and cracks"
+  },
+  {
+    "title": "Blender Destruction Tutorial: 9 Ways to Destroy Things (Creative Shrimp)",
+    "url": "https://www.creativeshrimp.com/blender-tutorial-9-ways-to-destroy-things.html",
+    "techniques": [
+      "soft_body_simulation",
+      "cloth_simulation",
+      "mesh_deform_modifier",
+      "particle_effects"
+    ],
+    "relevance_score": 8,
+    "key_topics": [
+      "vehicle_damage",
+      "destruction_vfx",
+      "deformation_techniques"
+    ],
+    "applicable_scenes": [1, 3],
+    "gaps_addressed": [
+      "displacement_maps",
+      "motion_graphics_text"
+    ],
+    "strength": "Comprehensive destruction techniques including soft body-to-rigid body conversion workflow for realistic vehicle deformation"
+  },
+  {
+    "title": "Crushing Metal Using Soft Bodies In Blender (David Zerba)",
+    "url": "https://davidzerba.wordpress.com/2012/09/30/crushing-metal-tutorial/",
+    "techniques": [
+      "soft_body_physics",
+      "metal_deformation",
+      "collision_dynamics",
+      "rigid_to_soft_conversion"
+    ],
+    "relevance_score": 7,
+    "key_topics": [
+      "material_deformation",
+      "physics_simulation",
+      "metal_behavior"
+    ],
+    "applicable_scenes": [1, 3],
+    "gaps_addressed": [
+      "displacement_maps"
+    ],
+    "note": "Specialized tutorial on metal crushing and deformation using soft body physics"
+  },
+  {
+    "title": "Night Time Parking Lot 1 (BlendedSkies HDRI)",
+    "url": "https://download.blender.org/archive/hdri/blendedskies/night-time-parking-lot-1/",
+    "techniques": [
+      "hdri_lighting",
+      "environmental_setup",
+      "realistic_lighting",
+      "night_atmosphere"
+    ],
+    "relevance_score": 8,
+    "key_topics": [
+      "parking_lot_environment",
+      "hdri_assets",
+      "lighting_setup"
+    ],
+    "applicable_scenes": [4],
+    "gaps_addressed": [
+      "ies_lights"
+    ],
+    "strength": "Official Blender Institute HDRI asset specifically designed for parking lot night scenes"
+  },
+  {
+    "title": "How To Model a 3D Human In Blender (IconScout)",
+    "url": "https://iconscout.com/blog/how-to-model-a-3d-human-in-blender",
+    "techniques": [
+      "human_topology",
+      "loop_cuts",
+      "character_modeling",
+      "hand_extrusion"
+    ],
+    "relevance_score": 6,
+    "key_topics": [
+      "pedestrian_figures",
+      "character_modeling",
+      "anatomy_basics"
+    ],
+    "applicable_scenes": [2],
+    "gaps_addressed": [],
+    "note": "Beginner-friendly guide to human character modeling with step-by-step procedures"
+  },
+  {
+    "title": "Forensic Facial Reconstruction for Beginners (BlenderNation)",
+    "url": "https://www.blendernation.com/2021/12/08/forensic-facial-reconstruction-for-beginners/",
+    "techniques": [
+      "sculpting",
+      "facial_anatomy",
+      "anatomical_modeling",
+      "forensic_techniques"
+    ],
+    "relevance_score": 6,
+    "key_topics": [
+      "facial_reconstruction",
+      "sculpting_workflow",
+      "forensic_analysis"
+    ],
+    "applicable_scenes": [2],
+    "gaps_addressed": [
+      "grease_pencil_annotations"
+    ],
+    "note": "Forensic-specific techniques for anatomical reconstruction, relevant for pedestrian figures in collision scene"
+  },
+  {
+    "title": "Creating Realistic Car Models in Blender 3D (Modelo.io)",
+    "url": "https://www.modelo.io/damf/article/2024/05/30/0025/creating-realistic-car-models-in-blender-3d",
+    "techniques": [
+      "vehicle_modeling",
+      "low_to_high_poly",
+      "material_assignment",
+      "uv_mapping"
+    ],
+    "relevance_score": 7,
+    "key_topics": [
+      "car_modeling_workflow",
+      "polygon_optimization",
+      "texture_mapping"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [
+      "vehicle_geometry",
+      "edit_mode_mesh"
+    ],
+    "note": "2024 resource covering modern vehicle modeling techniques and best practices"
+  },
+  {
+    "title": "Night Lighting Tutorial (Creative Shrimp)",
+    "url": "https://www.creativeshrimp.com/night-lighting-tutorial-book-09.html",
+    "techniques": [
+      "night_scene_setup",
+      "ambient_occlusion",
+      "volumetric_effects",
+      "color_temperature"
+    ],
+    "relevance_score": 7,
+    "key_topics": [
+      "night_lighting_principles",
+      "environmental_lighting",
+      "cinematic_effects"
+    ],
+    "applicable_scenes": [4],
+    "gaps_addressed": [
+      "ies_lights"
+    ],
+    "note": "Comprehensive guide specifically focused on night lighting techniques for scenes"
+  },
+  {
+    "title": "Modular Road Shader (BlenderKit)",
+    "url": "https://www.blenderkit.com/asset-gallery-detail/8c39a314-96f2-4d73-b35b-90774cb941e3/",
+    "techniques": [
+      "procedural_road_shader",
+      "node_material",
+      "road_markings",
+      "texture_variation"
+    ],
+    "relevance_score": 7,
+    "key_topics": [
+      "road_creation",
+      "shader_nodes",
+      "quick_setup"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [],
+    "note": "Single-node modular shader for quick creation of realistic roads with automatic markings"
+  },
+  {
+    "title": "Procedural Asphalt Texture in Eevee (Creative Shrimp)",
+    "url": "https://www.creativeshrimp.com/procedural-asphalt-texture-eevee.html",
+    "techniques": [
+      "eevee_rendering",
+      "procedural_texturing",
+      "roughness_control",
+      "node_manipulation"
+    ],
+    "relevance_score": 6,
+    "key_topics": [
+      "asphalt_materials",
+      "real_time_rendering",
+      "shader_nodes"
+    ],
+    "applicable_scenes": [1, 2, 3, 4],
+    "gaps_addressed": [],
+    "note": "Tutorial covering how to manipulate noise patterns for realistic asphalt roughness"
+  }
+]
