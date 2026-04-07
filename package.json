@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "OpenClaw Blender MCP: 65 tools (FastMCP + product animation suite), TCP bpy bridge, multi-instance ports, 3D Forge asset pipeline",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jabbertones-cloud/blender-mcp.git"
+  },
   "scripts": {
     "── 3D FORGE PIPELINE ──": "",
     "forge:run": "node scripts/3d-forge/forge-orchestrator.js --full",

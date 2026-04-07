@@ -1,4 +1,4 @@
-# Blender Skills Reference — for AI-Directed 3D Work
+# OpenClaw Blender MCP — Skills Reference (AI-directed 3D work)
 
 > Use this as a lookup when a user gives you Blender-native instructions.
 > Every section maps natural-language Blender terms → MCP tool calls.

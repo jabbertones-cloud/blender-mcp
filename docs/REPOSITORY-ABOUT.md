@@ -1,5 +1,7 @@
 # Repository metadata (GitHub UI)
 
+**Product / resume name:** OpenClaw Blender MCP · **Repo:** [`jabbertones-cloud/blender-mcp`](https://github.com/jabbertones-cloud/blender-mcp)
+
 Use this file to keep the GitHub **About** section aligned with the real codebase. Last audited with the tool list in `server/blender_mcp_server.py` + `server/product_animation_tools.py`.
 
 ## Short description (≤ 350 characters)

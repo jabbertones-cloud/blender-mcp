@@ -16,7 +16,7 @@ description: |
   studio lighting, validation, and every known failure mode with production-tested fixes.
 ---
 
-# Blender MCP Operational Skill
+# OpenClaw Blender MCP — Operational Skill
 
 Everything in this document was learned from production failures. Follow it exactly.
 

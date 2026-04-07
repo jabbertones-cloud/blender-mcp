@@ -2,6 +2,8 @@
 
 **Blender over MCP (Model Context Protocol)** — a FastMCP server that talks to the OpenClaw Blender Bridge addon (JSON over TCP). Use it from Claude, Cursor, or any MCP client to build scenes, render, export, and run `bpy` safely on a dedicated host.
 
+**Naming:** use **OpenClaw Blender MCP** on resumes and in prose. The GitHub repository slug is **`jabbertones-cloud/blender-mcp`** (same project).
+
 This repository also ships a **3D Forge** production pipeline (Node.js): trend scan → harvest → concept generation → Blender produce → validate → autoresearch. See `package.json` scripts (`forge:*`, `render:*`, `pool:*`).
 
 ## GitHub “About” (copy-paste)
