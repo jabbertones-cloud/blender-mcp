@@ -2,6 +2,7 @@
 
 > Use this as a lookup when a user gives you Blender-native instructions.
 > Every section maps natural-language Blender terms → MCP tool calls.
+> **Tool count:** the live MCP server exposes **65** tools (59 core + 6 product animation). See the root `README.md` for the canonical grouped list.
 
 > **⚠️ CRITICAL: MCP CALLING CONVENTION**
 > When calling tools via the MCP socket, use the command name WITHOUT the `blender_` prefix.

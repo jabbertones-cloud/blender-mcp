@@ -1,10 +1,11 @@
 ---
 name: blender-mcp
 description: |
-  REQUIRED reading for ANY work involving: Blender MCP, 3D Forge pipeline, 3D asset production, rendering,
-  exporting models (STL/FBX/GLTF), Blender Python code, asset validation, bounding box issues, shade_smooth
-  errors, render quality problems, washed-out renders, ECONNRESET crashes, scene cleanup, camera framing,
-  studio lighting, or any file in scripts/3d-forge/. Use this skill whenever the user mentions: Blender,
+  REQUIRED reading for ANY work involving: Blender MCP (65 tools: core MCP server plus 6 product-animation tools),
+  3D Forge pipeline, 3D asset production, rendering, exporting models (STL/FBX/GLTF), Blender Python code,
+  asset validation, bounding box issues, shade_smooth errors, render quality problems, washed-out renders,
+  ECONNRESET crashes, scene cleanup, camera framing, studio lighting, multi-instance blender_instances
+  (ports 9876–9885), or any file in scripts/3d-forge/. Use this skill whenever the user mentions: Blender,
   MCP server, 3D model, render, export, validate, bpy, execute_python, blender_cleanup, shade_smooth,
   bounding box, visual score, vision API, or any 3D Forge stage (scan, harvest, generate, produce, validate,
   learn, autoresearch). Also use when debugging: socket errors, stale scenes, blank renders, lighting issues,
@@ -29,6 +30,10 @@ This file is the operational source of truth for Blender MCP usage in this repo.
 - Codex-native Blender skill wrappers should point here instead of duplicating rules.
 - Use `scripts/blender_healthcheck.py` before claiming local MCP wiring is correct.
 - In multi-instance setups, keep `BLENDER_PORT` and `OPENCLAW_PORT` set to the same value.
+
+### MCP tool inventory (audited)
+
+The MCP server registers **65 tools** total: **59** in `server/blender_mcp_server.py` plus **6** product tools from `server/product_animation_tools.py` (`blender_product_*` and `blender_fcurve_edit`) when that module loads. Use `blender_instances` to list, ping, or connect to a Bridge on another port (default scan range 9876–9885). Do not use outdated “35 tools” references. Full grouped list: root `README.md`.
 
 ## 1. MCP Wire Protocol
 

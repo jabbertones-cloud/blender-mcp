@@ -316,7 +316,7 @@ class Color4(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TOOL DEFINITIONS (35 tools across all Blender domains)
+# TOOL DEFINITIONS (59 MCP tools here; +6 product tools in product_animation_tools.py = 65)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ─── Health & Scene Info ─────────────────────────────────────────────────────

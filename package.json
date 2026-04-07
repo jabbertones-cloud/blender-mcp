@@ -1,7 +1,7 @@
 {
   "name": "openclaw-blender-mcp",
   "version": "1.0.0",
-  "description": "Control Blender via AI prompts through MCP — includes 3D Forge production pipeline for trending asset generation",
+  "description": "OpenClaw Blender MCP: 65 tools (FastMCP + product animation suite), TCP bpy bridge, multi-instance ports, 3D Forge asset pipeline",
   "private": true,
   "scripts": {
     "── 3D FORGE PIPELINE ──": "",
