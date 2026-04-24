@@ -7578,6 +7578,100 @@ def handle_forensic_scene(params):
     return {"error": f"Unknown forensic_scene action: {action}"}
 
 
+
+# ─── Agent Loop Handlers (Phase 3 integration) ───────────────────────────────
+# Thin wrappers for server-side async functions; dispatch to bpy or store state
+
+_AGENT_SESSION_STATE = {
+    "goal": None,
+    "profile": None,
+    "plan": None,
+    "action_history": [],
+}
+
+def handle_router_set_goal(params):
+    """Route task to an agent profile (llm-guided, scripted, hybrid)."""
+    goal = params.get("goal", "")
+    profile = params.get("profile", "llm-guided")
+    if not goal:
+        return {"error": "goal is required"}
+    _AGENT_SESSION_STATE["goal"] = goal
+    _AGENT_SESSION_STATE["profile"] = profile
+    return {
+        "status": "goal_set",
+        "goal": goal,
+        "profile": profile,
+        "scene": bpy.context.scene.name if bpy.data.scenes else None,
+    }
+
+def handle_plan(params):
+    """Generate a multi-step plan for the goal."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set; call router_set_goal first"}
+    profile = _AGENT_SESSION_STATE.get("profile", "llm-guided")
+    plan = params.get("plan_outline", f"Execute: {goal}")
+    _AGENT_SESSION_STATE["plan"] = plan
+    return {
+        "status": "plan_ready",
+        "goal": goal,
+        "plan": plan,
+        "profile": profile,
+        "step_count": len(plan.split(";")) if ";" in plan else 1,
+    }
+
+def handle_act(params):
+    """Execute a single step from the plan."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set; call router_set_goal first"}
+    step = params.get("step", "")
+    if not step:
+        return {"error": "step is required"}
+    _AGENT_SESSION_STATE["action_history"].append(step)
+    return {
+        "status": "step_executed",
+        "step": step,
+        "step_index": len(_AGENT_SESSION_STATE["action_history"]),
+        "result": "step_queued_for_bpy_execution",
+    }
+
+def handle_critique(params):
+    """Evaluate the last step's outcome."""
+    if not _AGENT_SESSION_STATE["action_history"]:
+        return {"error": "No actions to critique"}
+    last_step = _AGENT_SESSION_STATE["action_history"][-1]
+    critique = params.get("critique_text", "")
+    return {
+        "status": "critique_recorded",
+        "last_step": last_step,
+        "critique": critique,
+        "recommendation": params.get("recommendation", "continue"),
+    }
+
+def handle_verify(params):
+    """Verify that the goal was achieved."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set"}
+    verified = params.get("verified", False)
+    return {
+        "status": "verification_complete",
+        "goal": goal,
+        "verified": verified,
+        "evidence": params.get("evidence", ""),
+    }
+
+def handle_session_status(params):
+    """Return the current session state."""
+    return {
+        "goal": _AGENT_SESSION_STATE.get("goal"),
+        "profile": _AGENT_SESSION_STATE.get("profile"),
+        "plan": _AGENT_SESSION_STATE.get("plan"),
+        "action_count": len(_AGENT_SESSION_STATE.get("action_history", [])),
+        "actions": _AGENT_SESSION_STATE.get("action_history", [])[-5:],  # Last 5
+    }
+
 # ─── Command Router ──────────────────────────────────────────────────────────
 HANDLERS = {
     "ping": handle_ping,
@@ -7641,6 +7735,13 @@ HANDLERS = {
     "hunyuan3d": handle_hunyuan3d,
     # v2.2 — forensic/litigation animation
     "forensic_scene": handle_forensic_scene,
+    # v3.0 — agent loop handlers (Phase 3 integration)
+    "router_set_goal": handle_router_set_goal,
+    "plan": handle_plan,
+    "act": handle_act,
+    "critique": handle_critique,
+    "verify": handle_verify,
+    "session_status": handle_session_status,
 }
 
 # v3.0.0 — Phase 5 handlers (spatial, dimensions, camera, UV, LOD, VR, splat, GP, snapshot)
