@@ -1,5 +1,59 @@
-.env
-.venv/
-.DS_Store
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+*.egg
+.Python
+pip-log.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+
+# Blender addon & backups
+*.bak
+*.bak_*
+*.pre-fix
+blender_addon/*.bak*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Renders & artifacts
+renders/*.png
+renders/*.exr
+renders/*.mp4
+renders/*.jpg
+bridge_renders/
+exports/*.glb
+exports/*.fbx
+exports/*.obj
+
+# Session, trajectories, eval reports
+/tmp/openclaw-sessions.jsonl
+.claude/skills/blender-mcp/trajectories/*.jsonl
+reports/*-eval-*.json
+reports/weekly-eval.md
+tests/eval/reports/
+eval/reports/
+
+# Env
+.env
+.env.local
+*.key
+*.pem

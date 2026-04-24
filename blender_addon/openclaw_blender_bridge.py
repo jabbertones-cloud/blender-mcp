@@ -883,12 +883,62 @@ def handle_parent_objects(params):
 
 
 def handle_execute_python(params):
-    """Execute arbitrary Python code in Blender."""
+    """Execute arbitrary Python code in Blender.
+
+    SECURITY (v3.0.0 hardening for Issue #201 RCE):
+      - Gated by env var OPENCLAW_ALLOW_EXEC (default OFF).
+      - `os` is NOT in the exec namespace. Use dedicated MCP tools (export_file,
+        save_file, etc.) for filesystem access.
+      - AST pre-pass rejects unsafe imports/names unless OPENCLAW_ALLOW_UNSAFE_EXEC=1.
+    """
     code = params.get("code", "")
     if not code.strip():
         return {"error": "No code provided"}
 
-    # Create a namespace with bpy and common imports
+    # 1. Env gate (default off)
+    if os.environ.get("OPENCLAW_ALLOW_EXEC", "0").lower() not in ("1", "true", "yes"):
+        return {
+            "error": "execute_python is disabled. Set OPENCLAW_ALLOW_EXEC=1 to opt in "
+                     "(see Issue #201 / SKILL.md > execute_python safety).",
+            "disabled_by_policy": True,
+        }
+
+    # 2. AST pre-pass (unless explicitly overridden)
+    if os.environ.get("OPENCLAW_ALLOW_UNSAFE_EXEC", "0").lower() not in ("1", "true", "yes"):
+        try:
+            try:
+                from safety import check as _safety_check  # type: ignore
+            except ImportError:
+                # Fallback: look up by module path when addon is loaded without safety.py
+                _safety_check = None
+            if _safety_check is not None:
+                _safety_check(code, strict=True)
+            else:
+                # Minimal inline fallback if safety.py isn't importable from the addon
+                import ast as _ast
+                DENY_IMPORTS = {"os", "subprocess", "socket", "shutil", "requests",
+                                "urllib", "http", "ctypes", "multiprocessing"}
+                DENY_NAMES = {"eval", "exec", "__import__", "compile", "open"}
+                tree = _ast.parse(code)
+                for node in _ast.walk(tree):
+                    if isinstance(node, _ast.Import):
+                        for a in node.names:
+                            if a.name.split(".")[0] in DENY_IMPORTS:
+                                return {"error": f"blocked import '{a.name}' (set OPENCLAW_ALLOW_UNSAFE_EXEC=1 to override)"}
+                    elif isinstance(node, _ast.ImportFrom):
+                        if (node.module or "").split(".")[0] in DENY_IMPORTS:
+                            return {"error": f"blocked import-from '{node.module}' (set OPENCLAW_ALLOW_UNSAFE_EXEC=1 to override)"}
+                    elif isinstance(node, _ast.Name) and node.id in DENY_NAMES:
+                        return {"error": f"blocked name '{node.id}'"}
+                    elif isinstance(node, _ast.Attribute):
+                        # Block __import__/__builtins__ attribute access
+                        if node.attr in ("__import__", "__builtins__"):
+                            return {"error": f"blocked attribute '{node.attr}'"}
+        except Exception as safety_err:
+            return {"error": f"code rejected by safety pre-pass: {safety_err}",
+                    "blocked_by": "OPENCLAW_ALLOW_UNSAFE_EXEC"}
+
+    # 3. Reduced namespace — `os` deliberately removed (Issue #201 fix)
     namespace = {
         "bpy": bpy,
         "Vector": Vector,
@@ -896,7 +946,6 @@ def handle_execute_python(params):
         "Matrix": Matrix,
         "Color": Color,
         "math": math,
-        "os": os,
         "__result__": None,
     }
 
@@ -933,15 +982,43 @@ def handle_get_object_data(params):
     }
 
     if obj.type == "MESH" and obj.data:
-        mesh = obj.data
-        data["mesh"] = {
-            "vertices": len(mesh.vertices),
-            "edges": len(mesh.edges),
-            "faces": len(mesh.polygons),
-            "uv_layers": [uv.name for uv in mesh.uv_layers],
-            "vertex_colors": [vc.name for vc in mesh.color_attributes] if hasattr(mesh, "color_attributes") else [],
-            "materials": [m.name if m else None for m in mesh.materials],
-        }
+        # v3.0.0: read from evaluated depsgraph so modifiers are applied.
+        # Raw obj.data gives pre-modifier counts (cage data) — see SKILL.md > depsgraph rule.
+        mesh_original = obj.data
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        obj_eval = obj.evaluated_get(depsgraph)
+        mesh_eval = None
+        try:
+            mesh_eval = obj_eval.to_mesh()
+            data["mesh"] = {
+                "vertices": len(mesh_eval.vertices),
+                "edges": len(mesh_eval.edges),
+                "faces": len(mesh_eval.polygons),
+                "vertices_original": len(mesh_original.vertices),
+                "faces_original": len(mesh_original.polygons),
+                "evaluated": True,
+                "modifiers_applied": [m.type for m in obj.modifiers if m.show_viewport],
+                "uv_layers": [uv.name for uv in mesh_original.uv_layers],
+                "vertex_colors": [vc.name for vc in mesh_original.color_attributes] if hasattr(mesh_original, "color_attributes") else [],
+                "materials": [m.name if m else None for m in mesh_original.materials],
+            }
+        except Exception:
+            # Fallback to pre-modifier if evaluation fails (e.g. hidden object)
+            data["mesh"] = {
+                "vertices": len(mesh_original.vertices),
+                "edges": len(mesh_original.edges),
+                "faces": len(mesh_original.polygons),
+                "evaluated": False,
+                "uv_layers": [uv.name for uv in mesh_original.uv_layers],
+                "vertex_colors": [vc.name for vc in mesh_original.color_attributes] if hasattr(mesh_original, "color_attributes") else [],
+                "materials": [m.name if m else None for m in mesh_original.materials],
+            }
+        finally:
+            if mesh_eval is not None:
+                try:
+                    obj_eval.to_mesh_clear()
+                except Exception:
+                    pass
 
     if obj.animation_data and obj.animation_data.action:
         action = obj.animation_data.action
@@ -3467,6 +3544,9 @@ def handle_scene_analyze(params):
         },
     }
 
+    # v3.0.0: evaluate once, reuse for all mesh queries.
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+
     for obj in scene.objects:
         info = {
             "name": str(obj.name),
@@ -3479,12 +3559,29 @@ def handle_scene_analyze(params):
         }
 
         if obj.type == "MESH" and obj.data:
-            info["vertices"] = len(obj.data.vertices)
-            info["faces"] = len(obj.data.polygons)
+            # Read post-modifier counts via depsgraph (SKILL.md > depsgraph rule)
+            obj_eval = obj.evaluated_get(depsgraph)
+            mesh_eval = None
+            try:
+                mesh_eval = obj_eval.to_mesh()
+                info["vertices"] = len(mesh_eval.vertices)
+                info["faces"] = len(mesh_eval.polygons)
+                info["vertices_original"] = len(obj.data.vertices)
+                info["evaluated"] = True
+            except Exception:
+                info["vertices"] = len(obj.data.vertices)
+                info["faces"] = len(obj.data.polygons)
+                info["evaluated"] = False
+            finally:
+                if mesh_eval is not None:
+                    try:
+                        obj_eval.to_mesh_clear()
+                    except Exception:
+                        pass
             info["materials"] = [str(m.name) for m in obj.data.materials if m]
             info["modifiers"] = [{"name": str(m.name), "type": str(m.type)} for m in obj.modifiers]
-            analysis["statistics"]["total_vertices"] += len(obj.data.vertices)
-            analysis["statistics"]["total_faces"] += len(obj.data.polygons)
+            analysis["statistics"]["total_vertices"] += info["vertices"]
+            analysis["statistics"]["total_faces"] += info["faces"]
             analysis["objects"].append(info)
 
         elif obj.type == "LIGHT":
@@ -7516,6 +7613,17 @@ HANDLERS = {
     # v2.2 — forensic/litigation animation
     "forensic_scene": handle_forensic_scene,
 }
+
+# v3.0.0 — Phase 5 handlers (spatial, dimensions, camera, UV, LOD, VR, splat, GP, snapshot)
+try:
+    try:
+        from .new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
+    except Exception:
+        from new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
+    COMMANDS.update(_PHASE5_HANDLERS)
+    print(f"[OpenClaw] Loaded {len(_PHASE5_HANDLERS)} Phase 5 handlers (spatial, dims, camera, UV, LOD, VR, splat, GP, snapshot)")
+except Exception as _e:
+    print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

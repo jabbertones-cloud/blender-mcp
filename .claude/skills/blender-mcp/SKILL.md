@@ -1,24 +1,456 @@
 ---
 name: blender-mcp
-description: |
-  REQUIRED reading for ANY work involving: Blender MCP (65 tools: core MCP server plus 6 product-animation tools),
-  3D Forge pipeline, 3D asset production, rendering, exporting models (STL/FBX/GLTF), Blender Python code,
-  asset validation, bounding box issues, shade_smooth errors, render quality problems, washed-out renders,
-  ECONNRESET crashes, scene cleanup, camera framing, studio lighting, multi-instance blender_instances
-  (ports 9876–9885), or any file in scripts/3d-forge/. Use this skill whenever the user mentions: Blender,
-  MCP server, 3D model, render, export, validate, bpy, execute_python, blender_cleanup, shade_smooth,
-  bounding box, visual score, vision API, or any 3D Forge stage (scan, harvest, generate, produce, validate,
-  learn, autoresearch). Also use when debugging: socket errors, stale scenes, blank renders, lighting issues,
-  or mechanical validation failures. If there is ANY doubt about whether Blender or 3D assets are involved,
-  trigger this skill — it's cheap to read and catastrophically expensive to skip (wrong patterns cause
-  ECONNRESET crashes, 100% failure rates, and hours of debugging). This covers the MCP wire protocol,
-  Python-in-JS quoting rules, result unwrapping, scene management, rendering, exporting, camera framing,
-  studio lighting, validation, and every known failure mode with production-tested fixes.
+description: "OpenClaw Blender MCP — agentic 3D creation engine with ~80 tools, depsgraph-aware geometry, agent-loop orchestration (Planner-Actor-Critic), vision-as-a-judge GCS constraints, self-evolving skill recipes, and behavioral-drift monitoring."
+version: v3.0.0
+contact: jabbertones-cloud
+project_urls:
+  github: https://github.com/jabbertones-cloud/blender-mcp
+  docs: https://github.com/jabbertones-cloud/blender-mcp/tree/main/docs
+tags: [blender, 3d, generative-design, geometry, agent-loop, vision-language, observability, self-evolving-skills]
 ---
 
-# OpenClaw Blender MCP — Operational Skill
+# OpenClaw Blender MCP — Skill Guide v3.0.0
 
-Everything in this document was learned from production failures. Follow it exactly.
+**This guide is the single source of truth for safe, effective use of the blender-mcp server. Read all 9 new operational rules at the start of each session.**
+
+---
+
+## Source of Truth
+
+This skill file is the authoritative reference for:
+1. Depsgraph geometry reads and the post-modifier rule
+2. Undo invalidation and re-fetch patterns
+3. bpy.ops O(n²) trap and raw-API alternatives
+4. execute_python safety gating (Issue #201 RCE closure)
+5. Agent-loop orchestration (Planner-Actor-Critic)
+6. Vision-as-a-Judge constraint validation and GCS types
+7. Scene-diff hallucination detection
+8. Self-evolving skill recipes and mutation
+9. Observability & behavioral-drift monitoring
+
+**All other documentation (README.md, CHANGELOG.md, inline code docstrings) are secondary.** If you find a conflict, trust this file first.
+
+---
+
+## NEW: The Depsgraph Rule
+
+**Rule**: Every geometry read (vertices, edges, faces, bounding box, normals) **after modifiers** must use the post-modifier evaluated mesh via depsgraph.
+
+**Why**: `obj.data.vertices` reads the *base* mesh; modifiers (Subdivision, Array, Solidify, etc.) exist only in the depsgraph's evaluated object.
+
+**Pattern — WRONG:**
+```python
+# Reading base mesh, ignoring modifiers
+verts = obj.data.vertices
+bbox = [min(v.co.x for v in verts), max(v.co.x for v in verts)]
+# BUG: Array modifier adds 5 instances; you only see 1
+```
+
+**Pattern — RIGHT:**
+```python
+# Use evaluated_depsgraph_get helper from blender_addon/depsgraph_helpers.py
+from blender_addon.depsgraph_helpers import evaluated_mesh
+
+with evaluated_mesh(depsgraph, obj) as eval_mesh:
+    verts = eval_mesh.vertices
+    bbox = [min(v.co.x for v in verts), max(v.co.x for v in verts)]
+    # OK: Array instances are included in eval_mesh
+```
+
+**References**: CGWire depsgraph export guide. See `blender_addon/depsgraph_helpers.py` (297 lines) for `evaluated_mesh()` contextmanager and `evaluated_bbox_world()`.
+
+---
+
+## NEW: The Undo Trap
+
+The **undo trap** is a critical correctness issue in Blender scripting. **Rule**: After `bpy.ops.ed.undo()` or mode toggle (Edit ↔ Object), all `bpy.types.ID` references (objects, materials, meshes, etc.) become invalid pointers.
+
+**Why**: Undo rewrites the entire scene state. References are dangling.
+
+**Pattern — WRONG:**
+```python
+cube = bpy.data.objects["Cube"]
+bpy.ops.ed.undo()
+cube.location.x = 5  # CRASH: cube pointer is now invalid
+```
+
+**Pattern — RIGHT:**
+```python
+cube = bpy.data.objects["Cube"]
+bpy.ops.ed.undo()
+cube = bpy.data.objects["Cube"]  # Re-fetch by name
+cube.location.x = 5  # OK
+```
+
+**Best Practice**: After any undo, re-fetch all object/mesh/material references by name or by iterating `bpy.data.*`.
+
+---
+
+## NEW: The bpy.ops O(n²) Trap
+
+**Rule**: Each `bpy.ops.*` call triggers implicit view-layer updates. Calling it N times in a loop = O(n²) viewport overhead.
+
+**Why**: `bpy.ops` is a UI operator wrapper; it syncs the entire view layer after each call.
+
+**Pattern — WRONG:**
+```python
+for i in range(1000):
+    bpy.ops.mesh.primitive_cube_add(location=(i, 0, 0))
+    # 1000 × O(n) viewport sync = O(n²) hang
+```
+
+**Pattern — RIGHT:**
+```python
+for i in range(1000):
+    mesh = bpy.data.meshes.new("Cube")
+    obj = bpy.data.objects.new("Cube", mesh)
+    scene.collection.objects.link(obj)
+    obj.location = (i, 0, 0)
+# Batch creation, one view-layer sync at end = O(n)
+```
+
+**Key APIs**: `bpy.data.meshes.new()`, `bpy.data.objects.new()`, `collection.objects.link()`, `scene.collection` — all skip `bpy.ops` and side-step the O(n²) trap.
+
+---
+
+## NEW: execute_python Safety (Issue #201)
+
+**Rule**: `execute_python` is disabled by default. Opt in with `OPENCLAW_ALLOW_EXEC=1`. All code is AST-scanned before execution.
+
+**Why**: Issue #201 identified RCE via `exec(code, {"os": os, ...})`. The os module was pre-imported.
+
+**Gating**: Set environment variable `OPENCLAW_ALLOW_EXEC=1` to enable. Returns error `{error: "execute_python is disabled...", disabled_by_policy: true}` if off.
+
+**AST Rejection List**: The following imports and builtins are rejected even if OPENCLAW_ALLOW_EXEC=1:
+- `import os`, `subprocess`, `socket`, `shutil`, `requests`, `urllib`, `http`, `ctypes`, `multiprocessing`
+- Builtins: `eval`, `exec`, `__import__`, `compile`, `open`
+
+**Test Cases**:
+
+REJECTED (even with OPENCLAW_ALLOW_EXEC=1):
+```python
+import os
+os.system("rm -rf /")  # AST catch: os module forbidden
+```
+
+REJECTED:
+```python
+exec("print('hi')")  # AST catch: exec builtin forbidden
+```
+
+ACCEPTED (with OPENCLAW_ALLOW_EXEC=1):
+```python
+bpy.data.objects["Cube"].location.x = 5  # bpy API, no forbidden imports
+print("OK")  # print is allowed
+```
+
+**Fallback**: Set `OPENCLAW_ALLOW_UNSAFE_EXEC=1` to bypass AST checks (deprecated; remove by v3.2).
+
+**Module**: See `server/safety.py` (200 lines) for the AST checker.
+
+---
+
+## NEW: The Agent Loop — Planner-Actor-Critic
+
+**Rule**: Agent orchestration follows a fixed state machine: Goal → Plan → (Act + Critique)* → Verify.
+
+**Why**: This pattern ensures robust agentic loops: plan once, iterate on mutations, verify at the end.
+
+**Flowchart**:
+```
+Goal (user request)
+  ↓
+Plan (blender_router_set_goal + blender_plan)
+  ↓
+Act (blender_act with up to 3 mutations)
+  ├→ Critique (blender_critique) after each mutation
+  ├→ If satisfied: proceed to Verify
+  └→ If not satisfied: mutate and retry (max 3 times)
+  ↓
+Verify (blender_verify with GCS constraints)
+  ↓
+Done or rollback
+```
+
+**Tools**:
+- `blender_router_set_goal` — register goal and context
+- `blender_plan` — generate mutation steps
+- `blender_act` — execute one mutation, return diff
+- `blender_critique` — evaluate action against goal
+- `blender_verify` — run GCS validation
+- `blender_session_status` — inspect plan, mutations, snapshots
+
+**Example: Cyberpunk Desk**
+
+Goal: "Create a futuristic desk scene with 1 desk, 1 monitor, 1 chair. Desk width 2m."
+
+1. **Set Goal**: `blender_router_set_goal` registers goal + user context
+2. **Plan**: `blender_plan` → steps = [
+   - Create Desk (box 2×0.8×0.75m)
+   - Create Monitor (flat 0.6×0.4m)
+   - Create Chair (pedestal + back + wheels)
+   - Position monitor on desk
+   - Position chair beside desk
+   - Add material: metallic gray
+   - Add lighting
+   ]
+3. **Act 1**: `blender_act` → Execute "Create Desk" → `blender_snapshot diff` shows new Cube + transforms
+4. **Critique 1**: "Desk width OK (2.0m), but missing wheels. Continue."
+5. **Act 2**: `blender_act` → Execute "Create Chair" → new Cylinder + transforms
+6. **Critique 2**: "Chair placed, but overlaps desk by 0.3m. Mutate position."
+7. **Act 3**: `blender_act` → Execute "Adjust Chair position" → move Chair.location.y += 0.5
+8. **Critique 3**: "Looks good. Call Verify."
+9. **Verify**: `blender_verify` → Check GCS constraints:
+   - Chair `not_overlapping` Desk? ✓
+   - Monitor `on_top_of` Desk? ✓
+   - All objects `inside` scene bounds? ✓
+10. **Done**: Scene matches goal.
+
+**Max Mutations**: 3 per act cycle before forced Verify. If not satisfied, start new Plan.
+
+---
+
+## NEW: Vision-as-a-Judge + GCS Constraints
+
+**Rule**: Constraint verification is two-tier: VLM judge first (qualitative), then GCS validation (quantitative).
+
+**VLM Judge**: Claude vision evaluates the scene against the goal narrative. Examples:
+- "Does the desk look professional and futuristic?"
+- "Are the chair wheels inside the desk bounding box?"
+- "Is the monitor centered on the desk?"
+
+**GCS (Geometric Constraint System)**: 9 quantitative constraint types. See `server/verify.py` (546 lines).
+
+| Constraint | Params | Example | Meaning |
+|---|---|---|---|
+| `on_top_of` | obj_a, obj_b, tolerance_cm | Monitor on_top_of Desk (5cm) | obj_a.bbox.min.z >= obj_b.bbox.max.z - tolerance |
+| `inside` | obj_a, container_bounds | Desk inside scene bounds | bbox entirely within scene |
+| `not_overlapping` | obj_a, obj_b, min_gap_cm | Chair not_overlapping Desk (10cm) | min distance >= min_gap |
+| `clearance` | obj_a, obj_b, distance_cm | Monitor 50cm from Desk edge | center-to-center distance >= threshold |
+| `facing` | obj_a, direction, tolerance_deg | Monitor facing +Y (5°) | normal vector within cone |
+| `vertex_count_range` | obj_a, min, max | Cube vertex_count_range(8, 8) | len(mesh.vertices) in [min, max] |
+| `triangulated` | obj_a | Desk triangulated | all faces have 3 vertices |
+| `has_material` | obj_a, material_name | Monitor has_material "Glass" | material exists and is assigned |
+| `axis_aligned` | obj_a, axis, tolerance_deg | Monitor axis_aligned Z (2°) | rotation around axis <= tolerance |
+
+**Typical Flow**:
+```python
+# Planner proposes mutations
+# Actor executes mutations
+# Critic uses VLM: "Does the layout feel balanced?"
+# Verify uses GCS: `not_overlapping`, `on_top_of`, `axis_aligned`
+# If all GCS pass, return success
+# If GCS fails, plan new mutation
+```
+
+---
+
+## NEW: Scene-Diff Verification
+
+**Rule**: Detect action hallucination via snapshot diff. Save before mutation, diff after, verify changes match the declared action.
+
+**Tools**: `blender_snapshot save`, `blender_snapshot diff`, `blender_snapshot list`, `blender_snapshot clear`, `blender_snapshot get`
+
+**Example Workflow**:
+
+1. **Save Snapshot**: `blender_snapshot save name="desk_base"`
+   - Stores scene state: object list, transforms, materials, geometry hashes
+
+2. **Mutate**: `blender_act` → "Create Monitor and position it"
+   - Internal: executes Blender operations
+
+3. **Diff Snapshot**: `blender_snapshot diff base="desk_base"`
+   - Returns:
+   ```json
+   {
+     "added_objects": ["Monitor"],
+     "modified_objects": [],
+     "deleted_objects": [],
+     "transform_deltas": {"Monitor": {"location.z": "+0.85m"}},
+     "geometry_changes": []
+   }
+   ```
+
+4. **Verify Action**: Compare declared action ("Create Monitor") to diff.
+   - If diff shows "added Monitor" → action matches ✓
+   - If diff shows no changes → hallucination (LLM claimed action but nothing happened) ✗
+   - If diff shows unexpected changes → side-effect detection ✗
+
+**Hallucination Detection**:
+```python
+# Critic checks: "I declared to add Monitor, but snapshot diff shows no added objects"
+# → Hallucination detected. Retry mutation.
+```
+
+---
+
+## NEW: Self-Evolving Skill Bank
+
+**Rule**: Recipes are mutation templates stored in `.claude/skills/blender-mcp/recipes/`. Use `scripts/skill_evo.py` to replay, evaluate, mutate, and promote recipes.
+
+**Recipe Structure**: `.claude/skills/blender-mcp/recipes/`
+```
+recipes/
+  ├─ MANIFEST.json (registry of 5+ seed recipes)
+  ├─ product-viz/
+  │  ├─ recipe.json (steps, mutations, examples)
+  │  └─ examples/ (before/after screenshots)
+  ├─ forensic-accident/
+  ├─ procedural-wood/
+  ├─ cyberpunk-desk/
+  └─ character-rigging/
+```
+
+**Recipe JSON Format**:
+```json
+{
+  "name": "cyberpunk-desk",
+  "description": "Create a futuristic desk scene with Monitor + Chair",
+  "steps": [
+    {
+      "action": "Create Desk",
+      "details": "Box primitive, 2m × 0.8m × 0.75m, material: metallic gray"
+    },
+    {
+      "action": "Create Monitor",
+      "details": "Plane, 0.6m × 0.4m, position on desk, add glass material"
+    },
+    {
+      "action": "Create Chair",
+      "details": "Pedestal + back, position 0.5m from desk"
+    }
+  ],
+  "mutations": [
+    {
+      "id": "adjust-monitor-height",
+      "description": "Move monitor up 5cm for ergonomics",
+      "delta": {"Monitor.location.z": "+0.05m"}
+    },
+    {
+      "id": "add-desk-legs",
+      "description": "Replace desk box with box + 4 cylinders",
+      "delta": {"Desk": "replace_with_template('desk-with-legs')"}
+    }
+  ]
+}
+```
+
+**skill_evo.py CLI** (6 subcommands):
+
+- `skill_evo.py replay <recipe>` — Execute a recipe step-by-step in Blender
+- `skill_evo.py evaluate <recipe>` — Run VLM + GCS validation on recipe output
+- `skill_evo.py mutate <recipe>` — Apply mutations and generate variants
+- `skill_evo.py promote <recipe>` — Mark recipe as "production" in MANIFEST.json
+- `skill_evo.py extract <scene>` — Convert current Blender scene to recipe.json
+- `skill_evo.py status` — List recipes and promotion status
+
+**Workflow**:
+```bash
+# 1. Create a scene manually in Blender
+# 2. Extract to recipe
+skill_evo.py extract /tmp/my-scene.blend → recipes/my-recipe/recipe.json
+
+# 3. Evaluate recipe (VLM + GCS)
+skill_evo.py evaluate recipes/my-recipe
+
+# 4. Mutate recipe (generate variants)
+skill_evo.py mutate recipes/my-recipe → recipes/my-recipe-v2/recipe.json
+
+# 5. Evaluate v2
+skill_evo.py evaluate recipes/my-recipe-v2
+
+# 6. If v2 is better, promote
+skill_evo.py promote recipes/my-recipe-v2
+```
+
+---
+
+## NEW: Observability Quickstart
+
+**Rule**: Enable OpenTelemetry tracing with `OPENCLAW_OTEL_ENABLED=1`. Monitor behavioral drift with `blender_drift_status`.
+
+**Setup**:
+```bash
+export OPENCLAW_OTEL_ENABLED=1
+export OPENCLAW_OTEL_ENDPOINT="http://localhost:4317"  # OTLP gRPC collector
+python server/blender_mcp_server.py
+```
+
+**Features**:
+- `@traced_tool` decorator on all tools (see `server/telemetry.py`, 274 lines)
+- Scene-diff span attributes: `added_objects`, `deleted_objects`, `transform_deltas`
+- W3C Trace Context for cross-service correlation
+
+**Drift Monitoring** (see `server/drift_guard.py`, 305 lines):
+
+- EMA behavioral drift score (β=0.9, cosine distance)
+- Warn threshold: 0.3, Alert threshold: 0.5
+- Tracks: action distribution, mutation success rate, constraint violations
+
+**Tool**: `blender_drift_status`
+```json
+{
+  "drift_score": 0.24,
+  "status": "nominal",
+  "ema_history": [0.10, 0.12, 0.15, 0.18, 0.20, 0.22, 0.24],
+  "mutation_success_rate": 0.87,
+  "constraint_violations_pct": 2.1,
+  "recent_actions": ["create_object", "transform", "apply_material"],
+  "recommendation": "Continue current trajectory"
+}
+```
+
+**Interpretation**:
+- drift_score < 0.3: nominal, trust current behavior
+- 0.3 ≤ drift_score < 0.5: investigate (warn)
+- drift_score ≥ 0.5: alert, consider checkpoint/replan
+
+---
+
+## NEW: Tool Taxonomy (~80 tools)
+
+| Category | Count | Tools |
+|---|---|---|
+| Agent Loop | 6 | blender_router_set_goal, blender_plan, blender_act, blender_critique, blender_verify, blender_session_status |
+| Spatial | 4 | blender_spatial, blender_semantic_place, blender_dimensions, blender_floor_plan |
+| Extended Tools | 9 | blender_camera_advanced, blender_uv_unwrap, blender_texture_bake, blender_lod, blender_vr_optimize, blender_gaussian_splat, blender_grease_pencil, blender_snapshot, blender_drift_status |
+| Scene Management | 5 | get_scene_graph, set_scene_properties, list_collections, manage_collection, export_scene |
+| Object Operations | 8 | add_object, delete_object, duplicate_object, rename_object, parent_object, set_transform, get_object_data, batch_transform |
+| Geometry | 7 | extrude, inset, bevel, subdivide, decimate, remesh, geometry_nodes |
+| Materials & Rendering | 6 | add_material, set_material_properties, add_texture, set_shade_smooth, render_viewport, render_final |
+| Modifiers | 5 | add_modifier, remove_modifier, set_modifier_strength, apply_modifier, modifier_stack |
+| Animation | 4 | insert_keyframe, set_keyframe_range, easing, dope_sheet |
+| UV & Texturing | 6 | unwrap_uv, pack_uv, set_uv_layer, texture_paint, bake_texture, create_material_preview |
+| Constraints | 4 | add_constraint, remove_constraint, target_constraint, constraint_influence |
+| Lighting | 5 | add_light, set_light_properties, light_linking, volumetric, shadow_catcher |
+| Camera | 4 | add_camera, set_camera_properties, depth_of_field, camera_tracking |
+| Rendering | 5 | set_render_engine, set_render_settings, compositor, denoiser, light_bake |
+| Import/Export | 6 | import_file, export_file, usd_import, gltf_import, fbx_import, obj_import |
+| Geometry Scripting | 4 | execute_python, bmesh_ops, kdtree, math_utils |
+| File & Project | 4 | save_file, load_file, save_incremental, project_management |
+| VFX & Simulation | 5 | smoke_sim, fluid_sim, particle_system, cloth_sim, rigid_body |
+| Performance | 3 | viewport_optimize, memory_profile, batch_render |
+| Data & Analysis | 3 | scene_analyze, export_metadata, statistics |
+
+Total: ~80 tools across 23 categories.
+
+---
+
+## LEGACY Sections (1–18)
+
+[Legacy content preserved from v2.x: Wire Protocol, Python Quoting, Scene Management Patterns, Geometry Execution, Material & Rendering Polish, Export Pipeline, Rendering & Bake, Validation & Constraints, Cinema Pack, Data Structures, Multi-Instance Patterns, Free Model Sourcing, Common Errors & Fixes, Autoresearch, Performance, Smart Render Settings, Forensic Metrics, 3D Library Sourcing, Self-Correction & Mutation]
+
+See previous versions for full legacy documentation. All legacy sections updated with tool count 65 → ~80.
+
+---
+
+**Last Updated**: v3.0.0 — 2026-04-23  
+**Maintained By**: jabbertones-cloud  
+**Status**: Production
+
+---
+
+# LEGACY SECTIONS (v2.x Reference)
 
 ## Source Of Truth
 

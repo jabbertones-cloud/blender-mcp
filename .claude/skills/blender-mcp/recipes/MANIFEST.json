@@ -1,0 +1,172 @@
+{
+  "manifest_version": "1.0.0",
+  "timestamp": "2026-04-23T00:00:00Z",
+  "recipes": [
+    {
+      "id": "product-viz-3point",
+      "version": "0.1.0",
+      "title": "3-Point Product Lighting Setup",
+      "category": "lighting",
+      "description": "Professional 3-point lighting rig (key, fill, back) for product visualization with CYCLES rendering and optical verification.",
+      "trigger_patterns": [
+        "product photography",
+        "lighting setup",
+        "3-point light",
+        "product render",
+        "key light fill light",
+        "professional lighting"
+      ],
+      "tools_used": ["Blender.Scene", "Blender.Light", "Blender.RenderEngine"],
+      "dependencies": ["blender>=3.0"],
+      "estimated_runtime_seconds": 45,
+      "skill_tier": "functional",
+      "tags": ["lighting", "rendering", "visualization"],
+      "filename": "product-viz-3point-v0.1.0.md",
+      "line_count": 75,
+      "created_date": "2026-04-23",
+      "promoted": false,
+      "usage_count": 0,
+      "verification_constraints": 3,
+      "execute_python_snippets": 4
+    },
+    {
+      "id": "forensic-accident-reconstruction",
+      "version": "0.1.0",
+      "title": "Forensic Accident Scene Reconstruction",
+      "category": "forensics",
+      "description": "Multi-vehicle accident scene with infrastructure, impact markers, and witness camera positions for accident reconstruction analysis.",
+      "trigger_patterns": [
+        "accident reconstruction",
+        "forensic scene",
+        "vehicle positioning",
+        "impact analysis",
+        "crime scene modeling",
+        "accident modeling"
+      ],
+      "tools_used": ["Blender.Scene", "Blender.Mesh", "Blender.Camera", "Blender.Material"],
+      "dependencies": ["blender>=3.0", "gcs>=1.0"],
+      "estimated_runtime_seconds": 60,
+      "skill_tier": "functional",
+      "tags": ["forensics", "reconstruction", "spatial-analysis"],
+      "filename": "forensic-accident-reconstruction-v0.1.0.md",
+      "line_count": 80,
+      "created_date": "2026-04-23",
+      "promoted": false,
+      "usage_count": 0,
+      "verification_constraints": 6,
+      "execute_python_snippets": 5
+    },
+    {
+      "id": "procedural-wood-floor",
+      "version": "0.1.0",
+      "title": "Procedural Wood Floor with Geometry Nodes",
+      "category": "materials",
+      "description": "Parametric hardwood floor generation using Geometry Nodes with realistic wear variation and CYCLES-optimized material.",
+      "trigger_patterns": [
+        "wood floor",
+        "procedural floor",
+        "hardwood material",
+        "floor generation",
+        "geometry nodes",
+        "wood material"
+      ],
+      "tools_used": ["Blender.GeometryNodes", "Blender.Material", "Blender.Modifier"],
+      "dependencies": ["blender>=3.2"],
+      "estimated_runtime_seconds": 50,
+      "skill_tier": "functional",
+      "tags": ["materials", "procedural", "geometry-nodes"],
+      "filename": "procedural-wood-floor-v0.1.0.md",
+      "line_count": 85,
+      "created_date": "2026-04-23",
+      "promoted": false,
+      "usage_count": 0,
+      "verification_constraints": 7,
+      "execute_python_snippets": 6
+    },
+    {
+      "id": "cyberpunk-desk-scene",
+      "version": "0.1.0",
+      "title": "Cyberpunk Neon Desk Scene",
+      "category": "scene-composition",
+      "description": "High-fidelity cyberpunk workspace with emissive neon strips, volumetric fog, HDRI lighting, and advanced render features.",
+      "trigger_patterns": [
+        "cyberpunk scene",
+        "neon lighting",
+        "volumetric effects",
+        "desk scene",
+        "emissive material",
+        "sci-fi workspace"
+      ],
+      "tools_used": ["Blender.Scene", "Blender.Material", "Blender.World", "Blender.RenderEngine"],
+      "dependencies": ["blender>=3.0"],
+      "estimated_runtime_seconds": 70,
+      "skill_tier": "strategic",
+      "tags": ["scene-composition", "volumetrics", "neon"],
+      "filename": "cyberpunk-desk-scene-v0.1.0.md",
+      "line_count": 90,
+      "created_date": "2026-04-23",
+      "promoted": false,
+      "usage_count": 0,
+      "verification_constraints": 7,
+      "execute_python_snippets": 7
+    },
+    {
+      "id": "character-rigging-starter",
+      "version": "0.1.0",
+      "title": "Humanoid Character Rigging with IK",
+      "category": "rigging",
+      "description": "Complete humanoid armature with IK chains, automatic weight painting, and control rig for animation-ready characters.",
+      "trigger_patterns": [
+        "character rigging",
+        "humanoid armature",
+        "inverse kinematics",
+        "weight painting",
+        "control rig",
+        "skeletal animation"
+      ],
+      "tools_used": ["Blender.Armature", "Blender.Modifier", "Blender.Constraint"],
+      "dependencies": ["blender>=3.0"],
+      "estimated_runtime_seconds": 65,
+      "skill_tier": "functional",
+      "tags": ["rigging", "animation", "character"],
+      "filename": "character-rigging-starter-v0.1.0.md",
+      "line_count": 95,
+      "created_date": "2026-04-23",
+      "promoted": false,
+      "usage_count": 0,
+      "verification_constraints": 8,
+      "execute_python_snippets": 8
+    }
+  ],
+  "categories": {
+    "lighting": {
+      "count": 1,
+      "description": "Lighting rigs and rendering setup"
+    },
+    "forensics": {
+      "count": 1,
+      "description": "Forensic reconstruction and spatial analysis"
+    },
+    "materials": {
+      "count": 1,
+      "description": "Material systems and procedural generation"
+    },
+    "scene-composition": {
+      "count": 1,
+      "description": "Scene assembly and composition"
+    },
+    "rigging": {
+      "count": 1,
+      "description": "Character and object rigging"
+    }
+  },
+  "statistics": {
+    "total_recipes": 5,
+    "total_line_count": 425,
+    "average_runtime_seconds": 58,
+    "promoted_count": 0,
+    "total_usage": 0,
+    "total_verification_constraints": 31,
+    "total_execute_python_snippets": 30
+  }
+}

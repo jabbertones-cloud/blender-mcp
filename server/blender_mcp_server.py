@@ -1528,6 +1528,41 @@ else:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# v3.0.0 — Phase 3 (agent loop), Phase 5 (spatial / extended), Phase 2 (drift)
+# Each _try_register call is best-effort so the server still boots if a module
+# is missing or fails to import. See docs/CHANGELOG.md.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _try_register(module_name, registrar_name, *args, **kwargs):
+    """Best-effort registration — server still boots if a module is missing."""
+    try:
+        import importlib
+        mod = importlib.import_module(module_name)
+        registrar = getattr(mod, registrar_name)
+        names = registrar(mcp, send_command, format_result, *args, **kwargs)
+        print(f"[OpenClaw] Registered {len(names)} {module_name} tools: {', '.join(names)}")
+        return names
+    except Exception as e:
+        print(f"[OpenClaw] {module_name}.{registrar_name} skipped: {e}")
+        return []
+
+# Phase 3 — agent loop (router, plan, act, critique, verify, session_status)
+_AGENT_LOOP_TOOLS = (_try_register("server.agent_loop", "register_agent_loop_tools")
+                     or _try_register("agent_loop", "register_agent_loop_tools"))
+
+# Phase 5 — spatial reasoning (raycast, bbox, collision, placement, semantic_place, dimensions, floor_plan)
+_SPATIAL_TOOLS = (_try_register("server.spatial_tools", "register_spatial_tools")
+                  or _try_register("spatial_tools", "register_spatial_tools"))
+
+# Phase 5 — extended tools (camera, UV, bake, LOD, VR, splat, GP, snapshot) + Phase 2 drift
+_EXTENDED_TOOLS = (_try_register("server.extended_tools", "register_extended_tools")
+                   or _try_register("extended_tools", "register_extended_tools"))
+
+print(f"[OpenClaw] v3.0.0 tool registration complete. "
+      f"agent_loop={len(_AGENT_LOOP_TOOLS)}, spatial={len(_SPATIAL_TOOLS)}, extended={len(_EXTENDED_TOOLS)}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # MULTI-INSTANCE MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════════
 
