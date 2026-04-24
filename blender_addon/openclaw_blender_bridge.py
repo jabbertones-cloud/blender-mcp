@@ -4170,6 +4170,11 @@ def handle_polyhaven(params):
     POLYHAVEN_API = "https://api.polyhaven.com"
     POLYHAVEN_DL = "https://dl.polyhaven.org/file/ph-assets"
     CACHE_DIR = "/tmp/openclaw_polyhaven"
+
+    # Fix for Bug #9: PolyHaven requires a User-Agent header or returns 403.
+    _UA = {"User-Agent": "OpenClaw-Blender-MCP/3.0 (+https://github.com/jabbertones-cloud/blender-mcp)"}
+    def _req(url):
+        return urllib.request.Request(url, headers=_UA)
     
     # Ensure cache directory exists
     try:
@@ -4178,21 +4183,33 @@ def handle_polyhaven(params):
         return {"error": f"Failed to create cache directory: {str(e)}"}
 
     def _download_file(url, filename):
-        """Download file with caching. Returns local filepath."""
+        """Download file with caching. Returns local filepath. Uses UA header (bug #9)."""
         filepath = os.path.join(CACHE_DIR, filename)
         if os.path.exists(filepath):
             return filepath  # Already cached
         try:
-            urllib.request.urlretrieve(url, filepath, timeout=30)
+            with urllib.request.urlopen(_req(url), timeout=60) as resp, open(filepath, "wb") as out:
+                while True:
+                    chunk = resp.read(65536)
+                    if not chunk:
+                        break
+                    out.write(chunk)
             return filepath
         except Exception as e:
-            raise Exception(f"Download failed for {url}: {str(e)}")
+            # Surface 403 clearly — PolyHaven rate-limit or bot-block
+            msg = str(e)
+            if "403" in msg or "Forbidden" in msg:
+                raise Exception(
+                    f"PolyHaven 403 Forbidden for {url}. "
+                    "API may be rate-limiting or the UA is blocked; retry in ~5 min or fetch manually."
+                )
+            raise Exception(f"Download failed for {url}: {msg}")
 
     def _get_asset_info(asset_id):
         """Fetch asset metadata from API."""
         try:
             url = f"{POLYHAVEN_API}/info/{asset_id}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
             raise Exception(f"Failed to fetch info for '{asset_id}': {str(e)}")
@@ -4201,7 +4218,7 @@ def handle_polyhaven(params):
         """Fetch available file URLs from API."""
         try:
             url = f"{POLYHAVEN_API}/files/{asset_id}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
             raise Exception(f"Failed to fetch files for '{asset_id}': {str(e)}")
@@ -4214,7 +4231,7 @@ def handle_polyhaven(params):
             url = f"{POLYHAVEN_API}/assets?t={asset_type}"
             if keyword:
                 url += f"&s={keyword}"
-            with urllib.request.urlopen(url, timeout=15) as resp:
+            with urllib.request.urlopen(_req(url), timeout=15) as resp:
                 data = json.loads(resp.read().decode())
             
             # Return top 10 results with name, preview URL, categories
@@ -4237,7 +4254,7 @@ def handle_polyhaven(params):
         asset_type = params.get("asset_type", "hdris")
         try:
             url = f"{POLYHAVEN_API}/categories/{asset_type}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 data = json.loads(resp.read().decode())
             return {"asset_type": asset_type, "categories": list(data.keys())[:50]}
         except Exception as e:
