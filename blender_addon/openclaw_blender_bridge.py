@@ -351,7 +351,8 @@ def handle_set_material(params):
         return {"error": f"Object '{obj_name}' not found"}
 
     mat_name = params.get("material_name", f"{obj_name}_material")
-    color = params.get("color", [0.8, 0.8, 0.8, 1.0])
+    # Accept both `color` and `base_color` (sweep/users often pass the latter).
+    color = params.get("color") or params.get("base_color") or [0.8, 0.8, 0.8, 1.0]
     metallic = params.get("metallic", 0.0)
     roughness = params.get("roughness", 0.5)
     emission_color = params.get("emission_color")
