@@ -34,15 +34,17 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-# Renders & artifacts
-renders/*.png
-renders/*.exr
-renders/*.mp4
-renders/*.jpg
-bridge_renders/
-exports/*.glb
-exports/*.fbx
-exports/*.obj
+# Heavy directories — externalized to NAS at /Volumes/home/blender-mcp-shared/
+# Each developer creates symlinks to the NAS via ./setup-blender-mcp-from-nas.sh
+# See NAS-SHARED-DIRS.md for details.
+renders
+exports
+models
+assets
+bridge_renders
+portfolio_curated_best
+portfolio_forensic_v4
+data
 
 # Session, trajectories, eval reports
 /tmp/openclaw-sessions.jsonl

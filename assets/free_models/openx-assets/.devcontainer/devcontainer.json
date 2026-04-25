@@ -1,6 +1,0 @@
-{
-  "name": "OpenX Assets",
-  "build": {
-    "dockerfile": "Dockerfile"
-  }
-}
