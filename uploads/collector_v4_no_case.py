@@ -98,13 +98,13 @@ VIEW_TRANSFORM = "Standard"
 VIEW_LOOK = "None"
 VIEW_EXPOSURE = -0.4
 
-RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_render.png"
-SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_scene.blend"
+RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v4_no_case.png"
+SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v4_no_case.blend"
 
 # DEBUG: hide acrylic case from render to isolate figure materials. When True,
 # Case_* panels render-hidden but kept in the .blend. Use ONLY to debug
 # material assignment then flip back to False.
-HIDE_CASE_FOR_DEBUG = False
+HIDE_CASE_FOR_DEBUG = True
 # --- /PARAMETERS ---
 
 import bpy, bmesh

@@ -47,14 +47,14 @@ SHOE_Z_LOCAL = 0.020
 SHIRT_Y_THRESH = -0.005        # front-of-torso Y < this gets shirt color
 SHIRT_X_HALF_WIDTH = 0.018     # horizontal width of shirt panel
 
-SKIN_COLOR = (0.78, 0.55, 0.39, 1.0)
-HAIR_COLOR = (0.04, 0.04, 0.04, 1.0)
-SHIRT_COLOR = (0.92, 0.92, 0.92, 1.0)
-SUIT_COLOR = (0.05, 0.05, 0.05, 1.0)
-TIE_COLOR = (0.04, 0.04, 0.04, 1.0)
-SCARF_COLOR = (0.62, 0.10, 0.10, 1.0)
-SHOE_COLOR = (0.95, 0.95, 0.95, 1.0)
-EYE_BLACK = (0.02, 0.02, 0.02, 1.0)
+SKIN_COLOR = (0.58, 0.27, 0.13, 1.0)
+HAIR_COLOR = (0.0, 0.0, 0.0, 1.0)
+SHIRT_COLOR = (0.83, 0.83, 0.85, 1.0)
+SUIT_COLOR = (0.0, 0.0, 0.0, 1.0)
+TIE_COLOR = (0.0, 0.0, 0.0, 1.0)
+SCARF_COLOR = (0.34, 0.01, 0.01, 1.0)
+SHOE_COLOR = (0.88, 0.88, 0.88, 1.0)
+EYE_BLACK = (0.0, 0.0, 0.0, 1.0)
 PROXY_ROUGHNESS = 0.55
 
 # Eye add-ons
@@ -70,11 +70,11 @@ HAIR_CLUMP_RAD = 0.007
 HAIR_CLUMP_TIP_RAD = 0.001
 
 # Lighting
-KEY_LIGHT_ENERGY_W = 95.0
+KEY_LIGHT_ENERGY_W = 140.0
 KEY_LIGHT_SIZE_M = 0.6
 KEY_LIGHT_LOC = (0.45, -0.55, 0.55)
 KEY_LIGHT_COLOR_K = 5600
-FILL_LIGHT_ENERGY_W = 38.0
+FILL_LIGHT_ENERGY_W = 55.0
 FILL_LIGHT_SIZE_M = 0.8
 FILL_LIGHT_LOC = (-0.55, -0.50, 0.45)
 ENV_STRENGTH = 0.20
@@ -90,16 +90,16 @@ CAM_DOF_F_STOP = 8.0
 
 # Render — match reference resolution for pixel-overlay step
 RENDER_ENGINE = "CYCLES"
-RENDER_SAMPLES = 96
+RENDER_SAMPLES = 256
 RENDER_RES_X = 700
 RENDER_RES_Y = 700
 RENDER_USE_DENOISER = True
 VIEW_TRANSFORM = "Standard"
 VIEW_LOOK = "None"
-VIEW_EXPOSURE = -0.4
+VIEW_EXPOSURE = 0.0
 
-RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_render.png"
-SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_scene.blend"
+RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v6_final.png"
+SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v6_final.blend"
 
 # DEBUG: hide acrylic case from render to isolate figure materials. When True,
 # Case_* panels render-hidden but kept in the .blend. Use ONLY to debug
@@ -376,9 +376,10 @@ hair_parent.location = (0, 0, bz + H * 0.86)
 
 for i in range(HAIR_CLUMP_COUNT):
     a = (i / HAIR_CLUMP_COUNT) * 2 * pi
-    sx = (FIG_HEAD_R * 0.85) * cos(a)
-    sy = (FIG_HEAD_R * 0.85) * sin(a)
-    sz = 0.0
+    # cluster on top of head, not around its equator
+    sx = (FIG_HEAD_R * 0.45) * cos(a)
+    sy = (FIG_HEAD_R * 0.45) * sin(a)
+    sz = FIG_HEAD_R * 0.45    # ~half-radius up from head center
     bpy.ops.mesh.primitive_cone_add(
         radius1=HAIR_CLUMP_RAD + random.random() * 0.003,
         radius2=HAIR_CLUMP_TIP_RAD,
@@ -388,12 +389,29 @@ for i in range(HAIR_CLUMP_COUNT):
     s = bpy.context.active_object
     s.name = f"Hair_{i:02d}"
     s.parent = hair_parent
-    s.rotation_euler = (radians(15 + random.random() * 35),
-                        radians(-8 + random.random() * 16),
-                        radians(random.random() * 360))
+    # spike up + forward (toward -Y) — matches reference's chunky strands
+    fwd_lean = -25 + random.random() * 15        # tilt forward (toward camera)
+    spread   = -12 + random.random() * 24        # small left/right spread
+    twist    = (i / HAIR_CLUMP_COUNT) * 360.0    # rotate around head, but up not radial
+    s.rotation_euler = (radians(fwd_lean), radians(spread), radians(twist))
     bpy.ops.object.shade_smooth()
     hair_mat = make_principled(f"HairMat_{i:02d}", HAIR_COLOR, PROXY_ROUGHNESS)
     s.data.materials.append(hair_mat)
+
+
+# Hair cap — a small black sphere covering the top of the head so the crown
+# doesn't look skin-colored where clumps don't cover.
+HAIR_CAP_Z = bz + H * 0.92
+HAIR_CAP_R = FIG_HEAD_R * 0.85
+bpy.ops.mesh.primitive_uv_sphere_add(radius=HAIR_CAP_R, location=(0, 0, HAIR_CAP_Z),
+                                     segments=24, ring_count=12)
+hair_cap = bpy.context.active_object
+hair_cap.name = "HairCap"
+hair_cap.parent = case
+hair_cap.scale = (1.0, 1.0, 0.7)  # squash so it caps the top half
+hair_cap_mat = make_principled("HairCap", HAIR_COLOR, PROXY_ROUGHNESS)
+hair_cap.data.materials.append(hair_cap_mat)
+bpy.ops.object.shade_smooth()
 
 
 # ─── 7. Eye (single visible black-pupil) ─────────────────────────────────────

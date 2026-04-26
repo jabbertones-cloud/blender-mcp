@@ -47,14 +47,14 @@ SHOE_Z_LOCAL = 0.020
 SHIRT_Y_THRESH = -0.005        # front-of-torso Y < this gets shirt color
 SHIRT_X_HALF_WIDTH = 0.018     # horizontal width of shirt panel
 
-SKIN_COLOR = (0.78, 0.55, 0.39, 1.0)
-HAIR_COLOR = (0.04, 0.04, 0.04, 1.0)
-SHIRT_COLOR = (0.92, 0.92, 0.92, 1.0)
-SUIT_COLOR = (0.05, 0.05, 0.05, 1.0)
-TIE_COLOR = (0.04, 0.04, 0.04, 1.0)
-SCARF_COLOR = (0.62, 0.10, 0.10, 1.0)
-SHOE_COLOR = (0.95, 0.95, 0.95, 1.0)
-EYE_BLACK = (0.02, 0.02, 0.02, 1.0)
+SKIN_COLOR = (0.58, 0.27, 0.13, 1.0)
+HAIR_COLOR = (0.0, 0.0, 0.0, 1.0)
+SHIRT_COLOR = (0.83, 0.83, 0.85, 1.0)
+SUIT_COLOR = (0.0, 0.0, 0.0, 1.0)
+TIE_COLOR = (0.0, 0.0, 0.0, 1.0)
+SCARF_COLOR = (0.34, 0.01, 0.01, 1.0)
+SHOE_COLOR = (0.88, 0.88, 0.88, 1.0)
+EYE_BLACK = (0.0, 0.0, 0.0, 1.0)
 PROXY_ROUGHNESS = 0.55
 
 # Eye add-ons
@@ -70,11 +70,11 @@ HAIR_CLUMP_RAD = 0.007
 HAIR_CLUMP_TIP_RAD = 0.001
 
 # Lighting
-KEY_LIGHT_ENERGY_W = 95.0
+KEY_LIGHT_ENERGY_W = 140.0
 KEY_LIGHT_SIZE_M = 0.6
 KEY_LIGHT_LOC = (0.45, -0.55, 0.55)
 KEY_LIGHT_COLOR_K = 5600
-FILL_LIGHT_ENERGY_W = 38.0
+FILL_LIGHT_ENERGY_W = 55.0
 FILL_LIGHT_SIZE_M = 0.8
 FILL_LIGHT_LOC = (-0.55, -0.50, 0.45)
 ENV_STRENGTH = 0.20
@@ -96,15 +96,15 @@ RENDER_RES_Y = 700
 RENDER_USE_DENOISER = True
 VIEW_TRANSFORM = "Standard"
 VIEW_LOOK = "None"
-VIEW_EXPOSURE = -0.4
+VIEW_EXPOSURE = 0.0
 
-RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_render.png"
-SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v3_proc_scene.blend"
+RENDER_FILEPATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v5_linear_color.png"
+SAVE_BLEND_PATH = "/Users/tatsheen/claw-architect/openclaw-blender-mcp/uploads/collector_v5_linear_color.blend"
 
 # DEBUG: hide acrylic case from render to isolate figure materials. When True,
 # Case_* panels render-hidden but kept in the .blend. Use ONLY to debug
 # material assignment then flip back to False.
-HIDE_CASE_FOR_DEBUG = False
+HIDE_CASE_FOR_DEBUG = True
 # --- /PARAMETERS ---
 
 import bpy, bmesh
