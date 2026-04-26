@@ -1,6 +1,0 @@
-Cycles 128spl, 4 cameras
-Rendered: Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v5_01_Cam_BirdEye.png
-Rendered: Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v5_02_Cam_DriverPOV.png
-Rendered: Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v5_03_Cam_Orbit.png
-Rendered: Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v5_04_Cam_Witness.png
-Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/quality_push_v5.blend

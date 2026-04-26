@@ -21,6 +21,30 @@ from session_state import default_store, SessionState, PlanStep, PlanStepStatus
 from verify import verify_action, run_gcs
 
 
+# ─── needs_input helper (mirrors blender_mcp_server.needs_input_payload) ─────
+# Local copy so agent_loop stays import-light and doesn't pull the full server
+# module when used in isolation. The shape is intentionally identical.
+
+def _needs_input(
+    field: str,
+    *,
+    kind: str,
+    description: str,
+    default: Any = None,
+    choices: Optional[List[Any]] = None,
+    hint: Optional[str] = None,
+) -> Dict[str, Any]:
+    payload: Dict[str, Any] = {"field": field, "kind": kind, "description": description}
+    if default is not None:
+        payload["default"] = default
+    if choices is not None:
+        payload["choices"] = list(choices)
+        payload["kind"] = "enum"
+    if hint is not None:
+        payload["hint"] = hint
+    return {"status": "needs_input", "needs_input": payload}
+
+
 # ============================================================================
 # Tool Input Models
 # ============================================================================
@@ -83,13 +107,34 @@ async def blender_router_set_goal(
     goal = input_data.goal
     profile = input_data.profile
 
-    # Validate profile
+    # ─── needs_input: empty/whitespace goal ────────────────────────────────
+    if not goal or not str(goal).strip():
+        return format_result(_needs_input(
+            field="goal",
+            kind="string",
+            description=(
+                "blender_router_set_goal needs a non-empty goal. State the high-level "
+                "intent for this session in one sentence (e.g. 'Build a forensic accident "
+                "reconstruction with two vehicles and a verified collision angle')."
+            ),
+            hint="Re-call blender_router_set_goal with goal=<your goal>.",
+        ))
+
+    # ─── needs_input: invalid profile ──────────────────────────────────────
     valid_profiles = ["default", "llm-guided", "power-user", "forensic"]
     if profile not in valid_profiles:
-        return format_result({
-            "status": "error",
-            "data": {"error": f"Invalid profile. Must be one of: {valid_profiles}"}
-        })
+        return format_result(_needs_input(
+            field="profile",
+            kind="enum",
+            description=(
+                f"profile {profile!r} is not one of the supported routing profiles. "
+                f"Pick one — 'default' is balanced, 'llm-guided' uses VLM, "
+                f"'power-user' is minimal, 'forensic' is strict."
+            ),
+            default="default",
+            choices=valid_profiles,
+            hint="Re-call blender_router_set_goal with profile= one of the listed choices.",
+        ))
 
     session_state.goal = goal
     session_state.profile = profile
@@ -124,10 +169,15 @@ async def blender_plan(
     custom_steps = input_data.custom_steps or []
 
     if not goal:
-        return format_result({
-            "status": "error",
-            "data": {"error": "No goal set. Call blender_router_set_goal first."}
-        })
+        return format_result(_needs_input(
+            field="goal",
+            kind="string",
+            description=(
+                "blender_plan needs a goal. Either pass goal=<...> directly, or call "
+                "blender_router_set_goal(goal=<...>) first to anchor the session."
+            ),
+            hint="Call blender_router_set_goal first, or pass goal= explicitly to blender_plan.",
+        ))
 
     # Simple rule-based planner
     profile_rules = {

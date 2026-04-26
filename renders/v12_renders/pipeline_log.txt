@@ -1,3 +1,0 @@
-V12 Pipeline Start: 2026-03-26T13:47:38.048Z
-[2026-03-26T13:47:38.062Z] Connected to Blender MCP
-[2026-03-26T13:47:38.064Z] === SCENE 1 START ===
