@@ -1,0 +1,231 @@
+--- /sessions/dazzling-relaxed-dijkstra/mnt/openclaw-blender-mcp/.claude/skills/blender-mcp/SKILL.md	2026-04-24 05:12:50.421832859 +0000
++++ /sessions/dazzling-relaxed-dijkstra/mnt/openclaw-blender-mcp/reports/v3.1-skill-staging/SKILL.md	2026-04-26 01:21:44.574026792 +0000
+@@ -1,17 +1,17 @@
+ ---
+ name: blender-mcp
+-description: "OpenClaw Blender MCP — agentic 3D creation engine with ~80 tools, depsgraph-aware geometry, agent-loop orchestration (Planner-Actor-Critic), vision-as-a-judge GCS constraints, self-evolving skill recipes, and behavioral-drift monitoring."
+-version: v3.0.0
++description: "OpenClaw Blender MCP — agentic 3D creation engine with ~85 tools, CADAM-style parametric bpy generation (PARAMETERS-block contract + slider-style apply_params loop), depsgraph-aware geometry, two-pass image→scene extraction, agent-loop orchestration (Planner-Actor-Critic), vision-as-a-judge GCS constraints, self-evolving skill recipes, and behavioral-drift monitoring. Use whenever Scott asks to build/render/animate/light/extract/iterate on a Blender scene, generate bpy code, tweak scene parameters without re-prompting the LLM, or work with HDRIs/PBR textures from Poly Haven/ambientCG/Sketchfab."
++version: v3.1.0
+ contact: jabbertones-cloud
+ project_urls:
+   github: https://github.com/jabbertones-cloud/blender-mcp
+   docs: https://github.com/jabbertones-cloud/blender-mcp/tree/main/docs
+-tags: [blender, 3d, generative-design, geometry, agent-loop, vision-language, observability, self-evolving-skills]
++tags: [blender, 3d, generative-design, geometry, parametric, cadam, agent-loop, vision-language, observability, self-evolving-skills]
+ ---
+ 
+-# OpenClaw Blender MCP — Skill Guide v3.0.0
++# OpenClaw Blender MCP — Skill Guide v3.1.0
+ 
+-**This guide is the single source of truth for safe, effective use of the blender-mcp server. Read all 9 new operational rules at the start of each session.**
++**This guide is the single source of truth for safe, effective use of the blender-mcp server. v3.1 adds the CADAM-style parametric workflow (generate/run/apply_params, image→scene, asset discovery) on top of the v3.0 security + agent-loop floor. Read the operational rules below before any Blender work in a new session.**
+ 
+ ---
+ 
+@@ -431,8 +431,204 @@
+ | VFX & Simulation | 5 | smoke_sim, fluid_sim, particle_system, cloth_sim, rigid_body |
+ | Performance | 3 | viewport_optimize, memory_profile, batch_render |
+ | Data & Analysis | 3 | scene_analyze, export_metadata, statistics |
++| **CADAM Parametric (v3.1)** | **5** | **blender_generate_bpy_script, blender_run_bpy_script, blender_apply_params, blender_reference_image_to_scene, blender_list_available_assets** |
+ 
+-Total: ~80 tools across 23 categories.
++Total: ~85 tools across 24 categories.
++
++---
++
++## NEW (v3.1): CADAM-style Parametric Workflow
++
++**Rule**: When generating bpy code, prefer the parametric pair `blender_generate_bpy_script` → `blender_run_bpy_script` over `blender_execute_python`. Tweak parameters via `blender_apply_params` instead of regenerating the script. Discover already-cached assets via `blender_list_available_assets` before downloading new ones. For image-driven scenes, use the two-pass `blender_reference_image_to_scene`.
++
++**Why**: This is the design pattern from CADAM (Claude + OpenSCAD WASM): the LLM is called **once per intent**, never once per slider drag. Every numeric literal that affects geometry, materials, lighting, or camera lives in a fenced `# --- PARAMETERS ---` block at the top of the script. Subsequent tweaks edit only that block via `ast.literal_eval` round-trip — no token cost, no regeneration, no chance of the model accidentally changing something else. Empirically also more reliable for image inputs: image → structured JSON → bpy beats image → bpy in one shot.
++
++### Tool surface
++
++| Tool | What it does | When to call |
++|---|---|---|
++| `blender_generate_bpy_script(intent, reference_params?)` | Returns the contract: system prompt + PARAMETERS template + (optional) seed values from a prior image extraction. **Read-only**, no Blender call. | First step of any new bpy generation. |
++| `blender_run_bpy_script(script, cache=True, require_parameters_block=True)` | AST-validates the script server-side, parses the PARAMETERS block, caches under a `script_id` (LRU, max 32), then sends to the addon for execution. | After authoring the script per the contract. |
++| `blender_apply_params(script_id, new_values, rerun=True)` | Rewrites only the PARAMETERS block of a cached script with `new_values` and re-runs. **Zero LLM tokens.** | Every parameter tweak (FOV, light energy, roughness). |
++| `blender_list_cached_scripts()` | Diagnostic — lists `script_id`s in the LRU cache. | When picking a target for `apply_params` after a long session. |
++| `blender_reference_image_to_scene(action, ...)` | Three-action two-pass tool: `extraction_prompt` → `submit_extraction` → `build_seed_params`. | Image-driven scene work. |
++| `blender_list_available_assets(providers?, asset_types?, refresh?)` | Walks Poly Haven / ambientCG / Sketchfab / Hyper3D / Hunyuan3D / local cache dirs (`OPENCLAW_ASSET_CACHE` env, `~/.openclaw/assets/`, repo `assets/` and `cache/`). Groups files by id (strips `_1k/_2k/_4k/_8k` and PBR channel suffixes). | **Before** any HDRI / PBR-texture-loading code. |
++
++### The PARAMETERS-block contract (HARD)
++
++Every script that goes through `blender_run_bpy_script` (with the default `require_parameters_block=True`) must look like this:
++
++```python
++# --- PARAMETERS ---
++CUBE_SIZE = 2.0
++LIGHT_ENERGY = 800.0
++CAM_FOV_DEG = 50.0
++MAT_ROUGHNESS = 0.45
++HDRI_ID = "kiara_1_dawn"
++RENDER_SAMPLES = 128
++# --- /PARAMETERS ---
++
++import bpy
++# ... build the scene using the constants above ...
++__result__ = {"summary": "..."}
++```
++
++**The marker tokens are exact.** Open with `# --- PARAMETERS ---` (six characters: hash, space, three dashes, space, the literal word PARAMETERS, space, three dashes). Close with `# --- /PARAMETERS ---` — same shape with a leading slash before PARAMETERS. `# PARAMETERS`, `## PARAMETERS`, `# -- PARAMETERS --`, or any other shorthand FAILS the regex and the script is rejected by `blender_run_bpy_script` with a `blocked_by_policy: true` error before it ever reaches Blender. The validator in `server/codegen_prompt.py` literally regex-greps for those tokens, so don't paraphrase.
++
++Allowed value types in the block: `int`, `float`, `bool`, `str`, `tuple` of 2-4 numbers. **No function calls, no bpy references, no list comprehensions** — every value must be a plain Python literal so `ast.literal_eval` can re-parse it for the slider loop. Names must be UPPER_CASE.
++
++If you find yourself wanting to add a numeric literal to the body of the script: stop, add it to the PARAMETERS block as a constant, reference the constant. Otherwise the slider loop won't see it.
++
++### Anti-patterns (real failure modes from iteration-1 evals)
++
++These are mistakes the LLM has actually made when this skill is loaded. Don't repeat them.
++
++**1. Don't invent actions on `blender_polyhaven`.** There is no `action='list'`, no `action='catalog'`, no `action='inventory'`. To DISCOVER what's already on disk, use `blender_list_available_assets`. To SEARCH PolyHaven's online catalog (network call), use `blender_polyhaven(action='search')`. These are different tools with different jobs — a "list" action on `blender_polyhaven` does not exist and will return an error.
++
++**2. Don't shorten the PARAMETERS marker.** `# PARAMETERS` (without the dashes) is the most common failure. The validator regex is strict on purpose so the slider loop's `extract_parameters` / `replace_parameters` round-trip is reliable. Always type the full `# --- PARAMETERS ---` and `# --- /PARAMETERS ---` markers.
++
++**3. Don't inline asset ids as magic strings.** `bg_node.image = bpy.data.images.load("kiara_1_dawn.exr")` in the body of the script is wrong even if it works. Declare `HDRI_ID = "kiara_1_dawn"` in the PARAMETERS block and reference `HDRI_ID` in the body — otherwise `blender_apply_params` can't change the HDRI without regenerating.
++
++**4. Don't recommend `blender_execute_python` for any iterative work.** It's a deprecated alias kept only for back-compat with old callers. New work goes through `blender_generate_bpy_script` → `blender_run_bpy_script` → `blender_apply_params`.
++
++**5. Don't write your own cache-existence check in Python.** `blender_list_available_assets` already returns `total_assets` per provider and a `global_hints` array that tells you what's missing. There's no need to glob `~/.cache/polyhaven/` yourself in the bpy script.
++
++### Worked recipe — asset cache discovery → render
++
++Use this template anytime the user wants HDRI / PBR work AND hasn't already pinned an asset id. It's the canonical 6-step flow that the v3.1 server is designed around. **When responding to the user, copy the call signatures verbatim — don't paraphrase `providers=[...]` into `provider:` or collapse two distinct tool calls into one. The list_available_assets call MUST include both `providers=[...]` and `asset_types=[...]` keyword arguments. The flow MUST end in two separate calls — `blender_generate_bpy_script` first, THEN `blender_run_bpy_script` — never just one.**
++
++```text
++Step 1 — DISCOVER what's already cached on disk    [tool: blender_list_available_assets]
++   blender_list_available_assets(
++       providers=["polyhaven", "ambientcg"],   # ← keyword arg, list of provider names
++       asset_types=["hdri", "texture"]         # ← keyword arg, plural, list of types
++   )
++   → returns providers[].assets[] with {id, type, resolutions_available}
++   This is the ONLY tool that lists what is already on disk. There is no list action
++   on blender_polyhaven. Do not paraphrase the args.
++
++Step 2 — BRANCH on cache hit vs miss
++   if the HDRI/texture you want is in the returned ids:
++       cache hit — use that id directly, skip to Step 4
++   else:
++       cache miss — proceed to Step 3
++
++Step 3 — DOWNLOAD what's missing                    [tool: blender_polyhaven]
++   3a (search):  blender_polyhaven(action="search", asset_type="hdris", categories="...")
++                 → pick a result id that matches the user's intent
++   3b (fetch):   blender_polyhaven(action="download_hdri", asset_id="<id>", resolution="2k")
++                 (or action="download_texture" for PBR; download_hdri auto-applies
++                  the asset to the world environment.)
++
++Step 4 — DECLARE the asset ids as PARAMETERS-block constants
++   The script you're about to author MUST start with this exact header:
++
++       # --- PARAMETERS ---
++       HDRI_ID = "kiara_1_dawn"            # cached HDRI asset id (string)
++       HDRI_STRENGTH = 1.2                 # tweakable
++       FLOOR_PBR_ID = "wood_planks_oak"    # cached PBR asset id (string)
++       FLOOR_TILE_SCALE = 2.0              # tweakable
++       RENDER_SAMPLES = 128                # tweakable
++       # --- /PARAMETERS ---
++
++   Reference HDRI_ID / FLOOR_PBR_ID / etc. by name in the script body — never
++   inline as magic strings. (Common variants like HDRI_ASSET_ID or WOOD_ID are
++   fine; the only requirement is UPPER_CASE and inside the dashed block.)
++
++Step 5 — PUBLISH the contract                       [tool: blender_generate_bpy_script]
++   blender_generate_bpy_script(
++       intent="wood floor scene with HDRI environment",
++       reference_params={"HDRI_ID": "kiara_1_dawn", "FLOOR_PBR_ID": "wood_planks_oak"}
++   )
++   → returns the system prompt + parameters template + version stamp.
++   Author the script (a single bpy module) following the returned contract.
++   Step 5 is its own tool call. It does NOT execute anything.
++
++Step 6 — EXECUTE                                    [tool: blender_run_bpy_script]
++   blender_run_bpy_script(script=<the authored script with PARAMETERS block>)
++   → returns {script_id, parameters, result}.
++   Step 6 is its own tool call, distinct from step 5. It validates, AST-gates,
++   caches under script_id, then sends to the addon.
++
++Subsequent tweaks (HDRI strength, tile scale, render samples)  [blender_apply_params]
++   blender_apply_params(script_id="<id_from_step_6>",
++                        new_values={"HDRI_STRENGTH": 1.6})
++   No LLM call. No regeneration. Just re-runs the rewritten PARAMETERS block.
++```
++
++The same 6 steps apply for textures, models, and Sketchfab/Hyper3D assets — swap the provider list and the action names. The shape stays the same: **discover (list_available_assets) → branch → download-if-missing (polyhaven) → constant-ize (PARAMETERS block) → generate (generate_bpy_script) → run (run_bpy_script)**. Six steps, six tool calls when the cache misses, four tool calls when it hits (skips 3a/3b).
++
++### Canonical end-to-end flow
++
++```
++Intent: "make a hero shot of this perfume bottle photo"
++
++1. blender_reference_image_to_scene(action="extraction_prompt",
++                                     image_path="/abs/path/photo.jpg")
++   → returns { extraction_prompt, json_schema, next_call }
++
++2. (Caller multimodal LLM call against the image, following the schema)
++   → produces structured extraction JSON
++
++3. blender_reference_image_to_scene(action="submit_extraction",
++                                     extracted=<JSON>)
++   → returns { extraction_id, validated, warnings }
++
++4. blender_reference_image_to_scene(action="build_seed_params",
++                                     extraction_id=<id>)
++   → returns { seed_parameters: {PRIMARY_SIZE, BASE_COLOR_PRIMARY, ...}, missing_keys }
++
++5. blender_list_available_assets(providers=["polyhaven"],
++                                 asset_types=["hdri","texture"])
++   → returns the on-disk catalog; pick HDRI_ID + PBR_ID
++
++6. blender_generate_bpy_script(intent="hero shot of perfume bottle",
++                               reference_params={**seed_parameters,
++                                                 "HDRI_ID":"kiara_1_dawn"})
++   → returns the contract; caller authors a script with PARAMETERS block
++
++7. blender_run_bpy_script(script=<authored>)
++   → validated, AST-gated, cached, executed → returns script_id
++
++8. blender_apply_params(script_id=<id>,
++                         new_values={"CAM_FOCAL_LEN_MM":85, "KEY_LIGHT_ENERGY":1500})
++   → ZERO LLM tokens. Re-runs only the PARAMETERS block.
++   Repeat step 8 indefinitely on a slider — never goes back to the LLM.
++```
++
++### Asset workflow rule
++
++Before writing any HDRI-loading or PBR-texture-loading bpy code:
++
++1. `blender_list_available_assets(providers=["polyhaven","ambientcg"], asset_types=["hdri"])` — see what's already on disk.
++2. Reference the asset id as a PARAMETERS-block string constant: `HDRI_ID = "kiara_1_dawn"`. **Never inline magic strings** in the script body.
++3. If the asset is missing from the cache, call `blender_polyhaven(action='search')` then `download_hdri` / `download_texture`, then `apply_texture`. Only THEN reference it.
++
++The same rule applies to Sketchfab models and Hyper3D / Hunyuan3D generated meshes — query the cache first, then download, then constant-ize the id.
++
++### Server-side safety (defense in depth)
++
++The addon's `OPENCLAW_ALLOW_EXEC` gate at `blender_addon/openclaw_blender_bridge.py:917-945` is **untouched** in v3.1 — it remains the authoritative kill switch. v3.1 layers a server-side AST check on top inside `blender_run_bpy_script` and `blender_apply_params`, using the same `server/safety.py` deny lists (`os`, `subprocess`, `socket`, `eval`, `exec`, `__import__`, `compile`, `open`, …). A bad script is rejected before the socket is even opened — fail fast, fail cheap.
++
++If `OPENCLAW_ALLOW_EXEC` is unset/0, the addon returns `{error: "execute_python is disabled...", disabled_by_policy: true}` and `blender_run_bpy_script` surfaces it unchanged.
++
++### When NOT to use the parametric workflow
++
++- One-off diagnostic snippets that don't affect geometry/materials/lighting (e.g. "print all object names"). Use `blender_run_bpy_script(script=..., require_parameters_block=False)` or the legacy `blender_execute_python` alias.
++- Scene introspection where you don't intend to iterate. `blender_get_scene_info` / `blender_get_object_data` are still the right tools.
++- Anything covered by an existing high-level tool (`blender_create_object`, `blender_set_material`, `blender_scene_lighting`, etc.) — those are deterministic and skip the LLM entirely.
++
++The parametric workflow shines when you'll be tweaking values multiple times, when you're driving from a reference image, or when you want the LLM out of the loop on routine adjustments.
++
++### Tests + reference code
++
++- `tests/test_cadam_p1_p2_split_exec.py` — 10 tests covering the contract, run/cache/apply_params loop, and security gates.
++- `tests/test_cadam_p3_reference_image.py` — 5 tests covering the two-pass image flow.
++- `tests/test_cadam_p4_list_assets.py` — 7 tests covering asset discovery and grouping.
++
++All three are self-contained — they stub `mcp.server.fastmcp` and mock `send_command`, so they require neither pip-installed `mcp` nor a live Blender. Run via `python3 tests/test_cadam_*.py` from the repo root.
++
++Modules: `server/codegen_prompt.py` (system prompt + safe `extract_parameters`/`replace_parameters`), `server/image_extraction.py` (extraction schema + seed-param mapper), and the v3.1 tools live in `server/blender_mcp_server.py` (search for `# ─── v3.1`).
+ 
+ ---
+ 

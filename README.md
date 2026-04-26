@@ -1,8 +1,12 @@
-# OpenClaw Blender MCP — v3.0.0
+# OpenClaw Blender MCP — v3.1.0
 
 **Blender over MCP (Model Context Protocol)** — a FastMCP server that talks to the OpenClaw Blender Bridge addon (JSON over TCP). Use it from Claude, Cursor, or any MCP client to build scenes, render, export, and run `bpy` safely on a dedicated host.
 
-**~80 tools** across 23 categories: core modeling, materials, animation, rendering, rigging, physics, ecosystem imports (Poly Haven, Sketchfab, Hyper3D, Hunyuan3D), product-viz suite, forensic scene reconstruction, **and (new in v3.0.0)** spatial reasoning, Planner-Actor-Critic agent loop, GCS verification, OpenTelemetry observability, drift detection, and a self-evolving skill bank.
+**~85 tools** across 23 categories: core modeling, materials, animation, rendering, rigging, physics, ecosystem imports (Poly Haven, Sketchfab, Hyper3D, Hunyuan3D), product-viz suite, forensic scene reconstruction, **and (new in v3.0.0)** spatial reasoning, Planner-Actor-Critic agent loop, GCS verification, OpenTelemetry observability, drift detection, and a self-evolving skill bank. **v3.1 adds a CADAM-style parametric workflow** (`blender_generate_bpy_script` + `blender_run_bpy_script` + `blender_apply_params` + `blender_reference_image_to_scene` + `blender_list_available_assets`) so the LLM is called once per intent, never once per parameter tweak.
+
+## v3.1 — CADAM-style parametric workflow
+
+Every generated bpy script declares its dimensions / materials / lighting / camera as UPPER_CASE constants in a fenced `# --- PARAMETERS ---` block at the top. Tweaks re-run only that block via `blender_apply_params(script_id, new_values)` — no fresh LLM call. Image-driven scenes use the two-pass `blender_reference_image_to_scene` (image → structured JSON → seed params) before generation. Asset references go through `blender_list_available_assets` to keep the LLM grounded in what's actually cached on disk. Full details in `docs/CHANGELOG.md` (v3.1.0).
 
 **Naming:** use **OpenClaw Blender MCP** on resumes and in prose. The GitHub repository slug is **`jabbertones-cloud/blender-mcp`**.
 

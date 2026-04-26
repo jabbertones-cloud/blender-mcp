@@ -14,10 +14,41 @@ import socket
 import traceback
 import sys
 import os
+import uuid
+from collections import OrderedDict
+from datetime import datetime
 from typing import Optional, List, Dict, Any
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
+
+# CADAM-style parametric workflow (v3.1) — system prompt + safe parameter parsing
+try:
+    from server.codegen_prompt import (
+        BPY_GENERATION_SYSTEM_PROMPT,
+        PARAMETERS_BLOCK_TEMPLATE,
+        extract_parameters as _extract_parameters,
+        validate_parameters_block as _validate_parameters_block,
+        replace_parameters as _replace_parameters,
+    )
+except ModuleNotFoundError:
+    from codegen_prompt import (  # type: ignore
+        BPY_GENERATION_SYSTEM_PROMPT,
+        PARAMETERS_BLOCK_TEMPLATE,
+        extract_parameters as _extract_parameters,
+        validate_parameters_block as _validate_parameters_block,
+        replace_parameters as _replace_parameters,
+    )
+
+# Server-side AST safety check (defense in depth — addon also checks)
+try:
+    from server.safety import check as _safety_check, CodeSafetyError as _CodeSafetyError
+except ModuleNotFoundError:
+    try:
+        from safety import check as _safety_check, CodeSafetyError as _CodeSafetyError  # type: ignore
+    except ModuleNotFoundError:
+        _safety_check = None  # type: ignore
+        _CodeSafetyError = Exception  # type: ignore
 try:
     from server.runtime_config import (
         DEFAULT_BLENDER_PORT,
@@ -25,10 +56,26 @@ try:
         resolve_blender_port,
     )
 except ModuleNotFoundError:
-    from runtime_config import (
+    from runtime_config import (  # type: ignore
         DEFAULT_BLENDER_PORT,
         resolve_blender_host,
         resolve_blender_port,
+    )
+
+# CADAM-style image extraction (two-pass reference image workflow)
+try:
+    from server.image_extraction import (
+        IMAGE_EXTRACTION_PROMPT,
+        IMAGE_EXTRACTION_SCHEMA,
+        validate_extraction,
+        build_seed_params,
+    )
+except ModuleNotFoundError:
+    from image_extraction import (  # type: ignore
+        IMAGE_EXTRACTION_PROMPT,
+        IMAGE_EXTRACTION_SCHEMA,
+        validate_extraction,
+        build_seed_params,
     )
 
 # Product animation tools extension
@@ -926,15 +973,860 @@ async def blender_cleanup(params: CleanupInput) -> str:
     return format_result(send_command("cleanup", params.model_dump(exclude_none=True)))
 
 
-# ─── Execute Python ──────────────────────────────────────────────────────────
+# ─── v3.1 CADAM-style parametric workflow ────────────────────────────────────
+# Generate (returns prompt+contract) → Run (validates + caches + executes) →
+# Apply Params (re-runs only the PARAMETERS block — see blender_apply_params).
+#
+# The slider/tweak loop avoids round-tripping the LLM for every parameter change:
+# the LLM is called ONCE to produce a script that follows the contract, and
+# subsequent tweaks edit only the # --- PARAMETERS --- block.
+
+_SCRIPT_CACHE: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+_SCRIPT_CACHE_MAX = 32
+
+
+def _cache_script(script: str, parameters: Dict[str, Any]) -> str:
+    """Insert (or refresh) a script in the LRU cache. Returns a 12-char script_id."""
+    script_id = uuid.uuid4().hex[:12]
+    _SCRIPT_CACHE[script_id] = {
+        "script": script,
+        "parameters": parameters,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+    }
+    _SCRIPT_CACHE.move_to_end(script_id)
+    while len(_SCRIPT_CACHE) > _SCRIPT_CACHE_MAX:
+        _SCRIPT_CACHE.popitem(last=False)
+    return script_id
+
+
+def _get_cached(script_id: str) -> Optional[Dict[str, Any]]:
+    """Return the cached entry (and mark as recently used) or None."""
+    entry = _SCRIPT_CACHE.get(script_id)
+    if entry is not None:
+        _SCRIPT_CACHE.move_to_end(script_id)
+    return entry
+
+
+# ─── v3.1.1 needs_input — typed clarification payload (Issue #6) ─────────────
+# Pattern from PatrykIti/blender-ai-mcp: when a tool can't proceed because of
+# missing/unknown input, return a typed `needs_input` payload so the calling
+# model can ask the user instead of guessing or regenerating an entire script.
+
+_PARAM_KIND_BY_TYPE = {
+    bool:  "boolean",
+    int:   "number",
+    float: "number",
+    str:   "string",
+    list:  "array",
+    dict:  "object",
+    type(None): "any",
+}
+
+
+def _kind_for_value(value: Any) -> str:
+    """Map a Python value's type to a needs_input `kind` token."""
+    return _PARAM_KIND_BY_TYPE.get(type(value), "any")
+
+
+def needs_input_payload(
+    field: str,
+    *,
+    kind: str,
+    description: str,
+    default: Any = None,
+    choices: Optional[List[Any]] = None,
+    available: Optional[Dict[str, Any]] = None,
+    hint: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Build the standardized needs_input response.
+
+    The shape is intentionally narrow so callers can rely on it across tools:
+      {
+        "status": "needs_input",
+        "needs_input": {
+          "field": <str>,
+          "kind": "string|number|boolean|array|object|enum|any",
+          "description": <human-friendly prompt>,
+          "default": <value or null>,
+          "choices": [...]            # only when kind == "enum"
+          "available": {k: v, ...}    # only when listing existing options (e.g. param keys)
+          "hint": <next-step hint>
+        }
+      }
+    """
+    payload: Dict[str, Any] = {
+        "field": field,
+        "kind": kind,
+        "description": description,
+    }
+    if default is not None:
+        payload["default"] = default
+    if choices is not None:
+        payload["choices"] = list(choices)
+        if kind not in ("enum",):
+            payload["kind"] = "enum"
+    if available is not None:
+        payload["available"] = dict(available)
+    if hint is not None:
+        payload["hint"] = hint
+    return {"status": "needs_input", "needs_input": payload}
+
+
+# ─── v3.1.1 run_cadam_script — sync helper for in-process CADAM execution ───
+# Used by register_product_tools (Issue #10) to migrate raw `execute_python`
+# call sites to the PARAMETERS-block contract without rebuilding their async
+# tool plumbing. Mirrors what blender_run_bpy_script does internally:
+#   1. Wrap an opaque `code` block in a PARAMETERS-block manifest of inputs
+#   2. AST-validate (server-side defense in depth)
+#   3. Cache by script_id (LRU, 32 entries — same as run_bpy_script)
+#   4. Send to the addon
+# Returns a dict (not a JSON envelope) so callers can compose with their own
+# format_result wrappers.
+
+_PARAMETERS_HEADER = "# --- PARAMETERS ---"
+_PARAMETERS_FOOTER = "# --- /PARAMETERS ---"
+
+
+_LITERAL_TYPES = (type(None), bool, int, float, str, list, tuple, dict)
+
+
+def _is_literal_safe(value: Any) -> bool:
+    """Recursively check that `value` is composed only of types ast.literal_eval
+    can parse: None, bool, int, float, str, list, tuple, dict."""
+    if isinstance(value, (type(None), bool, int, float, str)):
+        return True
+    if isinstance(value, (list, tuple)):
+        return all(_is_literal_safe(v) for v in value)
+    if isinstance(value, dict):
+        return all(isinstance(k, str) and _is_literal_safe(v) for k, v in value.items())
+    return False
+
+
+def _build_parameters_block(parameters: Dict[str, Any]) -> str:
+    """Render a Dict[str, literal] as a PARAMETERS block. Uses Python repr()
+    so values round-trip through ast.literal_eval (json.dumps would emit
+    null/true/false which Python literal_eval rejects)."""
+    if not parameters:
+        return f"{_PARAMETERS_HEADER}\n{_PARAMETERS_FOOTER}\n"
+    lines = [_PARAMETERS_HEADER]
+    for k, v in parameters.items():
+        if not (isinstance(k, str) and k.isidentifier() and k.upper() == k):
+            raise ValueError(
+                f"Parameter name {k!r} must be UPPER_SNAKE_CASE identifier."
+            )
+        if not _is_literal_safe(v):
+            raise ValueError(
+                f"Parameter {k!r}=({type(v).__name__}) not literal-safe "
+                f"(must be None/bool/int/float/str/list/dict; got {v!r})."
+            )
+        # repr() emits valid Python literals for all _LITERAL_TYPES, including
+        # the critical None/True/False that json.dumps would mangle.
+        lines.append(f"{k} = {v!r}")
+    lines.append(_PARAMETERS_FOOTER)
+    return "\n".join(lines) + "\n"
+
+
+def run_cadam_script(
+    code: str,
+    parameters: Optional[Dict[str, Any]] = None,
+    *,
+    cache: bool = True,
+    script_kind: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Synchronously run an opaque bpy script through the CADAM contract.
+
+    Why: the v3.1.0 ship moved the canonical execution path to
+    blender_run_bpy_script (PARAMETERS block + AST gate + LRU cache). Older
+    helpers in product_animation_tools.py (and anywhere else) historically
+    called send_command("execute_python", ...) directly, bypassing all four
+    benefits. This helper closes that gap with a one-line replacement.
+
+    Args:
+      code: The bpy Python source to run. Will be wrapped in a synthetic
+            PARAMETERS block built from `parameters` (the caller's intent
+            manifest).
+      parameters: Inputs that drove `code` generation. Become the
+                  PARAMETERS-block constants. Pass an empty dict for "no
+                  tunable parameters" (still cached, still gated).
+      cache: If True, store in the LRU cache and return a script_id.
+      script_kind: Optional human-readable tag (e.g. "product_material") that
+                   becomes part of the cached entry for diagnostic listing.
+
+    Returns:
+      {"script_id": str | None, "parameters": dict, "result": ..., "blocked_by_policy": bool?}
+      On policy/parse failure, returns {"error": str, "blocked_by_policy": True}.
+    """
+    parameters = parameters or {}
+    try:
+        block = _build_parameters_block(parameters)
+    except ValueError as e:
+        return {"error": f"PARAMETERS block build failed: {e}", "blocked_by_policy": True}
+
+    full_script = block + "\n" + code
+
+    ok, reason = _validate_parameters_block(full_script)
+    if not ok:
+        return {
+            "error": f"Wrapped script failed PARAMETERS validation: {reason}",
+            "blocked_by_policy": True,
+        }
+
+    if _safety_check is not None:
+        try:
+            _safety_check(full_script, strict=True)
+        except _CodeSafetyError as e:  # type: ignore[misc]
+            return {
+                "error": f"Script blocked by server safety policy: {getattr(e, 'reason', str(e))}",
+                "blocked_by_policy": True,
+            }
+
+    script_id: Optional[str] = None
+    if cache:
+        script_id = _cache_script(full_script, parameters)
+        # Tag the entry for diagnostic listing
+        if script_kind and script_id and script_id in _SCRIPT_CACHE:
+            _SCRIPT_CACHE[script_id]["script_kind"] = script_kind
+
+    raw = send_command("execute_python", {"code": full_script})
+
+    response: Dict[str, Any] = {
+        "script_id": script_id,
+        "parameters": parameters,
+    }
+    if isinstance(raw, dict):
+        response.update(raw)
+    else:
+        response["result"] = raw
+    return response
+
+
+def _list_cached() -> List[Dict[str, Any]]:
+    """Return a JSON-friendly summary of the cache for diagnostic tooling."""
+    return [
+        {
+            "script_id": sid,
+            "parameters": entry["parameters"],
+            "created_at": entry["created_at"],
+            "script_chars": len(entry["script"]),
+        }
+        for sid, entry in _SCRIPT_CACHE.items()
+    ]
+
+
+# ─── CADAM-style image extraction (two-pass workflow) ──────────────────────────
+
+class ReferenceImageInput(BaseModel):
+    """Input for blender_reference_image_to_scene tool (two-pass reference image extraction)."""
+    action: str = Field(
+        ...,
+        description="Action: 'extraction_prompt' (get Claude instruction), 'submit_extraction' (validate JSON), 'build_seed_params' (map to Blender params)"
+    )
+    image_data: Optional[str] = Field(
+        None,
+        description="Base64-encoded image data (for submit_extraction action)"
+    )
+    extraction_json: Optional[str] = Field(
+        None,
+        description="JSON string from Claude (for submit_extraction action)"
+    )
+    cache_id: Optional[str] = Field(
+        None,
+        description="Cache ID returned by submit_extraction (for build_seed_params action)"
+    )
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+
+_EXTRACTION_CACHE: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+_EXTRACTION_CACHE_MAX = 32
+
+
+def _cache_extraction(extraction: Dict[str, Any]) -> str:
+    """Insert extraction in the LRU cache. Returns a 12-char cache_id."""
+    cache_id = uuid.uuid4().hex[:12]
+    _EXTRACTION_CACHE[cache_id] = {
+        "extraction": extraction,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+    }
+    _EXTRACTION_CACHE.move_to_end(cache_id)
+    while len(_EXTRACTION_CACHE) > _EXTRACTION_CACHE_MAX:
+        _EXTRACTION_CACHE.popitem(last=False)
+    return cache_id
+
+
+def _get_extraction_cached(cache_id: str) -> Optional[Dict[str, Any]]:
+    """Return the cached extraction (and mark as recently used) or None."""
+    entry = _EXTRACTION_CACHE.get(cache_id)
+    if entry is not None:
+        _EXTRACTION_CACHE.move_to_end(cache_id)
+    return entry
+
+
+
+# ─── Execute Python (DEPRECATED — kept as alias, prefer generate+run) ─────────
 
 @mcp.tool(
     name="blender_execute_python",
-    annotations={"title": "Execute Python", "readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False},
+    annotations={"title": "Execute Python (deprecated)", "readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False},
 )
 async def blender_execute_python(code: str = Field(..., description="Python code to execute in Blender. Has access to bpy, mathutils. Set __result__ to return data.")) -> str:
-    """Execute arbitrary Python code inside Blender. Has access to bpy, Vector, Euler, Matrix, Color, math, os. Set the variable __result__ to any JSON-serializable value to return data from the script. Use for advanced operations not covered by other tools."""
-    return format_result(send_command("execute_python", {"code": code}))
+    """DEPRECATED in v3.1. Prefer blender_generate_bpy_script + blender_run_bpy_script
+    so numeric literals are pinned to a # --- PARAMETERS --- block (CADAM-style
+    slider loop). This tool delegates to blender_run_bpy_script with
+    require_parameters_block=False for backward compatibility. Has access to bpy,
+    Vector, Euler, Matrix, Color, math. Set __result__ to any JSON-serializable
+    value to return data from the script."""
+    return await blender_run_bpy_script(  # type: ignore[arg-type]
+        script=code, cache=False, require_parameters_block=False
+    )
+
+
+# ─── v3.1 generate_bpy_script — publishes the contract, no execution ─────────
+
+class GenerateBpyScriptInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    intent: str = Field(..., description="Natural-language description of what the script should produce.")
+    reference_params: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Optional pre-existing parameter values (e.g. from reference_image_to_scene) to seed the PARAMETERS block.",
+    )
+
+
+@mcp.tool(
+    name="blender_reference_image_to_scene",
+    title="Reference Image to Scene (CADAM two-pass)",
+    description="Two-pass reference image extraction: Pass 1 provides Claude with detailed extraction prompt for structured JSON. Pass 2 validates JSON and maps to Blender seed parameters.",
+    destructiveHint=False,
+)
+async def blender_reference_image_to_scene(params: ReferenceImageInput) -> str:
+    """
+    Two-pass CADAM-style reference image extraction workflow.
+    
+    Actions:
+    - extraction_prompt: Returns detailed instruction prompt for Claude to analyze reference images
+    - submit_extraction: Validates extracted JSON, caches it, returns cache_id for use in Pass 2
+    - build_seed_params: Retrieves cached extraction and maps fields to Blender generation parameters
+    
+    Two-pass pattern (image → JSON → parameters) improves reliability vs direct image → parameters.
+    """
+    
+    if params.action == "extraction_prompt":
+        # Pass 1: Return the detailed extraction prompt for Claude
+        return IMAGE_EXTRACTION_PROMPT
+    
+    elif params.action == "submit_extraction":
+        # Pass 2a: Validate the extracted JSON
+        if not params.extraction_json:
+            return format_result({"error": "extraction_json required for submit_extraction action"}, False)
+        
+        # Parse and validate
+        try:
+            if isinstance(params.extraction_json, str):
+                extraction = json.loads(params.extraction_json)
+            else:
+                extraction = params.extraction_json
+        except (json.JSONDecodeError, ValueError) as e:
+            return format_result({
+                "error": f"Invalid JSON: {str(e)}",
+                "extraction_json": params.extraction_json[:100] if isinstance(params.extraction_json, str) else str(params.extraction_json)[:100]
+            }, False)
+        
+        # Validate extraction schema
+        is_valid, errors = validate_extraction(extraction)
+        if not is_valid:
+            return format_result({
+                "error": "Extraction validation failed",
+                "validation_errors": errors,
+                "extraction": extraction
+            }, False)
+        
+        # Cache and return cache_id
+        cache_id = _cache_extraction(extraction)
+        return format_result({
+            "ok": True,
+            "cache_id": cache_id,
+            "cached_at": datetime.utcnow().isoformat() + "Z",
+            "extraction_keys": list(extraction.keys()),
+            "cache_size": len(_EXTRACTION_CACHE)
+        })
+    
+    elif params.action == "build_seed_params":
+        # Pass 2b: Build seed parameters from cached extraction
+        if not params.cache_id:
+            return format_result({"error": "cache_id required for build_seed_params action"}, False)
+        
+        # Retrieve cached extraction
+        cached_entry = _get_extraction_cached(params.cache_id)
+        if cached_entry is None:
+            return format_result({
+                "error": f"Extraction not found in cache: {params.cache_id}",
+                "available_cache_ids": list(_EXTRACTION_CACHE.keys())
+            }, False)
+        
+        extraction = cached_entry["extraction"]
+        
+        # Build seed parameters
+        seed_params, warnings = build_seed_params(extraction)
+        
+        return format_result({
+            "ok": True,
+            "seed_parameters": seed_params,
+            "warnings": warnings if warnings else [],
+            "cache_id": params.cache_id,
+            "created_at": cached_entry["created_at"],
+            "parameter_count": len(seed_params),
+            "next_step": "Use seed_parameters with blender_generate_bpy_script to create a parametrized Blender script"
+        })
+    
+    else:
+        return format_result({
+            "error": f"Unknown action: {params.action}",
+            "valid_actions": ["extraction_prompt", "submit_extraction", "build_seed_params"]
+        }, False)
+
+
+
+@mcp.tool(
+    name="blender_generate_bpy_script",
+    annotations={"title": "Generate bpy Script (contract publisher)", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+)
+async def blender_generate_bpy_script(params: GenerateBpyScriptInput) -> str:
+    """Publish the CADAM-style generation contract for the calling LLM.
+
+    This tool DOES NOT call an LLM and DOES NOT produce a script. It returns the
+    canonical system prompt + parameter template + (optionally) seed values.
+    The calling agent is expected to author a script that follows the contract
+    and then submit it via blender_run_bpy_script.
+
+    Returns JSON:
+    {
+      "system_prompt": "<contract>",
+      "parameters_template": "<boilerplate>",
+      "intent": "<echoed user intent>",
+      "seed_parameters": {...} | None,
+      "next_call": "blender_run_bpy_script",
+      "system_prompt_version": "<sha12>"
+    }
+    """
+    try:
+        from server.codegen_prompt import PROMPT_VERSION
+    except Exception:
+        try:
+            from codegen_prompt import PROMPT_VERSION  # type: ignore
+        except Exception:
+            PROMPT_VERSION = "unknown"
+
+    payload = {
+        "system_prompt": BPY_GENERATION_SYSTEM_PROMPT,
+        "parameters_template": PARAMETERS_BLOCK_TEMPLATE,
+        "intent": params.intent,
+        "seed_parameters": params.reference_params,
+        "next_call": "blender_run_bpy_script",
+        "system_prompt_version": PROMPT_VERSION,
+    }
+    return json.dumps(payload, indent=2)
+
+
+# ─── v3.1 run_bpy_script — validates, caches, executes ───────────────────────
+
+@mcp.tool(
+    name="blender_run_bpy_script",
+    annotations={"title": "Run bpy Script", "readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False},
+)
+async def blender_run_bpy_script(
+    script: str = Field(..., description="Complete bpy Python script. By default must start with a # --- PARAMETERS --- block (CADAM contract)."),
+    cache: bool = Field(default=True, description="If True, cache the script keyed by script_id for later blender_apply_params calls."),
+    require_parameters_block: bool = Field(default=True, description="If True (default), reject scripts without a valid PARAMETERS block. Set False to run legacy/ad-hoc snippets."),
+) -> str:
+    """Execute a bpy script inside the connected Blender instance. The script is
+    AST-validated server-side BEFORE being sent to the addon (defense in depth
+    on top of the addon's existing OPENCLAW_ALLOW_EXEC + AST gates).
+
+    Returns JSON: {"script_id", "parameters", "result", "blocked_by_policy"?}.
+    The addon enforces OPENCLAW_ALLOW_EXEC at bridge time; if disabled, that
+    error is surfaced unchanged."""
+    parameters: Dict[str, Any] = {}
+
+    if require_parameters_block:
+        ok, reason = _validate_parameters_block(script)
+        if not ok:
+            return format_result({
+                "error": f"PARAMETERS block missing/invalid: {reason}",
+                "blocked_by_policy": True,
+                "hint": "Call blender_generate_bpy_script first to get the contract, "
+                        "or pass require_parameters_block=False to bypass.",
+            })
+        try:
+            parameters = _extract_parameters(script)
+        except ValueError as e:
+            return format_result({
+                "error": f"PARAMETERS block parse error: {e}",
+                "blocked_by_policy": True,
+            })
+
+    # Server-side AST gate (the addon also checks; this is defense in depth).
+    if _safety_check is not None:
+        try:
+            _safety_check(script, strict=True)
+        except _CodeSafetyError as e:  # type: ignore[misc]
+            return format_result({
+                "error": f"Script blocked by server safety policy: {getattr(e, 'reason', str(e))}",
+                "blocked_by_policy": True,
+            })
+
+    script_id: Optional[str] = None
+    if cache:
+        script_id = _cache_script(script, parameters)
+
+    raw = send_command("execute_python", {"code": script})
+
+    # send_command returns either {"result": ...} or {"error": ...}
+    response: Dict[str, Any] = {
+        "script_id": script_id,
+        "parameters": parameters,
+    }
+    if isinstance(raw, dict):
+        response.update(raw)
+    else:
+        response["result"] = raw
+    return format_result(response)
+
+
+# ─── v3.1 apply_params — re-run only the PARAMETERS block of a cached script ─
+
+class ApplyParamsInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    script_id: str = Field(..., description="script_id returned by a prior blender_run_bpy_script call.")
+    new_values: Dict[str, Any] = Field(..., description="Parameter overrides. Keys must be a subset of the cached script's parameter names.")
+    rerun: bool = Field(default=True, description="If True, re-execute the script with the new parameters. If False, only return the rewritten script.")
+
+
+@mcp.tool(
+    name="blender_apply_params",
+    annotations={"title": "Apply Params (CADAM slider loop)", "readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False},
+)
+async def blender_apply_params(params: ApplyParamsInput) -> str:
+    """CADAM-style slider re-run: rewrite the # --- PARAMETERS --- block of a
+    previously-cached script with new values and (optionally) re-execute. The
+    LLM is NOT called — only the parameter values change. Use this for fast
+    tweaks (camera FOV, light energy, material roughness) without spending
+    tokens on regeneration."""
+    entry = _get_cached(params.script_id)
+    if entry is None:
+        return format_result({
+            "error": f"Unknown script_id {params.script_id!r}. "
+                     f"Cache holds {len(_SCRIPT_CACHE)} scripts (max {_SCRIPT_CACHE_MAX}).",
+        })
+
+    # ─── needs_input: unknown override key ─────────────────────────────────
+    cached_params: Dict[str, Any] = entry.get("parameters", {}) or {}
+    unknown = [k for k in params.new_values.keys() if k not in cached_params]
+    if unknown:
+        bad_key = unknown[0]
+        return format_result(needs_input_payload(
+            field=bad_key,
+            kind="enum",
+            description=(
+                f"Override key {bad_key!r} is not in this script's PARAMETERS block. "
+                f"Pick one of the available keys, or call blender_generate_bpy_script "
+                f"to author a new script with that parameter."
+            ),
+            choices=list(cached_params.keys()),
+            available=cached_params,
+            hint="Re-call blender_apply_params with new_values keyed by an existing PARAMETERS name.",
+        ))
+
+    # ─── needs_input: empty override but the script has tunable params ─────
+    if not params.new_values and cached_params:
+        # Caller explicitly asked to "apply" with no overrides — usually a mistake.
+        # Surface the available keys instead of silently re-running the same script.
+        first = next(iter(cached_params.items()))
+        return format_result(needs_input_payload(
+            field=first[0],
+            kind=_kind_for_value(first[1]),
+            description=(
+                "blender_apply_params was called with no overrides. "
+                "Pass new_values to actually change something, or call blender_run_bpy_script "
+                "with cache=True to just re-run the cached script."
+            ),
+            default=first[1],
+            available=cached_params,
+            hint="Pass new_values={'KEY': value} to override one or more PARAMETERS.",
+        ))
+
+    try:
+        new_script = _replace_parameters(entry["script"], params.new_values)
+        new_params = _extract_parameters(new_script)
+    except ValueError as e:
+        # Type/parse errors → needs_input (the rewritten block didn't validate)
+        return format_result(needs_input_payload(
+            field=str(e).split("'")[1] if "'" in str(e) else "(unknown)",
+            kind="any",
+            description=f"PARAMETERS block rewrite failed: {e}",
+            available=cached_params,
+            hint="Check that override values are literal Python (str/int/float/bool/list/dict/None).",
+        ))
+
+    # Update the cache entry in-place (same script_id, refreshed contents)
+    _SCRIPT_CACHE[params.script_id] = {
+        "script": new_script,
+        "parameters": new_params,
+        "created_at": entry["created_at"],
+    }
+    _SCRIPT_CACHE.move_to_end(params.script_id)
+
+    if not params.rerun:
+        return format_result({
+            "script_id": params.script_id,
+            "parameters": new_params,
+            "rerun": False,
+        })
+
+    # Server-side safety still applies (parameters can't subvert it but we keep
+    # the gate for symmetry with run_bpy_script).
+    if _safety_check is not None:
+        try:
+            _safety_check(new_script, strict=True)
+        except _CodeSafetyError as e:  # type: ignore[misc]
+            return format_result({
+                "error": f"Rewritten script blocked by server safety policy: {getattr(e, 'reason', str(e))}",
+                "blocked_by_policy": True,
+            })
+
+    raw = send_command("execute_python", {"code": new_script})
+    response: Dict[str, Any] = {
+        "script_id": params.script_id,
+        "parameters": new_params,
+        "rerun": True,
+    }
+    if isinstance(raw, dict):
+        response.update(raw)
+    else:
+        response["result"] = raw
+    return format_result(response)
+
+
+@mcp.tool(
+    name="blender_list_cached_scripts",
+    annotations={"title": "List Cached Scripts", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+)
+async def blender_list_cached_scripts() -> str:
+    """List script_ids currently held in the v3.1 LRU cache (max 32 entries).
+    Useful for picking a target for blender_apply_params after a long session."""
+    return format_result({
+        "cached": _list_cached(),
+        "max_size": _SCRIPT_CACHE_MAX,
+    })
+
+
+# ─── v3.1 list_available_assets — discover already-downloaded HDRIs/textures ──
+# CADAM bundles BOSL with the WASM build; our equivalent is letting the LLM
+# discover what Poly Haven / ambientCG / Sketchfab assets are ALREADY on disk
+# so it references existing ids instead of re-downloading or hallucinating.
+
+_KNOWN_PROVIDERS = ("polyhaven", "ambientcg", "sketchfab", "hyper3d", "hunyuan3d", "local")
+_ASSET_LISTING_CACHE: Dict[str, Any] = {}
+
+_HDRI_EXTS = {".hdr", ".exr"}
+_TEX_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".tif", ".tiff"}
+_MODEL_EXTS = {".glb", ".gltf", ".fbx", ".obj", ".usd", ".usdz", ".ply", ".stl"}
+_BLEND_EXTS = {".blend"}
+
+_RES_SUFFIXES = ("_8k", "_4k", "_2k", "_1k", "_512", "_256")
+_PBR_CHANNELS = ("_diff", "_nor_gl", "_nor", "_rough", "_arm", "_disp", "_ao", "_metal", "_metallic", "_normal", "_albedo", "_basecolor")
+
+
+def _classify_extension(ext: str) -> Optional[str]:
+    e = ext.lower()
+    if e in _HDRI_EXTS: return "hdri"
+    if e in _TEX_EXTS:  return "texture"
+    if e in _MODEL_EXTS: return "model"
+    if e in _BLEND_EXTS: return "blend"
+    return None
+
+
+def _strip_resolution_and_channel(stem: str) -> str:
+    """Group `kiara_1_dawn_2k` and `brown_mud_leaves_01_diff_2k` to a stable id."""
+    s = stem
+    for suffix in _RES_SUFFIXES:
+        if s.lower().endswith(suffix):
+            s = s[: -len(suffix)]
+            break
+    s_lower = s.lower()
+    for ch in _PBR_CHANNELS:
+        if s_lower.endswith(ch):
+            s = s[: -len(ch)]
+            break
+    return s
+
+
+def _resolve_asset_cache_roots() -> Dict[str, List[str]]:
+    """Return {provider: [paths_that_exist]} based on env vars + standard locations."""
+    candidates: Dict[str, List[str]] = {p: [] for p in _KNOWN_PROVIDERS}
+    bases: List[str] = []
+    for env in ("OPENCLAW_ASSET_CACHE", "BLENDER_MCP_ASSET_CACHE"):
+        v = os.environ.get(env)
+        if v:
+            bases.append(os.path.expanduser(v))
+    bases.append(os.path.expanduser("~/.openclaw/assets"))
+    bases.append(os.path.expanduser("~/.cache/blender_mcp"))
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    bases.append(os.path.join(repo_root, "assets"))
+    bases.append(os.path.join(repo_root, "cache"))
+
+    for base in bases:
+        if not base or not os.path.isdir(base):
+            continue
+        for provider in _KNOWN_PROVIDERS:
+            sub = os.path.join(base, provider)
+            if os.path.isdir(sub) and sub not in candidates[provider]:
+                candidates[provider].append(sub)
+        # Also treat the base itself as the "local" pool if it contains files directly
+        # (useful when OPENCLAW_ASSET_CACHE points straight at a flat folder).
+        try:
+            entries = os.listdir(base)
+        except OSError:
+            entries = []
+        if any(os.path.isfile(os.path.join(base, e)) for e in entries):
+            if base not in candidates["local"]:
+                candidates["local"].append(base)
+    return candidates
+
+
+def _scan_provider_cache(
+    provider: str,
+    roots: List[str],
+    asset_types: Optional[List[str]],
+    limit: int,
+) -> Dict[str, Any]:
+    allowed = set(asset_types) if asset_types else {"hdri", "texture", "model", "blend"}
+    grouped: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+    truncated = False
+    for root in roots:
+        for dirpath, _dirs, files in os.walk(root):
+            for fname in files:
+                stem, ext = os.path.splitext(fname)
+                kind = _classify_extension(ext)
+                if kind is None or kind not in allowed:
+                    continue
+                asset_id = _strip_resolution_and_channel(stem)
+                full = os.path.join(dirpath, fname)
+                try:
+                    size = os.path.getsize(full)
+                except OSError:
+                    size = -1
+                # Detect resolution token (1k/2k/4k/8k) for the file
+                res = None
+                for suffix in _RES_SUFFIXES:
+                    if stem.lower().endswith(suffix):
+                        res = suffix.lstrip("_")
+                        break
+                entry = grouped.setdefault(asset_id, {
+                    "id": asset_id,
+                    "type": kind,
+                    "files": [],
+                    "resolutions_available": [],
+                    "size_bytes": 0,
+                    "root": root,
+                })
+                entry["files"].append({"path": full, "name": fname, "size": size})
+                if res and res not in entry["resolutions_available"]:
+                    entry["resolutions_available"].append(res)
+                if size > 0:
+                    entry["size_bytes"] += size
+                if len(grouped) >= limit:
+                    truncated = True
+                    break
+            if truncated:
+                break
+        if truncated:
+            break
+    return {
+        "name": provider,
+        "cache_roots": roots,
+        "assets": list(grouped.values()),
+        "total_assets": len(grouped),
+        "truncated": truncated,
+    }
+
+
+class ListAvailableAssetsInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    providers: Optional[List[str]] = Field(
+        default=None,
+        description=f"Filter by provider names. Supported: {', '.join(_KNOWN_PROVIDERS)}. Default: all.",
+    )
+    asset_types: Optional[List[str]] = Field(
+        default=None,
+        description="Filter by type: hdri, texture, model, blend. Default: all.",
+    )
+    limit_per_provider: int = Field(default=50, ge=1, le=500)
+    refresh: bool = Field(default=False, description="Re-scan disk instead of using memoized listing.")
+
+
+@mcp.tool(
+    name="blender_list_available_assets",
+    annotations={"title": "List Available Assets", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
+)
+async def blender_list_available_assets(params: ListAvailableAssetsInput) -> str:
+    """List ALREADY-DOWNLOADED Poly Haven / ambientCG / Sketchfab / Hyper3D /
+    Hunyuan3D / local assets so the calling LLM references them by id rather
+    than re-downloading or hallucinating new asset names.
+
+    Returns JSON with one entry per provider — cache_roots, asset list (with
+    resolutions_available), total_assets, truncated flag, plus global_hints.
+    Use the returned ids in the PARAMETERS block (e.g. HDRI_ID = 'kiara_1_dawn')
+    and pass them to blender_polyhaven action='download_hdri' if not already
+    applied to the world."""
+    providers = params.providers or list(_KNOWN_PROVIDERS)
+    invalid = [p for p in providers if p not in _KNOWN_PROVIDERS]
+    if invalid:
+        return format_result({
+            "error": f"Unknown provider(s): {invalid}. Supported: {list(_KNOWN_PROVIDERS)}",
+        })
+
+    cache_key = (
+        ",".join(sorted(providers)),
+        ",".join(sorted(params.asset_types)) if params.asset_types else "*",
+        params.limit_per_provider,
+    )
+    if not params.refresh and cache_key in _ASSET_LISTING_CACHE:
+        return format_result(_ASSET_LISTING_CACHE[cache_key])
+
+    roots_by_provider = _resolve_asset_cache_roots()
+    out_providers: List[Dict[str, Any]] = []
+    for p in providers:
+        roots = roots_by_provider.get(p, [])
+        if not roots:
+            out_providers.append({
+                "name": p, "cache_roots": [], "assets": [],
+                "total_assets": 0, "truncated": False,
+            })
+            continue
+        out_providers.append(_scan_provider_cache(
+            p, roots, params.asset_types, params.limit_per_provider,
+        ))
+
+    hints: List[str] = []
+    empty = [p["name"] for p in out_providers if p["total_assets"] == 0]
+    if empty:
+        hints.append(
+            f"No cached assets for: {', '.join(empty)}. "
+            f"Use blender_polyhaven(action='search') / blender_sketchfab to download first."
+        )
+    if any(p["total_assets"] > 0 for p in out_providers):
+        hints.append(
+            "Reference asset ids as PARAMETERS-block constants "
+            "(e.g. HDRI_ID = 'kiara_1_dawn') — never inline as magic strings."
+        )
+
+    payload = {
+        "providers": out_providers,
+        "global_hints": hints,
+        "scanned_at": datetime.utcnow().isoformat() + "Z",
+    }
+    _ASSET_LISTING_CACHE[cache_key] = payload
+    return format_result(payload)
 
 
 # ─── Hyper3D Rodin AI Mesh Generation ────────────────────────────────────
@@ -1521,7 +2413,16 @@ async def blender_forensic_scene(input: ForensicSceneInput) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 if _HAS_PRODUCT_TOOLS:
-    _product_tool_names = register_product_tools(mcp, send_command, format_result)
+    # v3.1.1 (Issue #10): pass run_cadam_script so the 11 raw execute_python
+    # call sites in product_animation_tools can opt into the PARAMETERS-block
+    # contract. Falls back to the old send_command path if the legacy
+    # signature (3-arg) is still in use.
+    try:
+        _product_tool_names = register_product_tools(
+            mcp, send_command, format_result, run_cadam_script,
+        )
+    except TypeError:
+        _product_tool_names = register_product_tools(mcp, send_command, format_result)
     print(f"[OpenClaw] Registered {len(_product_tool_names)} product animation tools: {', '.join(_product_tool_names)}")
 else:
     print("[OpenClaw] Product animation tools not found — skipping (place product_animation_tools.py in server/)")
