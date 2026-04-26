@@ -493,6 +493,89 @@ These are mistakes the LLM has actually made when this skill is loaded. Don't re
 
 **5. Don't write your own cache-existence check in Python.** `blender_list_available_assets` already returns `total_assets` per provider and a `global_hints` array that tells you what's missing. There's no need to glob `~/.cache/polyhaven/` yourself in the bpy script.
 
+**6. Don't model characters / organic shapes from disconnected primitives.** Cubes for torso, spheres for head, cones for hair strands — that produces "kindergarten" output where the body parts visibly float apart from each other. The blender-guru notebook documents this as a known failure mode that practitioners *abandoned* after one attempt: "the legs being attracted to a single point made it seem like the character's body and legs are clearly different objects... deviated largely from the initial concept art." Use one of these instead, in priority order:
+
+   1. **Imported sculpt / Sketchfab pull** — `blender_sketchfab(action='search', query=...)` then `download_and_import`. The mesh is real, topology is real, ship it.
+   2. **Hyper3D Rodin AI mesh** — `blender_hyper3d(action='generate_and_import', prompt=...)`. Requires `HYPER3D_API_KEY`. Generates a connected mesh from a text prompt in 2-5 minutes.
+   3. **Skin Modifier + Subdivision Surface on a connected vertex skeleton** — for blockouts only. Place vertices for head/neck/torso/arm/leg joints, connect them as edges in one bmesh, apply the Skin modifier (auto-generates a humanoid blob), then Subsurf level 3 + Smooth shading. The result is a *single connected mesh* with proper topology.
+   4. **Curve→Mesh nodes** — `bpy.ops.object.gpencil_add` → curve nodes → tube. Good for vines / cables / hair clumps; not for full bodies.
+
+   **Hard rule:** if the user's reference includes a character or organic shape, the script must NOT contain calls like `bpy.ops.mesh.primitive_cube_add(...)` followed by `bpy.ops.mesh.primitive_sphere_add(...)` for body parts. The smell test: if you find yourself naming objects `Torso`, `Head`, `LegL`, `LegR`, `ArmL`, `ArmR` and they're separate `bpy.data.objects`, stop and switch to one of the four approaches above.
+
+---
+
+## NEW (v3.1.1): The Render-Verify-Iterate Loop (mandatory)
+
+**Rule**: After every render, READ THE PNG with multimodal vision and grade it against the reference. The default assumption is that the render is bad. Your job is to catch the badness, not narrate around it.
+
+**Why**: Skill iteration-1 in the eval harness shipped a "kindergarten primitives" render and called it done — three apply_params iterations later, the figure was still disconnected. The failure mode wasn't the parameters; it was *never opening the rendered output*. The notebook canon (`skill: blender-guru`) documents the fix as the **Pixel Overlay Technique** (also called Onion Skinning), used by working studios for reference-photo matching.
+
+### The 5-step Pixel Overlay loop (canonical, from blender-guru notebook)
+
+For any "make it match this reference photo" task:
+
+```text
+1. RENDER at the EXACT reference resolution.
+   For a 700x700 reference, RENDER_RES_X = RENDER_RES_Y = 700.
+   Mismatched resolutions make the overlay step useless.
+
+2. ADD an Image node with the reference photo into the Compositor.
+   bpy.context.scene.use_nodes = True
+   img = bpy.data.images.load("/abs/path/reference.jpg")
+   image_node = scn.node_tree.nodes.new('CompositorNodeImage')
+   image_node.image = img
+
+3. MIX the render and the reference at 50% opacity (Mix node, factor=0.5).
+   The output is half-render, half-reference, overlaid pixel-perfect.
+   Save it as overlay.png and READ it with multimodal vision.
+
+4. TWEAK materials / lighting / camera until the overlay looks seamless at 50%.
+   Where the overlay is "ghosting" — that's where you're wrong. Specifically:
+     - Wrong silhouette  → geometry / camera angle / focal length
+     - Right silhouette, wrong color  → materials / view transform / exposure
+     - Right silhouette + color, wrong shadow direction  → key light position
+     - Right shadow, wrong shadow softness  → key light size / fill ratio
+   Apply ONE category of fix per iteration via blender_apply_params, re-render,
+   re-overlay, re-read. Don't change five things at once.
+
+5. SUBTRACT blend mode (Mix node, blend_type='SUBTRACT') highlights remaining
+   differences pixel-by-pixel. Black = match. Color = miss. When the subtract
+   image is mostly black, you're done.
+```
+
+### Mandatory pre-flight checks (before iteration)
+
+- **Disable the denoiser for calibration renders.** `scn.cycles.use_denoising = False` while you're tuning. Denoised renders blur the fine differences the overlay technique depends on. Re-enable for the final beauty pass only.
+- **Use 32-bit EXR for intermediate renders.** `scn.render.image_settings.file_format = 'OPEN_EXR'` + `color_depth = '32'`. Avoids banding artifacts that look like material problems but aren't.
+- **18% grey card test.** Before tuning lights, drop in a temporary plane with Roughness=0.8 and Base Color=(0.18, 0.18, 0.18). Render. Sample the rendered pixel value (in linear space, NOT view-transformed). It must read ~0.18. If brighter, lights are too strong. If darker, too weak. Tune `KEY_LIGHT_ENERGY_W` until the grey card calibrates, *then* tune everything else.
+
+### Tools to use, not just describe
+
+These exist in the v3.0+ MCP server. Don't paraphrase them:
+
+| Tool | Use it when |
+|---|---|
+| `blender_render` | Every render. The starting point of the loop. |
+| `blender_viewport_capture` | Visual sanity-check of scene state BEFORE rendering — costs no samples. Catches "I forgot to add the camera" type mistakes. |
+| `blender_scene_analyze` | Returns object counts, vertex/face counts, material list, light list, camera params. Catches missing materials, broken parents, off-camera framing. |
+| `blender_render_quality_audit` | Audits render settings (samples, denoiser, color management, output depth, motion blur, DOF, compositor passes). Catches "your samples are too low" / "you're rendering at 8-bit RGB". |
+| `blender_critique` | Vision-as-judge — feed the rendered PNG back, get structured criticism. The closest thing to a built-in pixel-overlay grader. |
+| `blender_drift_status` | EMA-based drift score for the session. ≥0.5 = alert (your agent has wandered off-task). |
+
+The pattern is: **render → viewport_capture if you're not sure → scene_analyze if numbers are off → critique on the final PNG → drift_status if you're losing the plot.** Don't skip steps because "the render looks fine" — it usually doesn't.
+
+### Anti-hallucination defaults (encoded as a checklist)
+
+Before you say "looks good":
+
+- [ ] I read the PNG with multimodal vision (not just saw the file size).
+- [ ] I named what's wrong with it in one sentence (geometry / materials / lighting / camera / render-settings) — or I named what's right with it in one sentence.
+- [ ] If the user gave a reference image, I overlaid the render at 50% via the Pixel Overlay technique.
+- [ ] I ran `blender_critique` or equivalent vision-as-judge on the final PNG.
+- [ ] My next change addresses the named failure, not a guess.
+
+If you can't tick all five, you don't ship. You iterate. The default assumption is that the render is bad until you can articulate why it's good.
+
 ### Worked recipe — asset cache discovery → render
 
 Use this template anytime the user wants HDRI / PBR work AND hasn't already pinned an asset id. It's the canonical 6-step flow that the v3.1 server is designed around. **When responding to the user, copy the call signatures verbatim — don't paraphrase `providers=[...]` into `provider:` or collapse two distinct tool calls into one. The list_available_assets call MUST include both `providers=[...]` and `asset_types=[...]` keyword arguments. The flow MUST end in two separate calls — `blender_generate_bpy_script` first, THEN `blender_run_bpy_script` — never just one.**
