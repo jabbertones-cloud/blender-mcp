@@ -1,112 +1,14 @@
-name: Auto Fix CI Failures (Claude)
+name: Auto Fix CI Failures (Claude) - DISABLED
 
-# Listens for a failed run of any of the WATCHED workflows in this repo
-# and asks Claude Code to push a fix branch + open a PR.
-#
-# Setup (one-time per repo):
-#   1. Install the Claude GitHub App: https://github.com/apps/claude
-#   2. Add repo secret ANTHROPIC_API_KEY (Settings -> Secrets and variables -> Actions)
+# This workflow is intentionally disabled by ci-auto-fix-killswitch.
+# Re-enable with: node scripts/ci-auto-fix-killswitch.js --enable
 
 on:
-  workflow_run:
-    workflows: ["Phase 6 Evaluation Harness"]
-    types: [completed]
-
-permissions:
-  contents: write
-  pull-requests: write
-  actions: read
-  issues: write
-  id-token: write
-
-concurrency:
-  group: claude-auto-fix-${{ github.event.workflow_run.id }}
-  cancel-in-progress: false
+  workflow_dispatch:
 
 jobs:
-  auto-fix:
-    if: |
-      github.event.workflow_run.conclusion == 'failure' &&
-      !startsWith(github.event.workflow_run.head_branch, 'claude-auto-fix-ci-')
+  noop:
+    if: false
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - name: Checkout failing ref
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }}
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup git identity
-        run: |
-          git config --global user.email "claude[bot]@users.noreply.github.com"
-          git config --global user.name "claude[bot]"
-
-      - name: Create fix branch
-        id: branch
-        run: |
-          BRANCH="claude-auto-fix-ci-${{ github.event.workflow_run.head_branch }}-${{ github.run_id }}"
-          git checkout -b "$BRANCH"
-          echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
-
-      - name: Get failure details
-        id: failure_details
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const run = await github.rest.actions.getWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
-            });
-            const jobs = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
-            });
-            const failedJobs = jobs.data.jobs.filter(j => j.conclusion === 'failure');
-            const errorLogs = [];
-            for (const job of failedJobs) {
-              try {
-                const logs = await github.rest.actions.downloadJobLogsForWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  job_id: job.id
-                });
-                const text = String(logs.data || '');
-                errorLogs.push({ jobName: job.name, logs: text.slice(-30000) });
-              } catch (e) {
-                errorLogs.push({ jobName: job.name, logs: `failed to download logs: ${e.message}` });
-              }
-            }
-            return {
-              workflowName: run.data.name,
-              runUrl: run.data.html_url,
-              headBranch: run.data.head_branch,
-              failedJobs: failedJobs.map(j => j.name),
-              errorLogs
-            };
-
-      - name: Fix CI failures with Claude
-        uses: anthropics/claude-code-action@v1
-        with:
-          prompt: |
-            /fix-ci
-            A scheduled / CI workflow is failing in this repo and is generating noisy daily error emails.
-            Read the failing job logs, find the root cause, push a minimal fix to the branch.
-            If the failure is a flaky test, environmental, or external service outage, instead
-            EITHER (a) skip the test with a clear comment + TODO, OR (b) reduce the cron schedule
-            to weekly and add a `# TODO: investigate flake` comment. Do not silently delete the workflow.
-
-            Workflow: ${{ fromJSON(steps.failure_details.outputs.result).workflowName }}
-            Failed Run: ${{ fromJSON(steps.failure_details.outputs.result).runUrl }}
-            Failed Jobs: ${{ join(fromJSON(steps.failure_details.outputs.result).failedJobs, ', ') }}
-            Branch: ${{ steps.branch.outputs.branch_name }}
-            Base: ${{ fromJSON(steps.failure_details.outputs.result).headBranch }}
-            Repo: ${{ github.repository }}
-
-            Error logs (truncated to last 30KB per job):
-            ${{ toJSON(fromJSON(steps.failure_details.outputs.result).errorLogs) }}
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: "--allowedTools 'Edit,MultiEdit,Write,Read,Glob,Grep,LS,Bash(git:*),Bash(bun:*),Bash(npm:*),Bash(npx:*),Bash(gh:*),Bash(yarn:*),Bash(pnpm:*),Bash(python:*),Bash(pip:*)'"
+      - run: echo "disabled"
