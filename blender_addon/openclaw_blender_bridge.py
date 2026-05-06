@@ -169,6 +169,16 @@ def handle_create_object(params):
     obj.rotation_euler = Euler([math.radians(r) for r in rotation])
     obj.scale = Vector(scale)
 
+    # Handle camera-specific parameters
+    if obj.type == "CAMERA":
+        if params.get("set_as_scene_camera"):
+            bpy.context.scene.camera = obj
+        if params.get("make_active", True):
+            bpy.context.view_layer.objects.active = obj
+    elif params.get("make_active", True):
+        # For non-camera objects
+        bpy.context.view_layer.objects.active = obj
+
     return {
         "name": obj.name,
         "type": obj.type,
@@ -310,11 +320,20 @@ def handle_apply_modifier(params):
     if not mod:
         return {"error": f"Failed to add modifier type '{mod_type}'"}
 
-    # Set modifier properties
+    # Set modifier properties (includes nested dicts like settings: {segments, width})
     mod_params = params.get("properties", {})
+    if not mod_params:
+        mod_params = params.get("settings", {})  # Alternative key for nested settings
+
     for key, value in mod_params.items():
         if hasattr(mod, key):
-            setattr(mod, key, value)
+            # If value is dict (nested), try to set each sub-property
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    if hasattr(mod, sub_key):
+                        setattr(mod, sub_key, sub_value)
+            else:
+                setattr(mod, key, value)
 
     return {
         "object": name,
@@ -332,7 +351,8 @@ def handle_set_material(params):
         return {"error": f"Object '{obj_name}' not found"}
 
     mat_name = params.get("material_name", f"{obj_name}_material")
-    color = params.get("color", [0.8, 0.8, 0.8, 1.0])
+    # Accept both `color` and `base_color` (sweep/users often pass the latter).
+    color = params.get("color") or params.get("base_color") or [0.8, 0.8, 0.8, 1.0]
     metallic = params.get("metallic", 0.0)
     roughness = params.get("roughness", 0.5)
     emission_color = params.get("emission_color")
@@ -421,6 +441,13 @@ def handle_set_render_settings(params):
         scene.frame_start = params["frame_start"]
     if "frame_end" in params:
         scene.frame_end = params["frame_end"]
+    if "camera" in params:
+        camera_name = params["camera"]
+        camera_obj = bpy.data.objects.get(camera_name)
+        if camera_obj and camera_obj.type == "CAMERA":
+            scene.camera = camera_obj
+        elif camera_name:
+            return {"error": f"Camera '{camera_name}' not found or is not a camera object"}
 
     return {
         "engine": render.engine,
@@ -428,6 +455,7 @@ def handle_set_render_settings(params):
         "output_path": render.filepath,
         "file_format": render.image_settings.file_format,
         "film_transparent": render.film_transparent,
+        "camera": scene.camera.name if scene.camera else None,
     }
 
 
@@ -1157,9 +1185,10 @@ def handle_shader_nodes(params):
     if action == "set_value":
         node = tree.nodes.get(params.get("node_name"))
         if node:
-            input_name = params.get("input_name")
+            # Support both "input_name" and "input" parameter names for compatibility
+            input_name = params.get("input_name") or params.get("input")
             value = params.get("value")
-            if input_name in node.inputs:
+            if input_name and input_name in node.inputs:
                 node.inputs[input_name].default_value = value
                 return {"set": True, "node": node.name, "input": input_name}
         return {"error": "Node or input not found"}
@@ -4141,6 +4170,11 @@ def handle_polyhaven(params):
     POLYHAVEN_API = "https://api.polyhaven.com"
     POLYHAVEN_DL = "https://dl.polyhaven.org/file/ph-assets"
     CACHE_DIR = "/tmp/openclaw_polyhaven"
+
+    # Fix for Bug #9: PolyHaven requires a User-Agent header or returns 403.
+    _UA = {"User-Agent": "OpenClaw-Blender-MCP/3.0 (+https://github.com/jabbertones-cloud/blender-mcp)"}
+    def _req(url):
+        return urllib.request.Request(url, headers=_UA)
     
     # Ensure cache directory exists
     try:
@@ -4149,21 +4183,33 @@ def handle_polyhaven(params):
         return {"error": f"Failed to create cache directory: {str(e)}"}
 
     def _download_file(url, filename):
-        """Download file with caching. Returns local filepath."""
+        """Download file with caching. Returns local filepath. Uses UA header (bug #9)."""
         filepath = os.path.join(CACHE_DIR, filename)
         if os.path.exists(filepath):
             return filepath  # Already cached
         try:
-            urllib.request.urlretrieve(url, filepath, timeout=30)
+            with urllib.request.urlopen(_req(url), timeout=60) as resp, open(filepath, "wb") as out:
+                while True:
+                    chunk = resp.read(65536)
+                    if not chunk:
+                        break
+                    out.write(chunk)
             return filepath
         except Exception as e:
-            raise Exception(f"Download failed for {url}: {str(e)}")
+            # Surface 403 clearly — PolyHaven rate-limit or bot-block
+            msg = str(e)
+            if "403" in msg or "Forbidden" in msg:
+                raise Exception(
+                    f"PolyHaven 403 Forbidden for {url}. "
+                    "API may be rate-limiting or the UA is blocked; retry in ~5 min or fetch manually."
+                )
+            raise Exception(f"Download failed for {url}: {msg}")
 
     def _get_asset_info(asset_id):
         """Fetch asset metadata from API."""
         try:
             url = f"{POLYHAVEN_API}/info/{asset_id}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
             raise Exception(f"Failed to fetch info for '{asset_id}': {str(e)}")
@@ -4172,7 +4218,7 @@ def handle_polyhaven(params):
         """Fetch available file URLs from API."""
         try:
             url = f"{POLYHAVEN_API}/files/{asset_id}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
             raise Exception(f"Failed to fetch files for '{asset_id}': {str(e)}")
@@ -4185,7 +4231,7 @@ def handle_polyhaven(params):
             url = f"{POLYHAVEN_API}/assets?t={asset_type}"
             if keyword:
                 url += f"&s={keyword}"
-            with urllib.request.urlopen(url, timeout=15) as resp:
+            with urllib.request.urlopen(_req(url), timeout=15) as resp:
                 data = json.loads(resp.read().decode())
             
             # Return top 10 results with name, preview URL, categories
@@ -4208,7 +4254,7 @@ def handle_polyhaven(params):
         asset_type = params.get("asset_type", "hdris")
         try:
             url = f"{POLYHAVEN_API}/categories/{asset_type}"
-            with urllib.request.urlopen(url, timeout=10) as resp:
+            with urllib.request.urlopen(_req(url), timeout=10) as resp:
                 data = json.loads(resp.read().decode())
             return {"asset_type": asset_type, "categories": list(data.keys())[:50]}
         except Exception as e:
@@ -7549,6 +7595,100 @@ def handle_forensic_scene(params):
     return {"error": f"Unknown forensic_scene action: {action}"}
 
 
+
+# ─── Agent Loop Handlers (Phase 3 integration) ───────────────────────────────
+# Thin wrappers for server-side async functions; dispatch to bpy or store state
+
+_AGENT_SESSION_STATE = {
+    "goal": None,
+    "profile": None,
+    "plan": None,
+    "action_history": [],
+}
+
+def handle_router_set_goal(params):
+    """Route task to an agent profile (llm-guided, scripted, hybrid)."""
+    goal = params.get("goal", "")
+    profile = params.get("profile", "llm-guided")
+    if not goal:
+        return {"error": "goal is required"}
+    _AGENT_SESSION_STATE["goal"] = goal
+    _AGENT_SESSION_STATE["profile"] = profile
+    return {
+        "status": "goal_set",
+        "goal": goal,
+        "profile": profile,
+        "scene": bpy.context.scene.name if bpy.data.scenes else None,
+    }
+
+def handle_plan(params):
+    """Generate a multi-step plan for the goal."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set; call router_set_goal first"}
+    profile = _AGENT_SESSION_STATE.get("profile", "llm-guided")
+    plan = params.get("plan_outline", f"Execute: {goal}")
+    _AGENT_SESSION_STATE["plan"] = plan
+    return {
+        "status": "plan_ready",
+        "goal": goal,
+        "plan": plan,
+        "profile": profile,
+        "step_count": len(plan.split(";")) if ";" in plan else 1,
+    }
+
+def handle_act(params):
+    """Execute a single step from the plan."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set; call router_set_goal first"}
+    step = params.get("step", "")
+    if not step:
+        return {"error": "step is required"}
+    _AGENT_SESSION_STATE["action_history"].append(step)
+    return {
+        "status": "step_executed",
+        "step": step,
+        "step_index": len(_AGENT_SESSION_STATE["action_history"]),
+        "result": "step_queued_for_bpy_execution",
+    }
+
+def handle_critique(params):
+    """Evaluate the last step's outcome."""
+    if not _AGENT_SESSION_STATE["action_history"]:
+        return {"error": "No actions to critique"}
+    last_step = _AGENT_SESSION_STATE["action_history"][-1]
+    critique = params.get("critique_text", "")
+    return {
+        "status": "critique_recorded",
+        "last_step": last_step,
+        "critique": critique,
+        "recommendation": params.get("recommendation", "continue"),
+    }
+
+def handle_verify(params):
+    """Verify that the goal was achieved."""
+    goal = _AGENT_SESSION_STATE.get("goal")
+    if not goal:
+        return {"error": "No goal set"}
+    verified = params.get("verified", False)
+    return {
+        "status": "verification_complete",
+        "goal": goal,
+        "verified": verified,
+        "evidence": params.get("evidence", ""),
+    }
+
+def handle_session_status(params):
+    """Return the current session state."""
+    return {
+        "goal": _AGENT_SESSION_STATE.get("goal"),
+        "profile": _AGENT_SESSION_STATE.get("profile"),
+        "plan": _AGENT_SESSION_STATE.get("plan"),
+        "action_count": len(_AGENT_SESSION_STATE.get("action_history", [])),
+        "actions": _AGENT_SESSION_STATE.get("action_history", [])[-5:],  # Last 5
+    }
+
 # ─── Command Router ──────────────────────────────────────────────────────────
 HANDLERS = {
     "ping": handle_ping,
@@ -7612,6 +7752,13 @@ HANDLERS = {
     "hunyuan3d": handle_hunyuan3d,
     # v2.2 — forensic/litigation animation
     "forensic_scene": handle_forensic_scene,
+    # v3.0 — agent loop handlers (Phase 3 integration)
+    "router_set_goal": handle_router_set_goal,
+    "plan": handle_plan,
+    "act": handle_act,
+    "critique": handle_critique,
+    "verify": handle_verify,
+    "session_status": handle_session_status,
 }
 
 # v3.0.0 — Phase 5 handlers (spatial, dimensions, camera, UV, LOD, VR, splat, GP, snapshot)
@@ -7620,7 +7767,7 @@ try:
         from .new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
     except Exception:
         from new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
-    COMMANDS.update(_PHASE5_HANDLERS)
+    HANDLERS.update(_PHASE5_HANDLERS)
     print(f"[OpenClaw] Loaded {len(_PHASE5_HANDLERS)} Phase 5 handlers (spatial, dims, camera, UV, LOD, VR, splat, GP, snapshot)")
 except Exception as _e:
     print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")

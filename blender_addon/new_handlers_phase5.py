@@ -385,7 +385,8 @@ def handle_floor_plan_data(params):
 def handle_camera_advanced(params):
     _require_bpy()
     action = params.get("action")
-    name = params.get("camera") or params.get("name")
+    # Accept `camera`, `camera_name`, or `name` — sweep clients use `camera_name`.
+    name = params.get("camera") or params.get("camera_name") or params.get("name")
     if action == "set_active":
         cam = _get_obj(name)
         bpy.context.scene.camera = cam

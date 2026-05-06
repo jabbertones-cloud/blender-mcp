@@ -1,5 +1,0 @@
-Rendered: Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/bridge_test_01_Cam_BirdEye.png
-Rendered: Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/bridge_test_02_Cam_DriverPOV.png
-Rendered: Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/bridge_test_03_Cam_Orbit.png
-Rendered: Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/bridge_test_04_Cam_Witness.png
-Scene saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/bridge_test_scene.blend

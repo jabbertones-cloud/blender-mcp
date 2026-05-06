@@ -1,9 +1,0 @@
-{
-  "asset_id": "unknown",
-  "audited_at": "2026-03-26T12:09:14.425Z",
-  "pass": false,
-  "flicker": 10,
-  "shimmer": 10,
-  "exposure_pumping": 10,
-  "reason": "no_frames"
-}

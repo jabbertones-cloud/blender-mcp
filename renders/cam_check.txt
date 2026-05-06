@@ -1,4 +1,0 @@
-Cameras found: 1
-  Camera at [17.5, 17.5, 14.0], lens=50.0
-Total objects: 12
-Active camera: Camera

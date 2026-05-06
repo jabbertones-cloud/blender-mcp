@@ -1,0 +1,111 @@
+{
+  "extraction": {
+    "dimensions": {
+      "width_estimate_cm": 16.0,
+      "height_estimate_cm": 30.0,
+      "depth_estimate_cm": 16.0,
+      "description": "Clear acrylic display case ~30cm tall x ~16cm wide x ~16cm deep; figure inside ~25cm tall, hands raised holding small accessories."
+    },
+    "materials": [
+      {
+        "name": "acrylic_case",
+        "base_color": "#F2F7FF",
+        "metallic": 0.0,
+        "roughness": 0.04,
+        "notes": "Clear acrylic; transmission=1.0, IOR=1.49, slight surface microroughness for soft reflections"
+      },
+      {
+        "name": "skin_tan",
+        "base_color": "#E5B894",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Matte vinyl skin tone, no specular sheen"
+      },
+      {
+        "name": "hair_black",
+        "base_color": "#0A0A0A",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Solid black hair sculpt with chunky strands"
+      },
+      {
+        "name": "hair_tip_tan",
+        "base_color": "#C79F66",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Lighter accent tips on outer ends of hair strands"
+      },
+      {
+        "name": "shirt_white",
+        "base_color": "#EBEBEB",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Matte plastic dress shirt"
+      },
+      {
+        "name": "suit_black",
+        "base_color": "#0A0A0A",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Matte plastic black blazer + pants"
+      },
+      {
+        "name": "scarf_red",
+        "base_color": "#A41A1A",
+        "metallic": 0.0,
+        "roughness": 0.55,
+        "notes": "Red neck scarf accent"
+      },
+      {
+        "name": "shoe_white",
+        "base_color": "#F2F2F2",
+        "metallic": 0.0,
+        "roughness": 0.45,
+        "notes": "White sneaker toe + sole"
+      },
+      {
+        "name": "shoe_black",
+        "base_color": "#0F0F0F",
+        "metallic": 0.0,
+        "roughness": 0.45,
+        "notes": "Black sneaker upper"
+      }
+    ],
+    "lighting": {
+      "key_light": "Top-front-right area light, ~600x600 mm, energy ~800 W, color 5600 K",
+      "fill_light": "Top-front-left area light, ~800x800 mm, energy ~250 W, color 5600 K \u2014 wraps shadows",
+      "rim_light": "None in reference (catalog product shot, near-shadowless)",
+      "environment": "Bright soft white softbox HDRI (~strength 1.5) for very even ambient illumination, cyc-style background",
+      "notes": "Pure white seamless. Reference photo has near-zero hard shadow on the acrylic \u2014 wide softbox + bounce."
+    },
+    "camera": {
+      "position": "Slight 3/4 from front-left, eye-level, ~0.6 m from subject",
+      "focal_length": "85mm equivalent, slight low-angle to read the case top",
+      "depth_of_field": "Stopped down \u2014 everything in focus from front edge of case to back wall (f/8 equivalent)",
+      "notes": "Catalog framing \u2014 figure fills ~80% of vertical frame inside the case"
+    },
+    "scene_notes": "Stylized male vinyl figure inside clear rectangular acrylic display case. Figure has black spiky hair with tan tips, single visible large eye, red scarf, white shirt + black tie + black blazer + black pants + black/white sneakers. Hands raised holding small accessories. Pure white seamless studio backdrop, near-shadowless soft lighting.",
+    "confidence": 0.85
+  },
+  "seed_parameters": {
+    "SCENE_WIDTH_CM": 16.0,
+    "SCENE_HEIGHT_CM": 30.0,
+    "SCENE_DEPTH_CM": 16.0,
+    "PRIMARY_MATERIAL": "acrylic_case",
+    "PRIMARY_BASE_COLOR": "#F2F7FF",
+    "PRIMARY_METALLIC": 0.0,
+    "PRIMARY_ROUGHNESS": 0.04,
+    "SECONDARY_MATERIAL": "skin_tan",
+    "SECONDARY_BASE_COLOR": "#E5B894",
+    "KEY_LIGHT_ANGLE": 45,
+    "USE_HDRI": true,
+    "LIGHTING_MOOD": "natural",
+    "CAMERA_FOCAL_LENGTH": 50,
+    "USE_DOF": false,
+    "DOF_APERTURE": 5.6,
+    "SCENE_DESCRIPTION": "Stylized male vinyl figure inside clear rectangular acrylic display case. Figure has black spiky hair with tan tips, single visible large eye, red scarf, white shirt + black tie + black blazer + black pants + black/white sneakers. Hands raised holding small accessories. Pure white seamless studio backdrop, near-shadowless soft lighting."
+  },
+  "missing_keys": [
+    "Inferred key light angle from description: Top-front-right area light, ~600x600 mm, energy ~800 W, color 5600 K"
+  ]
+}

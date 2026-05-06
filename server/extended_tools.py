@@ -221,12 +221,16 @@ def register_extended_tools(mcp, send_command, format_result, drift_registry=Non
         annotations={"title": "Behavioral Drift", "readOnlyHint": True,
                      "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     )
-    async def blender_drift_status(params: DriftStatusInput) -> str:
+    async def blender_drift_status(params: Optional[DriftStatusInput] = None) -> str:
         """Return EMA-based behavioral drift score for the current session.
 
         drift_score >= 0.5 → alert (agent has deviated sharply from baseline style).
         drift_score >= 0.3 → warn (minor drift). See server/drift_guard.py.
+
+        Bug #8 fix (2026-04-24): params is now Optional — clients can call with no args.
         """
+        if params is None:
+            params = DriftStatusInput()
         try:
             from server.drift_guard import default_registry
         except ImportError:

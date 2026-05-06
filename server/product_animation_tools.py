@@ -266,7 +266,13 @@ def _gen_material_code(preset_name: str, object_name: str, mat_name: str = None,
     if d.get("subsurface"):
         extras.append(f"bsdf.inputs['Subsurface Weight'].default_value = {d['subsurface']}")
     
-    extras_code = "\n        ".join(extras)
+    # v3.1.1 (Issue #10 follow-up): the join indent must match the `else:`
+    # block in the f-string template below (4 spaces). Was 8 spaces, which
+    # produced an "unexpected indent" SyntaxError on every line after the
+    # first for any preset that emits >1 extra (glossy_plastic, polished_chrome,
+    # gold, rose_gold, copper, clear_glass, frosted_glass, tinted_glass,
+    # ceramic_glazed). Caught by the CADAM AST gate during the migration.
+    extras_code = "\n    ".join(extras)
     
     imperf_code = ""
     if add_imperfections:
@@ -690,57 +696,117 @@ __result__ = {{"status": "ok", "bloom": {bloom}, "vignette": {vignette}}}
 # REGISTRATION — Call this from blender_mcp_server.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
-    """Register all product animation tools with the MCP server."""
-    
+def register_product_tools(mcp_instance, send_command_fn, format_result_fn, run_cadam_script_fn=None):
+    """Register all product animation tools with the MCP server.
+
+    v3.1.1 (Issue #10): the optional 4th arg ``run_cadam_script_fn`` is the
+    server's ``run_cadam_script`` helper. When provided, every script-execute
+    site routes through the CADAM contract (PARAMETERS-block manifest +
+    server-side AST gate + LRU cache + script_id). When omitted, the legacy
+    ``send_command_fn("execute_python", ...)`` path is used (back-compat).
+    """
+
+    def _run(code, params, *, kind):
+        """Route a generated bpy script through CADAM if available, else legacy.
+        Returns the raw command response shape (dict) so existing callers can
+        compose with format_result_fn unchanged."""
+        if run_cadam_script_fn is not None:
+            return run_cadam_script_fn(code, parameters=params, cache=True, script_kind=kind)
+        return send_command_fn("execute_python", {"code": code})
+
     @mcp_instance.tool(
         name="blender_product_animation",
         annotations={"title": "Product Animation Recipe", "readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False},
     )
     async def blender_product_animation(params: ProductAnimationInput) -> str:
         """Create a complete professional product animation in one call.
-        
+
         Sets up material → lighting → camera animation → render settings → compositor.
         Supports turntable, hero reveal, and detail orbit camera styles.
         Includes 16 material presets (glass, metal, plastic, ceramic, fabric, leather, etc.)
         and 6 lighting rigs (studio, jewelry, cosmetics, electronics, automotive, food).
-        
+
+        v3.1.1: every sub-step is routed through the CADAM contract when the
+        new run_cadam_script_fn is wired (PARAMETERS-block manifest + AST gate
+        + LRU cache + script_id). Per-step script_ids land in `results.*.script_id`.
+
         Example: turntable of a bottle with glass material and cosmetics lighting:
           object_name="Bottle", material="clear_glass", lighting="cosmetics", camera_style="turntable"
         """
         results = {}
-        
+
         # 1. Material
         if params.material:
             code = _gen_material_code(params.material.value, params.object_name)
-            results["material"] = send_command_fn("execute_python", {"code": code})
-        
+            results["material"] = _run(
+                code,
+                {"PRESET": params.material.value, "OBJECT_NAME": params.object_name},
+                kind="product_animation:material",
+            )
+
         # 2. Lighting
         code = _gen_lighting_code(
             params.lighting.value, params.shadow_catcher, params.gradient_bg,
             hdri_path=None, hdri_strength=1.5
         )
-        results["lighting"] = send_command_fn("execute_python", {"code": code})
-        
+        results["lighting"] = _run(
+            code,
+            {
+                "PRESET": params.lighting.value,
+                "SHADOW_CATCHER": bool(params.shadow_catcher),
+                "GRADIENT_BG": bool(params.gradient_bg),
+                "HDRI_STRENGTH": 1.5,
+            },
+            kind="product_animation:lighting",
+        )
+
         # 3. Camera
         code = _gen_camera_code(
             params.camera_style.value, params.object_name, params.frames,
             params.camera_distance, params.camera_height, params.focal_length,
             params.f_stop, params.use_dof, params.fps
         )
-        results["camera"] = send_command_fn("execute_python", {"code": code})
-        
+        results["camera"] = _run(
+            code,
+            {
+                "STYLE": params.camera_style.value,
+                "OBJECT_NAME": params.object_name,
+                "FRAMES": int(params.frames),
+                "CAMERA_DISTANCE": float(params.camera_distance),
+                "CAMERA_HEIGHT": float(params.camera_height),
+                "FOCAL_LENGTH": float(params.focal_length),
+                "F_STOP": float(params.f_stop),
+                "USE_DOF": bool(params.use_dof),
+                "FPS": int(params.fps),
+            },
+            kind="product_animation:camera",
+        )
+
         # 4. Render settings
         op = params.output_path or "/tmp/product_render/frame_####"
         code = _gen_render_code(
             params.quality.value, params.resolution.value,
             params.transparent_bg, op, "PNG"
         )
-        results["render"] = send_command_fn("execute_python", {"code": code})
-        
+        results["render"] = _run(
+            code,
+            {
+                "QUALITY": params.quality.value,
+                "RESOLUTION": params.resolution.value,
+                "TRANSPARENT_BG": bool(params.transparent_bg),
+                "OUTPUT_PATH": op,
+                "OUTPUT_FORMAT": "PNG",
+            },
+            kind="product_animation:render",
+        )
+
         # 5. Compositor
         code = _gen_compositor_code(params.bloom, params.vignette)
-        results["compositor"] = send_command_fn("execute_python", {"code": code})
+        results["compositor"] = _run(
+            code,
+            {"BLOOM": bool(params.bloom), "VIGNETTE": bool(params.vignette)},
+            kind="product_animation:compositor",
+        )
         
         # 6. Auto-render
         if params.auto_render:
@@ -780,7 +846,18 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
             params.preset.value, params.object_name, params.material_name,
             params.color_override, params.roughness_override, params.add_imperfections
         )
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        return format_result_fn(_run(
+            code,
+            {
+                "PRESET": params.preset.value,
+                "OBJECT_NAME": params.object_name,
+                "MATERIAL_NAME": params.material_name or "",
+                "COLOR_OVERRIDE": list(params.color_override) if params.color_override else None,
+                "ROUGHNESS_OVERRIDE": float(params.roughness_override) if params.roughness_override is not None else None,
+                "ADD_IMPERFECTIONS": bool(params.add_imperfections),
+            },
+            kind="product_material",
+        ))
     
     @mcp_instance.tool(
         name="blender_product_lighting",
@@ -798,7 +875,20 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
             params.gradient_top, params.gradient_bottom,
             params.hdri_path, params.hdri_strength, params.hdri_rotation
         )
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        return format_result_fn(_run(
+            code,
+            {
+                "PRESET": params.preset.value,
+                "SHADOW_CATCHER": bool(params.shadow_catcher),
+                "GRADIENT_BG": bool(params.gradient_bg),
+                "GRADIENT_TOP": list(params.gradient_top) if params.gradient_top else None,
+                "GRADIENT_BOTTOM": list(params.gradient_bottom) if params.gradient_bottom else None,
+                "HDRI_PATH": params.hdri_path or "",
+                "HDRI_STRENGTH": float(params.hdri_strength),
+                "HDRI_ROTATION": float(params.hdri_rotation),
+            },
+            kind="product_lighting",
+        ))
     
     @mcp_instance.tool(
         name="blender_product_camera",
@@ -821,7 +911,26 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
             params.start_distance, params.end_distance,
             params.start_focal, params.end_focal, params.orbit_angle
         )
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        return format_result_fn(_run(
+            code,
+            {
+                "STYLE": params.style.value,
+                "TARGET_OBJECT": params.target_object,
+                "FRAMES": int(params.frames),
+                "CAMERA_DISTANCE": float(params.camera_distance),
+                "CAMERA_HEIGHT": float(params.camera_height),
+                "FOCAL_LENGTH": float(params.focal_length),
+                "F_STOP": float(params.f_stop),
+                "USE_DOF": bool(params.use_dof),
+                "FPS": int(params.fps),
+                "START_DISTANCE": float(params.start_distance) if params.start_distance is not None else None,
+                "END_DISTANCE": float(params.end_distance) if params.end_distance is not None else None,
+                "START_FOCAL": float(params.start_focal) if params.start_focal is not None else None,
+                "END_FOCAL": float(params.end_focal) if params.end_focal is not None else None,
+                "ORBIT_ANGLE": float(params.orbit_angle) if params.orbit_angle is not None else None,
+            },
+            kind="product_camera",
+        ))
     
     @mcp_instance.tool(
         name="blender_product_render_setup",
@@ -839,10 +948,24 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
             params.quality.value, params.resolution.value,
             params.transparent_bg, params.output_path, params.output_format
         )
-        result1 = send_command_fn("execute_python", {"code": render_code})
-        
+        result1 = _run(
+            render_code,
+            {
+                "QUALITY": params.quality.value,
+                "RESOLUTION": params.resolution.value,
+                "TRANSPARENT_BG": bool(params.transparent_bg),
+                "OUTPUT_PATH": params.output_path,
+                "OUTPUT_FORMAT": params.output_format,
+            },
+            kind="product_render_setup:render",
+        )
+
         comp_code = _gen_compositor_code(params.bloom, params.vignette)
-        result2 = send_command_fn("execute_python", {"code": comp_code})
+        result2 = _run(
+            comp_code,
+            {"BLOOM": bool(params.bloom), "VIGNETTE": bool(params.vignette)},
+            kind="product_render_setup:compositor",
+        )
         
         return format_result_fn({
             "status": "ok",
@@ -885,7 +1008,18 @@ else:
                     modified += 1
     __result__ = {{"status": "ok", "keyframes_modified": modified, "interpolation": "{params.interpolation}"}}
 """
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        return format_result_fn(_run(
+            code,
+            {
+                "OBJECT_NAME": params.object_name,
+                "DATA_PATH": params.data_path,
+                "INDEX": int(params.index),
+                "INTERPOLATION": params.interpolation,
+                "EASING": params.easing or "",
+                "HANDLE_TYPE": params.handle_type or "",
+            },
+            kind="fcurve_edit",
+        ))
     
     return [
         "blender_product_animation",

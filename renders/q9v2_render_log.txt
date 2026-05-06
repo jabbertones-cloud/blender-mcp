@@ -1,7 +1,0 @@
-Found 5 cameras: ['Cam_BirdEye', 'Cam_Dramatic', 'Cam_DriverPOV', 'Cam_Orbit', 'Cam_Witness']
-Rendered: Cam_BirdEye -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v2_01_Cam_BirdEye.png
-Rendered: Cam_Dramatic -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v2_02_Cam_Dramatic.png
-Rendered: Cam_DriverPOV -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v2_03_Cam_DriverPOV.png
-Rendered: Cam_Orbit -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v2_04_Cam_Orbit.png
-Rendered: Cam_Witness -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9v2_05_Cam_Witness.png
-Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/quality_push_v2.blend

@@ -1,3 +1,0 @@
-Rendered: Cam_Dramatic -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9_01_Cam_Dramatic.png
-Rendered: Camera -> /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/q9_02_Camera.png
-Saved: /Users/tatsheen/claw-architect/openclaw-blender-mcp/renders/quality_push_9.blend
