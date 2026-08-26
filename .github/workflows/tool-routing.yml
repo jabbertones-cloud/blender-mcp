@@ -16,6 +16,7 @@ on:
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
+      - 'tests/test_guided_workflow_search.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -35,6 +36,7 @@ on:
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
+      - 'tests/test_guided_workflow_search.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -77,6 +79,7 @@ jobs:
           tests/test_act_dispatch.py
           tests/test_capability_router.py
           tests/test_workflow_execution.py
+          tests/test_guided_workflow_search.py
           tests/test_eval_cli.py
           tests/test_bridge_e2e.py
           -q
