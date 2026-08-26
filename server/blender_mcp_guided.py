@@ -128,6 +128,7 @@ def _workflow_match(query: str) -> list[dict]:
             "score": 160.0,
             "reason": ["complete Amazon packshot intent"],
         })
+    return matches
 
 
 @mcp.tool(name="router_set_goal")
