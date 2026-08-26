@@ -1,124 +1,57 @@
-name: Phase 6 Evaluation Harness
+name: Live Blender Evaluation
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'skills/**'
-      - 'eval/**'
-      - '.github/workflows/eval.yml'
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: Evaluation suite
+        required: true
+        default: all
+        type: choice
+        options:
+          - lego-eval
+          - blender-gym
+          - all
+  schedule:
+    - cron: '0 8 * * 1'
+
+# This workflow is intentionally live-only. It requires a self-hosted runner
+# labelled `blender-eval` with Blender + OpenClaw Bridge already running on 9876.
+# Absence of that runner is a missing evaluation, never a green offline result.
 
 jobs:
-  smoke-test:
-    name: Smoke Test (LEGO-Eval subset)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+  live-blender-eval:
+    runs-on: [self-hosted, blender-eval]
+    timeout-minutes: 90
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install evaluation dependencies
+        run: python -m pip install -r requirements.txt pytest pyyaml
+
+      - name: Prove Blender bridge is live
+        run: python scripts/blender_healthcheck.py --live --port 9876
+
+      - name: Run requested live suite
+        env:
+          BLENDER_PORT: '9876'
+          OPENCLAW_PORT: '9876'
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest pyyaml
-
-      - name: Run smoke test (LEGO-Eval, beginner category only)
-        run: |
-          cd eval
-          python -m pytest common.py -v --tb=short 2>/dev/null || true
-          python run.py --suite lego-eval --filter "Basic Modeling" || echo "Offline mode (no Blender)"
-        continue-on-error: true
-
-  full-eval:
-    name: Full Evaluation Suite
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml
-
-      - name: Run LEGO-Eval benchmark
-        run: |
-          cd eval
-          python run.py --suite lego-eval || echo "LEGO-Eval: offline mode"
-        continue-on-error: true
-
-      - name: Run BlenderGym benchmark
-        run: |
-          cd eval
-          python run.py --suite blender-gym || echo "BlenderGym: offline mode"
-        continue-on-error: true
-
-      - name: Compare results
-        run: |
-          cd eval
-          python run.py --suite all --compare || echo "Comparison: offline mode"
-        continue-on-error: true
+          SUITE='${{ github.event.inputs.suite }}'
+          if [ -z "$SUITE" ]; then SUITE='all'; fi
+          python eval/run.py --suite "$SUITE" --blender-port 9876
 
       - name: Upload evaluation reports
-        uses: actions/upload-artifact@v3
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: eval-reports
-          path: eval/results_*.md
+          name: live-blender-eval-reports
+          path: |
+            eval/results_*.md
+            eval/comparison_*.json
+          if-no-files-found: error
           retention-days: 30
-
-      - name: Upload comparison
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: eval-comparison
-          path: eval/comparison_*.json
-          retention-days: 30
-
-  skill-promotion:
-    name: Auto-promote high-scoring recipes
-    runs-on: ubuntu-latest
-    needs: [full-eval]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Promote recipes (pass rate >= 85%)
-        run: |
-          cd skills
-          python ../eval/run.py --suite all --compare || echo "Promotion: online mode only"
-        continue-on-error: true
-
-      - name: Commit promoted recipes
-        if: always()
-        run: |
-          git config user.name "EvalBot"
-          git config user.email "eval@blender-mcp.local"
-          git add skills/MANIFEST.json || true
-          git commit -m "chore: promote recipes (auto)" || echo "No changes to commit"
-          git push || echo "Push failed (likely no new commits)"
-        continue-on-error: true
