@@ -110,12 +110,22 @@ def _has_error(result: Any) -> bool:
 
 
 def _has_visual_evidence(obs: Any) -> bool:
+    """Return True only when the bridge returned actual image pixels.
+
+    A filesystem path is not visual evidence: the model/client cannot inspect it
+    unless bytes are separately loaded and surfaced. viewport_capture is requested
+    with base64=True, so fail closed unless an image payload is present.
+    """
     if not isinstance(obs, dict) or obs.get("error"):
         return False
     payload = obs.get("data", obs)
     if not isinstance(payload, dict):
         return False
-    return any(payload.get(key) for key in ("base64", "image", "image_base64", "filepath", "path"))
+    for key in ("base64", "image", "image_base64"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return True
+    return False
 
 
 def _visual_observation(send_command: Callable[[str, dict], dict]) -> dict:
@@ -257,7 +267,7 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
         response["visual_check_required"] = True
         if _has_error(observation) or not _has_visual_evidence(observation):
             response["status"] = "postcondition_failed"
-            response["error"] = "appearance-affecting step returned no visual evidence"
+            response["error"] = "appearance-affecting step returned no pixel evidence"
     return response
 
 
@@ -307,7 +317,7 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
             "status": "ok",
             "object_name": object_name,
             "steps": steps,
-            "postcondition": "Turntable camera orbit was created with visual observation.",
+            "postcondition": "Turntable camera orbit was created with pixel observation.",
         }
 
     if key == "workflow.amazon_packshot":
@@ -349,5 +359,5 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
         "status": "ok",
         "object_name": object_name,
         "steps": steps,
-        "postcondition": "Every appearance-affecting step produced a viewport observation.",
+        "postcondition": "Every appearance-affecting step produced pixel evidence.",
     }
