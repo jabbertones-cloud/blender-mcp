@@ -28,16 +28,10 @@ class FakeBridge:
 
 def test_visual_atomic_capability_always_observes_after_mutation():
     bridge = FakeBridge()
-    result = execute_canonical(
-        "scene.set_material",
-        {"object_name": "Bottle", "metallic": 1.0, "roughness": 0.1},
-        bridge,
-    )
+    result = execute_canonical("scene.set_material", {"object_name": "Bottle", "metallic": 1.0, "roughness": 0.1}, bridge)
     commands = [name for name, _ in bridge.calls]
     assert commands[0] == "get_scene_info"
-    assert commands[-2:] == ["set_material", "viewport_capture"] or (
-        "set_material" in commands and commands[-1] == "viewport_capture"
-    )
+    assert commands[-2:] == ["set_material", "viewport_capture"] or ("set_material" in commands and commands[-1] == "viewport_capture")
     assert result["visual_check_required"] is True
     assert result["status"] == "ok"
     assert "scene_delta" in result
@@ -55,19 +49,7 @@ def test_product_lighting_uses_wrapper_not_fake_bridge_command():
 
 def test_product_hero_is_one_workflow_with_required_observations():
     bridge = FakeBridge()
-    result = execute_workflow(
-        "workflow.product_hero",
-        {
-            "object_name": "Bottle",
-            "material": "clear_glass",
-            "lighting": "cosmetics",
-            "camera_style": "hero_reveal",
-            "quality": "premium",
-            "resolution": "square_1080",
-            "auto_render": True,
-        },
-        bridge,
-    )
+    result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "material": "clear_glass", "lighting": "cosmetics", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "auto_render": True}, bridge)
     commands = [name for name, _ in bridge.calls]
     assert result["status"] == "ok"
     assert commands[0] == "get_scene_info"
@@ -77,6 +59,14 @@ def test_product_hero_is_one_workflow_with_required_observations():
     assert "product_render_setup" not in commands
     assert "render" in commands
     assert commands[-1] == "viewport_capture"
+
+
+def test_workflow_render_uses_addon_image_type():
+    bridge = FakeBridge()
+    result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "auto_render": True}, bridge)
+    assert result["status"] == "ok"
+    render_calls = [params for command, params in bridge.calls if command == "render"]
+    assert render_calls == [{"type": "image"}]
 
 
 def test_product_hero_rejects_object_name_code_injection():
@@ -100,7 +90,6 @@ def test_create_object_fails_closed_without_scene_delta():
             if command == "create_object":
                 return {"status": "ok", "name": "Ghost"}
             return {"status": "ok"}
-
     result = execute_canonical("scene.create_object", {"type": "cube", "name": "Ghost"}, NoDeltaBridge())
     assert result["status"] == "postcondition_failed"
 
@@ -124,12 +113,7 @@ def test_missing_viewport_pixels_fail_visual_postcondition():
             if command == "get_scene_info":
                 return {"status": "ok", "objects": list(self.objects)}
             return {"status": "ok"}
-
-    result = execute_canonical(
-        "scene.set_material",
-        {"object_name": "Bottle", "metallic": 1.0},
-        BlindBridge(),
-    )
+    result = execute_canonical("scene.set_material", {"object_name": "Bottle", "metallic": 1.0}, BlindBridge())
     assert result["status"] == "postcondition_failed"
 
 
@@ -143,12 +127,7 @@ def test_path_only_viewport_capture_is_not_visual_evidence():
             if command == "get_scene_info":
                 return {"status": "ok", "objects": list(self.objects)}
             return {"status": "ok"}
-
-    result = execute_canonical(
-        "scene.set_material",
-        {"object_name": "Bottle", "metallic": 1.0},
-        PathOnlyBridge(),
-    )
+    result = execute_canonical("scene.set_material", {"object_name": "Bottle", "metallic": 1.0}, PathOnlyBridge())
     assert result["status"] == "postcondition_failed"
     assert result["error"] == "appearance-affecting step returned no pixel evidence"
 
