@@ -1,0 +1,6 @@
+# Official MCP Python SDK v1 compatibility pin.
+# The server currently imports mcp.server.fastmcp.FastMCP, which is removed in mcp 2.x.
+# MCP maintainers recommend mcp>=1.28,<2 for projects not yet migrated to MCPServer.
+mcp>=1.28,<2
+pydantic>=2,<3
+PyYAML>=6,<7
