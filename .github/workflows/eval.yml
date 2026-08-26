@@ -1,28 +1,19 @@
-name: Live Blender Evaluation
+name: Agent OS Live Smoke
 
 on:
   workflow_dispatch:
-    inputs:
-      suite:
-        description: Evaluation suite
-        required: true
-        default: all
-        type: choice
-        options:
-          - lego-eval
-          - blender-gym
-          - all
   schedule:
     - cron: '0 8 * * 1'
 
-# This workflow is intentionally live-only. It requires a self-hosted runner
-# labelled `blender-eval` with Blender + OpenClaw Bridge already running on 9876.
-# Absence of that runner is a missing evaluation, never a green offline result.
+# Release evidence from this workflow is intentionally narrow: it proves the
+# bridge can create, mutate, inspect, visually observe, and delete real scene
+# state. Legacy LEGO-Eval / BlenderGym adapters are not invoked because their
+# current offline/random/fake-task implementations are not trustworthy metrics.
 
 jobs:
-  live-blender-eval:
+  live-agent-os-smoke:
     runs-on: [self-hosted, blender-eval]
-    timeout-minutes: 90
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -30,28 +21,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install evaluation dependencies
-        run: python -m pip install -r requirements.txt pytest pyyaml
+      - name: Install pinned runtime
+        run: python -m pip install -r requirements.txt
 
       - name: Prove Blender bridge is live
         run: python scripts/blender_healthcheck.py --live --port 9876
 
-      - name: Run requested live suite
-        env:
-          BLENDER_PORT: '9876'
-          OPENCLAW_PORT: '9876'
-        run: |
-          SUITE='${{ github.event.inputs.suite }}'
-          if [ -z "$SUITE" ]; then SUITE='all'; fi
-          python eval/run.py --suite "$SUITE" --blender-port 9876
-
-      - name: Upload evaluation reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: live-blender-eval-reports
-          path: |
-            eval/results_*.md
-            eval/comparison_*.json
-          if-no-files-found: error
-          retention-days: 30
+      - name: Verify observable Blender world-state changes
+        run: python scripts/live_agent_os_smoke.py --host 127.0.0.1 --port 9876
