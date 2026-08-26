@@ -33,7 +33,7 @@ from common import (
 class EvaluationOrchestrator:
     """Orchestrates LEGO-Eval and BlenderGym adapter runs."""
 
-    def __init__(self, blender_host: str = 'localhost', blender_port: int = 29500):
+    def __init__(self, blender_host: str = 'localhost', blender_port: int = 9876):
         self.blender_host = blender_host
         self.blender_port = blender_port
         self.mcp_client: Optional[MCPClient] = None
@@ -53,14 +53,16 @@ class EvaluationOrchestrator:
         return logger
 
     def _connect_blender(self) -> bool:
-        """Establish connection to Blender MCP server."""
+        """Establish connection to Blender. Offline success is forbidden."""
         self.mcp_client = MCPClient(host=self.blender_host, port=self.blender_port)
         if self.mcp_client.connect():
             self.logger.info(f"Connected to Blender MCP at {self.blender_host}:{self.blender_port}")
             return True
-        else:
-            self.logger.warning(f"Failed to connect to Blender MCP. Running offline evaluation.")
-            return False
+        self.logger.error(
+            f"Failed to connect to Blender at {self.blender_host}:{self.blender_port}. "
+            "Offline evaluation is forbidden."
+        )
+        return False
 
     def _disconnect_blender(self) -> None:
         """Close connection to Blender MCP server."""
@@ -190,13 +192,12 @@ class EvaluationOrchestrator:
         results: Dict[str, EvalResult] = {}
 
         try:
+            if not self._connect_blender():
+                sys.exit(2)
             if suite in ('lego-eval', 'all'):
-                self._connect_blender()
                 results['lego-eval'] = self.run_lego_eval(filter_category=filter_arg)
 
             if suite in ('blender-gym', 'all'):
-                if not self.mcp_client:
-                    self._connect_blender()
                 results['blender-gym'] = self.run_blender_gym(filter_difficulty=filter_arg)
 
             # Generate reports
@@ -227,9 +228,11 @@ def main():
     )
     parser.add_argument(
         '--suite',
+        '--bench',
+        dest='suite',
         choices=['lego-eval', 'blender-gym', 'all'],
         default='all',
-        help='Evaluation suite to run (default: all)'
+        help='Evaluation suite to run (default: all). --bench is an alias for --suite.'
     )
     parser.add_argument(
         '--filter',
@@ -249,8 +252,8 @@ def main():
     parser.add_argument(
         '--blender-port',
         type=int,
-        default=29500,
-        help='Blender MCP server port (default: 29500)'
+        default=9876,
+        help='Blender bridge port (default: 9876)'
     )
 
     args = parser.parse_args()

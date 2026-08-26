@@ -211,6 +211,8 @@ class LEGOEvalAdapter:
         Returns:
             EvalResult with metrics and constraint pass rates
         """
+        if not self.mcp_client:
+            raise RuntimeError("offline eval is forbidden")
         self.logger.info(f"Initializing LEGO-Eval with {len(self.test_instructions)} instructions")
 
         # Filter if requested
@@ -230,14 +232,13 @@ class LEGOEvalAdapter:
             total_constraints += len(constraints)
 
             # Execute instruction via MCP if client available
-            instruction_passed = True
-            if self.mcp_client:
-                try:
+            instruction_passed = False
+            try:
                     response = self.mcp_client.execute_python(
                         f"bpy.ops.mesh.primitive_cube_add(); print('Executed: {instruction.instruction_text}')"
                     )
                     instruction_passed = response.get('status') == 'success'
-                except Exception as e:
+            except Exception as e:
                     self.logger.warning(f"Execution failed for {instruction.id}: {e}")
                     instruction_passed = False
 
@@ -249,8 +250,7 @@ class LEGOEvalAdapter:
                         result = self.mcp_client.verify_constraint(constraint)
                         passed = result.get('passed', False)
                     else:
-                        # Offline: assume constraint passes based on instruction type
-                        passed = instruction_passed
+                        raise RuntimeError("offline eval is forbidden")
 
                     if passed:
                         constraint_passes += 1

@@ -34,7 +34,7 @@ python eval/run.py --suite blender-gym --filter "advanced"
 
 ### Connect to remote Blender MCP:
 ```bash
-python eval/run.py --suite all --blender-host 192.168.1.100 --blender-port 29500
+python eval/run.py --suite all --blender-host 192.168.1.100 --blender-port 9876
 ```
 
 ## LEGO-Eval (130 Instructions)

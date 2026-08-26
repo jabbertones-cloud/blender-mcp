@@ -114,12 +114,7 @@ class BlenderGymAdapter:
         Returns True if all steps completed successfully.
         """
         if not self.mcp_client:
-            # Offline mode: assume completion based on difficulty
-            # Higher difficulties have lower success rates
-            import random
-            success_rates = {'beginner': 0.95, 'intermediate': 0.80, 'advanced': 0.65}
-            return random.random() < success_rates.get(scene['difficulty'], 0.5)
-
+            raise RuntimeError("offline eval is forbidden")
         try:
             # Execute each step
             for step in scene.get('steps', []):
