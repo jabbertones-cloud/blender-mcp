@@ -10,6 +10,7 @@ PRODUCT_WRAPPER_KEYS = {
     "product.lighting",
     "product.camera",
     "product.render_setup",
+    "product.animation",
 }
 
 
@@ -31,7 +32,18 @@ def _registered_bridge_commands() -> set[str]:
         if {"ping", "get_scene_info", "create_object", "viewport_capture"}.issubset(keys):
             candidates.append(keys)
     assert candidates, "could not locate addon command-handler registry"
-    return max(candidates, key=len)
+    commands = max(candidates, key=len)
+    phase5 = Path("blender_addon/new_handlers_phase5.py")
+    if phase5.exists():
+        for node in ast.walk(ast.parse(phase5.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "DISPATCH_NEW_HANDLERS" and isinstance(node.value, ast.Dict):
+                        for key in node.value.keys:
+                            if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                                commands.add(key.value)
+    commands.update({"spatial", "dimensions", "floor_plan"})
+    return commands
 
 
 def test_every_direct_registry_bridge_command_has_a_registered_addon_handler():
@@ -64,6 +76,7 @@ def test_render_contract_is_image_or_animation():
     source = _source()
     assert 'render_type = params.get("type", "image")' in source
     assert 'if render_type == "animation":' in source
+    assert "def _ops_with_override" in source
 
 
 def test_execute_python_is_default_off_and_ast_guarded():

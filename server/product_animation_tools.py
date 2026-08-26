@@ -7,6 +7,7 @@ To integrate: import and call register_product_tools(mcp, send_command, format_r
 from the main blender_mcp_server.py
 """
 
+import json
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 from enum import Enum
@@ -630,6 +631,91 @@ scene.render.image_settings.file_format = '{output_format}'
 scene.render.image_settings.color_mode = 'RGBA'
 scene.render.filepath = "{op}"
 __result__ = {{"status": "ok", "quality": "{quality}", "resolution": "{resolution}", "samples": {q['samples']}}}
+"""
+
+
+def _gen_libmv_solve_code(clip_path: str) -> str:
+    """Allowlisted libmv setup: load clip, detect, track, solve. bpy.ops.clip (Blender 4.3+)."""
+    path_literal = json.dumps(clip_path)
+    return f"""
+import bpy
+import os
+path = {path_literal}
+__result__ = {{"error": "libmv solve did not complete"}}
+if not os.path.isfile(path):
+    __result__ = {{"error": "clip not found", "path": path}}
+else:
+    clip = bpy.data.movieclips.load(path)
+    screen = getattr(bpy.context, "screen", None)
+    clip_area = None
+    if screen is not None:
+        for area in screen.areas:
+            if area.type == "CLIP_EDITOR":
+                clip_area = area
+                break
+        if clip_area is None:
+            for area in screen.areas:
+                if area.type == "VIEW_3D":
+                    area.type = "CLIP_EDITOR"
+                    clip_area = area
+                    break
+    if clip_area is None:
+        __result__ = {{
+            "status": "blocked",
+            "blocking_reason": "no_clip_editor",
+            "loaded": True,
+            "clip": clip.name,
+        }}
+    else:
+        space = clip_area.spaces.active
+        space.clip = clip
+        kw = {{}}
+        if bpy.context.window is not None:
+            kw["window"] = bpy.context.window
+        kw["screen"] = screen
+        kw["area"] = clip_area
+        kw["space_data"] = space
+        kw["scene"] = bpy.context.scene
+        with bpy.context.temp_override(**kw):
+            bpy.ops.clip.detect_features()
+            bpy.ops.clip.track_markers(backwards=False, sequence=True)
+            bpy.ops.clip.solve_camera()
+            try:
+                bpy.ops.clip.setup_tracking_scene()
+            except Exception:
+                pass
+        rec = clip.tracking.reconstruction
+        __result__ = {{
+            "status": "ok",
+            "loaded": True,
+            "clip": clip.name,
+            "is_valid": bool(getattr(rec, "is_valid", False)),
+            "average_error": getattr(rec, "average_error", None),
+            "tracks": len(list(clip.tracking.tracks)),
+        }}
+"""
+
+
+def _gen_auto_weights_code(mesh_name: str) -> str:
+    name = json.dumps(mesh_name)
+    return f"""
+import bpy
+mesh = bpy.data.objects.get({name})
+if mesh is None:
+    __result__ = {{"error": "mesh not found", "name": {name}}}
+else:
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.context.view_layer.objects.active = mesh
+    mesh.select_set(True)
+    bpy.ops.object.armature_add(enter_editmode=False)
+    arm = bpy.context.active_object
+    arm.name = "AutoArmature"
+    bpy.ops.object.select_all(action="DESELECT")
+    mesh.select_set(True)
+    arm.select_set(True)
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+    __result__ = {{"status": "ok", "armature": arm.name, "mesh": mesh.name}}
 """
 
 

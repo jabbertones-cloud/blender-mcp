@@ -431,6 +431,16 @@ def handle_set_render_settings(params):
     }
 
 
+def _ops_with_override(op, **kwargs):
+    """Run a bpy operator with temp_override so background/timer context can poll."""
+    ctx = bpy.context.copy()
+    try:
+        with bpy.context.temp_override(**ctx):
+            return op(**kwargs)
+    except Exception:
+        return op(**kwargs)
+
+
 def handle_render(params):
     """Render the scene to an image or animation."""
     output_path = params.get("output_path", "//render_output")
@@ -439,9 +449,9 @@ def handle_render(params):
     bpy.context.scene.render.filepath = output_path
 
     if render_type == "animation":
-        bpy.ops.render.render(animation=True)
+        _ops_with_override(bpy.ops.render.render, animation=True)
     else:
-        bpy.ops.render.render(write_still=True)
+        _ops_with_override(bpy.ops.render.render, write_still=True)
 
     return {
         "rendered": render_type,
@@ -2925,10 +2935,10 @@ def handle_viewport_capture(params):
 
         if mode == "full_render":
             # Full engine render (Cycles/EEVEE) — slower but production quality
-            bpy.ops.render.render(write_still=True)
+            _ops_with_override(bpy.ops.render.render, write_still=True)
         else:
             # OpenGL viewport render — fast, uses viewport shading
-            bpy.ops.render.opengl(write_still=True)
+            _ops_with_override(bpy.ops.render.opengl, write_still=True)
 
         result = {
             "filepath": filepath,
@@ -7610,6 +7620,7 @@ HANDLERS = {
     "sketchfab": handle_sketchfab,
     "scene_lighting": handle_scene_lighting,
     "hunyuan3d": handle_hunyuan3d,
+    "hyper3d": handle_hyper3d,
     # v2.2 — forensic/litigation animation
     "forensic_scene": handle_forensic_scene,
 }
@@ -7620,7 +7631,40 @@ try:
         from .new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
     except Exception:
         from new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
-    COMMANDS.update(_PHASE5_HANDLERS)
+    HANDLERS.update(_PHASE5_HANDLERS)
+
+    def handle_spatial(params):
+        action = str((params or {}).get("action") or "scene_bounds")
+        mapped = {
+            "raycast": "spatial_raycast",
+            "bounding_box_world": "spatial_bbox_world",
+            "check_collision": "spatial_check_collision",
+            "find_placement_position": "spatial_find_placement",
+            "get_safe_movement_range": "spatial_movement_range",
+            "scene_bounds": "spatial_scene_bounds",
+        }.get(action, "spatial_scene_bounds")
+        handler = HANDLERS.get(mapped)
+        if handler is None:
+            return {"error": f"spatial action '{action}' has no registered handler"}
+        return handler(params)
+
+    def handle_dimensions(params):
+        action = str((params or {}).get("action") or "estimate")
+        mapped = "dimensions_scale" if action in {"scale", "apply", "set"} else "dimensions_estimate"
+        handler = HANDLERS.get(mapped)
+        if handler is None:
+            return {"error": f"dimensions action '{action}' has no registered handler"}
+        return handler(params)
+
+    def handle_floor_plan(params):
+        handler = HANDLERS.get("floor_plan_data")
+        if handler is None:
+            return {"error": "floor_plan handler missing"}
+        return handler(params)
+
+    HANDLERS["spatial"] = handle_spatial
+    HANDLERS["dimensions"] = handle_dimensions
+    HANDLERS["floor_plan"] = handle_floor_plan
     print(f"[OpenClaw] Loaded {len(_PHASE5_HANDLERS)} Phase 5 handlers (spatial, dims, camera, UV, LOD, VR, splat, GP, snapshot)")
 except Exception as _e:
     print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")
