@@ -29,3 +29,8 @@ jobs:
 
       - name: Verify observable Blender world-state changes
         run: python scripts/live_agent_os_smoke.py --host 127.0.0.1 --port 9876
+
+      - name: Canonical execute E2E with visual postconditions
+        env:
+          BLENDER_E2E: "1"
+        run: python -m pytest tests/test_bridge_e2e.py -q

@@ -16,6 +16,9 @@ on:
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
+      - 'eval/run.py'
+      - 'tests/test_eval_cli.py'
+      - 'tests/test_bridge_e2e.py'
       - '.github/workflows/tool-routing.yml'
   push:
     branches: [main]
@@ -32,6 +35,9 @@ on:
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
+      - 'eval/run.py'
+      - 'tests/test_eval_cli.py'
+      - 'tests/test_bridge_e2e.py'
       - '.github/workflows/tool-routing.yml'
   workflow_dispatch:
 
@@ -71,4 +77,6 @@ jobs:
           tests/test_act_dispatch.py
           tests/test_capability_router.py
           tests/test_workflow_execution.py
+          tests/test_eval_cli.py
+          tests/test_bridge_e2e.py
           -q

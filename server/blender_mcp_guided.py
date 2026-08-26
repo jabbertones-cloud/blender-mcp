@@ -94,16 +94,40 @@ class ExecuteInput(BaseModel):
 
 def _workflow_match(query: str) -> list[dict]:
     text = " ".join((query or "").lower().split())
+    matches = []
     hero_terms = ("product hero", "hero product", "hero shot", "packshot", "product photography", "product image")
     if any(term in text for term in hero_terms):
-        return [{
+        matches.append({
             "key": "workflow.product_hero",
             "family": "workflow",
             "description": WORKFLOW_DESCRIPTIONS["workflow.product_hero"],
             "score": 150.0,
             "reason": ["complete multi-step product-hero intent"],
-        }]
-    return []
+        })
+    if any(term in text for term in ("turntable", "360 spin", "360 product")):
+        matches.append({
+            "key": "workflow.turntable",
+            "family": "workflow",
+            "description": WORKFLOW_DESCRIPTIONS["workflow.turntable"],
+            "score": 145.0,
+            "reason": ["complete product turntable intent"],
+        })
+    if any(term in text for term in ("forensic", "accident reconstruction", "courtroom")):
+        matches.append({
+            "key": "workflow.forensic_recon",
+            "family": "workflow",
+            "description": WORKFLOW_DESCRIPTIONS["workflow.forensic_recon"],
+            "score": 140.0,
+            "reason": ["complete forensic reconstruction intent"],
+        })
+    if "amazon" in text or "a+ content" in text or "main listing image" in text:
+        matches.insert(0, {
+            "key": "workflow.amazon_packshot",
+            "family": "workflow",
+            "description": WORKFLOW_DESCRIPTIONS["workflow.amazon_packshot"],
+            "score": 160.0,
+            "reason": ["complete Amazon packshot intent"],
+        })
 
 
 @mcp.tool(name="router_set_goal")

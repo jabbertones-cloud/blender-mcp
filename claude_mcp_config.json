@@ -5,6 +5,11 @@
       "args": ["server/blender_mcp_guided.py"],
       "env": {}
     },
+    "blender-power": {
+      "command": "python3",
+      "args": ["server/blender_mcp_server.py"],
+      "env": {}
+    },
     "blender-2": {
       "command": "python3",
       "args": ["server/blender_mcp_guided.py"],
