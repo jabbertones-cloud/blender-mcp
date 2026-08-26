@@ -178,3 +178,33 @@ def test_live_product_hero_repairs_deleted_camera(live_send):
     if out["status"] == "fail":
         codes = {row["code"] for row in (out.get("quality_review") or {}).get("findings") or []}
         assert "NO_CAMERA" not in codes, out
+
+
+def test_live_recreate_attach_score_returns_numeric_fields(live_send, tmp_path):
+    from server import reference_loop
+    from server.capability_executor import execute_workflow
+
+    png = tmp_path / "ref.png"
+    png.write_bytes(
+        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+        b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05"
+        b"\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
+    )
+    reference_loop.reset()
+    attached = execute_workflow(
+        "workflow.reference_attach",
+        {"path": str(png), "role": "front", "tier": "draft"},
+        live_send,
+    )
+    assert attached["status"] == "ok"
+    scored = execute_workflow(
+        "workflow.reference_score",
+        {"output_path": str(tmp_path / "render.png")},
+        live_send,
+    )
+    metrics = scored.get("metrics") or {}
+    assert "passed" in metrics
+    assert "psnr_passed" in metrics
+    assert "ssim_passed" in metrics
+    assert "lpips_passed" in metrics
+
