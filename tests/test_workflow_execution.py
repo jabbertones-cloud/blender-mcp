@@ -133,6 +133,26 @@ def test_missing_viewport_pixels_fail_visual_postcondition():
     assert result["status"] == "postcondition_failed"
 
 
+def test_path_only_viewport_capture_is_not_visual_evidence():
+    class PathOnlyBridge(FakeBridge):
+        def __call__(self, command, params=None):
+            params = params or {}
+            self.calls.append((command, params))
+            if command == "viewport_capture":
+                return {"status": "ok", "path": "/tmp/viewport.png", "filepath": "/tmp/viewport.png"}
+            if command == "get_scene_info":
+                return {"status": "ok", "objects": list(self.objects)}
+            return {"status": "ok"}
+
+    result = execute_canonical(
+        "scene.set_material",
+        {"object_name": "Bottle", "metallic": 1.0},
+        PathOnlyBridge(),
+    )
+    assert result["status"] == "postcondition_failed"
+    assert result["error"] == "appearance-affecting step returned no pixel evidence"
+
+
 def test_amazon_packshot_forces_square_premium_setup():
     bridge = FakeBridge()
     result = execute_workflow("workflow.amazon_packshot", {"object_name": "Bottle"}, bridge)
