@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Minimal LLM-guided MCP surface.
+"""Minimal search-first Blender MCP surface.
 
-This entrypoint intentionally exposes only five model-facing tools. The full
-Blender catalog remains internal behind CapabilityRegistry.
+Only five model-facing tools are exposed. The full Blender catalog and workflow
+implementations stay behind discovery and canonical execution.
 """
 from __future__ import annotations
 
@@ -17,9 +17,16 @@ from pydantic import BaseModel, Field
 try:
     from server.runtime_config import resolve_blender_host, resolve_blender_port
     from server.capability_registry import registry, CapabilityNotFound
+    from server.capability_executor import (
+        execute_canonical,
+        execute_workflow,
+        WORKFLOW_SCHEMAS,
+        WORKFLOW_DESCRIPTIONS,
+    )
 except ModuleNotFoundError:
     from runtime_config import resolve_blender_host, resolve_blender_port
     from capability_registry import registry, CapabilityNotFound
+    from capability_executor import execute_canonical, execute_workflow, WORKFLOW_SCHEMAS, WORKFLOW_DESCRIPTIONS
 
 HOST = resolve_blender_host()
 PORT = resolve_blender_port()
@@ -28,9 +35,10 @@ TIMEOUT = float(os.getenv("OPENCLAW_TIMEOUT", "30"))
 mcp = FastMCP(
     "blender_mcp_guided",
     instructions=(
-        "Use router_set_goal first for multi-step work. Search capabilities before execution. "
-        "Never invent capability keys. After search, inspect the schema, then execute the canonical key. "
-        "If execution returns CAPABILITY_NOT_FOUND, search again."
+        "For multi-step Blender work, set the goal first. Search capabilities before execution. "
+        "Prefer a workflow capability when it matches the user's complete intent. Never invent capability keys. "
+        "Inspect one schema, then execute the exact canonical key returned by search. "
+        "Appearance-affecting operations automatically return visual postcondition evidence."
     ),
 )
 _goal_state: Dict[str, Any] = {"goal": None, "last_search": [], "executions": 0}
@@ -84,15 +92,31 @@ class ExecuteInput(BaseModel):
     arguments: Dict[str, Any] = Field(default_factory=dict)
 
 
+def _workflow_match(query: str) -> list[dict]:
+    text = " ".join((query or "").lower().split())
+    hero_terms = ("product hero", "hero product", "hero shot", "packshot", "product photography", "product image")
+    if any(term in text for term in hero_terms):
+        return [{
+            "key": "workflow.product_hero",
+            "family": "workflow",
+            "description": WORKFLOW_DESCRIPTIONS["workflow.product_hero"],
+            "score": 150.0,
+            "reason": ["complete multi-step product-hero intent"],
+        }]
+    return []
+
+
 @mcp.tool(name="router_set_goal")
 async def router_set_goal(input: GoalInput) -> dict:
-    """Set the user's Blender goal and return the deterministic first capability family."""
+    """Set the Blender goal and identify whether a complete workflow or atomic family should lead."""
+    workflows = _workflow_match(input.goal)
     cap = registry.route_intent(input.goal)
     _goal_state.update({"goal": input.goal, "last_search": [], "executions": 0})
+    first = workflows[0] if workflows else {"key": cap.key, "family": cap.family, "description": cap.description}
     return {
         "goal": input.goal,
-        "recommended_first": {"key": cap.key, "family": cap.family, "description": cap.description},
-        "next": "Call search_capabilities for the concrete operation before execution.",
+        "recommended_first": first,
+        "next": "Call search_capabilities for the concrete workflow/capability before execution.",
     }
 
 
@@ -104,15 +128,33 @@ async def router_get_status() -> dict:
 
 @mcp.tool(name="search_capabilities")
 async def search_capabilities(input: SearchInput) -> dict:
-    """Search the hidden Blender capability catalog. Returns summaries, not full schemas."""
-    results = registry.search_capabilities(input.query, limit=input.limit)
+    """Search the hidden Blender capability catalog; workflow matches rank before atomic tools."""
+    results = _workflow_match(input.query)
+    seen = {row["key"] for row in results}
+    for row in registry.search_capabilities(input.query, limit=input.limit):
+        if row["key"] in seen:
+            continue
+        results.append(row)
+        seen.add(row["key"])
+        if len(results) >= input.limit:
+            break
     _goal_state["last_search"] = [row["key"] for row in results]
     return {"query": input.query, "results": results, "next": "Call get_capability_schema with one returned key."}
 
 
 @mcp.tool(name="get_capability_schema")
 async def get_capability_schema(input: SchemaInput) -> dict:
-    """Get dispatch metadata and argument schema for one canonical capability key."""
+    """Get the schema for one canonical capability or workflow key."""
+    if input.key in WORKFLOW_SCHEMAS:
+        return {
+            "capability": {
+                "key": input.key,
+                "family": "workflow",
+                "description": WORKFLOW_DESCRIPTIONS[input.key],
+                "input_schema": WORKFLOW_SCHEMAS[input.key],
+            },
+            "next": "Call execute_capability with this exact workflow key.",
+        }
     try:
         cap = registry.get_capability_schema(input.key)
         return {"capability": cap, "next": "Call execute_capability with this exact key."}
@@ -122,23 +164,33 @@ async def get_capability_schema(input: SchemaInput) -> dict:
 
 @mcp.tool(name="execute_capability")
 async def execute_capability(input: ExecuteInput) -> dict:
-    """Execute a canonical capability. Guessed/unknown keys are rejected before the Blender socket."""
+    """Execute one exact canonical key. Unknown or alias names never reach the Blender socket."""
+    if input.key in WORKFLOW_SCHEMAS:
+        try:
+            result = execute_workflow(input.key, input.arguments, send_command)
+        except (KeyError, ValueError) as exc:
+            return {"error": str(exc), "code": "INVALID_WORKFLOW_ARGUMENTS"}
+        _goal_state["executions"] += 1
+        return result
+
     try:
         cap = registry.resolve_tool(input.key)
     except CapabilityNotFound as exc:
         return {"error": str(exc), "code": "CAPABILITY_NOT_FOUND", "next": "Call search_capabilities again."}
 
-    # Guided mode requires the canonical key specifically. MCP names and bridge
-    # aliases can resolve internally but are not accepted as execution identity.
     if input.key != cap.key:
         return {
             "error": f"Use canonical capability key '{cap.key}', not alias '{input.key}'.",
             "code": "NON_CANONICAL_CAPABILITY",
             "next": "Use the key returned by search_capabilities/get_capability_schema.",
         }
-    result = registry.execute(cap.key, input.arguments, send_command)
+
+    try:
+        result = execute_canonical(cap.key, input.arguments, send_command)
+    except ValueError as exc:
+        return {"error": str(exc), "code": "INVALID_CAPABILITY_ARGUMENTS"}
     _goal_state["executions"] += 1
-    return {"capability": cap.key, "bridge_command": cap.bridge_command, "result": result}
+    return result
 
 
 if __name__ == "__main__":
