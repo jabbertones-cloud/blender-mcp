@@ -1,0 +1,97 @@
+name: Tool Routing Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/agent_loop.py'
+      - 'server/session_state.py'
+      - 'server/capability_router.py'
+      - 'server/capability_registry.py'
+      - 'server/capability_executor.py'
+      - 'server/blender_mcp_guided.py'
+      - 'server/product_animation_tools.py'
+      - 'server/spatial_tools.py'
+      - 'blender_addon/openclaw_blender_bridge.py'
+      - 'blender_addon/new_handlers_phase5.py'
+      - 'requirements.txt'
+      - 'tests/test_capability_router.py'
+      - 'tests/test_tool_choice.py'
+      - 'tests/test_act_dispatch.py'
+      - 'tests/test_workflow_execution.py'
+      - 'tests/test_guided_workflow_search.py'
+      - 'tests/test_guided_surface.py'
+      - 'tests/test_bridge_contracts.py'
+      - 'eval/run.py'
+      - 'tests/test_eval_cli.py'
+      - 'tests/test_bridge_e2e.py'
+      - '.github/workflows/tool-routing.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/agent_loop.py'
+      - 'server/session_state.py'
+      - 'server/capability_router.py'
+      - 'server/capability_registry.py'
+      - 'server/capability_executor.py'
+      - 'server/blender_mcp_guided.py'
+      - 'server/product_animation_tools.py'
+      - 'server/spatial_tools.py'
+      - 'blender_addon/openclaw_blender_bridge.py'
+      - 'blender_addon/new_handlers_phase5.py'
+      - 'requirements.txt'
+      - 'tests/test_capability_router.py'
+      - 'tests/test_tool_choice.py'
+      - 'tests/test_act_dispatch.py'
+      - 'tests/test_workflow_execution.py'
+      - 'tests/test_guided_workflow_search.py'
+      - 'tests/test_guided_surface.py'
+      - 'tests/test_bridge_contracts.py'
+      - 'eval/run.py'
+      - 'tests/test_eval_cli.py'
+      - 'tests/test_bridge_e2e.py'
+      - '.github/workflows/tool-routing.yml'
+  workflow_dispatch:
+
+jobs:
+  router-floor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned runtime and test dependencies
+        run: python -m pip install -r requirements.txt pytest
+      - name: Prove MCP v1 compatibility contract
+        run: |
+          python - <<'PY'
+          import importlib.metadata
+          from mcp.server.fastmcp import FastMCP
+          major = int(importlib.metadata.version('mcp').split('.')[0])
+          assert major == 1, f'expected MCP SDK v1, got {major}'
+          assert FastMCP is not None
+          PY
+      - name: Compile routing modules
+        run: >-
+          python -m py_compile
+          server/capability_router.py
+          server/capability_registry.py
+          server/capability_executor.py
+          server/session_state.py
+          server/agent_loop.py
+          server/blender_mcp_guided.py
+      - name: Run deterministic router, dispatch, workflow, and bridge-contract floor
+        run: >-
+          python -m pytest
+          tests/test_tool_choice.py
+          tests/test_act_dispatch.py
+          tests/test_capability_router.py
+          tests/test_workflow_execution.py
+          tests/test_guided_workflow_search.py
+          tests/test_guided_surface.py
+          tests/test_bridge_contracts.py
+          tests/test_eval_cli.py
+          tests/test_bridge_e2e.py
+          -q

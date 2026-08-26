@@ -1,505 +1,295 @@
-"""
-Planner-Actor-Critic Agent Loop for OpenClaw Blender MCP
-=========================================================
-Goal-first routing, multi-step planning, action execution, and verification loop.
+"""Planner-Actor-Critic loop backed by the canonical capability registry."""
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field
 
-Reference: Planner-Actor-Critic agent (arXiv 2601.05016) — maintains goal,
-plans steps, executes actions, critiques outcomes, and updates state iteratively.
+try:
+    from server.session_state import default_store, PlanStep, PlanStepStatus
+    from server.verify import verify_action
+    from server.capability_registry import registry, CapabilityNotFound
+except ModuleNotFoundError:
+    from session_state import default_store, PlanStep, PlanStepStatus
+    from verify import verify_action
+    from capability_registry import registry, CapabilityNotFound
 
-Install: Standard library + session_state, verify (local project imports).
-Usage:
-  from agent_loop import register_agent_loop_tools
-  tool_names = register_agent_loop_tools(mcp, send_command, format_result)
-"""
+VALID_PROFILES = {"default", "llm-guided", "power-user", "forensic"}
 
-import json
-from typing import Optional, List, Dict, Any, Callable
-from dataclasses import dataclass
-from pydantic import BaseModel
-
-from session_state import default_store, SessionState, PlanStep, PlanStepStatus
-from verify import verify_action, run_gcs
-
-
-# ============================================================================
-# Tool Input Models
-# ============================================================================
 
 class SetGoalInput(BaseModel):
-    """Input for blender_router_set_goal."""
-    goal: str
+    goal: str = Field(..., min_length=1)
     profile: str = "default"
 
 
 class PlanInput(BaseModel):
-    """Input for blender_plan."""
     goal: Optional[str] = None
-    max_steps: int = 5
+    max_steps: int = Field(default=8, ge=1, le=16)
     context: Optional[str] = None
     custom_steps: Optional[List[str]] = None
 
 
 class ActInput(BaseModel):
-    """Input for blender_act."""
     step_id: str
-    tool_name: str
-    tool_args: Dict[str, Any] = {}
+    tool_name: Optional[str] = None
+    tool_args: Optional[Dict[str, Any]] = None
     dry_run: bool = False
 
 
 class CritiqueInput(BaseModel):
-    """Input for blender_critique."""
     step_id: str
     expected: str
     constraints: Optional[List[Dict[str, Any]]] = None
 
 
 class VerifyInput(BaseModel):
-    """Input for blender_verify."""
     expected: str
     constraints: Optional[List[Dict[str, Any]]] = None
     use_vlm: bool = True
 
 
-# ============================================================================
-# Tool Implementations
-# ============================================================================
+class RecommendInput(BaseModel):
+    task: str
+    limit: int = Field(default=5, ge=1, le=10)
 
-async def blender_router_set_goal(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable,
-    input_data: SetGoalInput
-) -> Dict[str, Any]:
+
+def _find_step(session, step_id: str, completed: bool = False):
+    source = session.completed if completed else session.todo
+    return next((step for step in source if step.step_id == step_id), None)
+
+
+def _route_step(text: str, args: Optional[dict] = None) -> dict:
+    cap = registry.route_intent(text)
+    return {"description": text, "tool_hint": cap.key, "args": args or {}}
+
+
+def _build_plan(goal: str, max_steps: int, profile: str, custom_steps: List[str]) -> List[dict]:
+    """Deterministic floor plan.
+
+    Reserve the final two slots for quality audit + final render when the goal is
+    render-oriented so max_steps cannot silently truncate the finish.
     """
-    Set goal and routing profile for the session.
+    lower = goal.lower()
+    wants_render = any(word in lower for word in ("render", "image", "product shot", "packshot", "hero shot"))
+    steps: List[dict] = []
 
-    Profiles:
-    - default: balanced, general-purpose planning
-    - llm-guided: use natural language planning with VLM verification
-    - power-user: minimal constraints, assume advanced user
-    - forensic: strict verification, maximal checkpoints
-    """
-    goal = input_data.goal
-    profile = input_data.profile
+    if profile != "power-user":
+        steps.append({"description": "Inspect current scene state", "tool_hint": "scene.info", "args": {}})
 
-    # Validate profile
-    valid_profiles = ["default", "llm-guided", "power-user", "forensic"]
-    if profile not in valid_profiles:
-        return format_result({
-            "status": "error",
-            "data": {"error": f"Invalid profile. Must be one of: {valid_profiles}"}
-        })
+    # Route the whole goal plus explicit custom steps. No stored step may have a
+    # null or unknown tool hint.
+    main = registry.route_intent(goal)
+    if main.key != "scene.info" or not steps:
+        steps.append({"description": goal, "tool_hint": main.key, "args": {}})
+    for text in custom_steps:
+        steps.append(_route_step(text))
 
-    session_state.goal = goal
-    session_state.profile = profile
-    session_state.conversation_turn += 1
-    session_state.todo = []
-    session_state.completed = []
+    if profile == "forensic":
+        steps.append({"description": "Inspect scene after forensic mutations", "tool_hint": "scene.info", "args": {}})
 
+    if wants_render:
+        # Reserve finish slots; dedupe if already selected by routing.
+        finish = [
+            {"description": "Audit render quality before final output", "tool_hint": "scene.render_audit", "args": {}},
+            {"description": "Render final output", "tool_hint": "scene.render", "args": {}},
+        ]
+        room = max(0, max_steps - len(finish))
+        steps = steps[:room] + finish
+    else:
+        steps = steps[:max_steps]
+
+    # Verify registry integrity at plan boundary.
+    for step in steps:
+        registry.resolve_tool(step["tool_hint"])
+    return steps
+
+
+async def blender_router_set_goal(session, send_command, format_result, input_data: SetGoalInput):
+    if input_data.profile not in VALID_PROFILES:
+        return format_result({"error": f"Invalid profile. Must be one of: {sorted(VALID_PROFILES)}"})
+    session.goal = input_data.goal.strip()
+    session.profile = input_data.profile
+    session.conversation_turn += 1
+    session.todo = []
+    session.completed = []
+    session.critique_history = []
+    cap = registry.route_intent(session.goal)
     return format_result({
-        "status": "success",
-        "data": {
-            "goal": goal,
-            "profile": profile,
-            "session_id": session_state.session_id,
-            "conversation_turn": session_state.conversation_turn
-        }
+        "goal": session.goal,
+        "profile": session.profile,
+        "session_id": session.session_id,
+        "routing_preview": {"key": cap.key, "family": cap.family, "description": cap.description},
+        "next": "Call blender_plan.",
     })
 
 
-async def blender_plan(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable,
-    input_data: PlanInput
-) -> Dict[str, Any]:
-    """
-    Generate a plan (todo list) for the current goal using template rules.
-
-    Returns a structured plan with step_id, description, and tool_hint.
-    """
-    goal = input_data.goal or session_state.goal
-    max_steps = input_data.max_steps
-    custom_steps = input_data.custom_steps or []
-
+async def blender_plan(session, send_command, format_result, input_data: PlanInput):
+    goal = (input_data.goal or session.goal or "").strip()
     if not goal:
-        return format_result({
-            "status": "error",
-            "data": {"error": "No goal set. Call blender_router_set_goal first."}
-        })
-
-    # Simple rule-based planner
-    profile_rules = {
-        "default": [
-            "Analyze scene and objects",
-            "Plan spatial arrangement",
-            "Execute main task",
-            "Verify constraints",
-        ],
-        "llm-guided": [
-            "Understand natural language goal",
-            "Generate creative steps",
-            "Execute and verify with VLM",
-        ],
-        "power-user": [
-            "Execute optimized steps",
-        ],
-        "forensic": [
-            "Snapshot initial state",
-            "Plan with detailed checkpoints",
-            "Execute with verification at each step",
-            "Final comprehensive verification",
-        ]
-    }
-
-    profile = session_state.profile
-    base_steps = profile_rules.get(profile, profile_rules["default"])
-    all_steps = base_steps + custom_steps
-    limited_steps = all_steps[:max_steps]
-
-    # Create PlanStep objects
+        return format_result({"error": "No goal set. Call blender_router_set_goal first."})
+    session.goal = goal
+    routed = _build_plan(goal, input_data.max_steps, session.profile, input_data.custom_steps or [])
     todo = []
-    for i, desc in enumerate(limited_steps):
+    rows = []
+    for index, route in enumerate(routed, 1):
         step = PlanStep(
-            step_id=f"step_{i+1}",
-            description=desc,
-            tool_hint=None,
-            status=PlanStepStatus.pending
+            step_id=f"step_{index}",
+            description=route["description"],
+            tool_hint=route["tool_hint"],
+            args=route.get("args") or {},
+            status=PlanStepStatus.pending,
         )
         todo.append(step)
-
-    session_state.todo = todo
-    session_state.completed = []
-
-    return format_result({
-        "status": "success",
-        "data": {
-            "goal": goal,
-            "profile": profile,
-            "plan": [
-                {
-                    "step_id": s.step_id,
-                    "description": s.description,
-                    "status": s.status.value
-                }
-                for s in todo
-            ],
-            "step_count": len(todo)
-        }
-    })
+        cap = registry.resolve_tool(step.tool_hint)
+        rows.append({
+            "step_id": step.step_id,
+            "description": step.description,
+            "tool_hint": step.tool_hint,
+            "family": cap.family,
+            "args": step.args,
+            "status": step.status.value,
+        })
+    session.todo = todo
+    session.completed = []
+    return format_result({"goal": goal, "profile": session.profile, "plan": rows, "step_count": len(rows)})
 
 
-async def blender_act(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable,
-    input_data: ActInput
-) -> Dict[str, Any]:
-    """
-    Execute a specific step by calling a Blender tool.
-
-    Marks step as in_progress, executes tool, then marks done/failed.
-    """
-    step_id = input_data.step_id
-    tool_name = input_data.tool_name
-    tool_args = input_data.tool_args
-    dry_run = input_data.dry_run
-
-    # Find step in todo
-    step = None
-    for s in session_state.todo:
-        if s.step_id == step_id:
-            step = s
-            break
-
+async def blender_act(session, send_command, format_result, input_data: ActInput):
+    step = _find_step(session, input_data.step_id)
     if not step:
+        return format_result({"error": f"Step {input_data.step_id} not found in todo"})
+    name = input_data.tool_name or step.tool_hint
+    if not name:
+        return format_result({"error": "no tool_hint on step; router must set it", "step_id": step.step_id})
+    try:
+        cap = registry.resolve_tool(name)
+    except CapabilityNotFound as exc:
+        return format_result({"error": str(exc), "code": "CAPABILITY_NOT_FOUND", "step_id": step.step_id})
+
+    # If the caller names an alias/MCP tool, resolution is allowed but execution
+    # still occurs via the canonical registry and bridge_command only.
+    routed = registry.resolve_tool(step.tool_hint) if step.tool_hint else None
+    override = bool(routed and cap.key != routed.key)
+    params = input_data.tool_args if input_data.tool_args is not None else (step.args or {})
+
+    if input_data.dry_run:
         return format_result({
-            "status": "error",
-            "data": {"error": f"Step {step_id} not found in todo"}
+            "step_id": step.step_id,
+            "capability": cap.key,
+            "bridge_command": cap.bridge_command,
+            "args": params,
+            "routing_override": override,
+            "dry_run": True,
         })
 
     step.status = PlanStepStatus.in_progress
-
-    if dry_run:
-        return format_result({
-            "status": "success",
-            "data": {
-                "step_id": step_id,
-                "tool_name": tool_name,
-                "dry_run": True,
-                "message": "Dry run completed (no action taken)"
-            }
-        })
-
-    # Execute tool
     try:
-        result = send_command(tool_name, tool_args)
-        step.result = result.get("data", {})
+        result = registry.execute(cap.key, params, send_command)
+        if isinstance(result, dict) and result.get("error"):
+            step.status = PlanStepStatus.failed
+            step.result = result
+            return format_result({
+                "error": result["error"], "step_id": step.step_id,
+                "capability": cap.key, "bridge_command": cap.bridge_command,
+                "routing_override": override,
+            })
+        step.result = result if isinstance(result, dict) else {"result": result}
         step.status = PlanStepStatus.done
-
-        # Move to completed
-        session_state.todo.remove(step)
-        session_state.completed.append(step)
-
+        session.todo.remove(step)
+        session.completed.append(step)
         return format_result({
-            "status": "success",
-            "data": {
-                "step_id": step_id,
-                "tool_name": tool_name,
-                "result": step.result,
-                "status": "done"
-            }
+            "step_id": step.step_id,
+            "capability": cap.key,
+            "bridge_command": cap.bridge_command,
+            "routing_override": override,
+            "result": step.result,
+            "status": "done",
         })
-
-    except Exception as e:
+    except Exception as exc:
         step.status = PlanStepStatus.failed
-        step.result = {"error": str(e)}
-
-        return format_result({
-            "status": "error",
-            "data": {
-                "step_id": step_id,
-                "tool_name": tool_name,
-                "error": str(e),
-                "status": "failed"
-            }
-        })
+        step.result = {"error": str(exc)}
+        return format_result({"error": str(exc), "step_id": step.step_id, "capability": cap.key})
 
 
-async def blender_critique(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable,
-    input_data: CritiqueInput
-) -> Dict[str, Any]:
-    """
-    Verify a completed step against expected outcome and constraints.
-
-    Stores critique in critique_history. If failed, suggests correction steps.
-    """
-    step_id = input_data.step_id
-    expected = input_data.expected
-    constraints = input_data.constraints or []
-
-    # Find step
-    step = None
-    for s in session_state.completed:
-        if s.step_id == step_id:
-            step = s
-            break
-
+async def blender_critique(session, send_command, format_result, input_data: CritiqueInput):
+    step = _find_step(session, input_data.step_id, completed=True)
     if not step:
-        return format_result({
-            "status": "error",
-            "data": {"error": f"Step {step_id} not found in completed"}
-        })
-
-    # Run verification
-    verification = verify_action(
-        send_command,
-        expected=expected,
-        constraints=constraints,
-        use_vlm=True
-    )
-
-    critique_entry = {
-        "step_id": step_id,
-        "expected": expected,
+        return format_result({"error": f"Step {input_data.step_id} not found in completed"})
+    verification = verify_action(send_command, expected=input_data.expected, constraints=input_data.constraints or [], use_vlm=True)
+    entry = {
+        "step_id": step.step_id,
+        "expected": input_data.expected,
         "verification": verification,
         "passed": verification["passed"],
-        "confidence": verification["final_confidence"]
-    }
-
-    session_state.critique_history.append(critique_entry)
-
-    result_data = {
-        "step_id": step_id,
-        "passed": verification["passed"],
         "confidence": verification["final_confidence"],
-        "detail": verification["detail"]
     }
+    session.critique_history.append(entry)
+    data = {"step_id": step.step_id, "passed": verification["passed"], "confidence": verification["final_confidence"], "detail": verification["detail"]}
+    if not verification["passed"]:
+        fix = PlanStep(
+            step_id=f"{step.step_id}_fix_1",
+            description=f"Inspect scene to diagnose failed outcome: {input_data.expected}",
+            tool_hint="scene.info",
+            args={},
+        )
+        session.todo.insert(0, fix)
+        data["suggested_fix"] = {"step_id": fix.step_id, "tool_hint": fix.tool_hint, "description": fix.description}
+    return format_result(data)
 
-    # Suggest fixes if verification failed
-    if not verification["passed"] and verification["final_confidence"] < 0.5:
-        fix_steps = [
-            PlanStep(
-                step_id=f"{step_id}_fix_1",
-                description="Analyze failure and adjust approach",
-                tool_hint="Use get_scene_state to diagnose issue"
-            ),
-            PlanStep(
-                step_id=f"{step_id}_fix_2",
-                description="Re-execute corrected action",
-                tool_hint=None
-            )
-        ]
-        session_state.todo.extend(fix_steps)
-        result_data["suggested_fixes"] = [
-            {"step_id": s.step_id, "description": s.description}
-            for s in fix_steps
-        ]
 
+async def blender_verify(session, send_command, format_result, input_data: VerifyInput):
+    result = verify_action(send_command, expected=input_data.expected, constraints=input_data.constraints or [], use_vlm=input_data.use_vlm)
     return format_result({
-        "status": "success",
-        "data": result_data
+        "passed": result["passed"],
+        "confidence": result["final_confidence"],
+        "detail": result["detail"],
+        "gcs_score": result["gcs_result"].get("score") if result.get("gcs_result") else None,
+        "vlm_confidence": result["vlm_result"].get("confidence") if result.get("vlm_result") else None,
     })
 
 
-async def blender_verify(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable,
-    input_data: VerifyInput
-) -> Dict[str, Any]:
-    """
-    Thin wrapper around verify_action for on-demand verification.
-    """
-    expected = input_data.expected
-    constraints = input_data.constraints or []
-    use_vlm = input_data.use_vlm
-
-    result = verify_action(
-        send_command,
-        expected=expected,
-        constraints=constraints,
-        use_vlm=use_vlm
-    )
-
+async def blender_session_status(session, send_command, format_result):
+    total = len(session.todo) + len(session.completed)
+    failures = sum(1 for c in session.critique_history if not c.get("passed", False))
     return format_result({
-        "status": "success",
-        "data": {
-            "passed": result["passed"],
-            "confidence": result["final_confidence"],
-            "detail": result["detail"],
-            "gcs_score": result["gcs_result"].get("score") if result["gcs_result"] else None,
-            "vlm_confidence": result["vlm_result"].get("confidence") if result["vlm_result"] else None
-        }
+        "session_id": session.session_id,
+        "goal": session.goal,
+        "profile": session.profile,
+        "todo_count": len(session.todo),
+        "completed_count": len(session.completed),
+        "progress_pct": int(len(session.completed) / max(total, 1) * 100),
+        "critique_failures": failures,
     })
 
 
-async def blender_session_status(
-    session_state: SessionState,
-    send_command: Callable,
-    format_result: Callable
-) -> Dict[str, Any]:
-    """
-    Return current session state and progress summary.
-    """
-    todo_count = len(session_state.todo)
-    completed_count = len(session_state.completed)
-    total_steps = todo_count + completed_count
-
-    # Calculate drift score (critique failures)
-    failed_critiques = sum(
-        1 for c in session_state.critique_history if not c.get("passed", False)
-    )
-    drift_score = failed_critiques / max(len(session_state.critique_history), 1)
-
-    return format_result({
-        "status": "success",
-        "data": {
-            "session_id": session_state.session_id,
-            "goal": session_state.goal,
-            "profile": session_state.profile,
-            "conversation_turn": session_state.conversation_turn,
-            "todo_count": todo_count,
-            "completed_count": completed_count,
-            "total_steps": total_steps,
-            "progress_pct": int((completed_count / max(total_steps, 1)) * 100),
-            "drift_score": drift_score,
-            "critique_count": len(session_state.critique_history),
-            "snapshot_count": len(session_state.snapshots)
-        }
-    })
-
-
-# ============================================================================
-# Registration
-# ============================================================================
-
-def register_agent_loop_tools(
-    mcp_instance,
-    send_command: Callable,
-    format_result: Callable,
-    session_store=None,
-    drift_registry=None
-) -> List[str]:
-    """
-    Register all agent loop tools with FastMCP instance.
-
-    Args:
-        mcp_instance: FastMCP server instance
-        send_command: Blender command sender (socket)
-        format_result: Response formatter
-        session_store: Optional SessionStore override
-        drift_registry: Optional drift tracking (unused, forward-compat)
-
-    Returns:
-        List of registered tool names: [
-            'blender_router_set_goal',
-            'blender_plan',
-            'blender_act',
-            'blender_critique',
-            'blender_verify',
-            'blender_session_status'
-        ]
-    """
+def register_agent_loop_tools(mcp_instance, send_command, format_result, session_store=None, drift_registry=None):
     store = session_store or default_store()
 
     @mcp_instance.tool()
-    async def blender_router_set_goal(input: SetGoalInput) -> Dict[str, Any]:
-        """Set goal and routing profile for the session."""
-        session = store.get_or_create("default")
-        return await globals()["blender_router_set_goal"](
-            session, send_command, format_result, input
-        )
+    async def blender_router_set_goal(input: SetGoalInput):
+        """Set a goal before planning or executing Blender work."""
+        return await globals()["blender_router_set_goal"](store.get_or_create("default"), send_command, format_result, input)
 
     @mcp_instance.tool()
-    async def blender_plan(input: PlanInput) -> Dict[str, Any]:
-        """Generate a plan (todo list) for the current goal."""
-        session = store.get_or_create("default")
-        return await globals()["blender_plan"](
-            session, send_command, format_result, input
-        )
+    async def blender_plan(input: PlanInput):
+        """Build a deterministic plan whose every step has a canonical capability key."""
+        return await globals()["blender_plan"](store.get_or_create("default"), send_command, format_result, input)
 
     @mcp_instance.tool()
-    async def blender_act(input: ActInput) -> Dict[str, Any]:
-        """Execute a specific step by calling a Blender tool."""
-        session = store.get_or_create("default")
-        return await globals()["blender_act"](
-            session, send_command, format_result, input
-        )
+    async def blender_act(input: ActInput):
+        """Execute a planned step through the canonical capability registry."""
+        return await globals()["blender_act"](store.get_or_create("default"), send_command, format_result, input)
 
     @mcp_instance.tool()
-    async def blender_critique(input: CritiqueInput) -> Dict[str, Any]:
-        """Verify a completed step against expected outcome and constraints."""
-        session = store.get_or_create("default")
-        return await globals()["blender_critique"](
-            session, send_command, format_result, input
-        )
+    async def blender_critique(input: CritiqueInput):
+        """Critique a completed mutation and inject a concrete inspect fix on failure."""
+        return await globals()["blender_critique"](store.get_or_create("default"), send_command, format_result, input)
 
     @mcp_instance.tool()
-    async def blender_verify(input: VerifyInput) -> Dict[str, Any]:
-        """On-demand verification of action outcome."""
-        session = store.get_or_create("default")
-        return await globals()["blender_verify"](
-            session, send_command, format_result, input
-        )
+    async def blender_verify(input: VerifyInput):
+        """Verify final scene constraints/appearance."""
+        return await globals()["blender_verify"](store.get_or_create("default"), send_command, format_result, input)
 
     @mcp_instance.tool()
-    async def blender_session_status() -> Dict[str, Any]:
-        """Return current session state and progress summary."""
-        session = store.get_or_create("default")
-        return await globals()["blender_session_status"](
-            session, send_command, format_result
-        )
+    async def blender_session_status():
+        """Return current routed plan progress."""
+        return await globals()["blender_session_status"](store.get_or_create("default"), send_command, format_result)
 
-    return [
-        "blender_router_set_goal",
-        "blender_plan",
-        "blender_act",
-        "blender_critique",
-        "blender_verify",
-        "blender_session_status"
-    ]
+    return ["blender_router_set_goal", "blender_plan", "blender_act", "blender_critique", "blender_verify", "blender_session_status"]
