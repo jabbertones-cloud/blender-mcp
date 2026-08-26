@@ -61,6 +61,29 @@ def test_product_animation_uses_execute_python_and_animation_render_contract():
     assert ("render", {"type": "animation", "output_path": "/tmp/product_render/frame_####"}) in bridge.calls
 
 
+def test_product_animation_fails_closed_when_wrapper_step_errors():
+    class FailingExecBridge(FakeBridge):
+        def __init__(self):
+            super().__init__()
+            self.exec_count = 0
+
+        def __call__(self, command, params=None):
+            params = params or {}
+            if command == "execute_python":
+                self.calls.append((command, params))
+                self.exec_count += 1
+                if self.exec_count == 2:
+                    return {"error": "blocked product camera setup"}
+                return {"status": "ok"}
+            return super().__call__(command, params)
+
+    result = execute_canonical("product.animation", {"object_name": "Bottle"}, FailingExecBridge())
+    assert result["status"] == "failed"
+    assert "product animation setup failed" in result["error"]
+    assert result["result"]["status"] == "partial_failure"
+    assert result["result"]["errors"]
+
+
 def test_spatial_adapter_emits_phase5_command_not_fake_spatial_command():
     bridge = FakeBridge()
     result = execute_canonical("scene.spatial_query", {"action": "raycast", "origin": [0, 0, 1], "direction": [0, 0, -1]}, bridge)
