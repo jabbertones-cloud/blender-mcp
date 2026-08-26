@@ -58,7 +58,11 @@ def _require_safe_name(value: str, field: str) -> str:
 
 
 def _has_error(result: Any) -> bool:
-    return isinstance(result, dict) and bool(result.get("error"))
+    if not isinstance(result, dict):
+        return False
+    return bool(result.get("error")) or str(result.get("status") or "").lower() in {
+        "failed", "partial_failure", "postcondition_failed"
+    }
 
 
 def _has_visual_evidence(obs: Any) -> bool:
@@ -125,6 +129,8 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
             return render_result
         comp_code = _gen_compositor_code(bool(args.get("bloom", True)), bool(args.get("vignette", True)))
         compositor_result = send_command("execute_python", {"code": comp_code})
+        if _has_error(compositor_result):
+            return compositor_result
         return {"render_setup": render_result, "compositor": compositor_result}
     if key == "product.animation":
         object_name = _require_safe_name(args.get("object_name"), "object_name")
@@ -142,7 +148,10 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
         if bool(args.get("auto_render", False)):
             results["render_start"] = send_command("render", {"type": "animation", "output_path": output_path})
         errors = [name for name, value in results.items() if _has_error(value)]
-        return {"status": "ok" if not errors else "partial_failure", "object": object_name, "frames": frames, "fps": fps, "duration_sec": round(frames / max(fps, 1), 1), "results": results, "errors": errors}
+        payload = {"status": "ok" if not errors else "partial_failure", "object": object_name, "frames": frames, "fps": fps, "duration_sec": round(frames / max(fps, 1), 1), "results": results, "errors": errors}
+        if errors:
+            payload["error"] = f"product animation setup failed in: {', '.join(errors)}"
+        return payload
     return registry.execute(key, args, send_command)
 
 
@@ -214,6 +223,7 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
     response = {"capability": key, "bridge_command": cap.bridge_command, "result": result}
     if _has_error(result):
         response["status"] = "failed"
+        response["error"] = result.get("error", "capability execution failed") if isinstance(result, dict) else "capability execution failed"
         return response
     response["status"] = "ok"
     if before is not None:
