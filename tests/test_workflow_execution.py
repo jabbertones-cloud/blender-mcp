@@ -23,6 +23,8 @@ class FakeBridge:
             return {"status": "ok"}
         if command == "forensic_scene":
             return {"status": "ok", "action": params.get("action")}
+        if command == "floor_plan_data":
+            return {"status": "ok", "objects": []}
         return {"status": "ok", "command": command}
 
 
@@ -45,6 +47,42 @@ def test_product_lighting_uses_wrapper_not_fake_bridge_command():
     assert "product_lighting" not in commands
     assert commands[-1] == "viewport_capture"
     assert result["status"] == "ok"
+    assert result["bridge_command"] == "execute_python"
+
+
+def test_product_animation_uses_execute_python_and_animation_render_contract():
+    bridge = FakeBridge()
+    result = execute_canonical("product.animation", {"object_name": "Bottle", "auto_render": True}, bridge)
+    commands = [name for name, _ in bridge.calls]
+    assert result["status"] == "ok"
+    assert result["bridge_command"] == "execute_python"
+    assert "product_animation" not in commands
+    assert commands.count("execute_python") >= 4
+    assert ("render", {"type": "animation", "output_path": "/tmp/product_render/frame_####"}) in bridge.calls
+
+
+def test_spatial_adapter_emits_phase5_command_not_fake_spatial_command():
+    bridge = FakeBridge()
+    result = execute_canonical("scene.spatial_query", {"action": "raycast", "origin": [0, 0, 1], "direction": [0, 0, -1]}, bridge)
+    assert result["status"] == "ok"
+    assert "spatial" not in [name for name, _ in bridge.calls]
+    assert ("spatial_raycast", {"action": "raycast", "origin": [0, 0, 1], "direction": [0, 0, -1]}) in bridge.calls
+
+
+def test_dimensions_adapter_emits_phase5_estimate_command():
+    bridge = FakeBridge()
+    result = execute_canonical("scene.dimensions", {"action": "estimate_from_mesh", "object_name": "Bottle"}, bridge)
+    assert result["status"] == "ok"
+    assert ("dimensions_estimate", {"name": "Bottle"}) in bridge.calls
+    assert "dimensions" not in [name for name, _ in bridge.calls]
+
+
+def test_floor_plan_adapter_uses_floor_plan_data():
+    bridge = FakeBridge()
+    result = execute_canonical("scene.floor_plan", {"axis": "z", "width": 80, "height": 30}, bridge)
+    assert result["status"] == "ok"
+    assert ("floor_plan_data", {"axis": "z"}) in bridge.calls
+    assert result["result"]["object_count"] == 0
 
 
 def test_product_hero_is_one_workflow_with_required_observations():
