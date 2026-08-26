@@ -89,9 +89,13 @@ class CapabilityRegistry:
         return cap
 
     def route_intent(self, intent: str) -> Capability:
-        text = (intent or "").lower()
-        # Deterministic family-first floor. Specific lexical rules deliberately
-        # precede generic rank scoring.
+        text = " ".join((intent or "").lower().replace("'s", " is").split())
+        if any(x in text for x in ("what is in the scene", "what's in the scene", "inspect scene", "scene info")):
+            return self._by_key["scene.info"]
+        if any(x in text for x in ("add a cube", "add cube", "create a cube", "create cube", "add a sphere", "create a sphere", "add a cylinder", "create a cylinder")):
+            return self._by_key["scene.create_object"]
+        if any(x in text for x in ("three point light", "three-point light", "three point lighting", "studio lighting")):
+            return self._by_key["scene.lighting_preset"]
         if any(x in text for x in ("delete ", "remove the", "remove default cube")):
             return self._by_key["scene.delete_object"]
         if any(x in text for x in ("hdri", "world background", "environment background")):
@@ -104,7 +108,6 @@ class CapabilityRegistry:
         return self.resolve_tool(ranked[0]["tool"]) if ranked else self._by_key["scene.info"]
 
     def search_capabilities(self, query: str, limit: int = 8) -> List[dict]:
-        # Put deterministic route first, then add lexical alternatives without duplicates.
         primary = self.route_intent(query)
         rows = [{"key": primary.key, "family": primary.family, "description": primary.description, "score": 100.0, "reason": ["deterministic family-first route"]}]
         seen = {primary.key}
