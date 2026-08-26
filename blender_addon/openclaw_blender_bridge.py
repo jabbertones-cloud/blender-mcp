@@ -7620,7 +7620,7 @@ try:
         from .new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
     except Exception:
         from new_handlers_phase5 import DISPATCH_NEW_HANDLERS as _PHASE5_HANDLERS  # type: ignore
-    COMMANDS.update(_PHASE5_HANDLERS)
+    HANDLERS.update(_PHASE5_HANDLERS)
     print(f"[OpenClaw] Loaded {len(_PHASE5_HANDLERS)} Phase 5 handlers (spatial, dims, camera, UV, LOD, VR, splat, GP, snapshot)")
 except Exception as _e:
     print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")
