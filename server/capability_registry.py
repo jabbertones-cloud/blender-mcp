@@ -1,6 +1,7 @@
 """Canonical, MCP-independent capability registry for Blender dispatch."""
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, asdict, field
 from typing import Dict, Iterable, List, Tuple
 
@@ -21,7 +22,7 @@ _SCHEMA_OVERRIDES = {
     "scene.delete_object": {"type": "object", "required": ["names"], "properties": {"names": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": False},
     "scene.set_material": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material_name": {"type": "string"}, "color": {"type": "array", "items": {"type": "number"}}, "metallic": {"type": "number"}, "roughness": {"type": "number"}}},
     "scene.info": {"type": "object", "properties": {}, "additionalProperties": False},
-    "scene.render": {"type": "object", "additionalProperties": True},
+    "scene.render": {"type": "object", "properties": {"type": {"type": "string", "enum": ["image", "animation"], "default": "image"}, "output_path": {"type": "string"}}, "additionalProperties": False},
 }
 
 
@@ -57,6 +58,24 @@ _KEY_OVERRIDES = {
     "blender_polyhaven": "assets.polyhaven", "blender_sketchfab": "assets.sketchfab", "blender_hyper3d": "generation.hyper3d", "blender_hunyuan3d": "generation.hunyuan3d",
 }
 
+# MCP-side wrappers must advertise the real addon boundary they ultimately use.
+# Dynamic adapters are executed in capability_executor.py; bridge_command records
+# a real registered handler used by that adapter rather than a fictional socket name.
+_BRIDGE_COMMAND_OVERRIDES = {
+    "product.material": "execute_python",
+    "product.lighting": "execute_python",
+    "product.camera": "execute_python",
+    "product.render_setup": "execute_python",
+    "product.animation": "execute_python",
+    "scene.spatial_query": "spatial_scene_bounds",
+    "scene.dimensions": "dimensions_estimate",
+    "scene.floor_plan": "floor_plan_data",
+}
+
+# The fat MCP still owns integrations that do not have an addon command or a
+# canonical adapter yet. Do not advertise them through guided execution.
+_GUIDED_EXCLUDED_MCP = {"blender_hyper3d"}
+
 _FAMILY_OVERRIDES = {"model": "create", "transform": "mutate", "product-viz": "product", "uv": "uv", "io": "io", "workflow": "mutate", "spatial": "spatial"}
 _SPECIFIC_FAMILIES = {
     "scene.create_object": "create", "scene.modify_object": "mutate", "scene.delete_object": "mutate",
@@ -69,13 +88,18 @@ _SPECIFIC_FAMILIES = {
 
 class CapabilityRegistry:
     def __init__(self, capabilities: Iterable[Capability]):
+        caps = list(capabilities)
         self._by_key: Dict[str, Capability] = {}
         self._by_alias: Dict[str, Capability] = {}
-        for cap in capabilities:
+        bridge_counts = Counter(cap.bridge_command for cap in caps)
+        for cap in caps:
             if cap.key in self._by_key:
                 raise ValueError(f"duplicate capability key: {cap.key}")
             self._by_key[cap.key] = cap
-            for name in (cap.key, cap.mcp_name, cap.bridge_command, *cap.aliases):
+            names = [cap.key, cap.mcp_name, *cap.aliases]
+            if bridge_counts[cap.bridge_command] == 1:
+                names.append(cap.bridge_command)
+            for name in names:
                 normalized = str(name).strip().lower()
                 existing = self._by_alias.get(normalized)
                 if existing and existing.key != cap.key:
@@ -104,15 +128,22 @@ class CapabilityRegistry:
             return self._by_key["scene.camera"]
         if any(x in text for x in ("chrome", "metal material", "make it metallic")):
             return self._by_key["scene.set_material"]
-        ranked = rank_capabilities(intent, limit=1)
-        return self.resolve_tool(ranked[0]["tool"]) if ranked else self._by_key["scene.info"]
+        for row in rank_capabilities(intent, limit=8):
+            try:
+                return self.resolve_tool(row["tool"])
+            except CapabilityNotFound:
+                continue
+        return self._by_key["scene.info"]
 
     def search_capabilities(self, query: str, limit: int = 8) -> List[dict]:
         primary = self.route_intent(query)
         rows = [{"key": primary.key, "family": primary.family, "description": primary.description, "score": 100.0, "reason": ["deterministic family-first route"]}]
         seen = {primary.key}
-        for row in rank_capabilities(query, limit=limit):
-            cap = self.resolve_tool(row["tool"])
+        for row in rank_capabilities(query, limit=max(limit * 2, 8)):
+            try:
+                cap = self.resolve_tool(row["tool"])
+            except CapabilityNotFound:
+                continue
             if cap.key in seen:
                 continue
             seen.add(cap.key)
@@ -135,9 +166,13 @@ class CapabilityRegistry:
 def _build_registry() -> CapabilityRegistry:
     caps = []
     for source in CAPABILITIES:
+        if source.tool in _GUIDED_EXCLUDED_MCP:
+            continue
         key = _KEY_OVERRIDES.get(source.tool, source.tool.removeprefix("blender_").replace("_", ".", 1))
         family = _SPECIFIC_FAMILIES.get(key, _FAMILY_OVERRIDES.get(source.family, source.family))
-        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=source.command, mcp_name=source.tool, input_schema=_SCHEMA_OVERRIDES.get(key, dict(_GENERIC_SCHEMA)), aliases=tuple(source.positive), tags=(source.family,), mutates_scene=source.mutates_scene))
+        bridge_command = _BRIDGE_COMMAND_OVERRIDES.get(key, source.command)
+        aliases = (source.command, *source.positive) if source.command != bridge_command else tuple(source.positive)
+        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_SCHEMA_OVERRIDES.get(key, dict(_GENERIC_SCHEMA)), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene))
     caps.append(Capability(key="scene.delete_object", family="mutate", description="delete one or more named scene objects", bridge_command="delete_object", mcp_name="blender_delete_object", input_schema=_SCHEMA_OVERRIDES["scene.delete_object"], aliases=("delete object", "remove object", "delete default cube"), tags=("objects",), mutates_scene=True))
     return CapabilityRegistry(caps)
 
