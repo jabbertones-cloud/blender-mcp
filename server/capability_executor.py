@@ -1,7 +1,7 @@
 """Execution layer for canonical Blender capabilities.
 
 Routing decides *what* to do. This module owns *how* a canonical capability is
-executed, including MCP-side product wrappers and required visual observations.
+executed, including MCP-side wrappers and required visual observations.
 No MCP dependency is used here, so dispatch behavior is unit-testable.
 """
 from __future__ import annotations
@@ -18,6 +18,7 @@ try:
         _gen_render_code,
         _gen_compositor_code,
     )
+    from server.spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
 except ModuleNotFoundError:
     from capability_registry import registry, Capability
     from product_animation_tools import (
@@ -27,6 +28,7 @@ except ModuleNotFoundError:
         _gen_render_code,
         _gen_compositor_code,
     )
+    from spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
 
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9_. -]{1,128}$")
 _VISUAL_FAMILIES = {"lighting", "material", "camera", "render"}
@@ -34,67 +36,17 @@ _CREATE_KEYS = {"scene.create_object"}
 _DELETE_KEYS = {"scene.delete_object"}
 
 WORKFLOW_SCHEMAS: Dict[str, dict] = {
-    "workflow.product_hero": {
-        "type": "object",
-        "required": ["object_name"],
-        "properties": {
-            "object_name": {"type": "string"},
-            "material": {"type": ["string", "null"], "default": None},
-            "lighting": {"type": "string", "default": "product_studio"},
-            "camera_style": {"type": "string", "default": "hero_reveal"},
-            "quality": {"type": "string", "default": "premium"},
-            "resolution": {"type": "string", "default": "square_1080"},
-            "transparent_bg": {"type": "boolean", "default": False},
-            "auto_render": {"type": "boolean", "default": True},
-        },
-        "additionalProperties": False,
-    },
-    "workflow.turntable": {
-        "type": "object",
-        "required": ["object_name"],
-        "properties": {
-            "object_name": {"type": "string"},
-            "lighting": {"type": "string", "default": "product_studio"},
-            "frames": {"type": "integer", "default": 120},
-            "quality": {"type": "string", "default": "balanced"},
-            "auto_render": {"type": "boolean", "default": False},
-        },
-        "additionalProperties": False,
-    },
-    "workflow.forensic_recon": {
-        "type": "object",
-        "required": ["action"],
-        "properties": {
-            "action": {"type": "string"},
-        },
-        "additionalProperties": True,
-    },
-    "workflow.amazon_packshot": {
-        "type": "object",
-        "required": ["object_name"],
-        "properties": {
-            "object_name": {"type": "string"},
-            "material": {"type": ["string", "null"], "default": None},
-            "transparent_bg": {"type": "boolean", "default": True},
-        },
-        "additionalProperties": False,
-    },
+    "workflow.product_hero": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material": {"type": ["string", "null"], "default": None}, "lighting": {"type": "string", "default": "product_studio"}, "camera_style": {"type": "string", "default": "hero_reveal"}, "quality": {"type": "string", "default": "premium"}, "resolution": {"type": "string", "default": "square_1080"}, "transparent_bg": {"type": "boolean", "default": False}, "auto_render": {"type": "boolean", "default": True}}, "additionalProperties": False},
+    "workflow.turntable": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "lighting": {"type": "string", "default": "product_studio"}, "frames": {"type": "integer", "default": 120}, "quality": {"type": "string", "default": "balanced"}, "auto_render": {"type": "boolean", "default": False}}, "additionalProperties": False},
+    "workflow.forensic_recon": {"type": "object", "required": ["action"], "properties": {"action": {"type": "string"}}, "additionalProperties": True},
+    "workflow.amazon_packshot": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material": {"type": ["string", "null"], "default": None}, "transparent_bg": {"type": "boolean", "default": True}}, "additionalProperties": False},
 }
 
 WORKFLOW_DESCRIPTIONS = {
-    "workflow.product_hero": (
-        "Create a polished product hero shot as one deterministic workflow: inspect, optional product material, "
-        "studio lighting, hero camera, premium render setup, visual observations, and optional final render."
-    ),
-    "workflow.turntable": (
-        "Build a 360 product turntable: inspect, product lighting, turntable camera orbit, optional still render."
-    ),
-    "workflow.forensic_recon": (
-        "Run the forensic/accident reconstruction handler as one workflow after a scene inspect."
-    ),
-    "workflow.amazon_packshot": (
-        "Amazon main-image packshot: square 1080, premium samples, product studio lighting, hero camera, transparent background by default."
-    ),
+    "workflow.product_hero": "Create a polished product hero shot as one deterministic workflow: inspect, optional product material, studio lighting, hero camera, premium render setup, visual observations, and optional final render.",
+    "workflow.turntable": "Build a 360 product turntable: inspect, product lighting, turntable camera orbit, optional still render.",
+    "workflow.forensic_recon": "Run the forensic/accident reconstruction handler as one workflow after a scene inspect.",
+    "workflow.amazon_packshot": "Amazon main-image packshot: square 1080, premium samples, product studio lighting, hero camera, transparent background by default.",
 }
 
 
@@ -150,12 +102,7 @@ def _scene_summary(send_command: Callable[[str, dict], dict]) -> dict:
 def _scene_delta(before: dict, after: dict) -> dict:
     before_set = set(before.get("object_names") or [])
     after_set = set(after.get("object_names") or [])
-    return {
-        "added": sorted(after_set - before_set),
-        "removed": sorted(before_set - after_set),
-        "count_before": before.get("object_count", 0),
-        "count_after": after.get("object_count", 0),
-    }
+    return {"added": sorted(after_set - before_set), "removed": sorted(before_set - after_set), "count_before": before.get("object_count", 0), "count_after": after.get("object_count", 0)}
 
 
 def _execute_product(cap: Capability, args: dict, send_command) -> dict:
@@ -179,6 +126,78 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
         comp_code = _gen_compositor_code(bool(args.get("bloom", True)), bool(args.get("vignette", True)))
         compositor_result = send_command("execute_python", {"code": comp_code})
         return {"render_setup": render_result, "compositor": compositor_result}
+    if key == "product.animation":
+        object_name = _require_safe_name(args.get("object_name"), "object_name")
+        frames = int(args.get("frames", 120))
+        fps = int(args.get("fps", 24))
+        output_path = args.get("output_path") or "/tmp/product_render/frame_####"
+        results = {}
+        material = args.get("material")
+        if material:
+            results["material"] = send_command("execute_python", {"code": _gen_material_code(str(material), object_name)})
+        results["lighting"] = send_command("execute_python", {"code": _gen_lighting_code(str(args.get("lighting") or "product_studio"), bool(args.get("shadow_catcher", True)), bool(args.get("gradient_bg", False)), hdri_path=None, hdri_strength=1.5)})
+        results["camera"] = send_command("execute_python", {"code": _gen_camera_code(str(args.get("camera_style") or "turntable"), object_name, frames, float(args.get("camera_distance", 4.0)), float(args.get("camera_height", 1.2)), float(args.get("focal_length", 50.0)), float(args.get("f_stop", 2.8)), bool(args.get("use_dof", True)), fps)})
+        results["render"] = send_command("execute_python", {"code": _gen_render_code(str(args.get("quality") or "balanced"), str(args.get("resolution") or "1080p"), bool(args.get("transparent_bg", True)), output_path, "PNG")})
+        results["compositor"] = send_command("execute_python", {"code": _gen_compositor_code(bool(args.get("bloom", True)), bool(args.get("vignette", True)))})
+        if bool(args.get("auto_render", False)):
+            results["render_start"] = send_command("render", {"type": "animation", "output_path": output_path})
+        errors = [name for name, value in results.items() if _has_error(value)]
+        return {"status": "ok" if not errors else "partial_failure", "object": object_name, "frames": frames, "fps": fps, "duration_sec": round(frames / max(fps, 1), 1), "results": results, "errors": errors}
+    return registry.execute(key, args, send_command)
+
+
+def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
+    if key == "scene.spatial_query":
+        action = str(args.get("action") or "scene_bounds")
+        commands = {
+            "raycast": "spatial_raycast",
+            "bounding_box_world": "spatial_bbox_world",
+            "check_collision": "spatial_check_collision",
+            "find_placement_position": "spatial_find_placement",
+            "get_safe_movement_range": "spatial_movement_range",
+            "scene_bounds": "spatial_scene_bounds",
+        }
+        command = commands.get(action)
+        if not command:
+            return {"error": f"unknown spatial action: {action}"}
+        return send_command(command, args)
+
+    if key == "scene.dimensions":
+        action = str(args.get("action") or "")
+        db = _load_dimensions_db()
+        if action == "list":
+            items = db.get("objects", {})
+            category = args.get("category")
+            if category:
+                items = {k: v for k, v in items.items() if v.get("category") == category}
+            return {"count": len(items), "objects": items}
+        if action == "get":
+            object_type = args.get("object_type")
+            if not object_type:
+                return {"error": "object_type required"}
+            resolved = _resolve_alias(str(object_type), db)
+            entry = db.get("objects", {}).get(resolved)
+            return ({"object_type": resolved, "requested": object_type, **entry} if entry else {"error": f"'{object_type}' not in dimensions DB"})
+        if action == "estimate_from_mesh":
+            name = args.get("object_name")
+            return send_command("dimensions_estimate", {"name": name}) if name else {"error": "object_name required"}
+        if action == "scale_to_realistic":
+            name, object_type = args.get("object_name"), args.get("object_type")
+            if not (name and object_type):
+                return {"error": "object_name and object_type required"}
+            resolved = _resolve_alias(str(object_type), db)
+            target = db.get("objects", {}).get(resolved)
+            return send_command("dimensions_scale", {"name": name, "target_dimensions": target}) if target else {"error": f"'{object_type}' not in dimensions DB"}
+        return {"error": f"unknown dimensions action: {action}"}
+
+    if key == "scene.floor_plan":
+        axis = str(args.get("axis") or "z")
+        data = send_command("floor_plan_data", {"axis": axis})
+        if _has_error(data):
+            return data
+        objects = data.get("objects", []) if isinstance(data, dict) else []
+        return {"floor_plan": _format_ascii_floor_plan(objects, int(args.get("width", 80)), int(args.get("height", 30)), axis), "object_count": len(objects), "axis": axis}
+
     return registry.execute(key, args, send_command)
 
 
@@ -186,7 +205,12 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
     cap = registry.resolve_tool(key)
     args = arguments or {}
     before = _scene_summary(send_command) if cap.mutates_scene else None
-    result = _execute_product(cap, args, send_command) if key.startswith("product.") else registry.execute(key, args, send_command)
+    if key.startswith("product."):
+        result = _execute_product(cap, args, send_command)
+    elif key in {"scene.spatial_query", "scene.dimensions", "scene.floor_plan"}:
+        result = _execute_spatial_adapter(key, args, send_command)
+    else:
+        result = registry.execute(key, args, send_command)
     response = {"capability": key, "bridge_command": cap.bridge_command, "result": result}
     if _has_error(result):
         response["status"] = "failed"
