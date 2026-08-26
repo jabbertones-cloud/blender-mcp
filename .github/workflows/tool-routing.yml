@@ -5,20 +5,30 @@ on:
     branches: [main]
     paths:
       - 'server/agent_loop.py'
+      - 'server/session_state.py'
       - 'server/capability_router.py'
+      - 'server/capability_registry.py'
+      - 'server/blender_mcp_guided.py'
       - 'tests/test_capability_router.py'
+      - 'tests/test_tool_choice.py'
+      - 'tests/test_act_dispatch.py'
       - '.github/workflows/tool-routing.yml'
   push:
     branches: [main]
     paths:
       - 'server/agent_loop.py'
+      - 'server/session_state.py'
       - 'server/capability_router.py'
+      - 'server/capability_registry.py'
+      - 'server/blender_mcp_guided.py'
       - 'tests/test_capability_router.py'
+      - 'tests/test_tool_choice.py'
+      - 'tests/test_act_dispatch.py'
       - '.github/workflows/tool-routing.yml'
   workflow_dispatch:
 
 jobs:
-  routing:
+  router-floor:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -26,9 +36,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install test dependency
-        run: python -m pip install pytest
+      - name: Install test dependencies
+        run: python -m pip install pytest pydantic
       - name: Compile routing modules
-        run: python -m py_compile server/capability_router.py server/agent_loop.py
-      - name: Run deterministic routing tests
-        run: python -m pytest tests/test_capability_router.py -q
+        run: >-
+          python -m py_compile
+          server/capability_router.py
+          server/capability_registry.py
+          server/session_state.py
+          server/agent_loop.py
+          server/blender_mcp_guided.py
+      - name: Run deterministic router and dispatch floor
+        run: python -m pytest tests/test_tool_choice.py tests/test_act_dispatch.py tests/test_capability_router.py -q
