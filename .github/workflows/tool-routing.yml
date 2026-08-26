@@ -11,12 +11,15 @@ on:
       - 'server/capability_executor.py'
       - 'server/blender_mcp_guided.py'
       - 'server/product_animation_tools.py'
+      - 'blender_addon/openclaw_blender_bridge.py'
       - 'requirements.txt'
       - 'tests/test_capability_router.py'
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
       - 'tests/test_guided_workflow_search.py'
+      - 'tests/test_guided_surface.py'
+      - 'tests/test_bridge_contracts.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -31,12 +34,15 @@ on:
       - 'server/capability_executor.py'
       - 'server/blender_mcp_guided.py'
       - 'server/product_animation_tools.py'
+      - 'blender_addon/openclaw_blender_bridge.py'
       - 'requirements.txt'
       - 'tests/test_capability_router.py'
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
       - 'tests/test_guided_workflow_search.py'
+      - 'tests/test_guided_surface.py'
+      - 'tests/test_bridge_contracts.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -72,7 +78,7 @@ jobs:
           server/session_state.py
           server/agent_loop.py
           server/blender_mcp_guided.py
-      - name: Run deterministic router, dispatch, and workflow floor
+      - name: Run deterministic router, dispatch, workflow, and bridge-contract floor
         run: >-
           python -m pytest
           tests/test_tool_choice.py
@@ -80,6 +86,8 @@ jobs:
           tests/test_capability_router.py
           tests/test_workflow_execution.py
           tests/test_guided_workflow_search.py
+          tests/test_guided_surface.py
+          tests/test_bridge_contracts.py
           tests/test_eval_cli.py
           tests/test_bridge_e2e.py
           -q
