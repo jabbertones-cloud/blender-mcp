@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import socket
 
 import pytest
@@ -15,8 +16,9 @@ from server.capability_executor import execute_canonical
 
 HOST = os.getenv("BLENDER_HOST", "127.0.0.1")
 PORT = int(os.getenv("BLENDER_PORT", "9876"))
-REQUIRE = os.getenv("BLENDER_E2E", "").strip() in {"1", "true", "yes"}
+REQUIRE = os.getenv("BLENDER_E2E", "").strip().lower() in {"1", "true", "yes"}
 FIXTURE = "AgentOS_E2E_Cube"
+_FIXTURE_RE = re.compile(rf"^{re.escape(FIXTURE)}(?:\.\d+)?$")
 
 
 def _bridge_open() -> bool:
@@ -25,6 +27,27 @@ def _bridge_open() -> bool:
             return True
     except OSError:
         return False
+
+
+def _scene_names(send) -> list[str]:
+    info = send("get_scene_info", {})
+    objects = info.get("objects") or [] if isinstance(info, dict) else []
+    return [str(row["name"]) for row in objects if isinstance(row, dict) and row.get("name")]
+
+
+def _fixture_family(send) -> list[str]:
+    return [name for name in _scene_names(send) if _FIXTURE_RE.fullmatch(name)]
+
+
+def _remove_fixture_family(send) -> None:
+    stale = _fixture_family(send)
+    if stale:
+        result = send("delete_object", {"names": stale})
+        if isinstance(result, dict) and result.get("error"):
+            pytest.fail(f"failed to clean stale Blender E2E fixtures {stale}: {result['error']}")
+    remaining = _fixture_family(send)
+    if remaining:
+        pytest.fail(f"stale Blender E2E fixtures remain after cleanup: {remaining}")
 
 
 @pytest.fixture
@@ -57,16 +80,11 @@ def live_send():
                     continue
         return {"error": "empty bridge response"}
 
-    yield send
-
-    info = send("get_scene_info", {})
-    names = []
-    objects = info.get("objects") or []
-    for row in objects:
-        if isinstance(row, dict) and row.get("name"):
-            names.append(row["name"])
-    if FIXTURE in names:
-        send("delete_object", {"names": [FIXTURE]})
+    _remove_fixture_family(send)
+    try:
+        yield send
+    finally:
+        _remove_fixture_family(send)
 
 
 def test_live_create_observe_delete(live_send):
@@ -78,6 +96,7 @@ def test_live_create_observe_delete(live_send):
     )
     assert created["status"] == "ok"
     assert FIXTURE in (created.get("scene_delta") or {}).get("added", [])
+    assert not any(name.startswith(FIXTURE + ".") for name in _scene_names(live_send))
 
     moved = execute_canonical(
         "scene.modify_object",
@@ -87,11 +106,25 @@ def test_live_create_observe_delete(live_send):
     )
     assert moved["status"] == "ok"
 
+    exec_probe = live_send("execute_python", {"code": "result = {'agent_os_probe': True}"})
+    if exec_probe.get("disabled_by_policy"):
+        message = (
+            "product workflow live proof requires explicit OPENCLAW_ALLOW_EXEC=1 on the trusted Blender runner; "
+            "the addon correctly defaults execute_python to disabled"
+        )
+        if REQUIRE:
+            pytest.fail(message)
+        pytest.skip(message)
+    assert not exec_probe.get("error"), exec_probe
+
     lit = execute_canonical("product.lighting", {"preset": "product_studio"}, live_send)
-    assert lit["status"] == "ok"
+    assert lit["status"] == "ok", lit
     assert lit.get("visual_check_required") is True
-    assert lit.get("visual_observation")
+    observation = lit.get("visual_observation") or {}
+    payload = observation.get("data", observation) if isinstance(observation, dict) else {}
+    assert isinstance(payload.get("base64"), str) and payload["base64"], observation
 
     deleted = execute_canonical("scene.delete_object", {"names": [FIXTURE]}, live_send, observe_visual=False)
     assert deleted["status"] == "ok"
     assert FIXTURE in (deleted.get("scene_delta") or {}).get("removed", [])
+    assert _fixture_family(live_send) == []
