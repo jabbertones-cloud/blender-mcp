@@ -19,6 +19,7 @@ try:
         _gen_compositor_code,
     )
     from server.spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
+    from server.visual_quality import critique_visual_evidence
 except ModuleNotFoundError:
     from capability_registry import registry, Capability
     from product_animation_tools import (
@@ -29,6 +30,7 @@ except ModuleNotFoundError:
         _gen_compositor_code,
     )
     from spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
+    from visual_quality import critique_visual_evidence
 
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9_. -]{1,128}$")
 _VISUAL_FAMILIES = {"lighting", "material", "camera", "render"}
@@ -66,7 +68,6 @@ def _has_error(result: Any) -> bool:
 
 
 def _has_visual_evidence(obs: Any) -> bool:
-    """Return True only when the bridge returned actual image pixels."""
     if not isinstance(obs, dict) or obs.get("error"):
         return False
     payload = obs.get("data", obs)
@@ -158,19 +159,9 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
 def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
     if key == "scene.spatial_query":
         action = str(args.get("action") or "scene_bounds")
-        commands = {
-            "raycast": "spatial_raycast",
-            "bounding_box_world": "spatial_bbox_world",
-            "check_collision": "spatial_check_collision",
-            "find_placement_position": "spatial_find_placement",
-            "get_safe_movement_range": "spatial_movement_range",
-            "scene_bounds": "spatial_scene_bounds",
-        }
+        commands = {"raycast": "spatial_raycast", "bounding_box_world": "spatial_bbox_world", "check_collision": "spatial_check_collision", "find_placement_position": "spatial_find_placement", "get_safe_movement_range": "spatial_movement_range", "scene_bounds": "spatial_scene_bounds"}
         command = commands.get(action)
-        if not command:
-            return {"error": f"unknown spatial action: {action}"}
-        return send_command(command, args)
-
+        return send_command(command, args) if command else {"error": f"unknown spatial action: {action}"}
     if key == "scene.dimensions":
         action = str(args.get("action") or "")
         db = _load_dimensions_db()
@@ -198,7 +189,6 @@ def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
             target = db.get("objects", {}).get(resolved)
             return send_command("dimensions_scale", {"name": name, "target_dimensions": target}) if target else {"error": f"'{object_type}' not in dimensions DB"}
         return {"error": f"unknown dimensions action: {action}"}
-
     if key == "scene.floor_plan":
         axis = str(args.get("axis") or "z")
         data = send_command("floor_plan_data", {"axis": axis})
@@ -206,7 +196,6 @@ def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
             return data
         objects = data.get("objects", []) if isinstance(data, dict) else []
         return {"floor_plan": _format_ascii_floor_plan(objects, int(args.get("width", 80)), int(args.get("height", 30)), axis), "object_count": len(objects), "axis": axis}
-
     return registry.execute(key, args, send_command)
 
 
@@ -246,6 +235,12 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
     return response
 
 
+def _final_quality_review(key: str, object_name: str, send_command) -> dict:
+    scene = send_command("get_scene_info", {})
+    viewport = _visual_observation(send_command)
+    return critique_visual_evidence(scene=scene, viewport=viewport, workflow=key, target_object=object_name)
+
+
 def execute_workflow(key: str, arguments: dict, send_command) -> dict:
     if key not in WORKFLOW_SCHEMAS:
         raise KeyError(f"Unknown workflow capability: {key}")
@@ -278,7 +273,8 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
             return fail()
         if bool(args.get("auto_render", False)) and not run("scene.render", {"type": "image"}, observe_visual=True):
             return fail()
-        return {"workflow": key, "status": "ok", "object_name": object_name, "steps": steps, "postcondition": "Turntable camera orbit was created with pixel observation."}
+        review = _final_quality_review(key, object_name, send_command)
+        return {"workflow": key, "status": review["status"], "object_name": object_name, "steps": steps, "quality_review": review, "postcondition": "Turntable stage produced pixels and completed objective quality review."}
     if key == "workflow.amazon_packshot":
         args = {**args, "lighting": "product_studio", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "transparent_bg": bool(args.get("transparent_bg", True)), "auto_render": True}
     material = args.get("material")
@@ -292,4 +288,5 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
         return fail()
     if bool(args.get("auto_render", True)) and not run("scene.render", {"type": "image"}, observe_visual=True):
         return fail()
-    return {"workflow": key, "status": "ok", "object_name": object_name, "steps": steps, "postcondition": "Every appearance-affecting step produced pixel evidence."}
+    review = _final_quality_review(key, object_name, send_command)
+    return {"workflow": key, "status": review["status"], "object_name": object_name, "steps": steps, "quality_review": review, "postcondition": "Appearance steps produced pixels and workflow completed objective quality review."}
