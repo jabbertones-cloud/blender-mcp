@@ -20,6 +20,7 @@ try:
     )
     from server.spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
     from server.visual_quality import critique_visual_evidence
+    from server.quality_loop import run_quality_loop
 except ModuleNotFoundError:
     from capability_registry import registry, Capability
     from product_animation_tools import (
@@ -31,6 +32,7 @@ except ModuleNotFoundError:
     )
     from spatial_tools import _format_ascii_floor_plan, _load_dimensions_db, _resolve_alias
     from visual_quality import critique_visual_evidence
+    from quality_loop import run_quality_loop
 
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9_. -]{1,128}$")
 _VISUAL_FAMILIES = {"lighting", "material", "camera", "render"}
@@ -235,10 +237,43 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
     return response
 
 
+def _is_unknown_bridge_command(result: Any) -> bool:
+    if not isinstance(result, dict):
+        return False
+    err = str(result.get("error") or "")
+    return "unknown command" in err.lower()
+
+
 def _final_quality_review(key: str, object_name: str, send_command) -> dict:
-    scene = send_command("get_scene_info", {})
+    diagnostics = send_command("scene_diagnostics", {})
+    if _has_error(diagnostics) or _is_unknown_bridge_command(diagnostics):
+        diagnostics = send_command("get_scene_info", {})
     viewport = _visual_observation(send_command)
-    return critique_visual_evidence(scene=scene, viewport=viewport, workflow=key, target_object=object_name)
+    return critique_visual_evidence(
+        scene=diagnostics,
+        viewport=viewport,
+        diagnostics=diagnostics if not _is_unknown_bridge_command(diagnostics) else None,
+        workflow=key,
+        target_object=object_name,
+    )
+
+
+def _complete_product_quality(key: str, object_name: str, send_command, steps: list) -> dict:
+    def review_once() -> dict:
+        return _final_quality_review(key, object_name, send_command)
+
+    def exec_cap(cap_key: str, arguments: dict) -> dict:
+        return execute_canonical(cap_key, arguments, send_command, observe_visual=False)
+
+    review = run_quality_loop(
+        workflow=key,
+        target_object=object_name,
+        review_once=review_once,
+        execute_canonical=exec_cap,
+    )
+    for attempt in review.get("repair_attempts") or []:
+        steps.append({"capability": "quality.repair", "result": attempt})
+    return review
 
 
 def execute_workflow(key: str, arguments: dict, send_command) -> dict:
@@ -273,7 +308,7 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
             return fail()
         if bool(args.get("auto_render", False)) and not run("scene.render", {"type": "image"}, observe_visual=True):
             return fail()
-        review = _final_quality_review(key, object_name, send_command)
+        review = _complete_product_quality(key, object_name, send_command, steps)
         return {"workflow": key, "status": review["status"], "object_name": object_name, "steps": steps, "quality_review": review, "postcondition": "Turntable stage produced pixels and completed objective quality review."}
     if key == "workflow.amazon_packshot":
         args = {**args, "lighting": "product_studio", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "transparent_bg": bool(args.get("transparent_bg", True)), "auto_render": True}
@@ -288,5 +323,5 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
         return fail()
     if bool(args.get("auto_render", True)) and not run("scene.render", {"type": "image"}, observe_visual=True):
         return fail()
-    review = _final_quality_review(key, object_name, send_command)
+    review = _complete_product_quality(key, object_name, send_command, steps)
     return {"workflow": key, "status": review["status"], "object_name": object_name, "steps": steps, "quality_review": review, "postcondition": "Appearance steps produced pixels and workflow completed objective quality review."}

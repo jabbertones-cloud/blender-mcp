@@ -13,6 +13,24 @@ class FakeBridge:
             return {"status": "ok", "image": "base64-test"}
         if command == "get_scene_info":
             return {"status": "ok", "objects": list(self.objects)}
+        if command == "scene_diagnostics":
+            types = [row.get("type") for row in self.objects]
+            lights = [row for row in self.objects if row.get("type") == "LIGHT"]
+            camera = next((row for row in self.objects if row.get("type") == "CAMERA"), None)
+            return {
+                "objects": list(self.objects),
+                "camera_present": camera is not None,
+                "light_count": len(lights),
+                "lights": lights,
+                "camera": camera,
+            }
+        if command == "execute_python":
+            names = {row["name"] for row in self.objects}
+            if "Camera" not in names:
+                self.objects.append({"name": "Camera", "type": "CAMERA"})
+            if "Key" not in names:
+                self.objects.append({"name": "Key", "type": "LIGHT"})
+            return {"status": "ok"}
         if command == "create_object":
             name = params.get("name") or "Cube"
             self.objects.append({"name": name, "type": "MESH"})
@@ -112,7 +130,7 @@ def test_product_hero_is_one_workflow_with_required_observations():
     bridge = FakeBridge()
     result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "material": "clear_glass", "lighting": "cosmetics", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "auto_render": True}, bridge)
     commands = [name for name, _ in bridge.calls]
-    assert result["status"] == "ok"
+    assert result["status"] == "review_required"
     assert commands[0] == "get_scene_info"
     assert commands.count("viewport_capture") >= 5
     assert "product_lighting" not in commands
@@ -125,7 +143,7 @@ def test_product_hero_is_one_workflow_with_required_observations():
 def test_workflow_render_uses_addon_image_type():
     bridge = FakeBridge()
     result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "auto_render": True}, bridge)
-    assert result["status"] == "ok"
+    assert result["status"] == "review_required"
     render_calls = [params for command, params in bridge.calls if command == "render"]
     assert render_calls == [{"type": "image"}]
 
@@ -158,7 +176,7 @@ def test_create_object_fails_closed_without_scene_delta():
 def test_turntable_workflow_uses_turntable_camera_style():
     bridge = FakeBridge()
     result = execute_workflow("workflow.turntable", {"object_name": "Bottle", "auto_render": False}, bridge)
-    assert result["status"] == "ok"
+    assert result["status"] == "review_required"
     camera_calls = [params for command, params in bridge.calls if command == "execute_python"]
     assert camera_calls, bridge.calls
     assert any("turntable" in str(params.get("code", "")).lower() or "Turntable" in str(params.get("code", "")) for params in camera_calls)
@@ -196,7 +214,7 @@ def test_path_only_viewport_capture_is_not_visual_evidence():
 def test_amazon_packshot_forces_square_premium_setup():
     bridge = FakeBridge()
     result = execute_workflow("workflow.amazon_packshot", {"object_name": "Bottle"}, bridge)
-    assert result["status"] == "ok"
+    assert result["status"] == "review_required"
     assert result["workflow"] == "workflow.amazon_packshot"
     assert "render" in [name for name, _ in bridge.calls]
 

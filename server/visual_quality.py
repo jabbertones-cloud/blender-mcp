@@ -27,6 +27,7 @@ def critique_visual_evidence(
     viewport: Any,
     workflow: str | None = None,
     target_object: str | None = None,
+    diagnostics: Any = None,
 ) -> dict:
     """Return deterministic quality findings and an actionable revision plan.
 
@@ -40,7 +41,9 @@ def critique_visual_evidence(
          if isinstance(payload.get(key), str) and payload.get(key).strip()),
         None,
     )
-    objects = _objects(scene)
+    diag = _payload(diagnostics) if diagnostics is not None else {}
+    objects = diag.get("objects") if isinstance(diag.get("objects"), list) else _objects(scene)
+    objects = [row for row in objects if isinstance(row, dict)]
     names = {str(row.get("name")) for row in objects if row.get("name")}
     types = [str(row.get("type") or "").upper() for row in objects]
     findings: list[dict] = []
@@ -55,9 +58,14 @@ def critique_visual_evidence(
     if target_object and target_object not in names:
         add("TARGET_MISSING", "error", f"Target object '{target_object}' is absent from the scene.", "Resolve the canonical object name before camera/material/render work.")
     if workflow in {"workflow.product_hero", "workflow.amazon_packshot", "workflow.turntable"}:
-        if "CAMERA" not in types:
+        camera_present = bool(diag["camera_present"]) if "camera_present" in diag else "CAMERA" in types
+        if "light_count" in diag:
+            lights_present = int(diag.get("light_count") or 0) > 0
+        else:
+            lights_present = "LIGHT" in types
+        if not camera_present:
             add("NO_CAMERA", "error", "Product workflow has no camera object.", "Create and aim a product camera at the target.")
-        if "LIGHT" not in types:
+        if not lights_present:
             add("NO_LIGHTS", "error", "Product workflow has no light objects.", "Create a studio key/fill/rim lighting setup.")
         if target_object and target_object in names and len(objects) < 3:
             add("UNDERBUILT_STAGE", "warning", "Product stage has very little supporting scene structure.", "Inspect lighting, camera, background and shadow-catching support before final render.")

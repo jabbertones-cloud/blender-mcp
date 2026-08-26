@@ -33,3 +33,17 @@ def test_missing_target_is_failure():
     ]}, viewport={"base64": "pixels"}, workflow="workflow.product_hero", target_object="Bottle")
     assert report["status"] == "fail"
     assert "TARGET_MISSING" in {row["code"] for row in report["findings"]}
+
+
+def test_diagnostics_camera_flag_overrides_object_type_list():
+    report = critique_visual_evidence(
+        scene={"objects": [{"name": "Bottle", "type": "MESH"}]},
+        viewport={"base64": "pixels"},
+        diagnostics={"objects": [{"name": "Bottle", "type": "MESH"}, {"name": "Camera", "type": "CAMERA"}, {"name": "Key", "type": "LIGHT"}], "camera_present": True, "light_count": 1},
+        workflow="workflow.product_hero",
+        target_object="Bottle",
+    )
+    codes = {row["code"] for row in report["findings"]}
+    assert "NO_CAMERA" not in codes
+    assert "NO_LIGHTS" not in codes
+    assert report["status"] == "review_required"
