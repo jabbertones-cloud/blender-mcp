@@ -68,7 +68,15 @@ def test_reconstruct_subject_maps_to_catalog_terms():
     assert "hunyuan" not in joined
 
 
-def test_image_to_asset_polyhaven_and_observes():
+def test_local_filepath_import_is_preferred():
+    result = execute_workflow(
+        "workflow.image_to_asset",
+        {"filepath": "/tmp/hero.glb"},
+        RecreateBridge(),
+    )
+    assert result["status"] == "ok"
+    assert result["free_source"] == "local_filepath"
+    assert result["object_name"] == "Character"
     result = execute_workflow(
         "workflow.image_to_asset",
         {"image_url": "https://example.com/ref.png", "prompt": "reconstruct subject"},

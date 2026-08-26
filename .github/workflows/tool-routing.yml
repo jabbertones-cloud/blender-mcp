@@ -2,7 +2,7 @@ name: Tool Routing Gate
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/visual-quality-agent]
     paths:
       - 'server/**'
       - 'blender_addon/openclaw_blender_bridge.py'
@@ -20,6 +20,7 @@ on:
       - 'tests/test_workflow_quality_gate.py'
       - 'tests/test_visual_quality_live_contract.py'
       - 'tests/test_quality_repair.py'
+      - 'tests/test_recreate_workflows.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -69,6 +70,12 @@ jobs:
           server/session_state.py
           server/agent_loop.py
           server/blender_mcp_guided.py
+          server/workflow_rank.py
+          server/free_stack.py
+          server/reference_loop.py
+          server/motion_spec.py
+          server/motion_qa.py
+          scripts/render_score.py
           blender_addon/quality_handlers.py
       - name: Run deterministic routing, dispatch, quality, and bridge-contract floor
         run: >-
@@ -84,6 +91,7 @@ jobs:
           tests/test_workflow_quality_gate.py
           tests/test_visual_quality_live_contract.py
           tests/test_quality_repair.py
+          tests/test_recreate_workflows.py
           tests/test_eval_cli.py
           tests/test_bridge_e2e.py
           -q
