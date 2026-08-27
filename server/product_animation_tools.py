@@ -7,6 +7,7 @@ To integrate: import and call register_product_tools(mcp, send_command, format_r
 from the main blender_mcp_server.py
 """
 
+import json
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 from enum import Enum
@@ -683,6 +684,66 @@ if {vignette}:
 
 tree.links.new(last, comp.inputs[0])
 __result__ = {{"status": "ok", "bloom": {bloom}, "vignette": {vignette}}}
+"""
+
+
+def _gen_libmv_solve_code(clip_path: str) -> str:
+    path = json.dumps(clip_path)
+    return f"""
+import bpy
+__result__ = {{"error": "libmv solve did not complete"}}
+clip = None
+try:
+    if not hasattr(bpy.ops, "clip"):
+        __result__ = {{"status": "blocked", "blocking_reason": "no_clip_editor"}}
+    else:
+        bpy.ops.clip.open(directory="", files=[{{"name": {path}}}])
+        clip = bpy.data.movieclips[-1] if bpy.data.movieclips else None
+        if clip is None:
+            __result__ = {{"status": "blocked", "blocking_reason": "clip_load_failed"}}
+        else:
+            bpy.context.area.type = "CLIP_EDITOR" if bpy.context.area else bpy.context.area
+            bpy.ops.clip.detect_features()
+            bpy.ops.clip.track_markers(backwards=False, sequence=True)
+            bpy.ops.clip.solve_camera()
+            rec = clip.tracking.reconstruction
+            __result__ = {{
+                "status": "ok",
+                "loaded": True,
+                "clip": clip.name,
+                "is_valid": bool(getattr(rec, "is_valid", False)),
+                "average_error": float(getattr(rec, "average_error", 0.0) or 0.0),
+                "tracks": len(clip.tracking.tracks),
+            }}
+except Exception as exc:
+    msg = str(exc)
+    if "CLIP_EDITOR" in msg or "context is incorrect" in msg.lower():
+        __result__ = {{"status": "blocked", "blocking_reason": "no_clip_editor", "error": msg}}
+    else:
+        __result__ = {{"error": msg}}
+"""
+
+
+def _gen_auto_weights_code(mesh_name: str) -> str:
+    name = json.dumps(mesh_name)
+    return f"""
+import bpy
+mesh = bpy.data.objects.get({name})
+if mesh is None:
+    __result__ = {{"error": "mesh not found", "name": {name}}}
+else:
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.context.view_layer.objects.active = mesh
+    mesh.select_set(True)
+    bpy.ops.object.armature_add(enter_editmode=False)
+    arm = bpy.context.active_object
+    arm.name = "AutoArmature"
+    bpy.ops.object.select_all(action="DESELECT")
+    mesh.select_set(True)
+    arm.select_set(True)
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+    __result__ = {{"status": "ok", "armature": arm.name, "mesh": mesh.name}}
 """
 
 
