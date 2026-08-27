@@ -7625,6 +7625,16 @@ try:
 except Exception as _e:
     print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")
 
+try:
+    try:
+        from .quality_handlers import QUALITY_HANDLERS  # type: ignore
+    except Exception:
+        from quality_handlers import QUALITY_HANDLERS  # type: ignore
+    HANDLERS.update(QUALITY_HANDLERS)
+    print(f"[OpenClaw] Loaded {len(QUALITY_HANDLERS)} quality handlers ({', '.join(sorted(QUALITY_HANDLERS))})")
+except Exception as _e:
+    print(f"[OpenClaw] Quality handlers not loaded: {_e}")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SOCKET SERVER (background thread) + TIMER (main thread execution)

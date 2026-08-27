@@ -1,546 +1,361 @@
+"""Evidence-backed geometric verification for the Blender MCP.
+
+This module deliberately does not contain a server-side aesthetic pass bit.
+Objective constraints are evaluated from real addon handlers. Subjective visual
+judgement is returned as ``review_required`` so a client that can actually see
+pixels can make that decision.
 """
-Constraint Verification Module for OpenClaw Blender MCP
-========================================================
-Geometric Constraint Satisfaction (GCS) + Vision-as-a-Judge verification.
+from __future__ import annotations
 
-Reference: Constraint-based verification of spatial relationships and action
-outcomes. Deterministic checks (on_top_of, clearance, triangulated, etc.) with
-VLM fallback for semantic verification.
-
-Install: Standard library only (json, base64, re, socket).
-Usage:
-  from verify import verify_action, run_gcs, vlm_judge
-  result = verify_action(
-      send_command,
-      expected="placed object on surface",
-      constraints=[{"type": "on_top_of", "object": "cube", "support": "plane"}],
-      use_vlm=True
-  )
-"""
-
-import json
-import base64
-import re
-import socket
+import math
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Dict, Any, Callable
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, List, Optional
+
+SendCommand = Callable[[str, Dict[str, Any]], Dict[str, Any]]
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _payload(result: Any) -> dict:
+    if not isinstance(result, dict):
+        return {}
+    data = result.get("data", result)
+    return data if isinstance(data, dict) else {}
+
+
+def _error(result: Any) -> Optional[str]:
+    if not isinstance(result, dict):
+        return "non-dict bridge response"
+    if result.get("error"):
+        return str(result["error"])
+    status = str(result.get("status") or "").lower()
+    if status in {"failed", "postcondition_failed", "partial_failure"}:
+        return str(result.get("error") or status)
+    return None
+
+
+def _scene_objects(send_command: SendCommand) -> tuple[list[dict], Optional[str]]:
+    result = send_command("get_scene_info", {})
+    err = _error(result)
+    if err:
+        return [], err
+    rows = _payload(result).get("objects") or []
+    return [row for row in rows if isinstance(row, dict)], None
+
+
+def _scene_object(send_command: SendCommand, name: str) -> tuple[Optional[dict], Optional[str]]:
+    rows, err = _scene_objects(send_command)
+    if err:
+        return None, err
+    row = next((row for row in rows if str(row.get("name")) == name), None)
+    if row is None:
+        return None, f"object '{name}' not found"
+    return row, None
+
+
+def _bbox(send_command: SendCommand, name: str) -> tuple[Optional[dict], Optional[str]]:
+    result = send_command("spatial_bbox_world", {"name": name})
+    err = _error(result)
+    if err:
+        return None, err
+    box = _payload(result).get("bbox")
+    if not isinstance(box, dict):
+        return None, f"spatial_bbox_world returned no bbox for '{name}'"
+    if not all(isinstance(box.get(key), list) and len(box[key]) == 3 for key in ("min", "max")):
+        return None, f"invalid bbox shape for '{name}'"
+    return box, None
+
+
+def _axis_gap(a: dict, b: dict, axis: int) -> float:
+    if a["max"][axis] < b["min"][axis]:
+        return float(b["min"][axis] - a["max"][axis])
+    if b["max"][axis] < a["min"][axis]:
+        return float(a["min"][axis] - b["max"][axis])
+    return 0.0
+
+
+def _aabb_distance(a: dict, b: dict) -> float:
+    gaps = [_axis_gap(a, b, axis) for axis in range(3)]
+    return math.sqrt(sum(gap * gap for gap in gaps))
+
+
+def _penetration(a: dict, b: dict) -> list[float]:
+    return [
+        min(float(a["max"][axis]), float(b["max"][axis]))
+        - max(float(a["min"][axis]), float(b["min"][axis]))
+        for axis in range(3)
+    ]
 
 
 @dataclass
 class GCSConstraint:
-    """Geometric Constraint Satisfaction constraint specification."""
-    type: str  # on_top_of, inside, not_overlapping, clearance, facing, vertex_count_range, triangulated, has_material, axis_aligned
+    type: str
     object: Optional[str] = None
     support: Optional[str] = None
     distance: Optional[float] = None
     tolerance: Optional[float] = None
-    direction: Optional[str] = None  # x, y, z, +x, -y, etc.
+    direction: Optional[str] = None
     min_vertices: Optional[int] = None
     max_vertices: Optional[int] = None
     material_name: Optional[str] = None
-    axis: Optional[str] = None  # x, y, z
+    axis: Optional[str] = None
 
 
 @dataclass
 class VerificationResult:
-    """Result of a single constraint check."""
     passed: bool
     constraint: Dict[str, Any]
     detail: str
     measured: Optional[Dict[str, Any]] = None
+    evidence_status: str = "verified"
 
 
-def check_constraint(
-    send_command: Callable[[str, Dict[str, Any]], Dict[str, Any]],
-    constraint: Dict[str, Any]
-) -> VerificationResult:
-    """
-    Check a single GCS constraint deterministically.
+def _fail(constraint: dict, detail: str, measured: Optional[dict] = None, *, status: str = "unavailable") -> VerificationResult:
+    return VerificationResult(False, constraint, detail, measured, status)
 
-    Args:
-        send_command: Socket-based Blender command sender
-        constraint: Dict with 'type' and constraint-specific fields
 
-    Returns:
-        VerificationResult with passed bool, detail, and measured data
-    """
-    constraint_type = constraint.get("type", "unknown")
+def check_constraint(send_command: SendCommand, constraint: Dict[str, Any]) -> VerificationResult:
+    """Evaluate one objective constraint from registered bridge evidence."""
+    ctype = str(constraint.get("type") or "unknown")
+    obj_name = constraint.get("object")
+    support_name = constraint.get("support")
+    tolerance = float(constraint.get("tolerance", 0.02) or 0.02)
 
     try:
-        if constraint_type == "on_top_of":
-            obj_name = constraint.get("object")
-            support_name = constraint.get("support")
+        if ctype == "on_top_of":
             if not obj_name or not support_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object or support name",
-                    measured=None
-                )
-
-            result = send_command("get_relative_position", {
-                "object": obj_name,
-                "reference": support_name
-            })
-            data = result.get("data", {})
-            z_height = data.get("z", 0)
-            is_above = z_height > 0.01
-
+                return _fail(constraint, "on_top_of requires object and support")
+            obj_box, err = _bbox(send_command, str(obj_name))
+            if err:
+                return _fail(constraint, err)
+            support_box, err = _bbox(send_command, str(support_name))
+            if err:
+                return _fail(constraint, err)
+            vertical_gap = float(obj_box["min"][2] - support_box["max"][2])
+            overlap_x = min(obj_box["max"][0], support_box["max"][0]) - max(obj_box["min"][0], support_box["min"][0])
+            overlap_y = min(obj_box["max"][1], support_box["max"][1]) - max(obj_box["min"][1], support_box["min"][1])
+            passed = abs(vertical_gap) <= tolerance and overlap_x > 0 and overlap_y > 0
             return VerificationResult(
-                passed=is_above,
-                constraint=constraint,
-                detail=f"{obj_name} z-height relative to {support_name}: {z_height:.3f}",
-                measured={"z_height": z_height, "above": is_above}
+                passed,
+                constraint,
+                f"vertical gap={vertical_gap:.4f}m, xy overlap=({overlap_x:.4f},{overlap_y:.4f})m",
+                {"vertical_gap": vertical_gap, "overlap_x": overlap_x, "overlap_y": overlap_y, "tolerance": tolerance},
             )
 
-        elif constraint_type == "clearance":
-            obj_name = constraint.get("object")
-            min_dist = constraint.get("distance", 0.1)
-            tolerance = constraint.get("tolerance", 0.01)
+        if ctype == "inside":
+            if not obj_name or not support_name:
+                return _fail(constraint, "inside requires object and support/container")
+            obj_box, err = _bbox(send_command, str(obj_name))
+            if err:
+                return _fail(constraint, err)
+            container_box, err = _bbox(send_command, str(support_name))
+            if err:
+                return _fail(constraint, err)
+            inside = all(
+                obj_box["min"][axis] >= container_box["min"][axis] - tolerance
+                and obj_box["max"][axis] <= container_box["max"][axis] + tolerance
+                for axis in range(3)
+            )
+            return VerificationResult(inside, constraint, f"{obj_name} inside {support_name}: {inside}", {"tolerance": tolerance})
 
+        if ctype == "not_overlapping":
+            if not obj_name or not support_name:
+                return _fail(constraint, "not_overlapping requires object and support")
+            a, err = _bbox(send_command, str(obj_name))
+            if err:
+                return _fail(constraint, err)
+            b, err = _bbox(send_command, str(support_name))
+            if err:
+                return _fail(constraint, err)
+            penetration = _penetration(a, b)
+            # Touching at a surface is not volumetric overlap. Require positive
+            # penetration beyond tolerance on all axes before declaring overlap.
+            overlapping = all(value > tolerance for value in penetration)
+            return VerificationResult(
+                not overlapping,
+                constraint,
+                f"volumetric overlap={overlapping}; penetration={penetration}",
+                {"penetration": penetration, "tolerance": tolerance, "overlapping": overlapping},
+            )
+
+        if ctype == "clearance":
             if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
-                )
-
-            result = send_command("get_min_clearance", {"object": obj_name})
-            data = result.get("data", {})
-            measured_dist = data.get("min_distance", 0)
-            passed = measured_dist >= (min_dist - tolerance)
-
+                return _fail(constraint, "clearance requires object")
+            required = float(constraint.get("distance", 0.1) or 0.1)
+            target_box, err = _bbox(send_command, str(obj_name))
+            if err:
+                return _fail(constraint, err)
+            rows, err = _scene_objects(send_command)
+            if err:
+                return _fail(constraint, err)
+            nearest: Optional[tuple[str, float]] = None
+            for row in rows:
+                other = str(row.get("name") or "")
+                if not other or other == obj_name or str(row.get("type") or "").upper() not in {"MESH", "CURVE", "SURFACE", "FONT", "META"}:
+                    continue
+                box, box_err = _bbox(send_command, other)
+                if box_err or box is None:
+                    continue
+                distance = _aabb_distance(target_box, box)
+                if nearest is None or distance < nearest[1]:
+                    nearest = (other, distance)
+            if nearest is None:
+                return VerificationResult(True, constraint, "no other geometry available to violate clearance", {"nearest": None, "required": required})
+            passed = nearest[1] + tolerance >= required
             return VerificationResult(
-                passed=passed,
-                constraint=constraint,
-                detail=f"Clearance check: {measured_dist:.3f}m vs required {min_dist:.3f}m",
-                measured={"min_distance": measured_dist, "required": min_dist}
+                passed,
+                constraint,
+                f"nearest={nearest[0]} at {nearest[1]:.4f}m; required={required:.4f}m",
+                {"nearest_object": nearest[0], "min_distance": nearest[1], "required": required, "tolerance": tolerance},
             )
 
-        elif constraint_type == "inside":
-            obj_name = constraint.get("object")
-            container_name = constraint.get("support")
-
-            if not obj_name or not container_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object or container name",
-                    measured=None
-                )
-
-            result = send_command("is_inside_bounds", {
-                "object": obj_name,
-                "container": container_name
-            })
-            data = result.get("data", {})
-            is_inside = data.get("inside", False)
-
-            return VerificationResult(
-                passed=is_inside,
-                constraint=constraint,
-                detail=f"{obj_name} inside {container_name}: {is_inside}",
-                measured={"inside": is_inside}
-            )
-
-        elif constraint_type == "triangulated":
-            obj_name = constraint.get("object")
-
+        if ctype in {"has_material", "vertex_count_range", "axis_aligned", "triangulated", "facing"}:
             if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
+                return _fail(constraint, f"{ctype} requires object")
+            row, err = _scene_object(send_command, str(obj_name))
+            if err or row is None:
+                return _fail(constraint, err or "object evidence unavailable")
+
+            if ctype == "has_material":
+                materials = [m for m in (row.get("materials") or []) if m]
+                target = constraint.get("material_name")
+                passed = (target in materials) if target else bool(materials)
+                return VerificationResult(passed, constraint, f"materials={materials}", {"materials": materials, "target": target})
+
+            if ctype == "vertex_count_range":
+                value = row.get("vertex_count")
+                if not isinstance(value, int):
+                    return _fail(constraint, "vertex_count unavailable from scene evidence")
+                low = int(constraint.get("min_vertices", 0) or 0)
+                high = int(constraint.get("max_vertices", 999999) or 999999)
+                passed = low <= value <= high
+                return VerificationResult(passed, constraint, f"vertices={value}, range={low}-{high}", {"vertex_count": value, "min": low, "max": high})
+
+            if ctype == "axis_aligned":
+                rotation = row.get("rotation_euler")
+                if not isinstance(rotation, list) or len(rotation) != 3:
+                    return _fail(constraint, "rotation_euler unavailable from scene evidence")
+                axis = str(constraint.get("axis") or "z").lower()
+                idx = {"x": 0, "y": 1, "z": 2}.get(axis)
+                if idx is None:
+                    return _fail(constraint, f"unknown axis '{axis}'")
+                angle = float(rotation[idx]) % math.tau
+                distance_to_axis = min(abs(angle), abs(angle - math.pi), abs(angle - math.tau))
+                passed = distance_to_axis <= tolerance
+                return VerificationResult(passed, constraint, f"axis {axis} deviation={distance_to_axis:.4f}rad", {"rotation_rad": angle, "deviation": distance_to_axis, "tolerance": tolerance})
+
+            if ctype == "triangulated":
+                return _fail(
+                    constraint,
+                    "triangulated cannot be proven from current registered inspection evidence; refusing to infer from face count",
+                    {"face_count": row.get("face_count")},
+                    status="not_proven",
                 )
 
-            result = send_command("get_mesh_info", {"object": obj_name})
-            data = result.get("data", {})
-            face_count = data.get("face_count", 0)
-            is_triangulated = all(
-                fc == 3 for fc in data.get("face_vertex_counts", [])
-            )
-
-            return VerificationResult(
-                passed=is_triangulated,
-                constraint=constraint,
-                detail=f"{obj_name} triangulated: {is_triangulated} ({face_count} faces)",
-                measured={"face_count": face_count, "triangulated": is_triangulated}
-            )
-
-        elif constraint_type == "has_material":
-            obj_name = constraint.get("object")
-            mat_name = constraint.get("material_name")
-
-            if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
+            if ctype == "facing":
+                return _fail(
+                    constraint,
+                    "generic object 'facing' is undefined without an explicit semantic forward axis; refusing to guess",
+                    {"rotation_euler": row.get("rotation_euler"), "requested_direction": constraint.get("direction")},
+                    status="not_proven",
                 )
 
-            result = send_command("get_materials", {"object": obj_name})
-            data = result.get("data", {})
-            materials = data.get("materials", [])
-            has_mat = mat_name in materials if mat_name else len(materials) > 0
-
-            return VerificationResult(
-                passed=has_mat,
-                constraint=constraint,
-                detail=f"{obj_name} materials: {materials}",
-                measured={"materials": materials, "has_target": has_mat}
-            )
-
-        elif constraint_type == "vertex_count_range":
-            obj_name = constraint.get("object")
-            min_v = constraint.get("min_vertices", 0)
-            max_v = constraint.get("max_vertices", 999999)
-
-            if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
-                )
-
-            result = send_command("get_mesh_info", {"object": obj_name})
-            data = result.get("data", {})
-            vertex_count = data.get("vertex_count", 0)
-            in_range = min_v <= vertex_count <= max_v
-
-            return VerificationResult(
-                passed=in_range,
-                constraint=constraint,
-                detail=f"{obj_name} vertices: {vertex_count} (range: {min_v}-{max_v})",
-                measured={"vertex_count": vertex_count, "in_range": in_range}
-            )
-
-        elif constraint_type == "axis_aligned":
-            obj_name = constraint.get("object")
-            axis = constraint.get("axis", "z")
-            tolerance = constraint.get("tolerance", 0.05)
-
-            if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
-                )
-
-            result = send_command("get_rotation", {"object": obj_name})
-            data = result.get("data", {})
-            rotation = data.get("rotation_euler", [0, 0, 0])
-
-            # Check if rotation around axis is near 0 or 180 degrees
-            axis_idx = {"x": 0, "y": 1, "z": 2}.get(axis.lower(), 2)
-            axis_rot = rotation[axis_idx] % 6.28318  # 2*pi
-            is_aligned = (axis_rot < tolerance) or (abs(axis_rot - 3.14159) < tolerance)
-
-            return VerificationResult(
-                passed=is_aligned,
-                constraint=constraint,
-                detail=f"{obj_name} axis {axis} alignment: {axis_rot:.3f} rad",
-                measured={"rotation_rad": axis_rot, "aligned": is_aligned}
-            )
-
-        elif constraint_type == "not_overlapping":
-            obj1 = constraint.get("object")
-            obj2 = constraint.get("support")
-
-            if not obj1 or not obj2:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object names",
-                    measured=None
-                )
-
-            result = send_command("check_overlap", {
-                "object1": obj1,
-                "object2": obj2
-            })
-            data = result.get("data", {})
-            overlapping = data.get("overlapping", False)
-
-            return VerificationResult(
-                passed=not overlapping,
-                constraint=constraint,
-                detail=f"{obj1} and {obj2} overlap: {overlapping}",
-                measured={"overlapping": overlapping}
-            )
-
-        elif constraint_type == "facing":
-            obj_name = constraint.get("object")
-            direction = constraint.get("direction", "z")
-            tolerance = constraint.get("tolerance", 0.1)
-
-            if not obj_name:
-                return VerificationResult(
-                    passed=False,
-                    constraint=constraint,
-                    detail="Missing object name",
-                    measured=None
-                )
-
-            result = send_command("get_normal", {"object": obj_name})
-            data = result.get("data", {})
-            normal = data.get("normal", [0, 0, 1])
-
-            target_map = {
-                "x": [1, 0, 0], "-x": [-1, 0, 0],
-                "y": [0, 1, 0], "-y": [0, -1, 0],
-                "z": [0, 0, 1], "-z": [0, 0, -1],
-            }
-            target_normal = target_map.get(direction, [0, 0, 1])
-
-            # Dot product with tolerance
-            dot = sum(n * t for n, t in zip(normal, target_normal))
-            aligned = dot > (1 - tolerance)
-
-            return VerificationResult(
-                passed=aligned,
-                constraint=constraint,
-                detail=f"{obj_name} facing {direction}: dot={dot:.3f}",
-                measured={"normal": normal, "target": target_normal, "dot": dot}
-            )
-
-        else:
-            return VerificationResult(
-                passed=False,
-                constraint=constraint,
-                detail=f"Unknown constraint type: {constraint_type}",
-                measured=None
-            )
-
-    except Exception as e:
-        return VerificationResult(
-            passed=False,
-            constraint=constraint,
-            detail=f"Constraint check error: {str(e)}",
-            measured=None
-        )
+        return _fail(constraint, f"unknown constraint type: {ctype}")
+    except Exception as exc:
+        return _fail(constraint, f"constraint check error: {exc}")
 
 
-def run_gcs(
-    send_command: Callable[[str, Dict[str, Any]], Dict[str, Any]],
-    constraints: List[Dict[str, Any]]
-) -> Dict[str, Any]:
-    """
-    Run all GCS constraints and return aggregated results.
-
-    Args:
-        send_command: Socket-based Blender command sender
-        constraints: List of constraint dicts
-
-    Returns:
-        {
-            "passed": bool (all constraints passed),
-            "failed": int (count of failed constraints),
-            "results": [VerificationResult, ...],
-            "score": float (0-1, fraction of passed constraints),
-            "timestamp": str (ISO 8601)
-        }
-    """
-    results = []
-    for constraint in constraints:
-        result = check_constraint(send_command, constraint)
-        results.append(result)
-
-    passed_count = sum(1 for r in results if r.passed)
-    total_count = len(results)
-    score = passed_count / total_count if total_count > 0 else 1.0
-
+def run_gcs(send_command: SendCommand, constraints: List[Dict[str, Any]]) -> Dict[str, Any]:
+    results = [check_constraint(send_command, constraint) for constraint in constraints]
+    passed_count = sum(1 for result in results if result.passed)
+    total = len(results)
     return {
-        "passed": passed_count == total_count,
-        "failed": total_count - passed_count,
-        "results": [asdict(r) for r in results],
-        "score": score,
-        "timestamp": datetime.utcnow().isoformat()
+        "passed": passed_count == total,
+        "failed": total - passed_count,
+        "results": [asdict(result) for result in results],
+        "score": passed_count / total if total else 1.0,
+        "timestamp": _now(),
     }
 
 
-def vlm_judge(
-    screenshot_b64: str,
-    expected: str,
-    api: str = "anthropic",
-    model: Optional[str] = None
-) -> Dict[str, Any]:
+def vlm_judge(screenshot_b64: str, expected: str, api: str = "client", model: Optional[str] = None) -> Dict[str, Any]:
+    """Never fabricate semantic image judgement inside the MCP server.
+
+    The screenshot is returned through MCP tool output for the client/model that
+    can actually inspect it. This function intentionally cannot return a visual
+    pass, regardless of environment variables or provider names.
     """
-    Use Vision-as-a-Judge to verify action outcome against expected state.
-
-    Args:
-        screenshot_b64: Base64-encoded PNG screenshot
-        expected: Natural language description of expected outcome
-        api: "anthropic", "openai", or "local"
-        model: Optional model override (defaults by api)
-
-    Returns:
-        {
-            "passed": bool,
-            "confidence": float (0-1),
-            "reasoning": str,
-            "provider": str,
-            "timestamp": str
-        }
-    """
-
-    if not model:
-        model = {
-            "anthropic": "claude-3-5-sonnet-20241022",
-            "openai": "gpt-4-vision",
-            "local": "llava"
-        }.get(api, "claude-3-5-sonnet-20241022")
-
-    prompt = (
-        f"You are a vision-based action verifier. Analyze this screenshot and determine "
-        f"if the following expected outcome is satisfied:\n\nExpected: {expected}\n\n"
-        f"Respond with JSON: {{'passed': bool, 'confidence': float (0-1), 'reasoning': str}}"
-    )
-
-    try:
-        if api == "anthropic":
-            import os
-            api_key = os.getenv("ANTHROPIC_API_KEY")
-            if not api_key:
-                return {
-                    "passed": False,
-                    "confidence": 0.0,
-                    "reasoning": "ANTHROPIC_API_KEY not set",
-                    "provider": api,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
-
-            # Mock implementation (real would use anthropic SDK)
-            return {
-                "passed": True,
-                "confidence": 0.85,
-                "reasoning": f"Screenshot matches expectation: {expected}",
-                "provider": api,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-
-        elif api == "openai":
-            api_key = os.getenv("OPENAI_API_KEY")
-            if not api_key:
-                return {
-                    "passed": False,
-                    "confidence": 0.0,
-                    "reasoning": "OPENAI_API_KEY not set",
-                    "provider": api,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
-
-            # Mock implementation (real would use openai SDK)
-            return {
-                "passed": True,
-                "confidence": 0.80,
-                "reasoning": f"OpenAI verified: {expected}",
-                "provider": api,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-
-        elif api == "local":
-            # Mock local model response
-            return {
-                "passed": True,
-                "confidence": 0.75,
-                "reasoning": f"Local model verified: {expected}",
-                "provider": api,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-
-        else:
-            return {
-                "passed": False,
-                "confidence": 0.0,
-                "reasoning": f"Unknown VLM provider: {api}",
-                "provider": api,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-
-    except Exception as e:
-        return {
-            "passed": False,
-            "confidence": 0.0,
-            "reasoning": f"VLM error: {str(e)}",
-            "provider": api,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+    return {
+        "passed": False,
+        "status": "review_required",
+        "confidence": 0.0,
+        "reasoning": "Server-side VLM pass is disabled. A client with vision must inspect the returned pixels.",
+        "provider": api,
+        "model": model,
+        "pixel_evidence": bool(isinstance(screenshot_b64, str) and screenshot_b64.strip()),
+        "expected": expected,
+        "timestamp": _now(),
+    }
 
 
 def verify_action(
-    send_command: Callable[[str, Dict[str, Any]], Dict[str, Any]],
+    send_command: SendCommand,
     expected: str,
     constraints: Optional[List[Dict[str, Any]]] = None,
-    use_vlm: bool = True
+    use_vlm: bool = True,
 ) -> Dict[str, Any]:
-    """
-    Verify an action outcome using deterministic GCS + Vision-as-a-Judge fallback.
-
-    Args:
-        send_command: Socket-based Blender command sender
-        expected: Natural language description of expected outcome
-        constraints: Optional list of GCS constraint dicts
-        use_vlm: If True, use VLM for semantic verification
-
-    Returns:
-        {
-            "passed": bool,
-            "gcs_result": dict or None,
-            "vlm_result": dict or None,
-            "final_confidence": float (0-1),
-            "detail": str,
-            "timestamp": str
-        }
-    """
-
-    gcs_result = None
+    """Verify objective constraints and surface semantic review honestly."""
+    constraints = constraints or []
+    gcs_result = run_gcs(send_command, constraints)
+    detail: Dict[str, Any] = {"expected": expected, "objective": gcs_result}
     vlm_result = None
-    final_confidence = 0.0
+    review_required = False
 
-    # Step 1: Run deterministic GCS checks if provided
-    if constraints:
-        gcs_result = run_gcs(send_command, constraints)
-        final_confidence = gcs_result.get("score", 0.0)
+    if use_vlm:
+        observation = send_command("viewport_capture", {"base64": True})
+        obs_err = _error(observation)
+        image = _payload(observation).get("base64") if not obs_err else None
+        if obs_err or not isinstance(image, str) or not image.strip():
+            vlm_result = {
+                "passed": False,
+                "status": "unavailable",
+                "confidence": 0.0,
+                "reasoning": obs_err or "viewport returned no base64 pixels",
+                "pixel_evidence": False,
+                "timestamp": _now(),
+            }
+        else:
+            vlm_result = vlm_judge(image, expected)
+            review_required = True
+        detail["visual"] = vlm_result
 
-    # Step 2: Run VLM if requested and GCS inconclusive
-    if use_vlm and (not constraints or gcs_result.get("score", 0.0) < 0.95):
-        try:
-            result = send_command("take_screenshot", {})
-            screenshot_b64 = result.get("data", {}).get("screenshot", "")
-
-            if screenshot_b64:
-                vlm_result = vlm_judge(screenshot_b64, expected)
-                vlm_confidence = vlm_result.get("confidence", 0.0)
-
-                # Weight: if GCS exists, average; else use VLM
-                if gcs_result:
-                    final_confidence = (final_confidence + vlm_confidence) / 2
-                else:
-                    final_confidence = vlm_confidence
-        except Exception:
-            pass  # VLM verification optional
-
-    # Determine final pass
-    passed = final_confidence > 0.5
-
-    detail = f"Expected: {expected}. "
-    if gcs_result:
-        detail += f"GCS: {gcs_result['score']:.2f}. "
-    if vlm_result:
-        detail += f"VLM: {vlm_result['confidence']:.2f}. "
-    detail += f"Final confidence: {final_confidence:.2f}"
+    if not gcs_result["passed"]:
+        status = "failed"
+        passed = False
+        confidence = float(gcs_result["score"])
+    elif review_required:
+        status = "review_required"
+        passed = False
+        confidence = 0.0
+    elif use_vlm and vlm_result and vlm_result.get("status") == "unavailable":
+        status = "failed"
+        passed = False
+        confidence = 0.0
+    else:
+        status = "passed"
+        passed = True
+        confidence = float(gcs_result["score"])
 
     return {
         "passed": passed,
+        "status": status,
+        "review_required": review_required,
+        "final_confidence": confidence,
+        "detail": detail,
         "gcs_result": gcs_result,
         "vlm_result": vlm_result,
-        "final_confidence": final_confidence,
-        "detail": detail,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": _now(),
     }

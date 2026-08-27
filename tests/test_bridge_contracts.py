@@ -6,6 +6,7 @@ from server.capability_registry import registry
 
 ADDON_PATH = Path("blender_addon/openclaw_blender_bridge.py")
 PHASE5_PATH = Path("blender_addon/new_handlers_phase5.py")
+QUALITY_PATH = Path("blender_addon/quality_handlers.py")
 
 
 def _source(path: Path = ADDON_PATH) -> str:
@@ -32,7 +33,8 @@ def _dict_keys(path: Path, required: set[str]) -> set[str]:
 def _registered_bridge_commands() -> set[str]:
     base = _dict_keys(ADDON_PATH, {"ping", "get_scene_info", "create_object", "viewport_capture"})
     phase5 = _dict_keys(PHASE5_PATH, {"spatial_raycast", "dimensions_estimate", "floor_plan_data"})
-    return base | phase5
+    quality = _dict_keys(QUALITY_PATH, {"scene_diagnostics"})
+    return base | phase5 | quality
 
 
 def test_phase5_handlers_are_merged_into_the_live_dispatch_dict():
@@ -41,6 +43,8 @@ def test_phase5_handlers_are_merged_into_the_live_dispatch_dict():
         "Phase 5 handlers must be merged into HANDLERS because process_command dispatches through HANDLERS"
     )
     assert "COMMANDS.update(_PHASE5_HANDLERS)" not in source
+    assert "HANDLERS.update(QUALITY_HANDLERS)" in source
+    assert registry.resolve_tool("scene.diagnostics").bridge_command == "scene_diagnostics"
 
 
 def test_every_registry_bridge_command_has_a_registered_addon_handler():

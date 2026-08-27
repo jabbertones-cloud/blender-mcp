@@ -4,16 +4,10 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'server/agent_loop.py'
-      - 'server/session_state.py'
-      - 'server/capability_router.py'
-      - 'server/capability_registry.py'
-      - 'server/capability_executor.py'
-      - 'server/blender_mcp_guided.py'
-      - 'server/product_animation_tools.py'
-      - 'server/spatial_tools.py'
+      - 'server/**'
       - 'blender_addon/openclaw_blender_bridge.py'
       - 'blender_addon/new_handlers_phase5.py'
+      - 'blender_addon/quality_handlers.py'
       - 'requirements.txt'
       - 'tests/test_capability_router.py'
       - 'tests/test_tool_choice.py'
@@ -22,6 +16,10 @@ on:
       - 'tests/test_guided_workflow_search.py'
       - 'tests/test_guided_surface.py'
       - 'tests/test_bridge_contracts.py'
+      - 'tests/test_visual_quality.py'
+      - 'tests/test_workflow_quality_gate.py'
+      - 'tests/test_visual_quality_live_contract.py'
+      - 'tests/test_quality_repair.py'
       - 'eval/run.py'
       - 'tests/test_eval_cli.py'
       - 'tests/test_bridge_e2e.py'
@@ -29,27 +27,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'server/agent_loop.py'
-      - 'server/session_state.py'
-      - 'server/capability_router.py'
-      - 'server/capability_registry.py'
-      - 'server/capability_executor.py'
-      - 'server/blender_mcp_guided.py'
-      - 'server/product_animation_tools.py'
-      - 'server/spatial_tools.py'
+      - 'server/**'
       - 'blender_addon/openclaw_blender_bridge.py'
       - 'blender_addon/new_handlers_phase5.py'
+      - 'blender_addon/quality_handlers.py'
       - 'requirements.txt'
-      - 'tests/test_capability_router.py'
-      - 'tests/test_tool_choice.py'
-      - 'tests/test_act_dispatch.py'
-      - 'tests/test_workflow_execution.py'
-      - 'tests/test_guided_workflow_search.py'
-      - 'tests/test_guided_surface.py'
-      - 'tests/test_bridge_contracts.py'
+      - 'tests/**'
       - 'eval/run.py'
-      - 'tests/test_eval_cli.py'
-      - 'tests/test_bridge_e2e.py'
       - '.github/workflows/tool-routing.yml'
   workflow_dispatch:
 
@@ -73,16 +57,20 @@ jobs:
           assert major == 1, f'expected MCP SDK v1, got {major}'
           assert FastMCP is not None
           PY
-      - name: Compile routing modules
+      - name: Compile routing and quality modules
         run: >-
           python -m py_compile
           server/capability_router.py
           server/capability_registry.py
           server/capability_executor.py
+          server/quality_repair.py
+          server/quality_loop.py
+          server/visual_quality.py
           server/session_state.py
           server/agent_loop.py
           server/blender_mcp_guided.py
-      - name: Run deterministic router, dispatch, workflow, and bridge-contract floor
+          blender_addon/quality_handlers.py
+      - name: Run deterministic routing, dispatch, quality, and bridge-contract floor
         run: >-
           python -m pytest
           tests/test_tool_choice.py
@@ -92,6 +80,10 @@ jobs:
           tests/test_guided_workflow_search.py
           tests/test_guided_surface.py
           tests/test_bridge_contracts.py
+          tests/test_visual_quality.py
+          tests/test_workflow_quality_gate.py
+          tests/test_visual_quality_live_contract.py
+          tests/test_quality_repair.py
           tests/test_eval_cli.py
           tests/test_bridge_e2e.py
           -q

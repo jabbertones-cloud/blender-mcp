@@ -128,3 +128,53 @@ def test_live_create_observe_delete(live_send):
     assert deleted["status"] == "ok"
     assert FIXTURE in (deleted.get("scene_delta") or {}).get("removed", [])
     assert _fixture_family(live_send) == []
+
+
+def test_live_product_hero_repairs_deleted_camera(live_send):
+    from server.capability_executor import execute_workflow
+
+    exec_probe = live_send("execute_python", {"code": "result = {'agent_os_probe': True}"})
+    if exec_probe.get("disabled_by_policy"):
+        message = "live camera-repair proof requires OPENCLAW_ALLOW_EXEC=1"
+        if REQUIRE:
+            pytest.fail(message)
+        pytest.skip(message)
+
+    created = execute_canonical(
+        "scene.create_object",
+        {"type": "cube", "name": FIXTURE, "location": [0, 0, 1], "size": 1.0},
+        live_send,
+        observe_visual=False,
+    )
+    assert created["status"] == "ok"
+
+    wiped = live_send(
+        "execute_python",
+        {
+            "code": (
+                "import bpy\n"
+                "removed = 0\n"
+                "for obj in list(bpy.data.objects):\n"
+                "    if obj.type == 'CAMERA':\n"
+                "        bpy.data.objects.remove(obj, do_unlink=True)\n"
+                "        removed += 1\n"
+                "result = {'removed_cameras': removed}\n"
+            )
+        },
+    )
+    assert not wiped.get("error"), wiped
+
+    out = execute_workflow("workflow.product_hero", {"object_name": FIXTURE, "auto_render": False}, live_send)
+    diag = live_send("scene_diagnostics", {})
+    if isinstance(diag, dict) and diag.get("error"):
+        message = f"scene_diagnostics not registered on live addon: {diag['error']}"
+        if REQUIRE:
+            pytest.fail(message)
+        pytest.skip(message)
+    assert diag.get("camera_present") is True or any(
+        (row.get("type") or "").upper() == "CAMERA" for row in (diag.get("objects") or []) if isinstance(row, dict)
+    )
+    assert out["status"] in {"review_required", "pass", "fail"}
+    if out["status"] == "fail":
+        codes = {row["code"] for row in (out.get("quality_review") or {}).get("findings") or []}
+        assert "NO_CAMERA" not in codes, out
