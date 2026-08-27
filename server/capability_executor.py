@@ -146,25 +146,14 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
     key = cap.key
     if key == "product.material":
         object_name = _require_safe_name(args.get("object_name"), "object_name")
-        code = _gen_material_code(str(args.get("preset") or "white_product"), object_name, args.get("material_name"), args.get("color_override"), args.get("roughness_override"), bool(args.get("add_imperfections", False)))
-        return send_command("execute_python", {"code": code})
+        return send_command("product_material", args)
     if key == "product.lighting":
-        code = _gen_lighting_code(str(args.get("preset") or "product_studio"), bool(args.get("shadow_catcher", True)), bool(args.get("gradient_bg", False)), args.get("gradient_top"), args.get("gradient_bottom"), args.get("hdri_path"), float(args.get("hdri_strength", 1.5)), float(args.get("hdri_rotation", 0.0)))
-        return send_command("execute_python", {"code": code})
+        return send_command("product_lighting", args)
     if key == "product.camera":
-        target = _require_safe_name(args.get("target_object"), "target_object")
-        code = _gen_camera_code(str(args.get("style") or "hero_reveal"), target, int(args.get("frames", 120)), float(args.get("camera_distance", 4.0)), float(args.get("camera_height", 1.2)), float(args.get("focal_length", 50.0)), float(args.get("f_stop", 2.8)), bool(args.get("use_dof", True)), int(args.get("fps", 24)), args.get("start_distance"), args.get("end_distance"), args.get("start_focal"), args.get("end_focal"), args.get("orbit_angle"))
-        return send_command("execute_python", {"code": code})
+        args["target_object"] = _require_safe_name(args.get("target_object"), "target_object")
+        return send_command("product_camera", args)
     if key == "product.render_setup":
-        code = _gen_render_code(str(args.get("quality") or "balanced"), str(args.get("resolution") or "1080p"), bool(args.get("transparent_bg", True)), args.get("output_path"), str(args.get("output_format") or "PNG"))
-        render_result = send_command("execute_python", {"code": code})
-        if _has_error(render_result):
-            return render_result
-        comp_code = _gen_compositor_code(bool(args.get("bloom", True)), bool(args.get("vignette", True)))
-        compositor_result = send_command("execute_python", {"code": comp_code})
-        if _has_error(compositor_result):
-            return compositor_result
-        return {"render_setup": render_result, "compositor": compositor_result}
+        return send_command("product_render_setup", args)
     if key == "product.animation":
         object_name = _require_safe_name(args.get("object_name"), "object_name")
         frames = int(args.get("frames", 120))
@@ -173,11 +162,10 @@ def _execute_product(cap: Capability, args: dict, send_command) -> dict:
         results = {}
         material = args.get("material")
         if material:
-            results["material"] = send_command("execute_python", {"code": _gen_material_code(str(material), object_name)})
-        results["lighting"] = send_command("execute_python", {"code": _gen_lighting_code(str(args.get("lighting") or "product_studio"), bool(args.get("shadow_catcher", True)), bool(args.get("gradient_bg", False)), hdri_path=None, hdri_strength=1.5)})
-        results["camera"] = send_command("execute_python", {"code": _gen_camera_code(str(args.get("camera_style") or "turntable"), object_name, frames, float(args.get("camera_distance", 4.0)), float(args.get("camera_height", 1.2)), float(args.get("focal_length", 50.0)), float(args.get("f_stop", 2.8)), bool(args.get("use_dof", True)), fps)})
-        results["render"] = send_command("execute_python", {"code": _gen_render_code(str(args.get("quality") or "balanced"), str(args.get("resolution") or "1080p"), bool(args.get("transparent_bg", True)), output_path, "PNG")})
-        results["compositor"] = send_command("execute_python", {"code": _gen_compositor_code(bool(args.get("bloom", True)), bool(args.get("vignette", True)))})
+            results["material"] = send_command("product_material", {"preset": str(material), "object_name": object_name})
+        results["lighting"] = send_command("product_lighting", {"preset": str(args.get("lighting") or "product_studio"), "shadow_catcher": bool(args.get("shadow_catcher", True)), "gradient_bg": bool(args.get("gradient_bg", False))})
+        results["camera"] = send_command("product_camera", {"style": str(args.get("camera_style") or "turntable"), "target_object": object_name, "frames": frames, "camera_distance": float(args.get("camera_distance", 4.0)), "camera_height": float(args.get("camera_height", 1.2)), "focal_length": float(args.get("focal_length", 50.0)), "f_stop": float(args.get("f_stop", 2.8)), "use_dof": bool(args.get("use_dof", True)), "fps": fps})
+        results["render"] = send_command("product_render_setup", {"quality": str(args.get("quality") or "balanced"), "resolution": str(args.get("resolution") or "1080p"), "transparent_bg": bool(args.get("transparent_bg", True)), "output_path": output_path, "output_format": "PNG", "bloom": bool(args.get("bloom", True)), "vignette": bool(args.get("vignette", True))})
         if bool(args.get("auto_render", False)):
             results["render_start"] = send_command("render", {"type": "animation", "output_path": output_path})
         errors = [name for name, value in results.items() if _has_error(value)]

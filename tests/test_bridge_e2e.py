@@ -106,16 +106,6 @@ def test_live_create_observe_delete(live_send):
     )
     assert moved["status"] == "ok"
 
-    exec_probe = live_send("execute_python", {"code": "result = {'agent_os_probe': True}"})
-    if exec_probe.get("disabled_by_policy"):
-        message = (
-            "product workflow live proof requires explicit OPENCLAW_ALLOW_EXEC=1 on the trusted Blender runner; "
-            "the addon correctly defaults execute_python to disabled"
-        )
-        if REQUIRE:
-            pytest.fail(message)
-        pytest.skip(message)
-    assert not exec_probe.get("error"), exec_probe
 
     lit = execute_canonical("product.lighting", {"preset": "product_studio"}, live_send)
     assert lit["status"] == "ok", lit
@@ -133,12 +123,6 @@ def test_live_create_observe_delete(live_send):
 def test_live_product_hero_repairs_deleted_camera(live_send):
     from server.capability_executor import execute_workflow
 
-    exec_probe = live_send("execute_python", {"code": "result = {'agent_os_probe': True}"})
-    if exec_probe.get("disabled_by_policy"):
-        message = "live camera-repair proof requires OPENCLAW_ALLOW_EXEC=1"
-        if REQUIRE:
-            pytest.fail(message)
-        pytest.skip(message)
 
     created = execute_canonical(
         "scene.create_object",
@@ -148,20 +132,12 @@ def test_live_product_hero_repairs_deleted_camera(live_send):
     )
     assert created["status"] == "ok"
 
-    wiped = live_send(
-        "execute_python",
-        {
-            "code": (
-                "import bpy\n"
-                "removed = 0\n"
-                "for obj in list(bpy.data.objects):\n"
-                "    if obj.type == 'CAMERA':\n"
-                "        bpy.data.objects.remove(obj, do_unlink=True)\n"
-                "        removed += 1\n"
-                "result = {'removed_cameras': removed}\n"
-            )
-        },
-    )
+    diag = live_send("scene_diagnostics", {})
+    cameras = [obj["name"] for obj in diag.get("objects", []) if obj.get("type") == "CAMERA"]
+    if cameras:
+        wiped = live_send("delete_object", {"names": cameras})
+    else:
+        wiped = {"status": "ok"}
     assert not wiped.get("error"), wiped
 
     out = execute_workflow("workflow.product_hero", {"object_name": FIXTURE, "auto_render": False}, live_send)
