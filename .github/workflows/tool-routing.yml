@@ -39,9 +39,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  router-floor:
+  router-floor-1:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -77,7 +77,7 @@ jobs:
           server/motion_qa.py
           scripts/render_score.py
           blender_addon/quality_handlers.py
-      - name: Run deterministic routing, dispatch, quality, and bridge-contract floor
+      - name: Run deterministic routing tests (part 1)
         run: >-
           python -m pytest
           tests/test_tool_choice.py
@@ -92,6 +92,41 @@ jobs:
           tests/test_visual_quality_live_contract.py
           tests/test_quality_repair.py
           tests/test_recreate_workflows.py
+          -q
+
+  router-floor-2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: router-floor-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned runtime and test dependencies
+        run: python -m pip install -r requirements.txt pytest
+      - name: Compile routing and quality modules
+        run: >-
+          python -m py_compile
+          server/capability_router.py
+          server/capability_registry.py
+          server/capability_executor.py
+          server/quality_repair.py
+          server/quality_loop.py
+          server/visual_quality.py
+          server/session_state.py
+          server/agent_loop.py
+          server/blender_mcp_guided.py
+          server/workflow_rank.py
+          server/free_stack.py
+          server/reference_loop.py
+          server/motion_spec.py
+          server/motion_qa.py
+          scripts/render_score.py
+          blender_addon/quality_handlers.py
+      - name: Run deterministic routing tests (part 2)
+        run: >-
+          python -m pytest
           tests/test_eval_cli.py
           tests/test_bridge_e2e.py
           -q
