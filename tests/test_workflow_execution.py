@@ -14,7 +14,6 @@ class FakeBridge:
         if command == "get_scene_info":
             return {"status": "ok", "objects": list(self.objects)}
         if command == "scene_diagnostics":
-            types = [row.get("type") for row in self.objects]
             lights = [row for row in self.objects if row.get("type") == "LIGHT"]
             camera = next((row for row in self.objects if row.get("type") == "CAMERA"), None)
             return {
@@ -24,12 +23,17 @@ class FakeBridge:
                 "lights": lights,
                 "camera": camera,
             }
-        if command == "execute_python":
-            names = {row["name"] for row in self.objects}
-            if "Camera" not in names:
+        if command == "product_camera":
+            if not any(row.get("type") == "CAMERA" for row in self.objects):
                 self.objects.append({"name": "Camera", "type": "CAMERA"})
-            if "Key" not in names:
+            return {"status": "ok"}
+        if command == "product_lighting":
+            if not any(row.get("type") == "LIGHT" for row in self.objects):
                 self.objects.append({"name": "Key", "type": "LIGHT"})
+            return {"status": "ok"}
+        if command in {"product_material", "product_render_setup"}:
+            return {"status": "ok"}
+        if command == "execute_python":
             return {"status": "ok"}
         if command == "create_object":
             name = params.get("name") or "Cube"
@@ -57,49 +61,43 @@ def test_visual_atomic_capability_always_observes_after_mutation():
     assert "scene_delta" in result
 
 
-def test_product_lighting_uses_wrapper_not_fake_bridge_command():
+def test_product_lighting_uses_native_bridge_command():
     bridge = FakeBridge()
     result = execute_canonical("product.lighting", {"preset": "cosmetics"}, bridge)
     commands = [name for name, _ in bridge.calls]
-    assert "execute_python" in commands
-    assert "product_lighting" not in commands
+    assert "product_lighting" in commands
+    assert "execute_python" not in commands
     assert commands[-1] == "viewport_capture"
     assert result["status"] == "ok"
-    assert result["bridge_command"] == "execute_python"
+    assert result["bridge_command"] == "product_lighting"
 
 
-def test_product_animation_uses_execute_python_and_animation_render_contract():
+def test_product_animation_uses_native_components_and_animation_render_contract():
     bridge = FakeBridge()
     result = execute_canonical("product.animation", {"object_name": "Bottle", "auto_render": True}, bridge)
     commands = [name for name, _ in bridge.calls]
     assert result["status"] == "ok"
-    assert result["bridge_command"] == "execute_python"
     assert "product_animation" not in commands
-    assert commands.count("execute_python") >= 4
+    assert "execute_python" not in commands
+    assert "product_lighting" in commands
+    assert "product_camera" in commands
+    assert "product_render_setup" in commands
     assert ("render", {"type": "animation", "output_path": "/tmp/product_render/frame_####"}) in bridge.calls
 
 
-def test_product_animation_fails_closed_when_wrapper_step_errors():
-    class FailingExecBridge(FakeBridge):
-        def __init__(self):
-            super().__init__()
-            self.exec_count = 0
-
+def test_product_animation_fails_closed_when_native_step_errors():
+    class FailingCameraBridge(FakeBridge):
         def __call__(self, command, params=None):
-            params = params or {}
-            if command == "execute_python":
-                self.calls.append((command, params))
-                self.exec_count += 1
-                if self.exec_count == 2:
-                    return {"error": "blocked product camera setup"}
-                return {"status": "ok"}
+            if command == "product_camera":
+                self.calls.append((command, params or {}))
+                return {"error": "blocked product camera setup"}
             return super().__call__(command, params)
 
-    result = execute_canonical("product.animation", {"object_name": "Bottle"}, FailingExecBridge())
+    result = execute_canonical("product.animation", {"object_name": "Bottle"}, FailingCameraBridge())
     assert result["status"] == "failed"
     assert "product animation setup failed" in result["error"]
     assert result["result"]["status"] == "partial_failure"
-    assert result["result"]["errors"]
+    assert "camera" in result["result"]["errors"]
 
 
 def test_spatial_adapter_emits_phase5_command_not_fake_spatial_command():
@@ -133,9 +131,9 @@ def test_product_hero_is_one_workflow_with_required_observations():
     assert result["status"] == "review_required"
     assert commands[0] == "get_scene_info"
     assert commands.count("viewport_capture") >= 5
-    assert "product_lighting" not in commands
-    assert "product_camera" not in commands
-    assert "product_render_setup" not in commands
+    assert "product_lighting" in commands
+    assert "product_camera" in commands
+    assert "product_render_setup" in commands
     assert "render" in commands
     assert commands[-1] == "viewport_capture"
 
@@ -177,9 +175,9 @@ def test_turntable_workflow_uses_turntable_camera_style():
     bridge = FakeBridge()
     result = execute_workflow("workflow.turntable", {"object_name": "Bottle", "auto_render": False}, bridge)
     assert result["status"] == "review_required"
-    camera_calls = [params for command, params in bridge.calls if command == "execute_python"]
+    camera_calls = [params for command, params in bridge.calls if command == "product_camera"]
     assert camera_calls, bridge.calls
-    assert any("turntable" in str(params.get("code", "")).lower() or "Turntable" in str(params.get("code", "")) for params in camera_calls)
+    assert any(params.get("style") == "turntable" for params in camera_calls)
 
 
 def test_missing_viewport_pixels_fail_visual_postcondition():
