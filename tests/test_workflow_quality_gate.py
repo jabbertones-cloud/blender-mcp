@@ -90,23 +90,24 @@ def test_amazon_packshot_cannot_finish_plain_ok_before_semantic_review():
     assert any(row["code"] == "AMAZON_SEMANTIC_REVIEW" for row in out["quality_review"]["findings"])
 
 
-def test_product_workflow_repairs_missing_camera_then_reviews():
+def test_product_workflow_setup_supplies_missing_camera_before_quality_review():
     bridge = FakeBridge(include_camera=False)
     out = execute_workflow("workflow.product_hero", {"object_name": "Bottle"}, bridge)
     assert out["status"] == "review_required"
-    assert out["quality_review"]["repair_count"] >= 1
-    assert not any(row["code"] == "NO_CAMERA" and row["severity"] == "error" for row in out["quality_review"]["findings"])
-    assert any(attempt.get("finding_code") == "NO_CAMERA" and attempt.get("capability") == "product.camera" for attempt in out["quality_review"]["repair_attempts"])
     assert bridge.include_camera is True
-    assert "scene_diagnostics" in [name for name, _ in bridge.calls]
+    assert "product_camera" in [name for name, _ in bridge.calls]
+    assert not any(row["code"] == "NO_CAMERA" for row in out["quality_review"]["findings"])
+    assert out["quality_review"].get("repair_count", 0) == 0
 
 
-def test_product_workflow_repairs_missing_lights():
+def test_product_workflow_setup_supplies_missing_lights_before_quality_review():
     bridge = FakeBridge(include_light=False)
     out = execute_workflow("workflow.product_hero", {"object_name": "Bottle"}, bridge)
     assert out["status"] == "review_required"
-    assert any(attempt.get("finding_code") == "NO_LIGHTS" for attempt in out["quality_review"]["repair_attempts"])
-    assert not any(row["code"] == "NO_LIGHTS" and row["severity"] == "error" for row in out["quality_review"]["findings"])
+    assert bridge.include_light is True
+    assert "product_lighting" in [name for name, _ in bridge.calls]
+    assert not any(row["code"] == "NO_LIGHTS" for row in out["quality_review"]["findings"])
+    assert out["quality_review"].get("repair_count", 0) == 0
 
 
 def test_missing_target_fails_closed_without_stage_repair():
