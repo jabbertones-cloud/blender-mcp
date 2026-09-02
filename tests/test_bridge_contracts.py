@@ -30,10 +30,27 @@ def _dict_keys(path: Path, required: set[str]) -> set[str]:
     return max(candidates, key=len)
 
 
+def _assigned_keys(path: Path, target_name: str) -> set[str]:
+    tree = ast.parse(_source(path))
+    keys = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if not isinstance(target, ast.Subscript):
+                continue
+            if not isinstance(target.value, ast.Name) or target.value.id != target_name:
+                continue
+            slice_node = target.slice
+            if isinstance(slice_node, ast.Constant) and isinstance(slice_node.value, str):
+                keys.add(slice_node.value)
+    return keys
+
+
 def _registered_bridge_commands() -> set[str]:
     base = _dict_keys(ADDON_PATH, {"ping", "get_scene_info", "create_object", "viewport_capture"})
     phase5 = _dict_keys(PHASE5_PATH, {"spatial_raycast", "dimensions_estimate", "floor_plan_data"})
-    quality = _dict_keys(QUALITY_PATH, {"scene_diagnostics"})
+    quality = _dict_keys(QUALITY_PATH, {"scene_diagnostics"}) | _assigned_keys(QUALITY_PATH, "QUALITY_HANDLERS")
     return base | phase5 | quality
 
 
@@ -57,11 +74,23 @@ def test_every_registry_bridge_command_has_a_registered_addon_handler():
     assert missing == {}, f"registry points at nonexistent addon commands: {missing}"
 
 
-def test_product_wrappers_advertise_registered_execute_python_boundary():
+def test_product_capabilities_use_native_registered_boundaries():
     commands = _registered_bridge_commands()
+    expected = {
+        "product.material": "product_material",
+        "product.lighting": "product_lighting",
+        "product.camera": "product_camera",
+        "product.render_setup": "product_render_setup",
+    }
+    for key, command in expected.items():
+        assert registry.resolve_tool(key).bridge_command == command
+        assert command in commands
+
+    # product.animation remains a server-side orchestration capability. It may
+    # advertise the legacy execute_python bridge command for compatibility, but
+    # its component steps must use the native product handlers above.
+    assert registry.resolve_tool("product.animation").bridge_command == "execute_python"
     assert "execute_python" in commands
-    for key in {"product.material", "product.lighting", "product.camera", "product.render_setup", "product.animation"}:
-        assert registry.resolve_tool(key).bridge_command == "execute_python"
 
 
 def test_dynamic_spatial_wrappers_advertise_real_phase5_boundaries():
