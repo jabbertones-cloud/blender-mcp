@@ -21,7 +21,6 @@ class FakeBridge:
 
     def _diagnostics(self):
         rows = self._scene_objects()
-        types = [row["type"] for row in rows]
         lights = [row for row in rows if row["type"] == "LIGHT"]
         camera = next((row for row in rows if row["type"] == "CAMERA"), None)
         return {
@@ -51,15 +50,13 @@ class FakeBridge:
                 if getattr(self, "fail_first_quality_pixels", False) and self.quality_viewports == 1:
                     return {"status": "ok"}
             return {"base64": "pixels" if self.pixels else ""}
-        if command == "execute_python":
-            code = str(params.get("code") or "")
-            if self._quality_started:
-                if "Product_Camera" in code or "ProductCamData" in code:
-                    self.include_camera = True
-                if "Key_Light" in code:
-                    self.include_light = True
+        if command == "product_camera":
+            self.include_camera = True
             return {"status": "ok"}
-        if command == "render":
+        if command == "product_lighting":
+            self.include_light = True
+            return {"status": "ok"}
+        if command in {"product_material", "product_render_setup", "execute_python", "render"}:
             return {"status": "ok"}
         return {"status": "ok"}
 
@@ -71,7 +68,7 @@ def _mutate_after_quality(bridge: FakeBridge) -> list[tuple]:
         if command == "scene_diagnostics":
             started = True
             continue
-        if started and command == "execute_python":
+        if started and command in {"product_camera", "product_lighting", "execute_python"}:
             out.append((command, params))
     return out
 
@@ -147,4 +144,3 @@ def test_unknown_diagnostics_falls_back_to_scene_info():
     out = execute_workflow("workflow.product_hero", {"object_name": "Bottle"}, LegacyBridge())
     assert out["status"] == "review_required"
     assert out["quality_review"]["pixel_evidence"] is True
-
