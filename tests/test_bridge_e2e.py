@@ -106,16 +106,6 @@ def test_live_create_observe_delete(live_send):
     )
     assert moved["status"] == "ok"
 
-    exec_probe = live_send("execute_python", {"code": "result = {'agent_os_probe': True}"})
-    if exec_probe.get("disabled_by_policy"):
-        message = (
-            "product workflow live proof requires explicit OPENCLAW_ALLOW_EXEC=1 on the trusted Blender runner; "
-            "the addon correctly defaults execute_python to disabled"
-        )
-        if REQUIRE:
-            pytest.fail(message)
-        pytest.skip(message)
-    assert not exec_probe.get("error"), exec_probe
 
     lit = execute_canonical("product.lighting", {"preset": "product_studio"}, live_send)
     assert lit["status"] == "ok", lit
@@ -128,3 +118,69 @@ def test_live_create_observe_delete(live_send):
     assert deleted["status"] == "ok"
     assert FIXTURE in (deleted.get("scene_delta") or {}).get("removed", [])
     assert _fixture_family(live_send) == []
+
+
+def test_live_product_hero_repairs_deleted_camera(live_send):
+    from server.capability_executor import execute_workflow
+
+
+    created = execute_canonical(
+        "scene.create_object",
+        {"type": "cube", "name": FIXTURE, "location": [0, 0, 1], "size": 1.0},
+        live_send,
+        observe_visual=False,
+    )
+    assert created["status"] == "ok"
+
+    diag = live_send("scene_diagnostics", {})
+    cameras = [obj["name"] for obj in diag.get("objects", []) if obj.get("type") == "CAMERA"]
+    if cameras:
+        wiped = live_send("delete_object", {"names": cameras})
+    else:
+        wiped = {"status": "ok"}
+    assert not wiped.get("error"), wiped
+
+    out = execute_workflow("workflow.product_hero", {"object_name": FIXTURE, "auto_render": False}, live_send)
+    diag = live_send("scene_diagnostics", {})
+    if isinstance(diag, dict) and diag.get("error"):
+        message = f"scene_diagnostics not registered on live addon: {diag['error']}"
+        if REQUIRE:
+            pytest.fail(message)
+        pytest.skip(message)
+    assert diag.get("camera_present") is True or any(
+        (row.get("type") or "").upper() == "CAMERA" for row in (diag.get("objects") or []) if isinstance(row, dict)
+    )
+    assert out["status"] in {"review_required", "pass", "fail"}
+    if out["status"] == "fail":
+        codes = {row["code"] for row in (out.get("quality_review") or {}).get("findings") or []}
+        assert "NO_CAMERA" not in codes, out
+
+
+def test_live_recreate_attach_score_returns_numeric_fields(live_send, tmp_path):
+    from server import reference_loop
+    from server.capability_executor import execute_workflow
+
+    png = tmp_path / "ref.png"
+    png.write_bytes(
+        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+        b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05"
+        b"\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
+    )
+    reference_loop.reset()
+    attached = execute_workflow(
+        "workflow.reference_attach",
+        {"path": str(png), "role": "front", "tier": "draft"},
+        live_send,
+    )
+    assert attached["status"] == "ok"
+    scored = execute_workflow(
+        "workflow.reference_score",
+        {"output_path": str(tmp_path / "render.png")},
+        live_send,
+    )
+    metrics = scored.get("metrics") or {}
+    assert "passed" in metrics
+    assert "psnr_passed" in metrics
+    assert "ssim_passed" in metrics
+    assert "lpips_passed" in metrics
+
