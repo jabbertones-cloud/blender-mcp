@@ -837,11 +837,15 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
         
         Optional: color/roughness overrides, photorealistic imperfections (fingerprints/dust).
         """
-        code = _gen_material_code(
-            params.preset.value, params.object_name, params.material_name,
-            params.color_override, params.roughness_override, params.add_imperfections
-        )
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        d = MATERIAL_DEFS[params.preset.value].copy()
+        d["object_name"] = params.object_name
+        d["material_name"] = params.material_name or f"Product_{params.preset.value}"
+        if params.color_override:
+            d["color"] = params.color_override
+        if params.roughness_override is not None:
+            d["roughness"] = params.roughness_override
+        d["add_imperfections"] = params.add_imperfections
+        return format_result_fn(send_command_fn("product_material", d))
     
     @mcp_instance.tool(
         name="blender_product_lighting",
