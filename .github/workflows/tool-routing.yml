@@ -9,12 +9,16 @@ on:
       - 'blender_addon/new_handlers_phase5.py'
       - 'blender_addon/quality_handlers.py'
       - 'requirements.txt'
+      - 'setup.sh'
+      - 'claude_mcp_config.json'
       - 'tests/test_capability_router.py'
       - 'tests/test_tool_choice.py'
       - 'tests/test_act_dispatch.py'
       - 'tests/test_workflow_execution.py'
       - 'tests/test_guided_workflow_search.py'
       - 'tests/test_guided_surface.py'
+      - 'tests/test_runtime_config.py'
+      - 'tests/test_installation_contract.py'
       - 'tests/test_bridge_contracts.py'
       - 'tests/test_visual_quality.py'
       - 'tests/test_workflow_quality_gate.py'
@@ -33,6 +37,8 @@ on:
       - 'blender_addon/new_handlers_phase5.py'
       - 'blender_addon/quality_handlers.py'
       - 'requirements.txt'
+      - 'setup.sh'
+      - 'claude_mcp_config.json'
       - 'tests/**'
       - 'eval/run.py'
       - '.github/workflows/tool-routing.yml'
@@ -70,6 +76,7 @@ jobs:
           server/session_state.py
           server/agent_loop.py
           server/blender_mcp_guided.py
+          server/runtime_config.py
           server/workflow_rank.py
           server/free_stack.py
           server/reference_loop.py
@@ -86,6 +93,8 @@ jobs:
           tests/test_workflow_execution.py
           tests/test_guided_workflow_search.py
           tests/test_guided_surface.py
+          tests/test_runtime_config.py
+          tests/test_installation_contract.py
           tests/test_bridge_contracts.py
           tests/test_visual_quality.py
           tests/test_workflow_quality_gate.py
@@ -97,7 +106,6 @@ jobs:
   router-floor-2:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: router-floor-1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -117,6 +125,7 @@ jobs:
           server/session_state.py
           server/agent_loop.py
           server/blender_mcp_guided.py
+          server/runtime_config.py
           server/workflow_rank.py
           server/free_stack.py
           server/reference_loop.py
