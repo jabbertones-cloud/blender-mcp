@@ -58,19 +58,26 @@ else
     echo "  Blender > Edit > Preferences > Add-ons > Install > $ADDON_SRC"
 fi
 
-# 4. Write Claude config snippet
+# 4. Write Claude config snippet.
+# Keep the normal client on the search-first guided surface. The broad legacy
+# server remains available explicitly as blender-power for expert/debug use.
 echo -e "\n${YELLOW}[4/4] Generating Claude MCP config...${NC}"
 cat > "$SCRIPT_DIR/claude_mcp_config.json" <<EOF
 {
   "mcpServers": {
     "blender": {
       "command": "$PYTHON_BIN",
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
+      "env": {}
+    },
+    "blender-power": {
+      "command": "$PYTHON_BIN",
       "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
       "env": {}
     },
     "blender-2": {
       "command": "$PYTHON_BIN",
-      "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
       "env": {
         "BLENDER_PORT": "9877",
         "OPENCLAW_PORT": "9877"
@@ -78,7 +85,7 @@ cat > "$SCRIPT_DIR/claude_mcp_config.json" <<EOF
     },
     "blender-3": {
       "command": "$PYTHON_BIN",
-      "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
       "env": {
         "BLENDER_PORT": "9878",
         "OPENCLAW_PORT": "9878"
