@@ -93,6 +93,49 @@ def test_product_capabilities_use_native_registered_boundaries():
     assert "execute_python" in commands
 
 
+def test_product_handlers_preserve_unowned_scene_resources():
+    source = _source(QUALITY_PATH)
+    assert 'OWNER_KEY = "openclaw_owner"' in source
+    assert 'OWNER_VALUE = "product_workflow"' in source
+    assert '_remove_owned("product_light")' in source
+    assert '_remove_owned("product_camera")' in source
+    assert '_remove_owned("product_camera_target")' in source
+    assert 'if obj.type == "LIGHT":\n            bpy.data.objects.remove' not in source
+    assert 'obj.name.startswith("Turntable_")' not in source
+    assert 'obj.name == "Product_Camera"' not in source
+    assert "bpy.context.collection.objects.link" not in source
+    assert "scene.collection" in source
+
+
+def test_scene_diagnostics_exposes_versioned_postcondition_facts():
+    source = _source(QUALITY_PATH)
+    required = {
+        "schema_version",
+        "objects_truncated",
+        "location_world",
+        "rotation_euler",
+        "dimensions",
+        "materials",
+        "frame_current",
+        "filepath",
+        "file_format",
+        "color",
+    }
+    for field in required:
+        assert f'"{field}"' in source, f"scene diagnostics missing deterministic field: {field}"
+    assert "MAX_DIAGNOSTIC_OBJECTS" in source
+    assert "matrix_world" in source
+
+
+def test_product_camera_targets_evaluated_world_space_bounds():
+    source = _source(QUALITY_PATH)
+    assert "evaluated_depsgraph_get" in source
+    assert "evaluated_get" in source
+    assert "matrix_world" in source
+    assert "bound_box" in source
+    assert "target.location = target_obj.location" not in source
+
+
 def test_dynamic_spatial_wrappers_advertise_real_phase5_boundaries():
     commands = _registered_bridge_commands()
     expected = {
