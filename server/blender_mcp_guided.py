@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import socket
+import uuid
 from typing import Any, Dict
 
 from mcp.server.fastmcp import FastMCP
@@ -32,7 +33,8 @@ except ModuleNotFoundError:
 
 HOST = resolve_blender_host()
 PORT = resolve_blender_port()
-TIMEOUT = float(os.getenv("OPENCLAW_TIMEOUT", "30"))
+TIMEOUT = float(os.getenv("OPENCLAW_TIMEOUT", "180"))
+MAX_RESPONSE_BYTES = int(os.getenv("OPENCLAW_MAX_RESPONSE_BYTES", str(32 * 1024 * 1024)))
 
 mcp = FastMCP(
     "blender_mcp_guided",
@@ -44,34 +46,46 @@ mcp = FastMCP(
     ),
 )
 _goal_state: Dict[str, Any] = {"goal": None, "last_search": [], "executions": 0}
-_request_id = 0
 
 
 def send_command(command: str, params: dict | None = None) -> dict:
-    global _request_id
-    _request_id += 1
-    payload = {"id": str(_request_id), "command": command, "params": params or {}}
+    request_id = uuid.uuid4().hex
+    payload = {"id": request_id, "command": command, "params": params or {}}
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         sock.settimeout(TIMEOUT)
         sock.connect((HOST, PORT))
         sock.sendall(json.dumps(payload).encode("utf-8"))
-        chunks = []
+        raw = bytearray()
         while True:
             chunk = sock.recv(1048576)
             if not chunk:
                 break
-            chunks.append(chunk)
+            raw.extend(chunk)
+            if len(raw) > MAX_RESPONSE_BYTES:
+                return {
+                    "error": f"Blender response exceeded {MAX_RESPONSE_BYTES} bytes",
+                    "code": "RESPONSE_TOO_LARGE",
+                }
             try:
-                data = json.loads(b"".join(chunks).decode("utf-8"))
-                return data.get("result", data) if not data.get("error") else {"error": data["error"]}
-            except json.JSONDecodeError:
+                data = json.loads(raw.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
                 continue
-        return {"error": "Empty response from Blender"}
+
+            response_id = data.get("id")
+            if response_id is not None and str(response_id) != request_id:
+                return {
+                    "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
+                    "code": "RESPONSE_ID_MISMATCH",
+                }
+            return data.get("result", data) if not data.get("error") else {"error": data["error"]}
+        return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
     except ConnectionRefusedError:
-        return {"error": f"Cannot connect to Blender bridge at {HOST}:{PORT}"}
+        return {"error": f"Cannot connect to Blender bridge at {HOST}:{PORT}", "code": "CONNECTION_REFUSED"}
     except socket.timeout:
-        return {"error": f"Blender command timed out after {TIMEOUT}s"}
+        return {"error": f"Blender command timed out after {TIMEOUT}s", "code": "TIMEOUT"}
+    except OSError as exc:
+        return {"error": f"Blender socket error: {exc}", "code": "SOCKET_ERROR"}
     finally:
         sock.close()
 
