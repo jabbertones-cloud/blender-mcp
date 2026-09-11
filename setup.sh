@@ -1,7 +1,5 @@
 #!/bin/bash
-# ═══════════════════════════════════════════════════════════════════════════════
 # OpenClaw Blender MCP - Setup Script
-# ═══════════════════════════════════════════════════════════════════════════════
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -12,7 +10,7 @@ elif [ -x "$SCRIPT_DIR/.venv/bin/python3" ]; then
 elif command -v python3 &>/dev/null; then
     PYTHON_BIN="$(command -v python3)"
 else
-    echo -e "${RED}python3 not found. Install Python first.${NC}"
+    echo "python3 not found. Install Python first."
     exit 1
 fi
 GREEN='\033[0;32m'
@@ -20,22 +18,20 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo "═══════════════════════════════════════════════════════════"
+echo "==========================================================="
 echo "  OpenClaw Blender MCP - Setup"
-echo "═══════════════════════════════════════════════════════════"
+echo "==========================================================="
 
-# 1. Install Python dependencies
 echo -e "\n${YELLOW}[1/4] Installing Python dependencies...${NC}"
-"$PYTHON_BIN" -m pip install mcp pydantic httpx 2>/dev/null || "$PYTHON_BIN" -m pip install --break-system-packages mcp pydantic httpx
+"$PYTHON_BIN" -m pip install -r "$SCRIPT_DIR/requirements.txt" 2>/dev/null || "$PYTHON_BIN" -m pip install --break-system-packages -r "$SCRIPT_DIR/requirements.txt"
 
-# 2. Find Blender
 echo -e "\n${YELLOW}[2/4] Locating Blender...${NC}"
 BLENDER_APP=""
 if [ -d "/Applications/Blender.app" ]; then
     BLENDER_APP="/Applications/Blender.app"
     BLENDER_BIN="/Applications/Blender.app/Contents/MacOS/Blender"
 elif command -v blender &>/dev/null; then
-    BLENDER_BIN="$(which blender)"
+    BLENDER_BIN="$(command -v blender)"
     BLENDER_APP="$BLENDER_BIN"
 else
     echo -e "${RED}Blender not found! Please install Blender first.${NC}"
@@ -43,10 +39,8 @@ else
 fi
 echo -e "${GREEN}Found Blender: $BLENDER_APP${NC}"
 
-# 3. Install addon
 echo -e "\n${YELLOW}[3/4] Installing Blender addon...${NC}"
 ADDON_SRC="$SCRIPT_DIR/blender_addon/openclaw_blender_bridge.py"
-# Detect Blender version for addon path
 BLENDER_VERSION=$("$BLENDER_BIN" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
 if [ -n "$BLENDER_VERSION" ]; then
     ADDON_DIR="$HOME/Library/Application Support/Blender/$BLENDER_VERSION/scripts/addons"
@@ -58,19 +52,25 @@ else
     echo "  Blender > Edit > Preferences > Add-ons > Install > $ADDON_SRC"
 fi
 
-# 4. Write Claude config snippet
 echo -e "\n${YELLOW}[4/4] Generating Claude MCP config...${NC}"
+# Keep installation aligned with the repository architecture: the small guided
+# search-first surface is the default; the broad expert server is opt-in.
 cat > "$SCRIPT_DIR/claude_mcp_config.json" <<EOF
 {
   "mcpServers": {
     "blender": {
+      "command": "$PYTHON_BIN",
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
+      "env": {}
+    },
+    "blender-power": {
       "command": "$PYTHON_BIN",
       "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
       "env": {}
     },
     "blender-2": {
       "command": "$PYTHON_BIN",
-      "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
       "env": {
         "BLENDER_PORT": "9877",
         "OPENCLAW_PORT": "9877"
@@ -78,7 +78,7 @@ cat > "$SCRIPT_DIR/claude_mcp_config.json" <<EOF
     },
     "blender-3": {
       "command": "$PYTHON_BIN",
-      "args": ["$SCRIPT_DIR/server/blender_mcp_server.py"],
+      "args": ["$SCRIPT_DIR/server/blender_mcp_guided.py"],
       "env": {
         "BLENDER_PORT": "9878",
         "OPENCLAW_PORT": "9878"
@@ -90,9 +90,9 @@ EOF
 echo -e "${GREEN}Config written to: $SCRIPT_DIR/claude_mcp_config.json${NC}"
 
 echo ""
-echo "═══════════════════════════════════════════════════════════"
+echo "==========================================================="
 echo -e "${GREEN}  Setup complete!${NC}"
-echo "═══════════════════════════════════════════════════════════"
+echo "==========================================================="
 echo ""
 echo "Next steps:"
 echo "  1. Open Blender"
@@ -103,4 +103,3 @@ echo ""
 echo "Quick test:"
 echo "  python3 $SCRIPT_DIR/tests/qa_runner.py"
 echo "  python3 $SCRIPT_DIR/scripts/blender_healthcheck.py"
-echo ""
