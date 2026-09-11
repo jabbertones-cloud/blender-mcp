@@ -19,11 +19,7 @@ def _dict_keys(path: Path, required: set[str]) -> set[str]:
     for node in ast.walk(tree):
         if not isinstance(node, ast.Dict):
             continue
-        keys = {
-            key.value
-            for key in node.keys
-            if isinstance(key, ast.Constant) and isinstance(key.value, str)
-        }
+        keys = {key.value for key in node.keys if isinstance(key, ast.Constant) and isinstance(key.value, str)}
         if required.issubset(keys):
             candidates.append(keys)
     assert candidates, f"could not locate command registry in {path}"
@@ -56,9 +52,7 @@ def _registered_bridge_commands() -> set[str]:
 
 def test_phase5_handlers_are_merged_into_the_live_dispatch_dict():
     source = _source()
-    assert "HANDLERS.update(_PHASE5_HANDLERS)" in source, (
-        "Phase 5 handlers must be merged into HANDLERS because process_command dispatches through HANDLERS"
-    )
+    assert "HANDLERS.update(_PHASE5_HANDLERS)" in source
     assert "COMMANDS.update(_PHASE5_HANDLERS)" not in source
     assert "HANDLERS.update(QUALITY_HANDLERS)" in source
     assert registry.resolve_tool("scene.diagnostics").bridge_command == "scene_diagnostics"
@@ -66,11 +60,7 @@ def test_phase5_handlers_are_merged_into_the_live_dispatch_dict():
 
 def test_every_registry_bridge_command_has_a_registered_addon_handler():
     commands = _registered_bridge_commands()
-    missing = {
-        key: registry.resolve_tool(key).bridge_command
-        for key in registry.keys()
-        if registry.resolve_tool(key).bridge_command not in commands
-    }
+    missing = {key: registry.resolve_tool(key).bridge_command for key in registry.keys() if registry.resolve_tool(key).bridge_command not in commands}
     assert missing == {}, f"registry points at nonexistent addon commands: {missing}"
 
 
@@ -85,21 +75,20 @@ def test_product_capabilities_use_native_registered_boundaries():
     for key, command in expected.items():
         assert registry.resolve_tool(key).bridge_command == command
         assert command in commands
-
-    # product.animation remains a server-side orchestration capability. It may
-    # advertise the legacy execute_python bridge command for compatibility, but
-    # its component steps must use the native product handlers above.
     assert registry.resolve_tool("product.animation").bridge_command == "execute_python"
     assert "execute_python" in commands
 
 
-def test_product_handlers_preserve_unowned_scene_resources():
+def test_product_handlers_preserve_unowned_scene_resources_and_scope_cleanup():
     source = _source(QUALITY_PATH)
     assert 'OWNER_KEY = "openclaw_owner"' in source
     assert 'OWNER_VALUE = "product_workflow"' in source
-    assert '_remove_owned("product_light")' in source
-    assert '_remove_owned("product_camera")' in source
-    assert '_remove_owned("product_camera_target")' in source
+    assert 'for obj in list(scene.objects):' in source
+    assert '_remove_owned(scene, "product_light")' in source
+    assert '_remove_owned(scene, "product_camera")' in source
+    assert '_remove_owned(scene, "product_camera_target")' in source
+    assert 'bpy.data.lights.remove(data)' in source
+    assert 'bpy.data.cameras.remove(data)' in source
     assert 'if obj.type == "LIGHT":\n            bpy.data.objects.remove' not in source
     assert 'obj.name.startswith("Turntable_")' not in source
     assert 'obj.name == "Product_Camera"' not in source
@@ -107,14 +96,17 @@ def test_product_handlers_preserve_unowned_scene_resources():
     assert "scene.collection" in source
 
 
-def test_scene_diagnostics_exposes_versioned_postcondition_facts():
+def test_scene_diagnostics_exposes_versioned_coordinate_explicit_postconditions():
     source = _source(QUALITY_PATH)
     required = {
         "schema_version",
         "objects_truncated",
+        "object_limit",
         "location_world",
-        "rotation_euler",
-        "dimensions",
+        "matrix_world",
+        "rotation_euler_local",
+        "scale_local",
+        "dimensions_evaluated",
         "materials",
         "frame_current",
         "filepath",
@@ -123,17 +115,20 @@ def test_scene_diagnostics_exposes_versioned_postcondition_facts():
     }
     for field in required:
         assert f'"{field}"' in source, f"scene diagnostics missing deterministic field: {field}"
-    assert "MAX_DIAGNOSTIC_OBJECTS" in source
-    assert "matrix_world" in source
+    assert "MAX_DIAGNOSTIC_OBJECTS = 500" in source
+    assert "evaluated.dimensions" in source
 
 
-def test_product_camera_targets_evaluated_world_space_bounds():
+def test_product_camera_targets_evaluated_world_space_bounds_and_preserves_prior_camera_identity():
     source = _source(QUALITY_PATH)
     assert "evaluated_depsgraph_get" in source
     assert "evaluated_get" in source
     assert "matrix_world" in source
     assert "bound_box" in source
     assert "target.location = target_obj.location" not in source
+    assert 'PREVIOUS_CAMERA_KEY = "openclaw_previous_camera"' in source
+    assert "not _owned(previous_active, \"product_camera\")" in source
+    assert "scene[PREVIOUS_CAMERA_KEY] = previous_active.name" in source
 
 
 def test_dynamic_spatial_wrappers_advertise_real_phase5_boundaries():
