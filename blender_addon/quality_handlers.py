@@ -7,15 +7,18 @@ from __future__ import annotations
 
 try:
     import bpy
+    from mathutils import Vector
 except ImportError:
     bpy = None  # type: ignore
+    Vector = None  # type: ignore
 
 
 DIAGNOSTICS_SCHEMA_VERSION = 2
-MAX_DIAGNOSTIC_OBJECTS = 2000
+MAX_DIAGNOSTIC_OBJECTS = 500
 OWNER_KEY = "openclaw_owner"
 OWNER_VALUE = "product_workflow"
 ROLE_KEY = "openclaw_role"
+PREVIOUS_CAMERA_KEY = "openclaw_previous_camera"
 
 
 def _require_blender(operation: str):
@@ -25,6 +28,10 @@ def _require_blender(operation: str):
 
 def _vec(values):
     return [float(v) for v in values]
+
+
+def _matrix(matrix):
+    return [[float(value) for value in row] for row in matrix]
 
 
 def _owned(obj, role: str | None = None) -> bool:
@@ -43,23 +50,42 @@ def _scene_collection(scene):
     return scene.collection
 
 
-def _remove_owned(role: str):
-    for obj in list(bpy.data.objects):
-        if _owned(obj, role):
-            bpy.data.objects.remove(obj, do_unlink=True)
+def _remove_owned(scene, role: str):
+    """Remove only this workflow's objects in this scene and clean orphan data."""
+    removed = []
+    for obj in list(scene.objects):
+        if not _owned(obj, role):
+            continue
+        data = getattr(obj, "data", None)
+        data_type = getattr(obj, "type", None)
+        removed.append(obj.name)
+        bpy.data.objects.remove(obj, do_unlink=True)
+        if data is not None and getattr(data, "users", 1) == 0:
+            if data_type == "LIGHT":
+                bpy.data.lights.remove(data)
+            elif data_type == "CAMERA":
+                bpy.data.cameras.remove(data)
+    return removed
+
+
+def _evaluated_object(obj):
+    try:
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        return obj.evaluated_get(depsgraph)
+    except Exception:
+        return obj
 
 
 def _object_center_world(obj):
     """Return evaluated world-space bounding-box center, falling back to origin."""
+    evaluated = _evaluated_object(obj)
     try:
-        depsgraph = bpy.context.evaluated_depsgraph_get()
-        evaluated = obj.evaluated_get(depsgraph)
-        corners = [evaluated.matrix_world @ __import__("mathutils").Vector(corner) for corner in evaluated.bound_box]
+        corners = [evaluated.matrix_world @ Vector(corner) for corner in evaluated.bound_box]
         if corners:
-            return sum(corners, __import__("mathutils").Vector()) / len(corners)
+            return sum(corners, Vector()) / len(corners)
     except Exception:
         pass
-    return obj.matrix_world.translation.copy()
+    return evaluated.matrix_world.translation.copy()
 
 
 def _material_names(obj):
@@ -68,14 +94,16 @@ def _material_names(obj):
 
 
 def _object_snapshot(obj):
-    matrix = obj.matrix_world
+    evaluated = _evaluated_object(obj)
+    matrix = evaluated.matrix_world
     return {
         "name": obj.name,
         "type": obj.type,
         "location_world": _vec(matrix.translation),
-        "rotation_euler": _vec(obj.rotation_euler),
-        "scale": _vec(obj.scale),
-        "dimensions": _vec(obj.dimensions),
+        "matrix_world": _matrix(matrix),
+        "rotation_euler_local": _vec(obj.rotation_euler),
+        "scale_local": _vec(obj.scale),
+        "dimensions_evaluated": _vec(evaluated.dimensions),
         "materials": _material_names(obj),
         "parent": obj.parent.name if obj.parent else None,
         "owned": _owned(obj),
@@ -86,9 +114,11 @@ def _object_snapshot(obj):
 def handle_scene_diagnostics(params):
     _require_blender("scene_diagnostics")
     scene = bpy.context.scene
+    requested_limit = int(params.get("object_limit", MAX_DIAGNOSTIC_OBJECTS))
+    object_limit = max(1, min(requested_limit, MAX_DIAGNOSTIC_OBJECTS))
     all_objects = sorted(list(scene.objects), key=lambda obj: obj.name)
-    truncated = len(all_objects) > MAX_DIAGNOSTIC_OBJECTS
-    listed = all_objects[:MAX_DIAGNOSTIC_OBJECTS]
+    truncated = len(all_objects) > object_limit
+    listed = all_objects[:object_limit]
     objects = [_object_snapshot(obj) for obj in listed]
 
     camera_obj = scene.camera or next((obj for obj in scene.objects if obj.type == "CAMERA"), None)
@@ -99,7 +129,8 @@ def handle_scene_diagnostics(params):
         camera = {
             "name": camera_obj.name,
             "location_world": _vec(camera_obj.matrix_world.translation),
-            "rotation_euler": _vec(camera_obj.rotation_euler),
+            "matrix_world": _matrix(camera_obj.matrix_world),
+            "rotation_euler_local": _vec(camera_obj.rotation_euler),
             "lens_mm": float(getattr(data, "lens", 0.0)),
             "clip_start": float(getattr(data, "clip_start", 0.0)),
             "clip_end": float(getattr(data, "clip_end", 0.0)),
@@ -120,7 +151,8 @@ def handle_scene_diagnostics(params):
             "energy": float(getattr(data, "energy", 0.0)),
             "color": _vec(getattr(data, "color", (1.0, 1.0, 1.0))),
             "location_world": _vec(obj.matrix_world.translation),
-            "rotation_euler": _vec(obj.rotation_euler),
+            "matrix_world": _matrix(obj.matrix_world),
+            "rotation_euler_local": _vec(obj.rotation_euler),
             "owned": _owned(obj),
             "role": obj.get(ROLE_KEY) if _owned(obj) else None,
         })
@@ -149,11 +181,13 @@ def handle_scene_diagnostics(params):
         "frame_start": int(scene.frame_start),
         "frame_end": int(scene.frame_end),
         "object_count": len(all_objects),
+        "object_limit": object_limit,
         "objects_listed": len(objects),
         "objects_truncated": truncated,
         "objects": objects,
         "camera_present": camera is not None,
         "camera": camera,
+        "previous_camera": scene.get(PREVIOUS_CAMERA_KEY),
         "light_count": len(lights),
         "lights": lights,
         "world": world_info,
@@ -171,42 +205,31 @@ def handle_scene_diagnostics(params):
 
 
 LIGHTING_DEFS = {
-    "product_studio": {
-        "lights": [
-            {"name": "Key", "type": "AREA", "loc": (3, -4, 5), "rot": (50, 0, 25), "energy": 600, "size": 2.0},
-            {"name": "Fill", "type": "AREA", "loc": (-3, -2, 3), "rot": (35, 0, -40), "energy": 250, "size": 3.0},
-            {"name": "Back", "type": "AREA", "loc": (0, 3, 4), "rot": (-20, 0, 180), "energy": 350, "size": 1.5},
-        ]
-    },
-    "dramatic": {
-        "lights": [
-            {"name": "Key", "type": "SPOT", "loc": (2, -3, 4), "rot": (45, 0, 30), "energy": 1000, "size": 0.5, "spot_size": 45},
-            {"name": "Rim", "type": "AREA", "loc": (-2, 3, 3), "rot": (-30, 0, -145), "energy": 800, "size": 1.0},
-        ]
-    },
-    "soft_box": {
-        "lights": [
-            {"name": "Top", "type": "AREA", "loc": (0, 0, 5), "rot": (0, 0, 0), "energy": 800, "size": 4.0},
-            {"name": "Front", "type": "AREA", "loc": (0, -4, 2), "rot": (75, 0, 0), "energy": 300, "size": 3.0},
-        ]
-    },
+    "product_studio": {"lights": [
+        {"name": "Key", "type": "AREA", "loc": (3, -4, 5), "rot": (50, 0, 25), "energy": 600, "size": 2.0},
+        {"name": "Fill", "type": "AREA", "loc": (-3, -2, 3), "rot": (35, 0, -40), "energy": 250, "size": 3.0},
+        {"name": "Back", "type": "AREA", "loc": (0, 3, 4), "rot": (-20, 0, 180), "energy": 350, "size": 1.5},
+    ]},
+    "dramatic": {"lights": [
+        {"name": "Key", "type": "SPOT", "loc": (2, -3, 4), "rot": (45, 0, 30), "energy": 1000, "size": 0.5, "spot_size": 45},
+        {"name": "Rim", "type": "AREA", "loc": (-2, 3, 3), "rot": (-30, 0, -145), "energy": 800, "size": 1.0},
+    ]},
+    "soft_box": {"lights": [
+        {"name": "Top", "type": "AREA", "loc": (0, 0, 5), "rot": (0, 0, 0), "energy": 800, "size": 4.0},
+        {"name": "Front", "type": "AREA", "loc": (0, -4, 2), "rot": (75, 0, 0), "energy": 300, "size": 3.0},
+    ]},
 }
 
 
 def handle_product_lighting(params):
     import math
-
     _require_blender("product_lighting")
     scene = bpy.context.scene
     preset = str(params.get("preset", "product_studio"))
     definition = LIGHTING_DEFS.get(preset)
     if definition is None:
         raise ValueError(f"Unsupported lighting preset: {preset}")
-
-    # Replace only resources created by this workflow. User-authored lights and
-    # lights created by other addons remain untouched.
-    _remove_owned("product_light")
-
+    _remove_owned(scene, "product_light")
     created = []
     collection = _scene_collection(scene)
     for light_def in definition["lights"]:
@@ -233,8 +256,12 @@ def handle_product_camera(params):
     if target_name and target_obj is None:
         raise ValueError(f"Target object not found: {target_name}")
 
-    _remove_owned("product_camera")
-    _remove_owned("product_camera_target")
+    previous_active = scene.camera
+    if previous_active is not None and not _owned(previous_active, "product_camera"):
+        scene[PREVIOUS_CAMERA_KEY] = previous_active.name
+    previous_camera = scene.get(PREVIOUS_CAMERA_KEY)
+    _remove_owned(scene, "product_camera")
+    _remove_owned(scene, "product_camera_target")
 
     frames = int(params.get("frames", 120))
     distance = float(params.get("camera_distance", 4.0))
@@ -250,7 +277,6 @@ def handle_product_camera(params):
     scene.frame_start = 1
     scene.frame_end = frames
     collection = _scene_collection(scene)
-
     cam_data = bpy.data.cameras.new("OpenClaw_Product_Camera")
     cam_data.lens = focal
     cam_data.dof.use_dof = use_dof
@@ -267,7 +293,6 @@ def handle_product_camera(params):
     collection.objects.link(target)
     if target_obj:
         target.location = _object_center_world(target_obj)
-
     constraint = cam_obj.constraints.new("TRACK_TO")
     constraint.target = target
     constraint.track_axis = "TRACK_NEGATIVE_Z"
@@ -276,6 +301,7 @@ def handle_product_camera(params):
     return {
         "status": "ok",
         "camera": cam_obj.name,
+        "previous_camera": previous_camera,
         "target": target_name or None,
         "target_world": _vec(target.location),
         "ownership": OWNER_VALUE,
@@ -283,9 +309,7 @@ def handle_product_camera(params):
 
 
 def _unsupported(operation: str):
-    raise NotImplementedError(
-        f"{operation} is not implemented by the native quality handler; refusing to report success"
-    )
+    raise NotImplementedError(f"{operation} is not implemented by the native quality handler; refusing to report success")
 
 
 def handle_product_material(params):
