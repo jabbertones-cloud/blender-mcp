@@ -37,6 +37,8 @@ HOST = os.environ.get("OPENCLAW_HOST", "127.0.0.1")
 PORT = int(os.environ.get("OPENCLAW_PORT", "9876"))
 INSTANCE_ID = os.environ.get("OPENCLAW_INSTANCE", f"blender-{PORT}")
 TIMER_INTERVAL = 0.05  # 50ms poll interval
+MAX_REQUEST_BYTES = int(os.environ.get("OPENCLAW_MAX_REQUEST_BYTES", str(50 * 1024 * 1024)))
+CLIENT_READ_TIMEOUT = float(os.environ.get("OPENCLAW_CLIENT_READ_TIMEOUT", "10.0"))
 
 # ─── Global State ────────────────────────────────────────────────────────────
 command_queue = queue.Queue()
@@ -7665,6 +7667,101 @@ def _sanitize_for_json(obj):
     return str(obj)
 
 
+def handle_client_session(sock):
+    """Handle a single client connection."""
+    raw = b""
+    end_time = time.time() + CLIENT_READ_TIMEOUT
+    data = None
+
+    try:
+        sock.setblocking(False)
+        while True:
+            time_left = end_time - time.time()
+            if time_left <= 0:
+                raise TimeoutError("Client read timeout")
+
+            ready_to_read, _, _ = select.select([sock], [], [], time_left)
+            if not ready_to_read:
+                raise TimeoutError("Client read timeout")
+
+            chunk = sock.recv(65536)
+            if not chunk:
+                # EOF reached
+                break
+
+            raw += chunk
+            if len(raw) > MAX_REQUEST_BYTES:
+                raise ValueError("Request exceeds maximum allowed size")
+
+            try:
+                data = json.loads(raw.decode("utf-8"))
+                break
+            except json.JSONDecodeError:
+                # Need more data
+                continue
+            except UnicodeDecodeError as e:
+                # If EOF or error is not near the end, fail closed
+                if e.start < len(raw) - 4:
+                    raise ValueError("Invalid UTF-8 sequence")
+                # Wait for rest of split multi-byte character
+                continue
+
+        if data is None:
+            # If we hit EOF without parsing valid JSON
+            try:
+                data = json.loads(raw.decode("utf-8"))
+            except Exception as e:
+                resp_bytes = json.dumps({"error": f"Invalid request format: {str(e)}"}).encode("utf-8")
+                sock.setblocking(True)
+                sock.sendall(resp_bytes)
+                return
+
+        req_id = data.get("id") if isinstance(data, dict) else None
+
+        response_event = threading.Event()
+        response_holder = [None]
+
+        def callback(d=data, evt=response_event, holder=response_holder):
+            holder[0] = process_command(d)
+            evt.set()
+
+        command_queue.put(callback)
+        # 600s timeout — Cycles renders can take 3-5 min per frame
+        response_event.wait(timeout=600.0)
+
+        resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
+        if "id" not in resp and req_id is not None:
+            resp["id"] = req_id
+
+        try:
+            resp_bytes = json.dumps(resp).encode("utf-8")
+        except Exception as e:
+            # Safe structured error if serialization fails
+            err_resp = {"error": f"Failed to serialize response: {str(e)}"}
+            if req_id is not None:
+                err_resp["id"] = req_id
+            resp_bytes = json.dumps(err_resp).encode("utf-8")
+
+        sock.setblocking(True)
+        sock.sendall(resp_bytes)
+
+    except Exception as e:
+        try:
+            err_resp = {"error": str(e)}
+            if data is not None and isinstance(data, dict) and "id" in data:
+                err_resp["id"] = data["id"]
+            resp_bytes = json.dumps(err_resp).encode("utf-8")
+            sock.setblocking(True)
+            sock.sendall(resp_bytes)
+        except Exception:
+            pass
+    finally:
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+
 def process_command(data):
     """Route a command to its handler and return the result."""
     command = data.get("command")
@@ -7705,58 +7802,18 @@ def socket_server_thread():
         running = False
         return
 
-    clients = []
-
     while running:
         try:
-            readable, _, _ = select.select([server_socket] + clients, [], [], 0.5)
+            readable, _, _ = select.select([server_socket], [], [], 0.5)
             for sock in readable:
                 if sock is server_socket:
                     client, addr = server_socket.accept()
-                    clients.append(client)
                     print(f"[OpenClaw Bridge] Client connected from {addr}")
-                else:
-                    try:
-                        raw = b""
-                        while True:
-                            chunk = sock.recv(65536)
-                            if not chunk:
-                                raise ConnectionError("Client disconnected")
-                            raw += chunk
-                            # Try to parse — if valid JSON, we're done
-                            try:
-                                data = json.loads(raw.decode("utf-8"))
-                                break
-                            except json.JSONDecodeError:
-                                continue
-
-                        response_event = threading.Event()
-                        response_holder = [None]
-
-                        def callback(d=data, evt=response_event, holder=response_holder):
-                            holder[0] = process_command(d)
-                            evt.set()
-
-                        command_queue.put(callback)
-                        # 600s timeout — Cycles renders can take 3-5 min per frame
-                        response_event.wait(timeout=600.0)
-
-                        resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
-                        resp_bytes = json.dumps(resp).encode("utf-8")
-                        sock.sendall(resp_bytes)
-
-                    except (ConnectionError, BrokenPipeError, OSError):
-                        clients.remove(sock)
-                        sock.close()
+                    threading.Thread(target=handle_client_session, args=(client,), daemon=True).start()
         except Exception as e:
             if running:
                 print(f"[OpenClaw Bridge] Server error: {e}")
 
-    for client in clients:
-        try:
-            client.close()
-        except:
-            pass
     server_socket.close()
     print("[OpenClaw Bridge] Server stopped")
 
