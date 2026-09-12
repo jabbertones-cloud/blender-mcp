@@ -40,17 +40,36 @@ class MockSocket:
         elif self.test_scenario == "missing_id":
             resp = json.dumps({"result": "ok"}).encode("utf-8")
             self.chunks_to_send = [resp]
-        elif self.test_scenario == "split_utf8":
-            base_dict = {"id": self.request_id, "result": "こんにちは"}
+        elif self.test_scenario.startswith("split_utf8"):
+            # Ensure we test 2-byte, 3-byte, and 4-byte splits
+            if "2byte" in self.test_scenario:
+                char = "ñ"  # 2 bytes
+            elif "3byte" in self.test_scenario:
+                char = "こ"  # 3 bytes
+            elif "4byte" in self.test_scenario:
+                char = "𐍈"  # 4 bytes
+            else:
+                char = "こ"
+
+            base_dict = {"id": self.request_id, "result": char}
             resp = json.dumps(base_dict, ensure_ascii=False).encode("utf-8")
-            # Find the start index of 'こ' (E3 81 93) and split it after the first byte
-            # 'こ' is 3 bytes long in UTF-8
-            ko_bytes = "こ".encode("utf-8")
-            split_point = resp.find(ko_bytes) + 1
-            assert split_point > 0, "Could not find target byte to split"
+            char_bytes = char.encode("utf-8")
+            start_idx = resp.find(char_bytes)
+            assert start_idx > 0, f"Could not find target byte for {char}"
+
+            # split_offset can be 1, 2, or 3
+            offset = int(self.test_scenario.split("_")[-1])
+            split_point = start_idx + offset
             self.chunks_to_send = [resp[:split_point], resp[split_point:]]
+        elif self.test_scenario == "truncated_multibyte_eof":
+            # Send part of a multibyte string and then EOF
+            char = "こ"
+            base_dict = {"id": self.request_id, "result": char}
+            resp = json.dumps(base_dict, ensure_ascii=False).encode("utf-8")
+            start_idx = resp.find(char.encode("utf-8"))
+            self.chunks_to_send = [resp[:start_idx + 1]]
         elif self.test_scenario == "eof":
-            self.chunks_to_send = [b'{"id": "']
+            self.chunks_to_send = [b'']
         elif self.test_scenario == "raise_timeout":
             self.chunks_to_send = [socket.timeout("timed out")]
         elif self.test_scenario == "raise_oserror":
@@ -60,6 +79,13 @@ class MockSocket:
             self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": \xff}']
         elif self.test_scenario == "malformed_json":
             self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": ok}']
+        elif self.test_scenario == "trailing_garbage":
+            resp = json.dumps({"id": self.request_id, "result": "ok"}).encode("utf-8")
+            self.chunks_to_send = [resp + b' garbage']
+        elif self.test_scenario == "non_object":
+            self.chunks_to_send = [b'["a", "b", "c"]']
+        elif self.test_scenario == "string_response":
+            self.chunks_to_send = [b'"some string"']
 
     def recv(self, bufsize):
         if not self.chunks_to_send:
@@ -98,7 +124,7 @@ def test_mismatched_response_id(monkeypatch):
 def test_missing_response_id(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="missing_id")
     result = send_command("ping")
-    assert result == "ok"
+    assert result.get("code") == "RESPONSE_ID_MISSING"
     assert mock_sock.closed is True
 
 
@@ -109,10 +135,25 @@ def test_eof_before_valid_json(monkeypatch):
     assert mock_sock.closed is True
 
 
-def test_split_multibyte_utf8_response(monkeypatch):
-    mock_sock = patch_socket(monkeypatch, scenario="split_utf8")
+@pytest.mark.parametrize("scenario, expected_char", [
+    ("split_utf8_2byte_1", "ñ"),
+    ("split_utf8_3byte_1", "こ"),
+    ("split_utf8_3byte_2", "こ"),
+    ("split_utf8_4byte_1", "𐍈"),
+    ("split_utf8_4byte_2", "𐍈"),
+    ("split_utf8_4byte_3", "𐍈"),
+])
+def test_split_multibyte_utf8_response(monkeypatch, scenario, expected_char):
+    mock_sock = patch_socket(monkeypatch, scenario=scenario)
     result = send_command("ping")
-    assert result == "こんにちは"
+    assert result == expected_char
+    assert mock_sock.closed is True
+
+
+def test_truncated_multibyte_eof(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="truncated_multibyte_eof")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_UTF8_RESPONSE"
     assert mock_sock.closed is True
 
 
@@ -129,14 +170,35 @@ def test_exceeding_max_response_bytes(monkeypatch):
 def test_invalid_utf8_response(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="invalid_utf8")
     result = send_command("ping")
-    assert result.get("code") == "EMPTY_RESPONSE"
+    assert result.get("code") == "INVALID_UTF8_RESPONSE"
     assert mock_sock.closed is True
 
 
 def test_malformed_json_response(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="malformed_json")
     result = send_command("ping")
-    assert result.get("code") == "EMPTY_RESPONSE"
+    assert result.get("code") == "INVALID_JSON_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_trailing_garbage_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="trailing_garbage")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_JSON_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_non_object_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="non_object")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_RESPONSE_SHAPE"
+    assert mock_sock.closed is True
+
+
+def test_string_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="string_response")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_RESPONSE_SHAPE"
     assert mock_sock.closed is True
 
 

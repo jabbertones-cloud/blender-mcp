@@ -68,18 +68,45 @@ def send_command(command: str, params: dict | None = None) -> dict:
                     "code": "RESPONSE_TOO_LARGE",
                 }
             try:
-                data = json.loads(raw.decode("utf-8"))
-            except (json.JSONDecodeError, UnicodeDecodeError):
+                decoded = raw.decode("utf-8")
+            except UnicodeDecodeError:
+                # If we're splitting a multibyte character, it will fail to decode.
+                # It might be EOF, which we'll handle outside the loop.
                 continue
 
+            try:
+                data = json.loads(decoded)
+
+                # Check for trailing non-whitespace junk (loads succeeds on first valid JSON object
+                # only if exact, but we should make sure there's no trailing garbage).
+                # Actually, json.loads() raises JSONDecodeError if there is trailing non-whitespace.
+            except json.JSONDecodeError:
+                continue
+
+            if not isinstance(data, dict):
+                return {"error": "Response must be a JSON object", "code": "INVALID_RESPONSE_SHAPE"}
+
             response_id = data.get("id")
-            if response_id is not None and str(response_id) != request_id:
+            if response_id is None:
+                return {"error": "Blender response missing id", "code": "RESPONSE_ID_MISSING"}
+
+            if str(response_id) != request_id:
                 return {
                     "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
                     "code": "RESPONSE_ID_MISMATCH",
                 }
             return data.get("result", data) if not data.get("error") else {"error": data["error"]}
-        return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
+
+        # We hit EOF (not chunk)
+        try:
+            decoded = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
+
+        if not decoded.strip():
+            return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
+
+        return {"error": "Malformed JSON in response", "code": "INVALID_JSON_RESPONSE"}
     except ConnectionRefusedError:
         return {"error": f"Cannot connect to Blender bridge at {HOST}:{PORT}", "code": "CONNECTION_REFUSED"}
     except socket.timeout:
