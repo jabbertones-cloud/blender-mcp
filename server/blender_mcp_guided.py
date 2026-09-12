@@ -53,33 +53,76 @@ def send_command(command: str, params: dict | None = None) -> dict:
     payload = {"id": request_id, "command": command, "params": params or {}}
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        import codecs
         sock.settimeout(TIMEOUT)
         sock.connect((HOST, PORT))
         sock.sendall(json.dumps(payload).encode("utf-8"))
         raw = bytearray()
+        bytes_read = 0
+        decoder = codecs.getincrementaldecoder("utf-8")()
+        decoded = ""
         while True:
-            chunk = sock.recv(1048576)
-            if not chunk:
-                break
-            raw.extend(chunk)
-            if len(raw) > MAX_RESPONSE_BYTES:
+            remaining_budget = MAX_RESPONSE_BYTES - bytes_read
+            if remaining_budget < 0:
                 return {
                     "error": f"Blender response exceeded {MAX_RESPONSE_BYTES} bytes",
                     "code": "RESPONSE_TOO_LARGE",
                 }
-            try:
-                data = json.loads(raw.decode("utf-8"))
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                continue
+            # Read at most remaining_budget + 1 to detect overflow precisely without allocating a huge chunk.
+            read_size = min(1048576, remaining_budget + 1)
+            chunk = sock.recv(read_size)
+            if not chunk:
+                break
 
-            response_id = data.get("id")
-            if response_id is not None and str(response_id) != request_id:
+            bytes_read += len(chunk)
+            if bytes_read > MAX_RESPONSE_BYTES:
                 return {
-                    "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
-                    "code": "RESPONSE_ID_MISMATCH",
+                    "error": f"Blender response exceeded {MAX_RESPONSE_BYTES} bytes",
+                    "code": "RESPONSE_TOO_LARGE",
                 }
-            return data.get("result", data) if not data.get("error") else {"error": data["error"]}
-        return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
+
+            raw.extend(chunk)
+
+            try:
+                decoded += decoder.decode(chunk, False)
+            except UnicodeDecodeError:
+                return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
+
+        # We hit EOF (not chunk)
+        try:
+            decoded += decoder.decode(b"", True)
+        except UnicodeDecodeError:
+            return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
+
+        if not decoded.strip():
+            return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
+
+        try:
+            data = json.loads(decoded)
+        except json.JSONDecodeError:
+            return {"error": "Malformed JSON in response", "code": "INVALID_JSON_RESPONSE"}
+
+        if not isinstance(data, dict):
+            return {"error": "Response must be a JSON object", "code": "INVALID_RESPONSE_SHAPE"}
+
+        response_id = data.get("id")
+        if response_id is None:
+            return {"error": "Blender response missing id", "code": "RESPONSE_ID_MISSING"}
+
+        if str(response_id) != request_id:
+            return {
+                "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
+                "code": "RESPONSE_ID_MISMATCH",
+            }
+
+        if data.get("error"):
+            # Preserve structured error codes if the addon returned one (e.g. SERVER_BUSY)
+            err_dict = {"error": data["error"]}
+            if "code" in data:
+                err_dict["code"] = data["code"]
+            return err_dict
+
+        return data.get("result", data)
     except ConnectionRefusedError:
         return {"error": f"Cannot connect to Blender bridge at {HOST}:{PORT}", "code": "CONNECTION_REFUSED"}
     except socket.timeout:
