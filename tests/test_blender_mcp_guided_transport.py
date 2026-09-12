@@ -85,7 +85,13 @@ class MockSocket:
             self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": ok}']
         elif self.test_scenario == "trailing_garbage":
             resp = json.dumps({"id": self.request_id, "result": "ok"}).encode("utf-8")
-            self.chunks_to_send = [resp + b' garbage']
+            self.chunks_to_send = [resp, b' garbage']
+        elif self.test_scenario == "concatenated_json":
+            resp = json.dumps({"id": self.request_id, "result": "ok"}).encode("utf-8")
+            self.chunks_to_send = [resp, b'{"some": "other_json"}']
+        elif self.test_scenario == "trailing_whitespace":
+            resp = json.dumps({"id": self.request_id, "result": "ok"}).encode("utf-8")
+            self.chunks_to_send = [resp, b'   \n  \t  ']
         elif self.test_scenario == "non_object":
             self.chunks_to_send = [b'["a", "b", "c"]']
         elif self.test_scenario == "string_response":
@@ -222,6 +228,20 @@ def test_trailing_garbage_response(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="trailing_garbage")
     result = send_command("ping")
     assert result.get("code") == "INVALID_JSON_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_concatenated_json_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="concatenated_json")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_JSON_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_trailing_whitespace_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="trailing_whitespace")
+    result = send_command("ping")
+    assert result == "ok"
     assert mock_sock.closed is True
 
 

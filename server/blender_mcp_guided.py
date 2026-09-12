@@ -88,35 +88,33 @@ def send_command(command: str, params: dict | None = None) -> dict:
             except UnicodeDecodeError:
                 return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
 
-            try:
-                data = json.loads(decoded)
-            except json.JSONDecodeError:
-                continue
-
-            if not isinstance(data, dict):
-                return {"error": "Response must be a JSON object", "code": "INVALID_RESPONSE_SHAPE"}
-
-            response_id = data.get("id")
-            if response_id is None:
-                return {"error": "Blender response missing id", "code": "RESPONSE_ID_MISSING"}
-
-            if str(response_id) != request_id:
-                return {
-                    "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
-                    "code": "RESPONSE_ID_MISMATCH",
-                }
-            return data.get("result", data) if not data.get("error") else {"error": data["error"]}
-
         # We hit EOF (not chunk)
         try:
-            decoder.decode(b"", True)
+            decoded += decoder.decode(b"", True)
         except UnicodeDecodeError:
             return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
 
         if not decoded.strip():
             return {"error": "Empty response from Blender", "code": "EMPTY_RESPONSE"}
 
-        return {"error": "Malformed JSON in response", "code": "INVALID_JSON_RESPONSE"}
+        try:
+            data = json.loads(decoded)
+        except json.JSONDecodeError:
+            return {"error": "Malformed JSON in response", "code": "INVALID_JSON_RESPONSE"}
+
+        if not isinstance(data, dict):
+            return {"error": "Response must be a JSON object", "code": "INVALID_RESPONSE_SHAPE"}
+
+        response_id = data.get("id")
+        if response_id is None:
+            return {"error": "Blender response missing id", "code": "RESPONSE_ID_MISSING"}
+
+        if str(response_id) != request_id:
+            return {
+                "error": f"Blender response id mismatch: expected {request_id}, got {response_id}",
+                "code": "RESPONSE_ID_MISMATCH",
+            }
+        return data.get("result", data) if not data.get("error") else {"error": data["error"]}
     except ConnectionRefusedError:
         return {"error": f"Cannot connect to Blender bridge at {HOST}:{PORT}", "code": "CONNECTION_REFUSED"}
     except socket.timeout:
