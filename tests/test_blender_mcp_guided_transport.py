@@ -1,6 +1,10 @@
 import json
 import socket
+
 import pytest
+
+from server.blender_mcp_guided import send_command, TIMEOUT
+
 
 class MockSocket:
     def __init__(self, family, type_, test_scenario="match"):
@@ -10,15 +14,19 @@ class MockSocket:
         self.request_id = None
         self.chunks_to_send = []
         self.raise_on_connect = None
+        self.raise_on_sendall = None
+        self.configured_timeout = None
 
     def settimeout(self, timeout):
-        pass
+        self.configured_timeout = timeout
 
     def connect(self, address):
         if self.raise_on_connect:
             raise self.raise_on_connect
 
     def sendall(self, data):
+        if self.raise_on_sendall:
+            raise self.raise_on_sendall
         self.sent_data += data
         payload = json.loads(data.decode("utf-8"))
         self.request_id = payload.get("id")
@@ -35,8 +43,11 @@ class MockSocket:
         elif self.test_scenario == "split_utf8":
             base_dict = {"id": self.request_id, "result": "こんにちは"}
             resp = json.dumps(base_dict, ensure_ascii=False).encode("utf-8")
-            # Split the string at an arbitrary byte to test multibyte boundary handling
-            split_point = len(resp) - 4
+            # Find the start index of 'こ' (E3 81 93) and split it after the first byte
+            # 'こ' is 3 bytes long in UTF-8
+            ko_bytes = "こ".encode("utf-8")
+            split_point = resp.find(ko_bytes) + 1
+            assert split_point > 0, "Could not find target byte to split"
             self.chunks_to_send = [resp[:split_point], resp[split_point:]]
         elif self.test_scenario == "eof":
             self.chunks_to_send = [b'{"id": "']
@@ -44,6 +55,11 @@ class MockSocket:
             self.chunks_to_send = [socket.timeout("timed out")]
         elif self.test_scenario == "raise_oserror":
             self.chunks_to_send = [OSError("os error")]
+        elif self.test_scenario == "invalid_utf8":
+            # Send invalid utf-8 byte sequence \xff
+            self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": \xff}']
+        elif self.test_scenario == "malformed_json":
+            self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": ok}']
 
     def recv(self, bufsize):
         if not self.chunks_to_send:
@@ -56,18 +72,20 @@ class MockSocket:
     def close(self):
         self.closed = True
 
+
 def patch_socket(monkeypatch, scenario="match"):
     mock_sock = MockSocket(socket.AF_INET, socket.SOCK_STREAM, test_scenario=scenario)
     monkeypatch.setattr(socket, "socket", lambda *args, **kwargs: mock_sock)
     return mock_sock
 
-from server.blender_mcp_guided import send_command
 
 def test_matching_response_id(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="match")
     result = send_command("ping")
     assert result == "ok"
     assert mock_sock.closed is True
+    assert mock_sock.configured_timeout == TIMEOUT
+
 
 def test_mismatched_response_id(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="mismatch")
@@ -76,11 +94,13 @@ def test_mismatched_response_id(monkeypatch):
     assert "id mismatch" in result.get("error").lower()
     assert mock_sock.closed is True
 
+
 def test_missing_response_id(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="missing_id")
     result = send_command("ping")
     assert result == "ok"
     assert mock_sock.closed is True
+
 
 def test_eof_before_valid_json(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="eof")
@@ -88,11 +108,13 @@ def test_eof_before_valid_json(monkeypatch):
     assert result.get("code") == "EMPTY_RESPONSE"
     assert mock_sock.closed is True
 
+
 def test_split_multibyte_utf8_response(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="split_utf8")
     result = send_command("ping")
     assert result == "こんにちは"
     assert mock_sock.closed is True
+
 
 def test_exceeding_max_response_bytes(monkeypatch):
     import server.blender_mcp_guided as guided
@@ -103,6 +125,21 @@ def test_exceeding_max_response_bytes(monkeypatch):
     assert "exceeded 10 bytes" in result.get("error").lower()
     assert mock_sock.closed is True
 
+
+def test_invalid_utf8_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="invalid_utf8")
+    result = send_command("ping")
+    assert result.get("code") == "EMPTY_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_malformed_json_response(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="malformed_json")
+    result = send_command("ping")
+    assert result.get("code") == "EMPTY_RESPONSE"
+    assert mock_sock.closed is True
+
+
 def test_connection_refused(monkeypatch):
     mock_sock = patch_socket(monkeypatch)
     mock_sock.raise_on_connect = ConnectionRefusedError("Connection refused")
@@ -111,6 +148,7 @@ def test_connection_refused(monkeypatch):
     assert "cannot connect" in result.get("error").lower()
     assert mock_sock.closed is True
 
+
 def test_socket_timeout(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="raise_timeout")
     result = send_command("ping")
@@ -118,8 +156,18 @@ def test_socket_timeout(monkeypatch):
     assert "timed out" in result.get("error").lower()
     assert mock_sock.closed is True
 
+
 def test_generic_oserror(monkeypatch):
     mock_sock = patch_socket(monkeypatch, scenario="raise_oserror")
+    result = send_command("ping")
+    assert result.get("code") == "SOCKET_ERROR"
+    assert "socket error" in result.get("error").lower()
+    assert mock_sock.closed is True
+
+
+def test_sendall_failure(monkeypatch):
+    mock_sock = patch_socket(monkeypatch)
+    mock_sock.raise_on_sendall = BrokenPipeError("Broken pipe")
     result = send_command("ping")
     assert result.get("code") == "SOCKET_ERROR"
     assert "socket error" in result.get("error").lower()
