@@ -77,6 +77,10 @@ class MockSocket:
         elif self.test_scenario == "invalid_utf8":
             # Send invalid utf-8 byte sequence \xff
             self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": \xff}']
+        elif self.test_scenario == "invalid_utf8_prompt_failure":
+            self.chunks_to_send = [b'\xff', Exception("AssertionError: recv called after invalid utf-8")]
+        elif self.test_scenario == "invalid_continuation_prompt_failure":
+            self.chunks_to_send = [b'\xe3', b'\xff', Exception("AssertionError: recv called after invalid continuation")]
         elif self.test_scenario == "malformed_json":
             self.chunks_to_send = [b'{"id": "' + self.request_id.encode("utf-8") + b'", "result": ok}']
         elif self.test_scenario == "trailing_garbage":
@@ -88,10 +92,15 @@ class MockSocket:
             self.chunks_to_send = [b'"some string"']
 
     def recv(self, bufsize):
+        if hasattr(self, "max_recv_assert_budget") and self.max_recv_assert_budget is not None:
+            assert bufsize <= self.max_recv_assert_budget + 1, f"recv requested size {bufsize} exceeds budget+1 ({self.max_recv_assert_budget + 1})"
+
         if not self.chunks_to_send:
             return b""
         chunk = self.chunks_to_send.pop(0)
         if isinstance(chunk, Exception):
+            if str(chunk).startswith("AssertionError"):
+                raise AssertionError(str(chunk))
             raise chunk
         return chunk
 
@@ -157,10 +166,38 @@ def test_truncated_multibyte_eof(monkeypatch):
     assert mock_sock.closed is True
 
 
+def test_invalid_utf8_prompt_failure(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="invalid_utf8_prompt_failure")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_UTF8_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_invalid_continuation_prompt_failure(monkeypatch):
+    mock_sock = patch_socket(monkeypatch, scenario="invalid_continuation_prompt_failure")
+    result = send_command("ping")
+    assert result.get("code") == "INVALID_UTF8_RESPONSE"
+    assert mock_sock.closed is True
+
+
+def test_exact_cap_response_bytes(monkeypatch):
+    import server.blender_mcp_guided as guided
+    # We want to send a valid JSON within exact bounds
+    # JSON length: len('{"id": "...", "result": "ok"}')
+    # id is 32 hex chars. JSON payload is 58 bytes.
+    monkeypatch.setattr(guided, "MAX_RESPONSE_BYTES", 58)
+    mock_sock = patch_socket(monkeypatch, scenario="match")
+    mock_sock.max_recv_assert_budget = 58
+    result = send_command("ping")
+    assert result == "ok"
+    assert mock_sock.closed is True
+
+
 def test_exceeding_max_response_bytes(monkeypatch):
     import server.blender_mcp_guided as guided
     monkeypatch.setattr(guided, "MAX_RESPONSE_BYTES", 10)
     mock_sock = patch_socket(monkeypatch, scenario="match")
+    mock_sock.max_recv_assert_budget = 10
     result = send_command("ping")
     assert result.get("code") == "RESPONSE_TOO_LARGE"
     assert "exceeded 10 bytes" in result.get("error").lower()

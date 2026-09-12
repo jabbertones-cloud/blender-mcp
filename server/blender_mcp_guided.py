@@ -53,33 +53,43 @@ def send_command(command: str, params: dict | None = None) -> dict:
     payload = {"id": request_id, "command": command, "params": params or {}}
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        import codecs
         sock.settimeout(TIMEOUT)
         sock.connect((HOST, PORT))
         sock.sendall(json.dumps(payload).encode("utf-8"))
         raw = bytearray()
+        bytes_read = 0
+        decoder = codecs.getincrementaldecoder("utf-8")()
+        decoded = ""
         while True:
-            chunk = sock.recv(1048576)
-            if not chunk:
-                break
-            raw.extend(chunk)
-            if len(raw) > MAX_RESPONSE_BYTES:
+            remaining_budget = MAX_RESPONSE_BYTES - bytes_read
+            if remaining_budget < 0:
                 return {
                     "error": f"Blender response exceeded {MAX_RESPONSE_BYTES} bytes",
                     "code": "RESPONSE_TOO_LARGE",
                 }
+            # Read at most remaining_budget + 1 to detect overflow precisely without allocating a huge chunk.
+            read_size = min(1048576, remaining_budget + 1)
+            chunk = sock.recv(read_size)
+            if not chunk:
+                break
+
+            bytes_read += len(chunk)
+            if bytes_read > MAX_RESPONSE_BYTES:
+                return {
+                    "error": f"Blender response exceeded {MAX_RESPONSE_BYTES} bytes",
+                    "code": "RESPONSE_TOO_LARGE",
+                }
+
+            raw.extend(chunk)
+
             try:
-                decoded = raw.decode("utf-8")
+                decoded += decoder.decode(chunk, False)
             except UnicodeDecodeError:
-                # If we're splitting a multibyte character, it will fail to decode.
-                # It might be EOF, which we'll handle outside the loop.
-                continue
+                return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
 
             try:
                 data = json.loads(decoded)
-
-                # Check for trailing non-whitespace junk (loads succeeds on first valid JSON object
-                # only if exact, but we should make sure there's no trailing garbage).
-                # Actually, json.loads() raises JSONDecodeError if there is trailing non-whitespace.
             except json.JSONDecodeError:
                 continue
 
@@ -99,7 +109,7 @@ def send_command(command: str, params: dict | None = None) -> dict:
 
         # We hit EOF (not chunk)
         try:
-            decoded = raw.decode("utf-8")
+            decoder.decode(b"", True)
         except UnicodeDecodeError:
             return {"error": "Invalid UTF-8 sequence in response", "code": "INVALID_UTF8_RESPONSE"}
 
