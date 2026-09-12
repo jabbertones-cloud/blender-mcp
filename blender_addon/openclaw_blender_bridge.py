@@ -30,12 +30,15 @@ import traceback
 import math
 import os
 import time
+import codecs
 from mathutils import Vector, Euler, Matrix, Color
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 HOST = os.environ.get("OPENCLAW_HOST", "127.0.0.1")
 PORT = int(os.environ.get("OPENCLAW_PORT", "9876"))
 INSTANCE_ID = os.environ.get("OPENCLAW_INSTANCE", f"blender-{PORT}")
+MAX_REQUEST_BYTES = int(os.environ.get("OPENCLAW_MAX_REQUEST_BYTES", str(8 * 1024 * 1024)))
+READ_TIMEOUT = float(os.environ.get("OPENCLAW_READ_TIMEOUT", "10.0"))
 TIMER_INTERVAL = 0.05  # 50ms poll interval
 
 # ─── Global State ────────────────────────────────────────────────────────────
@@ -7665,6 +7668,132 @@ def _sanitize_for_json(obj):
     return str(obj)
 
 
+def read_single_json_request(sock, max_bytes: int, timeout: float):
+    """
+    Safely consume exactly one JSON request from a socket.
+    Raises errors for timeout, malformed bytes, over-sized payloads, or trailing/extra garbage.
+    """
+    deadline = time.monotonic() + timeout
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="strict")
+    text_buffer = ""
+    bytes_read = 0
+    json_decoder = json.JSONDecoder()
+
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Read deadline exceeded")
+
+        sock.settimeout(remaining)
+
+        try:
+            chunk = sock.recv(65536)
+        except socket.timeout:
+            raise TimeoutError("Read deadline exceeded")
+
+        if not chunk:
+            # Finalize decoder
+            text_buffer += decoder.decode(b"", final=True)
+            if not text_buffer.strip():
+                raise ConnectionError("Client disconnected cleanly without data")
+
+            # One final attempt to parse what we have
+            try:
+                obj, idx = json_decoder.raw_decode(text_buffer.strip())
+                if text_buffer.strip()[idx:].strip():
+                    raise ValueError("PROTOCOL_ERROR: Extra data")
+                if not isinstance(obj, dict):
+                    raise ValueError("PROTOCOL_ERROR: Must be dict")
+                return obj
+            except json.JSONDecodeError:
+                raise ValueError("PROTOCOL_ERROR: Malformed or incomplete JSON at EOF")
+
+        bytes_read += len(chunk)
+        if bytes_read > max_bytes:
+            raise ValueError(f"Request exceeded MAX_REQUEST_BYTES ({max_bytes})")
+
+        text_buffer += decoder.decode(chunk, final=False)
+
+        if not text_buffer.strip():
+            continue
+
+        try:
+            obj, idx = json_decoder.raw_decode(text_buffer.strip())
+            # Check for extra data after the parsed object
+            if text_buffer.strip()[idx:].strip():
+                raise ValueError("Concatenated or extra data is not allowed in one-request contract")
+
+            if not isinstance(obj, dict):
+                raise ValueError("Top-level request must be a JSON object")
+
+            return obj
+        except json.JSONDecodeError:
+            # We don't try to guess if it's terminal syntax error or just incomplete JSON.
+            # We wait until EOF or deadline.
+            continue
+
+def handle_client_connection(sock, max_bytes: int, read_timeout: float, process_queue, exec_timeout: float = 600.0):
+    """
+    Handles a single client connection sequentially:
+    1. Reads one request within constraints
+    2. Enqueues processing
+    3. Waits for result (up to exec_timeout)
+    4. Serializes response
+    5. Always guarantees socket close.
+    """
+    try:
+        request_id = "unknown"
+        try:
+            data = read_single_json_request(sock, max_bytes, read_timeout)
+            request_id = data.get("id", "unknown")
+
+            response_event = threading.Event()
+            response_holder = [None]
+
+            def callback(d=data, evt=response_event, holder=response_holder):
+                try:
+                    holder[0] = process_command(d)
+                except Exception:
+                    holder[0] = {"id": d.get("id", "unknown") if isinstance(d, dict) else "unknown", "error": "INTERNAL_SERVER_ERROR"}
+                finally:
+                    evt.set()
+
+            process_queue.put(callback)
+            response_event.wait(timeout=exec_timeout)
+
+            resp = response_holder[0] or {"id": request_id, "error": "BLENDER_EXECUTION_TIMEOUT"}
+
+        except TimeoutError:
+            resp = {"id": request_id, "error": "READ_TIMEOUT"}
+        except ValueError:
+            resp = {"id": request_id, "error": "PROTOCOL_ERROR"}
+        except UnicodeDecodeError:
+            resp = {"id": request_id, "error": "INVALID_UTF8"}
+        except ConnectionError:
+            # Client disconnected gracefully, nothing to send
+            return
+        except Exception:
+            resp = {"id": request_id, "error": "INTERNAL_SERVER_ERROR"}
+
+        # Serialize and send
+        try:
+            resp_bytes = json.dumps(resp).encode("utf-8")
+        except Exception:
+            fallback = {"id": request_id, "error": "RESPONSE_SERIALIZATION_FAILED"}
+            resp_bytes = json.dumps(fallback).encode("utf-8")
+
+        try:
+            sock.sendall(resp_bytes)
+        except (BrokenPipeError, OSError):
+            pass # We failed to send, client probably disconnected
+
+    finally:
+        try:
+            sock.close()
+        except OSError:
+            pass
+
+
 def process_command(data):
     """Route a command to its handler and return the result."""
     command = data.get("command")
@@ -7716,38 +7845,10 @@ def socket_server_thread():
                     clients.append(client)
                     print(f"[OpenClaw Bridge] Client connected from {addr}")
                 else:
-                    try:
-                        raw = b""
-                        while True:
-                            chunk = sock.recv(65536)
-                            if not chunk:
-                                raise ConnectionError("Client disconnected")
-                            raw += chunk
-                            # Try to parse — if valid JSON, we're done
-                            try:
-                                data = json.loads(raw.decode("utf-8"))
-                                break
-                            except json.JSONDecodeError:
-                                continue
-
-                        response_event = threading.Event()
-                        response_holder = [None]
-
-                        def callback(d=data, evt=response_event, holder=response_holder):
-                            holder[0] = process_command(d)
-                            evt.set()
-
-                        command_queue.put(callback)
-                        # 600s timeout — Cycles renders can take 3-5 min per frame
-                        response_event.wait(timeout=600.0)
-
-                        resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
-                        resp_bytes = json.dumps(resp).encode("utf-8")
-                        sock.sendall(resp_bytes)
-
-                    except (ConnectionError, BrokenPipeError, OSError):
-                        clients.remove(sock)
-                        sock.close()
+                    # Remove from select immediately so we handle it synchronously in this iteration.
+                    # Since we handle 1 req per connection and then close, this is fine.
+                    clients.remove(sock)
+                    handle_client_connection(sock, MAX_REQUEST_BYTES, READ_TIMEOUT, command_queue, 600.0)
         except Exception as e:
             if running:
                 print(f"[OpenClaw Bridge] Server error: {e}")
