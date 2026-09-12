@@ -22,6 +22,7 @@ _SCHEMA_OVERRIDES = {
     "scene.delete_object": {"type": "object", "required": ["names"], "properties": {"names": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": False},
     "scene.set_material": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material_name": {"type": "string"}, "color": {"type": "array", "items": {"type": "number"}}, "metallic": {"type": "number"}, "roughness": {"type": "number"}}},
     "scene.info": {"type": "object", "properties": {}, "additionalProperties": False},
+    "scene.diagnostics": {"type": "object", "properties": {}, "additionalProperties": False},
     "scene.render": {"type": "object", "properties": {"type": {"type": "string", "enum": ["image", "animation"], "default": "image"}, "output_path": {"type": "string"}}, "additionalProperties": False},
 }
 
@@ -62,10 +63,10 @@ _KEY_OVERRIDES = {
 # Dynamic adapters are executed in capability_executor.py; bridge_command records
 # a real registered handler used by that adapter rather than a fictional socket name.
 _BRIDGE_COMMAND_OVERRIDES = {
-    "product.material": "execute_python",
-    "product.lighting": "execute_python",
-    "product.camera": "execute_python",
-    "product.render_setup": "execute_python",
+    "product.material": "product_material",
+    "product.lighting": "product_lighting",
+    "product.camera": "product_camera",
+    "product.render_setup": "product_render_setup",
     "product.animation": "execute_python",
     "scene.spatial_query": "spatial_scene_bounds",
     "scene.dimensions": "dimensions_estimate",
@@ -81,7 +82,7 @@ _SPECIFIC_FAMILIES = {
     "scene.create_object": "create", "scene.modify_object": "mutate", "scene.delete_object": "mutate",
     "scene.lighting_preset": "lighting", "product.lighting": "lighting", "scene.world": "world",
     "scene.set_material": "material", "material.shader_nodes": "material", "material.procedural": "material", "material.texture_bake": "material",
-    "scene.info": "inspect", "scene.object_info": "inspect", "scene.render": "render", "scene.render_settings": "render", "scene.render_audit": "render",
+    "scene.info": "inspect", "scene.object_info": "inspect", "scene.diagnostics": "inspect", "scene.render": "render", "scene.render_settings": "render", "scene.render_audit": "render",
     "scene.camera": "camera", "product.camera": "camera",
 }
 
@@ -174,6 +175,17 @@ def _build_registry() -> CapabilityRegistry:
         aliases = (source.command, *source.positive) if source.command != bridge_command else tuple(source.positive)
         caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_SCHEMA_OVERRIDES.get(key, dict(_GENERIC_SCHEMA)), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene))
     caps.append(Capability(key="scene.delete_object", family="mutate", description="delete one or more named scene objects", bridge_command="delete_object", mcp_name="blender_delete_object", input_schema=_SCHEMA_OVERRIDES["scene.delete_object"], aliases=("delete object", "remove object", "delete default cube"), tags=("objects",), mutates_scene=True))
+    caps.append(Capability(
+        key="scene.diagnostics",
+        family="inspect",
+        description="typed scene diagnostics: objects, camera/DOF, lights, world/HDRI, render engine/samples",
+        bridge_command="scene_diagnostics",
+        mcp_name="blender_scene_diagnostics",
+        input_schema=_SCHEMA_OVERRIDES["scene.diagnostics"],
+        aliases=("scene diagnostics", "quality diagnostics", "camera dof inspect"),
+        tags=("inspect", "quality"),
+        mutates_scene=False,
+    ))
     return CapabilityRegistry(caps)
 
 
