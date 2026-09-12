@@ -178,3 +178,38 @@ def test_handle_client_send_failure():
     sock = MockSocket([b'{"command": "ping"}'], raises_on_send=ConnectionResetError("Reset"))
     _run_handle_client(sock)
     assert sock.closed
+
+
+
+def test_handle_client_process_command_raises(monkeypatch):
+    import blender_addon.openclaw_blender_bridge as bridge
+
+    def mock_process_command(data):
+        raise RuntimeError("simulated error in handler")
+
+    monkeypatch.setattr(bridge, "process_command", mock_process_command)
+
+    sock = MockSocket([b'{"command": "ping", "id": "test_crash"}'])
+
+    # Exec timeout is set to 5 seconds to ensure we would normally wait too long if it didn't return
+    # But because of `evt.set()` in finally, it should return instantly.
+    q = queue.Queue()
+    import threading
+    import time
+
+    start = time.time()
+    t = threading.Thread(target=handle_client_connection, args=(sock, 1000, 1.0, q, 5.0))
+    t.start()
+
+    # pop and run the callback
+    cb = q.get(timeout=1.0)
+    cb()
+
+    t.join()
+    duration = time.time() - start
+
+    assert duration < 1.0, "Wait did not abort promptly after callback raised"
+    assert sock.closed
+    resp = json.loads(sock.sent_data.decode("utf-8"))
+    assert resp.get("error") == "INTERNAL_SERVER_ERROR"
+    assert resp.get("id") == "test_crash"

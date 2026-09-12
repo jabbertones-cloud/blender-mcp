@@ -7751,8 +7751,12 @@ def handle_client_connection(sock, max_bytes: int, read_timeout: float, process_
             response_holder = [None]
 
             def callback(d=data, evt=response_event, holder=response_holder):
-                holder[0] = process_command(d)
-                evt.set()
+                try:
+                    holder[0] = process_command(d)
+                except Exception:
+                    holder[0] = {"id": d.get("id", "unknown") if isinstance(d, dict) else "unknown", "error": "INTERNAL_SERVER_ERROR"}
+                finally:
+                    evt.set()
 
             process_queue.put(callback)
             response_event.wait(timeout=exec_timeout)
