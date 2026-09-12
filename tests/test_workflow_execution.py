@@ -14,6 +14,7 @@ class FakeBridge:
         if command == "get_scene_info":
             return {"status": "ok", "objects": list(self.objects)}
 
+
         if command == "scene_diagnostics":
             lights = [row for row in self.objects if row.get("type") == "LIGHT"]
             camera = next((row for row in self.objects if row.get("type") == "CAMERA"), None)
@@ -21,12 +22,14 @@ class FakeBridge:
                 "objects": list(self.objects),
                 "camera_present": camera is not None,
                 "light_count": len(lights),
-                "lights": [{"name": row["name"], "owned": True} for row in lights],
-                "camera": {"name": camera["name"], "owned": True, "lens_mm": 50.0, "dof_enabled": True} if camera else None,
+                "lights": [
+                    {"name": "OpenClaw_Key", "type": "AREA", "energy": 600.0, "owned": True, "role": "product_light"},
+                    {"name": "OpenClaw_Fill", "type": "AREA", "energy": 250.0, "owned": True, "role": "product_light"},
+                    {"name": "OpenClaw_Back", "type": "AREA", "energy": 350.0, "owned": True, "role": "product_light"}
+                ],
+                "camera": {"name": camera["name"], "owned": True, "lens_mm": 50.0, "dof_enabled": True, "role": "product_camera", "focus_object": getattr(self, "last_target", "Bottle")} if camera else None,
                 "render": {"engine": "CYCLES", "samples": 256, "filepath": "test", "file_format": "PNG"},
             }
-
-
         if command == "product_camera":
             if not any(row.get("type") == "CAMERA" for row in self.objects):
                 self.objects.append({"name": "Camera", "type": "CAMERA"})
@@ -72,7 +75,7 @@ def test_visual_atomic_capability_always_observes_after_mutation():
 
 def test_product_lighting_uses_native_bridge_command():
     bridge = FakeBridge()
-    result = execute_canonical("product.lighting", {"preset": "cosmetics"}, bridge)
+    result = execute_canonical("product.lighting", {"preset": "product_studio"}, bridge)
     commands = [name for name, _ in bridge.calls]
     assert "product_lighting" in commands
     assert "execute_python" not in commands
@@ -135,7 +138,7 @@ def test_floor_plan_adapter_uses_floor_plan_data():
 
 def test_product_hero_is_one_workflow_with_required_observations():
     bridge = FakeBridge()
-    result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "material": "clear_glass", "lighting": "cosmetics", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "auto_render": True}, bridge)
+    result = execute_workflow("workflow.product_hero", {"object_name": "Bottle", "material": "clear_glass", "lighting": "product_studio", "camera_style": "hero_reveal", "quality": "premium", "resolution": "square_1080", "auto_render": True}, bridge)
     commands = [name for name, _ in bridge.calls]
     assert result["status"] == "review_required"
     assert commands[0] == "get_scene_info"

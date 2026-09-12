@@ -12,17 +12,22 @@ class RecreateBridge:
     def __call__(self, command, params=None):
         params = params or {}
         self.calls.append((command, params))
+
+        if command == "product_camera":
+            self.last_target = params.get("target_object")
+
         if command == "viewport_capture":
             return {"status": "ok", "image": "base64-test"}
         if command == "get_scene_info":
             return {"status": "ok", "objects": list(self.objects)}
         if command == "scene_diagnostics":
             return {
-                "lights": [{"name": "Light1", "owned": True}],
+                "lights": [{"name": "OpenClaw_Key", "type": "AREA", "energy": 600.0, "owned": True, "role": "product_light"},
+                           {"name": "OpenClaw_Fill", "type": "AREA", "energy": 250.0, "owned": True, "role": "product_light"},
+                           {"name": "OpenClaw_Back", "type": "AREA", "energy": 350.0, "owned": True, "role": "product_light"}],
                 "camera_present": True,
-                "camera": {"name": "Camera", "owned": True, "lens_mm": 50.0, "dof_enabled": True}
+                "camera": {"name": "Camera", "owned": True, "lens_mm": 50.0, "dof_enabled": True, "role": "product_camera", "focus_object": getattr(self, "last_target", "Bottle")}
             }
-
         if command == "render":
             return {"status": "ok", "output_path": params.get("output_path") or "/tmp/openclaw_ref_score.png"}
         if command == "set_keyframe":

@@ -219,17 +219,35 @@ def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
     return registry.execute(key, args, send_command)
 
 
+EXPECTED_LIGHTING_PRESETS = {
+    "product_studio": [
+        {"name": "OpenClaw_Key", "type": "AREA", "energy": 600.0, "role": "product_light"},
+        {"name": "OpenClaw_Fill", "type": "AREA", "energy": 250.0, "role": "product_light"},
+        {"name": "OpenClaw_Back", "type": "AREA", "energy": 350.0, "role": "product_light"},
+    ],
+    "dramatic": [
+        {"name": "OpenClaw_Key", "type": "SPOT", "energy": 1000.0, "role": "product_light"},
+        {"name": "OpenClaw_Rim", "type": "AREA", "energy": 800.0, "role": "product_light"},
+    ],
+    "soft_box": [
+        {"name": "OpenClaw_Top", "type": "AREA", "energy": 800.0, "role": "product_light"},
+        {"name": "OpenClaw_Front", "type": "AREA", "energy": 300.0, "role": "product_light"},
+    ],
+}
+
 def _verify_postconditions(key: str, send_command, args: dict, result: dict) -> str | None:
     diagnostics = send_command("scene_diagnostics", {})
     if _has_error(diagnostics) or _is_unknown_bridge_command(diagnostics):
-        return None # Let fail naturally if diagnostics are unsupported
+        return "authoritative scene diagnostics are unavailable or malformed"
 
     if key == "product.camera":
         if not diagnostics.get("camera_present"):
-            return "no camera found in diagnostics"
+            return "no active camera found in diagnostics"
         camera = diagnostics.get("camera", {})
         if not camera.get("owned"):
-            return "camera is not owned by product workflow"
+            return "active camera is not owned by product workflow"
+        if camera.get("role") != "product_camera":
+            return f"active camera role ({camera.get('role')}) does not match expected (product_camera)"
 
         if "camera" in result and camera.get("name") != result["camera"]:
             return f"active camera ({camera.get('name')}) does not match created camera ({result['camera']})"
@@ -247,21 +265,34 @@ def _verify_postconditions(key: str, send_command, args: dict, result: dict) -> 
             if bool(camera["dof_enabled"]) != bool(args["use_dof"]):
                 return f"camera dof ({camera['dof_enabled']}) does not match requested ({args['use_dof']})"
 
+        if args.get("target_object"):
+            focus_obj = camera.get("focus_object")
+            if focus_obj != args["target_object"]:
+                return f"camera focus_object ({focus_obj}) does not match requested target ({args['target_object']})"
+
     if key == "product.lighting":
+        preset = args.get("preset", "product_studio")
+        expected_lights = EXPECTED_LIGHTING_PRESETS.get(preset)
+        if expected_lights is None:
+            return f"unknown lighting preset for deterministic verification: {preset}"
+
         lights = diagnostics.get("lights", [])
         if not lights:
             return "no lights found in diagnostics"
 
-        owned_lights = [l for l in lights if l.get("owned")]
-        if not owned_lights:
-            return "no lights are owned by product workflow"
+        owned_lights = {l.get("name"): l for l in lights if l.get("owned")}
 
-        if "lights" in result:
-            expected_names = set(result["lights"])
-            actual_names = set(l.get("name") for l in owned_lights)
-            missing = expected_names - actual_names
-            if missing:
-                return f"expected lights missing from scene: {missing}"
+        for expected in expected_lights:
+            name = expected["name"]
+            if name not in owned_lights:
+                return f"expected light {name} missing or not owned"
+            actual = owned_lights[name]
+            if actual.get("role") != expected["role"]:
+                return f"light {name} has wrong role ({actual.get('role')} != {expected['role']})"
+            if actual.get("type") != expected["type"]:
+                return f"light {name} has wrong type ({actual.get('type')} != {expected['type']})"
+            if abs(actual.get("energy", 0.0) - expected["energy"]) > 1.0:
+                return f"light {name} has wrong energy ({actual.get('energy')} != {expected['energy']})"
 
     return None
 
