@@ -30,6 +30,7 @@ import traceback
 import math
 import os
 import time
+import codecs
 from mathutils import Vector, Euler, Matrix, Color
 
 # ─── Configuration ───────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ INSTANCE_ID = os.environ.get("OPENCLAW_INSTANCE", f"blender-{PORT}")
 TIMER_INTERVAL = 0.05  # 50ms poll interval
 MAX_REQUEST_BYTES = int(os.environ.get("OPENCLAW_MAX_REQUEST_BYTES", str(50 * 1024 * 1024)))
 CLIENT_READ_TIMEOUT = float(os.environ.get("OPENCLAW_CLIENT_READ_TIMEOUT", "10.0"))
+MAX_CONCURRENT_CLIENTS = int(os.environ.get("OPENCLAW_MAX_CONCURRENT_CLIENTS", "10"))
 
 # ─── Global State ────────────────────────────────────────────────────────────
 command_queue = queue.Queue()
@@ -7667,11 +7669,12 @@ def _sanitize_for_json(obj):
     return str(obj)
 
 
-def handle_client_session(sock):
+def handle_client_session(sock, semaphore=None):
     """Handle a single client connection."""
     raw = b""
     end_time = time.time() + CLIENT_READ_TIMEOUT
     data = None
+    decoder = codecs.getincrementaldecoder("utf-8")()
 
     try:
         sock.setblocking(False)
@@ -7687,6 +7690,10 @@ def handle_client_session(sock):
             chunk = sock.recv(65536)
             if not chunk:
                 # EOF reached
+                try:
+                    decoder.decode(b"", final=True)
+                except UnicodeDecodeError:
+                    raise ValueError("Invalid UTF-8 sequence")
                 break
 
             raw += chunk
@@ -7694,24 +7701,26 @@ def handle_client_session(sock):
                 raise ValueError("Request exceeds maximum allowed size")
 
             try:
+                decoder.decode(chunk, final=False)
+            except UnicodeDecodeError:
+                raise ValueError("Invalid UTF-8 sequence")
+
+            try:
                 data = json.loads(raw.decode("utf-8"))
                 break
             except json.JSONDecodeError:
                 # Need more data
                 continue
-            except UnicodeDecodeError as e:
-                # If EOF or error is not near the end, fail closed
-                if e.start < len(raw) - 4:
-                    raise ValueError("Invalid UTF-8 sequence")
-                # Wait for rest of split multi-byte character
+            except UnicodeDecodeError:
+                # Valid but incomplete UTF-8 string, wait for more data
                 continue
 
         if data is None:
             # If we hit EOF without parsing valid JSON
             try:
                 data = json.loads(raw.decode("utf-8"))
-            except Exception as e:
-                resp_bytes = json.dumps({"error": f"Invalid request format: {str(e)}"}).encode("utf-8")
+            except Exception:
+                resp_bytes = json.dumps({"error": "Invalid request format"}).encode("utf-8")
                 sock.setblocking(True)
                 sock.sendall(resp_bytes)
                 return
@@ -7730,6 +7739,8 @@ def handle_client_session(sock):
         response_event.wait(timeout=600.0)
 
         resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
+        if not isinstance(resp, dict):
+            resp = {"result": resp}
         if "id" not in resp and req_id is not None:
             resp["id"] = req_id
 
@@ -7737,7 +7748,7 @@ def handle_client_session(sock):
             resp_bytes = json.dumps(resp).encode("utf-8")
         except Exception as e:
             # Safe structured error if serialization fails
-            err_resp = {"error": f"Failed to serialize response: {str(e)}"}
+            err_resp = {"error": "Failed to serialize response"}
             if req_id is not None:
                 err_resp["id"] = req_id
             resp_bytes = json.dumps(err_resp).encode("utf-8")
@@ -7747,7 +7758,19 @@ def handle_client_session(sock):
 
     except Exception as e:
         try:
-            err_resp = {"error": str(e)}
+            error_msg = str(e)
+            if not error_msg or isinstance(e, json.JSONDecodeError):
+                error_msg = "Invalid request format"
+            elif isinstance(e, TimeoutError):
+                error_msg = "Client read timeout"
+            elif "exceeds maximum" in error_msg:
+                error_msg = "Request exceeds maximum allowed size"
+            elif "UTF-8" in error_msg:
+                error_msg = "Invalid UTF-8 sequence"
+            else:
+                error_msg = "Internal server error"
+
+            err_resp = {"error": error_msg}
             if data is not None and isinstance(data, dict) and "id" in data:
                 err_resp["id"] = data["id"]
             resp_bytes = json.dumps(err_resp).encode("utf-8")
@@ -7760,6 +7783,8 @@ def handle_client_session(sock):
             sock.close()
         except Exception:
             pass
+        if semaphore is not None:
+            semaphore.release()
 
 
 def process_command(data):
@@ -7802,6 +7827,8 @@ def socket_server_thread():
         running = False
         return
 
+    client_semaphore = threading.Semaphore(MAX_CONCURRENT_CLIENTS)
+
     while running:
         try:
             readable, _, _ = select.select([server_socket], [], [], 0.5)
@@ -7809,7 +7836,16 @@ def socket_server_thread():
                 if sock is server_socket:
                     client, addr = server_socket.accept()
                     print(f"[OpenClaw Bridge] Client connected from {addr}")
-                    threading.Thread(target=handle_client_session, args=(client,), daemon=True).start()
+                    if client_semaphore.acquire(blocking=False):
+                        threading.Thread(target=handle_client_session, args=(client, client_semaphore), daemon=True).start()
+                    else:
+                        print(f"[OpenClaw Bridge] Rejecting client {addr}: Server busy")
+                        try:
+                            client.setblocking(True)
+                            client.sendall(b'{"error": "Server busy"}')
+                            client.close()
+                        except Exception:
+                            pass
         except Exception as e:
             if running:
                 print(f"[OpenClaw Bridge] Server error: {e}")

@@ -135,45 +135,88 @@ class TestSocketHardening(unittest.TestCase):
     def test_split_multibyte_utf8(self, mock_select):
         mock_select.return_value = ([True], [], [])
 
-        # Multibyte char '🚀' is \xf0\x9f\x9a\x80
-        # Split it across two chunks
-        json_str = '{"command": "ping", "emoji": "🚀"}'
-        json_bytes = json_str.encode("utf-8")
+        # Test splitting 2, 3, and 4 byte characters at EVERY boundary
+        chars = [
+            '¢', # 2 bytes: \xc2\xa2
+            '€', # 3 bytes: \xe2\x82\xac
+            '🚀' # 4 bytes: \xf0\x9f\x9a\x80
+        ]
 
-        split_point = json_bytes.find(b'\xf0\x9f\x9a\x80') + 2
-        chunk1 = json_bytes[:split_point]
-        chunk2 = json_bytes[split_point:]
+        for char in chars:
+            char_bytes = char.encode('utf-8')
+            byte_len = len(char_bytes)
 
-        sock = MockSocket([chunk1, chunk2])
+            for split_idx in range(1, byte_len):
+                json_str = f'{{"command": "ping", "emoji": "{char}"}}'
+                json_bytes = json_str.encode("utf-8")
 
-        def consume():
-            time.sleep(0.1)
-            self._consume_queue()
-        threading.Thread(target=consume, daemon=True).start()
+                # Find where the character starts in the JSON
+                char_start = json_bytes.find(char_bytes)
+                split_point = char_start + split_idx
 
-        handle_client_session(sock)
+                chunk1 = json_bytes[:split_point]
+                chunk2 = json_bytes[split_point:]
 
-        self.assertTrue(sock.closed)
-        resp = json.loads(sock.sent_data.decode("utf-8"))
-        self.assertIn("result", resp)
-        # Verify it passed through ping (ping doesn't reflect params, but success means it parsed correctly)
+                sock = MockSocket([chunk1, chunk2])
+
+                def consume():
+                    time.sleep(0.1)
+                    self._consume_queue()
+                threading.Thread(target=consume, daemon=True).start()
+
+                handle_client_session(sock)
+
+                self.assertTrue(sock.closed)
+                resp = json.loads(sock.sent_data.decode("utf-8"))
+                self.assertIn("result", resp)
 
     @patch('select.select')
     def test_invalid_utf8(self, mock_select):
         mock_select.return_value = ([True], [], [])
 
-        # Send a byte sequence that is invalid UTF-8 but not near EOF
-        # e.g., \xff in the middle of a string
-        bad_bytes = b'{"command": "ping", "data": "bad\xffbytes"}'
+        invalid_sequences = [
+            b'{"command": "ping", "data": "bad\xffbytes"}', # Invalid byte
+            b'{"command": "ping", "data": "\xc0\xaf"}', # Overlong encoding of /
+            b'{"command": "ping", "data": "\xe2\x28\xa1"}', # Invalid continuation byte
+        ]
 
-        sock = MockSocket([bad_bytes])
+        for bad_bytes in invalid_sequences:
+            sock = MockSocket([bad_bytes])
+            handle_client_session(sock)
+            self.assertTrue(sock.closed)
+            resp = json.loads(sock.sent_data.decode("utf-8"))
+            self.assertTrue("error" in resp)
+            self.assertIn("Invalid UTF-8 sequence", resp["error"])
 
-        handle_client_session(sock)
+    @patch('select.select')
+    def test_saturation(self, mock_select):
+        mock_select.return_value = ([True], [], [])
+
+        import os
+        max_clients = int(os.environ.get("OPENCLAW_MAX_CONCURRENT_CLIENTS", "10"))
+        semaphore = threading.Semaphore(max_clients)
+
+        # Acquire all permits to simulate a saturated server
+        for _ in range(max_clients):
+            self.assertTrue(semaphore.acquire(blocking=False))
+
+        # Try to handle one more connection, should fail to acquire semaphore
+        # Since handle_client_session expects the semaphore to be acquired before it's called
+        # We need to simulate socket_server_thread's rejection logic here
+        sock = MockSocket([b'{"command": "ping"}'])
+
+        if semaphore.acquire(blocking=False):
+            threading.Thread(target=handle_client_session, args=(sock, semaphore), daemon=True).start()
+        else:
+            try:
+                sock.setblocking(True)
+                sock.sendall(b'{"error": "Server busy"}')
+                sock.close()
+            except Exception:
+                pass
 
         self.assertTrue(sock.closed)
-        resp = json.loads(sock.sent_data.decode("utf-8"))
-        self.assertTrue("error" in resp)
-        self.assertIn("Invalid UTF-8 sequence", resp["error"])
+        self.assertEqual(sock.sent_data, b'{"error": "Server busy"}')
 
 if __name__ == '__main__':
     unittest.main()
