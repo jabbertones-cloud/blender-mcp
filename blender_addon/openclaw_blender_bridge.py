@@ -8270,18 +8270,23 @@ def socket_server_thread():
                             except json.JSONDecodeError:
                                 continue
 
-                        response_event = threading.Event()
-                        response_holder = [None]
+                        # Ping is deliberately thread-safe and must not depend on Blender's
+                        # main-thread timer. This keeps liveness probes truthful even when the
+                        # UI event loop is paused, starting, or running headless.
+                        if data.get("command") == "ping":
+                            resp = handle_ping(data.get("params") or {})
+                        else:
+                            response_event = threading.Event()
+                            response_holder = [None]
 
-                        def callback(d=data, evt=response_event, holder=response_holder):
-                            holder[0] = process_command(d)
-                            evt.set()
+                            def callback(d=data, evt=response_event, holder=response_holder):
+                                holder[0] = process_command(d)
+                                evt.set()
 
-                        command_queue.put(callback)
-                        # 600s timeout — Cycles renders can take 3-5 min per frame
-                        response_event.wait(timeout=600.0)
-
-                        resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
+                            command_queue.put(callback)
+                            # 600s timeout — Cycles renders can take 3-5 min per frame
+                            response_event.wait(timeout=600.0)
+                            resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
                         resp_bytes = json.dumps(resp).encode("utf-8")
                         sock.sendall(resp_bytes)
 
