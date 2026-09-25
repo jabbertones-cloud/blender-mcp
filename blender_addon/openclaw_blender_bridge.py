@@ -7731,10 +7731,367 @@ def handle_product_render_setup(params):
     
     return {"status": "ok"}
 
+
+# ─── Guided task-sized inspection / runtime discovery ───────────────────────
+
+def _page_rows(rows, params, default_limit=250, max_limit=5000):
+    offset = max(0, int(params.get("offset", 0) or 0))
+    limit = int(params.get("limit", default_limit) or default_limit)
+    limit = max(1, min(limit, max_limit))
+    total = len(rows)
+    page = rows[offset:offset + limit]
+    next_offset = offset + len(page) if offset + len(page) < total else None
+    return page, {"offset": offset, "limit": limit, "total": total, "next_offset": next_offset}
+
+
+def handle_scene_context(params):
+    """Fast structured entry point for the current Blender context."""
+    scene = bpy.context.scene
+    active = bpy.context.view_layer.objects.active
+    selected = list(bpy.context.selected_objects)
+    return {
+        "blender_version": list(bpy.app.version),
+        "scene": scene.name,
+        "mode": bpy.context.mode,
+        "active_object": active.name if active else None,
+        "active_object_type": active.type if active else None,
+        "selected_objects": [o.name for o in selected],
+        "selection_count": len(selected),
+        "frame": scene.frame_current,
+        "frame_start": scene.frame_start,
+        "frame_end": scene.frame_end,
+        "render": {
+            "engine": scene.render.engine,
+            "resolution_x": scene.render.resolution_x,
+            "resolution_y": scene.render.resolution_y,
+            "resolution_percentage": scene.render.resolution_percentage,
+            "fps": scene.render.fps,
+        },
+        "world": scene.world.name if scene.world else None,
+    }
+
+
+def _mesh_topology_payload(obj):
+    if not obj or obj.type != "MESH" or obj.data is None:
+        return {"error": "target is not a mesh object"}
+    mesh = obj.data
+    payload = {
+        "object_name": obj.name,
+        "original": {
+            "vertices": len(mesh.vertices),
+            "edges": len(mesh.edges),
+            "faces": len(mesh.polygons),
+            "triangles": sum(max(1, len(p.vertices) - 2) for p in mesh.polygons),
+            "quads": sum(1 for p in mesh.polygons if len(p.vertices) == 4),
+            "ngons": sum(1 for p in mesh.polygons if len(p.vertices) > 4),
+        },
+        "dimensions": list(obj.dimensions),
+    }
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    obj_eval = obj.evaluated_get(depsgraph)
+    mesh_eval = None
+    try:
+        mesh_eval = obj_eval.to_mesh()
+        payload["evaluated"] = {
+            "vertices": len(mesh_eval.vertices),
+            "edges": len(mesh_eval.edges),
+            "faces": len(mesh_eval.polygons),
+            "triangles": sum(max(1, len(p.vertices) - 2) for p in mesh_eval.polygons),
+        }
+    except Exception as exc:
+        payload["evaluated"] = {"available": False, "error": str(exc)}
+    finally:
+        if mesh_eval is not None:
+            try:
+                obj_eval.to_mesh_clear()
+            except Exception:
+                pass
+    return payload
+
+
+def handle_scene_inspect(params):
+    """Grouped scene/object inspection above existing atomic handlers."""
+    action = str(params.get("action", "summary")).lower()
+    object_name = params.get("object_name") or params.get("name")
+    if action == "summary":
+        return handle_get_scene_info({})
+    if action == "object":
+        if not object_name:
+            return {"error": "object_name is required for action=object"}
+        return handle_get_object_data({"name": object_name})
+    if action == "topology":
+        if not object_name:
+            return {"error": "object_name is required for action=topology"}
+        obj = bpy.data.objects.get(object_name)
+        if not obj:
+            return {"error": f"Object '{object_name}' not found"}
+        return _mesh_topology_payload(obj)
+    if action == "modifiers":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj:
+                continue
+            rows.append({
+                "object_name": obj.name,
+                "modifiers": [
+                    {
+                        "name": m.name,
+                        "type": m.type,
+                        "show_viewport": bool(m.show_viewport),
+                        "show_render": bool(m.show_render),
+                    }
+                    for m in obj.modifiers
+                ],
+            })
+        return {"objects": rows}
+    if action == "materials":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj or not obj.data or not hasattr(obj.data, "materials"):
+                continue
+            rows.append({
+                "object_name": obj.name,
+                "slots": [m.name if m else None for m in obj.data.materials],
+            })
+        return {"objects": rows}
+    if action == "hierarchy":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj:
+                continue
+            rows.append({
+                "name": obj.name,
+                "type": obj.type,
+                "parent": obj.parent.name if obj.parent else None,
+                "children": [child.name for child in obj.children],
+                "collections": [col.name for col in obj.users_collection],
+            })
+        return {"objects": rows}
+    return {"error": f"Unknown scene inspect action: {action}"}
+
+
+def handle_mesh_inspect(params):
+    """Task-sized mesh truth with bounded/paged payloads."""
+    object_name = params.get("object_name")
+    obj = bpy.data.objects.get(object_name) if object_name else None
+    if not obj:
+        return {"error": f"Object '{object_name}' not found"}
+    if obj.type != "MESH" or obj.data is None:
+        return {"error": f"Object '{object_name}' is not a mesh"}
+    mesh = obj.data
+    action = str(params.get("action", "summary")).lower()
+    selected_only = bool(params.get("selected_only", False))
+
+    if action == "summary":
+        topology = _mesh_topology_payload(obj)
+        bounds = []
+        try:
+            bounds = [list(obj.matrix_world @ Vector(corner)) for corner in obj.bound_box]
+        except Exception:
+            pass
+        return {
+            **topology,
+            "mode": obj.mode,
+            "selected": bool(obj.select_get()),
+            "world_bounds": bounds,
+            "modifiers": [{"name": m.name, "type": m.type} for m in obj.modifiers],
+            "materials": [m.name if m else None for m in mesh.materials],
+            "uv_maps": [uv.name for uv in mesh.uv_layers],
+            "shape_keys": [kb.name for kb in mesh.shape_keys.key_blocks] if mesh.shape_keys else [],
+            "vertex_groups": [group.name for group in obj.vertex_groups],
+            "attributes": [
+                {"name": attr.name, "domain": str(attr.domain), "data_type": str(attr.data_type)}
+                for attr in getattr(mesh, "attributes", [])
+            ],
+        }
+
+    if action == "vertices":
+        rows = [
+            {"index": v.index, "co": list(v.co), "normal": list(v.normal), "selected": bool(v.select)}
+            for v in mesh.vertices if not selected_only or v.select
+        ]
+    elif action == "edges":
+        rows = [
+            {
+                "index": e.index,
+                "vertices": list(e.vertices),
+                "selected": bool(e.select),
+                "seam": bool(getattr(e, "use_seam", False)),
+                "sharp": bool(getattr(e, "use_edge_sharp", False)),
+            }
+            for e in mesh.edges if not selected_only or e.select
+        ]
+    elif action == "faces":
+        rows = [
+            {
+                "index": poly.index,
+                "vertices": list(poly.vertices),
+                "normal": list(poly.normal),
+                "area": float(poly.area),
+                "material_index": int(poly.material_index),
+                "selected": bool(poly.select),
+            }
+            for poly in mesh.polygons if not selected_only or poly.select
+        ]
+    elif action == "uvs":
+        layer_name = params.get("uv_layer")
+        layer = mesh.uv_layers.get(layer_name) if layer_name else mesh.uv_layers.active
+        if layer is None:
+            return {"object_name": object_name, "uv_layer": None, "rows": [], "page": {"offset": 0, "limit": 0, "total": 0, "next_offset": None}}
+        rows = []
+        for loop in mesh.loops:
+            if selected_only and not mesh.vertices[loop.vertex_index].select:
+                continue
+            uv = layer.data[loop.index].uv
+            rows.append({"loop_index": loop.index, "vertex_index": loop.vertex_index, "uv": list(uv)})
+    elif action == "normals":
+        rows = [
+            {"vertex_index": v.index, "normal": list(v.normal), "selected": bool(v.select)}
+            for v in mesh.vertices if not selected_only or v.select
+        ]
+    elif action == "attributes":
+        rows = [
+            {"name": attr.name, "domain": str(attr.domain), "data_type": str(attr.data_type)}
+            for attr in getattr(mesh, "attributes", [])
+            if not params.get("attribute_name") or attr.name == params.get("attribute_name")
+        ]
+    elif action == "shape_keys":
+        rows = []
+        if mesh.shape_keys:
+            for kb in mesh.shape_keys.key_blocks:
+                rows.append({"name": kb.name, "value": float(kb.value), "slider_min": float(kb.slider_min), "slider_max": float(kb.slider_max)})
+    elif action == "group_weights":
+        group_filter = params.get("group_name")
+        group_names = {g.index: g.name for g in obj.vertex_groups}
+        rows = []
+        for v in mesh.vertices:
+            if selected_only and not v.select:
+                continue
+            weights = [
+                {"group": group_names.get(item.group, str(item.group)), "weight": float(item.weight)}
+                for item in v.groups
+                if not group_filter or group_names.get(item.group) == group_filter
+            ]
+            if weights or not group_filter:
+                rows.append({"vertex_index": v.index, "weights": weights})
+    else:
+        return {"error": f"Unknown mesh inspect action: {action}"}
+
+    page_rows, page = _page_rows(rows, params)
+    return {"object_name": object_name, "action": action, "rows": page_rows, "page": page}
+
+
+def handle_rna_search(params):
+    """Search live Blender RNA type identifiers without granting mutation authority."""
+    query = str(params.get("query", "") or "").lower()
+    rows = []
+    for name in dir(bpy.types):
+        if name.startswith("_"):
+            continue
+        if query and query not in name.lower():
+            continue
+        value = getattr(bpy.types, name, None)
+        rna = getattr(value, "bl_rna", None)
+        if rna is None:
+            continue
+        rows.append({"identifier": name, "name": getattr(rna, "name", name), "description": getattr(rna, "description", "")})
+    rows.sort(key=lambda item: item["identifier"])
+    page_rows, page = _page_rows(rows, params, default_limit=50, max_limit=200)
+    return {"blender_version": list(bpy.app.version), "types": page_rows, "page": page, "mutation_authority": False}
+
+
+def handle_rna_describe(params):
+    """Describe live RNA property contracts for the current Blender runtime."""
+    type_name = str(params.get("type_name", "") or "")
+    value = getattr(bpy.types, type_name, None)
+    rna = getattr(value, "bl_rna", None)
+    if rna is None or getattr(rna, "identifier", None) != type_name:
+        return {"error": f"RNA type '{type_name}' not found"}
+    query = str(params.get("query", "") or "").lower()
+    rows = []
+    for prop in rna.properties:
+        identifier = getattr(prop, "identifier", "")
+        if identifier == "rna_type":
+            continue
+        if query and query not in identifier.lower() and query not in str(getattr(prop, "name", "")).lower():
+            continue
+        row = {
+            "identifier": identifier,
+            "name": getattr(prop, "name", identifier),
+            "description": getattr(prop, "description", ""),
+            "type": str(getattr(prop, "type", "")),
+            "readonly": bool(getattr(prop, "is_readonly", False)),
+            "array_length": int(getattr(prop, "array_length", 0) or 0),
+        }
+        for key in ("hard_min", "hard_max", "soft_min", "soft_max", "default"):
+            try:
+                v = getattr(prop, key)
+                if isinstance(v, (str, int, float, bool)) or v is None:
+                    row[key] = v
+            except Exception:
+                pass
+        try:
+            if str(getattr(prop, "type", "")) == "ENUM":
+                row["enum_items"] = [item.identifier for item in prop.enum_items]
+        except Exception:
+            pass
+        rows.append(row)
+    page_rows, page = _page_rows(rows, params, default_limit=100, max_limit=500)
+    return {
+        "blender_version": list(bpy.app.version),
+        "type": type_name,
+        "name": getattr(rna, "name", type_name),
+        "description": getattr(rna, "description", ""),
+        "properties": page_rows,
+        "page": page,
+        "mutation_authority": False,
+    }
+
+
+def handle_history(params):
+    """Explicit undo primitives with a headless-safe in-memory blend snapshot."""
+    action = str(params.get("action", "push")).lower()
+    global _OPENCLAW_HISTORY_SNAPSHOT
+    try:
+        if action == "push":
+            message = str(params.get("message", "OpenClaw MCP step"))[:120]
+            snapshot = bpy.data.libraries.write
+            import tempfile
+            path = tempfile.mktemp(prefix="openclaw-history-", suffix=".blend")
+            bpy.ops.wm.save_as_mainfile(filepath=path, copy=True)
+            _OPENCLAW_HISTORY_SNAPSHOT = path
+            return {"status": "ok", "action": "push", "message": message, "strategy": "blend_snapshot"}
+        if action == "undo":
+            path = globals().get("_OPENCLAW_HISTORY_SNAPSHOT")
+            if not path:
+                return {"error": "history undo failed: no snapshot exists", "action": action}
+            bpy.ops.wm.open_mainfile(filepath=path)
+            return {"status": "ok", "action": "undo", "strategy": "blend_snapshot"}
+        if action == "clear":
+            import os
+            path = globals().get("_OPENCLAW_HISTORY_SNAPSHOT")
+            if path and os.path.exists(path):
+                os.unlink(path)
+            _OPENCLAW_HISTORY_SNAPSHOT = None
+            return {"status": "ok", "action": "clear"}
+    except Exception as exc:
+        return {"error": f"history {action} failed: {exc}", "action": action}
+    return {"error": f"Unknown history action: {action}"}
+
+
 HANDLERS = {
     "product_material": handle_product_material,
     "product_render_setup": handle_product_render_setup,
     "ping": handle_ping,
+    "scene_context": handle_scene_context,
+    "scene_inspect": handle_scene_inspect,
+    "mesh_inspect": handle_mesh_inspect,
+    "rna_search": handle_rna_search,
+    "rna_describe": handle_rna_describe,
+    "history": handle_history,
     "get_scene_info": handle_get_scene_info,
     "create_object": handle_create_object,
     "modify_object": handle_modify_object,

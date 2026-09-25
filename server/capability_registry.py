@@ -3,7 +3,11 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, asdict, field
+import json
+from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
+
+from jsonschema import Draft202012Validator
 
 try:
     from server.capability_router import CAPABILITIES, rank_capabilities
@@ -16,15 +20,31 @@ class CapabilityNotFound(KeyError):
 
 
 _GENERIC_SCHEMA = {"type": "object", "additionalProperties": True}
-_SCHEMA_OVERRIDES = {
-    "scene.create_object": {"type": "object", "properties": {"type": {"type": "string"}, "name": {"type": "string"}, "location": {"type": "array", "items": {"type": "number"}}, "rotation": {"type": "array", "items": {"type": "number"}}, "scale": {"type": "array", "items": {"type": "number"}}, "size": {"type": "number"}}},
-    "scene.modify_object": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "new_name": {"type": "string"}, "location": {"type": "array", "items": {"type": "number"}}, "rotation": {"type": "array", "items": {"type": "number"}}, "scale": {"type": "array", "items": {"type": "number"}}, "visible": {"type": "boolean"}}},
-    "scene.delete_object": {"type": "object", "required": ["names"], "properties": {"names": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": False},
-    "scene.set_material": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material_name": {"type": "string"}, "color": {"type": "array", "items": {"type": "number"}}, "metallic": {"type": "number"}, "roughness": {"type": "number"}}},
-    "scene.info": {"type": "object", "properties": {}, "additionalProperties": False},
-    "scene.diagnostics": {"type": "object", "properties": {}, "additionalProperties": False},
-    "scene.render": {"type": "object", "properties": {"type": {"type": "string", "enum": ["image", "animation"], "default": "image"}, "output_path": {"type": "string"}}, "additionalProperties": False},
-}
+_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "config" / "capability-schemas.json"
+
+
+def _load_schema_overrides() -> dict[str, dict]:
+    try:
+        data = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"cannot load capability schemas from {_SCHEMA_PATH}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise RuntimeError(f"capability schema file must contain an object: {_SCHEMA_PATH}")
+    return data
+
+
+_SCHEMA_OVERRIDES = _load_schema_overrides()
+
+
+class CapabilityArgumentsInvalid(ValueError):
+    pass
+
+
+def _schema_for(key: str) -> dict:
+    schema = _SCHEMA_OVERRIDES.get(key)
+    if not isinstance(schema, dict):
+        raise RuntimeError(f"guided capability '{key}' has no generated input schema")
+    return schema
 
 
 @dataclass(frozen=True)
@@ -57,6 +77,13 @@ _KEY_OVERRIDES = {
     "blender_fluid_simulation": "physics.fluid", "blender_import_file": "io.import", "blender_export_file": "io.export", "blender_save_file": "io.save",
     "blender_cleanup": "scene.cleanup", "blender_scene_template": "scene.template", "blender_forensic_scene": "workflow.forensic_scene",
     "blender_polyhaven": "assets.polyhaven", "blender_sketchfab": "assets.sketchfab", "blender_hyper3d": "generation.hyper3d", "blender_hunyuan3d": "generation.hunyuan3d",
+    "blender_duplicate_object": "object.duplicate", "blender_parent_objects": "object.parent", "blender_manage_collection": "scene.collections",
+    "blender_curve_operations": "model.curve", "blender_shape_keys": "animation.shape_keys", "blender_weight_paint": "rig.weight_paint",
+    "blender_particle_system": "physics.particles", "blender_force_field": "physics.force_field", "blender_text_object": "scene.text",
+    "blender_compositor": "render.compositor", "blender_image_operations": "image.manage", "blender_clear_keyframes": "animation.clear",
+    "blender_scene_operations": "scene.manage",
+    "blender_scene_context": "scene.context", "blender_scene_inspect": "scene.inspect", "blender_mesh_inspect": "mesh.inspect",
+    "blender_rna_search": "runtime.rna_search", "blender_rna_describe": "runtime.rna_describe",
 }
 
 # MCP-side wrappers must advertise the real addon boundary they ultimately use.
@@ -84,6 +111,9 @@ _SPECIFIC_FAMILIES = {
     "scene.set_material": "material", "material.shader_nodes": "material", "material.procedural": "material", "material.texture_bake": "material",
     "scene.info": "inspect", "scene.object_info": "inspect", "scene.diagnostics": "inspect", "scene.render": "render", "scene.render_settings": "render", "scene.render_audit": "render",
     "scene.camera": "camera", "product.camera": "camera",
+    "object.duplicate": "mutate", "object.parent": "mutate", "scene.collections": "mutate", "model.curve": "create",
+    "animation.shape_keys": "animation", "rig.weight_paint": "rigging", "physics.particles": "physics", "physics.force_field": "physics",
+    "scene.text": "create", "render.compositor": "render", "image.manage": "material", "animation.clear": "animation", "scene.manage": "mutate",
 }
 
 
@@ -156,9 +186,23 @@ class CapabilityRegistry:
     def get_capability_schema(self, key: str) -> dict:
         return asdict(self.resolve_tool(key))
 
+    def validate_arguments(self, key: str, params: dict | None) -> dict:
+        cap = self.resolve_tool(key)
+        payload = params or {}
+        validator = Draft202012Validator(cap.input_schema)
+        errors = sorted(validator.iter_errors(payload), key=lambda err: list(err.path))
+        if errors:
+            err = errors[0]
+            location = ".".join(str(part) for part in err.path) or "<root>"
+            raise CapabilityArgumentsInvalid(
+                f"Invalid arguments for '{cap.key}' at {location}: {err.message}"
+            )
+        return payload
+
     def execute(self, key: str, params: dict, send_command):
         cap = self.resolve_tool(key)
-        return send_command(cap.bridge_command, params or {})
+        payload = self.validate_arguments(key, params)
+        return send_command(cap.bridge_command, payload)
 
     def keys(self) -> Tuple[str, ...]:
         return tuple(self._by_key)
@@ -173,15 +217,15 @@ def _build_registry() -> CapabilityRegistry:
         family = _SPECIFIC_FAMILIES.get(key, _FAMILY_OVERRIDES.get(source.family, source.family))
         bridge_command = _BRIDGE_COMMAND_OVERRIDES.get(key, source.command)
         aliases = (source.command, *source.positive) if source.command != bridge_command else tuple(source.positive)
-        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_SCHEMA_OVERRIDES.get(key, dict(_GENERIC_SCHEMA)), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene))
-    caps.append(Capability(key="scene.delete_object", family="mutate", description="delete one or more named scene objects", bridge_command="delete_object", mcp_name="blender_delete_object", input_schema=_SCHEMA_OVERRIDES["scene.delete_object"], aliases=("delete object", "remove object", "delete default cube"), tags=("objects",), mutates_scene=True))
+        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_schema_for(key), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene))
+    caps.append(Capability(key="scene.delete_object", family="mutate", description="delete one or more named scene objects", bridge_command="delete_object", mcp_name="blender_delete_object", input_schema=_schema_for("scene.delete_object"), aliases=("delete object", "remove object", "delete default cube"), tags=("objects",), mutates_scene=True))
     caps.append(Capability(
         key="scene.diagnostics",
         family="inspect",
         description="typed scene diagnostics: objects, camera/DOF, lights, world/HDRI, render engine/samples",
         bridge_command="scene_diagnostics",
         mcp_name="blender_scene_diagnostics",
-        input_schema=_SCHEMA_OVERRIDES["scene.diagnostics"],
+        input_schema=_schema_for("scene.diagnostics"),
         aliases=("scene diagnostics", "quality diagnostics", "camera dof inspect"),
         tags=("inspect", "quality"),
         mutates_scene=False,

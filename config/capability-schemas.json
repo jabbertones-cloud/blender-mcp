@@ -1,0 +1,5696 @@
+{
+  "animation.advanced": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "default": "turntable",
+        "description": "Action: 'turntable' (orbit camera), 'follow_path' (animate along curve), 'bounce' (physics-like bounce), 'keyframe_sequence' (multi-keyframe)",
+        "title": "Action",
+        "type": "string"
+      },
+      "bounces": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Bounces"
+      },
+      "frames": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Total animation frames",
+        "title": "Frames"
+      },
+      "height": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Height"
+      },
+      "keyframes": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "For keyframe_sequence: list of {frame, location, rotation, scale}",
+        "title": "Keyframes"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Object Name"
+      },
+      "points": {
+        "anyOf": [
+          {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Points"
+      },
+      "radius": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius"
+      },
+      "target": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Target"
+      }
+    },
+    "type": "object"
+  },
+  "animation.clear": {
+    "additionalProperties": false,
+    "properties": {
+      "object_name": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "animation.keyframe": {
+    "properties": {
+      "frame": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Frame number (uses current if omitted)",
+        "title": "Frame"
+      },
+      "object_name": {
+        "description": "Object to keyframe",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "property": {
+        "default": "location",
+        "description": "Property to keyframe: 'location', 'rotation_euler', 'scale'",
+        "title": "Property",
+        "type": "string"
+      },
+      "value": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Property value (e.g. [1, 2, 3] for location). If omitted, keyframes current value.",
+        "title": "Value"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "animation.shape_keys": {
+    "properties": {
+      "action": {
+        "default": "list",
+        "description": "Action: 'list', 'add_basis', 'add', 'set_value', 'keyframe'",
+        "title": "Action",
+        "type": "string"
+      },
+      "frame": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Frame for keyframing",
+        "title": "Frame"
+      },
+      "key_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Shape key name (for set_value/keyframe)",
+        "title": "Key Name"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Shape key name (for add)",
+        "title": "Name"
+      },
+      "object_name": {
+        "description": "Mesh object",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "value": {
+        "anyOf": [
+          {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Shape key value",
+        "title": "Value"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "assets.polyhaven": {
+    "properties": {
+      "action": {
+        "description": "Action: search, categories, download_hdri, download_texture, apply_texture",
+        "title": "Action",
+        "type": "string"
+      },
+      "asset_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "PolyHaven asset ID (e.g. 'brown_mud_leaves_01')",
+        "title": "Asset Id"
+      },
+      "asset_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "all",
+        "description": "Asset type: hdris, textures, models, all",
+        "title": "Asset Type"
+      },
+      "categories": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Category filter for search",
+        "title": "Categories"
+      },
+      "material_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name for the created material",
+        "title": "Material Name"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Target object for apply_texture",
+        "title": "Object Name"
+      },
+      "resolution": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "1k",
+        "description": "Download resolution: 1k, 2k, 4k, 8k",
+        "title": "Resolution"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 1.0,
+        "description": "HDRI strength for download_hdri",
+        "title": "Strength"
+      },
+      "texture_files": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Map of texture files from download_texture (diff, nor_gl, rough, disp)",
+        "title": "Texture Files"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "assets.sketchfab": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "description": "Action: 'search', 'model_info', 'download', 'import', 'download_and_import'",
+        "title": "Action",
+        "type": "string"
+      },
+      "api_base": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Optional Sketchfab API base URL override",
+        "title": "Api Base"
+      },
+      "api_token": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Sketchfab API token (falls back to SKETCHFAB_API_TOKEN)",
+        "title": "Api Token"
+      },
+      "count": {
+        "anyOf": [
+          {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 10,
+        "description": "Search result count",
+        "title": "Count"
+      },
+      "downloadable": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "true",
+        "description": "Filter downloadable assets (true/false)",
+        "title": "Downloadable"
+      },
+      "format": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "glb",
+        "description": "Preferred format: glb, gltf, fbx, obj",
+        "title": "Format"
+      },
+      "kind": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "models",
+        "description": "Search type, usually 'models'",
+        "title": "Kind"
+      },
+      "model_uid": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Sketchfab model UID",
+        "title": "Model Uid"
+      },
+      "query": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Search query for assets",
+        "title": "Query"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "generation.hunyuan3d": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "description": "Action: 'generate', 'status', 'import', 'generate_and_import'",
+        "title": "Action",
+        "type": "string"
+      },
+      "api_base": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Optional Hunyuan3D API base URL override",
+        "title": "Api Base"
+      },
+      "api_key": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Hunyuan3D API key (falls back to HUNYUAN3D_API_KEY)",
+        "title": "Api Key"
+      },
+      "filepath": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Local path to import",
+        "title": "Filepath"
+      },
+      "format": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "glb",
+        "description": "Output format: glb, fbx, obj",
+        "title": "Format"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Optional image URL for image-to-3D",
+        "title": "Image Url"
+      },
+      "job_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Job ID from generate/status",
+        "title": "Job Id"
+      },
+      "max_polls": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 90,
+        "description": "Max polling iterations for generate_and_import",
+        "title": "Max Polls"
+      },
+      "mode": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "text_to_3d",
+        "description": "Generation mode: text_to_3d or image_to_3d",
+        "title": "Mode"
+      },
+      "negative_prompt": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Negative prompt",
+        "title": "Negative Prompt"
+      },
+      "poll_interval": {
+        "anyOf": [
+          {
+            "minimum": 0.5,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 4.0,
+        "description": "Polling interval in seconds",
+        "title": "Poll Interval"
+      },
+      "prompt": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Text prompt for generation",
+        "title": "Prompt"
+      },
+      "quality": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "standard",
+        "description": "Quality tier",
+        "title": "Quality"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "image.manage": {
+    "properties": {
+      "action": {
+        "default": "list",
+        "description": "Action: 'list', 'load', 'create', 'save'",
+        "title": "Action",
+        "type": "string"
+      },
+      "filepath": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Image file path",
+        "title": "Filepath"
+      },
+      "height": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Image height",
+        "title": "Height"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Image name",
+        "title": "Name"
+      },
+      "width": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Image width",
+        "title": "Width"
+      }
+    },
+    "type": "object"
+  },
+  "io.export": {
+    "properties": {
+      "filepath": {
+        "description": "Output file path with extension (.fbx, .obj, .glb, .gltf, .stl, .ply, .abc, .usd)",
+        "title": "Filepath",
+        "type": "string"
+      },
+      "selected_only": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Export only selected objects",
+        "title": "Selected Only"
+      }
+    },
+    "required": [
+      "filepath"
+    ],
+    "type": "object"
+  },
+  "io.import": {
+    "additionalProperties": false,
+    "properties": {
+      "filepath": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "filepath"
+    ],
+    "type": "object"
+  },
+  "io.save": {
+    "properties": {
+      "action": {
+        "description": "Action: 'save', 'open', 'new'",
+        "title": "Action",
+        "type": "string"
+      },
+      "filepath": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "File path for save/open (.blend)",
+        "title": "Filepath"
+      },
+      "use_empty": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Start with empty scene (for 'new')",
+        "title": "Use Empty"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "material.procedural": {
+    "additionalProperties": true,
+    "properties": {
+      "color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Color"
+      },
+      "color1": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Color1"
+      },
+      "color2": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Color2"
+      },
+      "density": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Density"
+      },
+      "emission_color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Emission Color"
+      },
+      "emission_strength": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Emission Strength"
+      },
+      "ior": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Ior"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Name"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object to apply material to",
+        "title": "Object Name"
+      },
+      "preset": {
+        "default": "marble",
+        "description": "Material preset: marble, wood, metal, glass, emissive, concrete, fabric, volume_fog, volume_fire",
+        "title": "Preset",
+        "type": "string"
+      },
+      "roughness": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Roughness"
+      },
+      "scale": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Scale"
+      }
+    },
+    "type": "object"
+  },
+  "material.shader_nodes": {
+    "properties": {
+      "action": {
+        "default": "info",
+        "description": "Action: 'info' (list nodes), 'add_node', 'connect', 'set_value'",
+        "title": "Action",
+        "type": "string"
+      },
+      "from_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Source node name (for connect)",
+        "title": "From Node"
+      },
+      "from_output": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "description": "Source output socket index",
+        "title": "From Output"
+      },
+      "input_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Input name (for set_value)",
+        "title": "Input Name"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node location [x, y]",
+        "title": "Location"
+      },
+      "material_name": {
+        "description": "Material name (created if doesn't exist)",
+        "title": "Material Name",
+        "type": "string"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name for new node",
+        "title": "Name"
+      },
+      "node_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node name (for set_value)",
+        "title": "Node Name"
+      },
+      "node_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node type for add_node (e.g. 'ShaderNodeTexNoise', 'ShaderNodeMixShader', 'ShaderNodeTexImage')",
+        "title": "Node Type"
+      },
+      "to_input": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "description": "Destination input socket index",
+        "title": "To Input"
+      },
+      "to_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Destination node name (for connect)",
+        "title": "To Node"
+      },
+      "value": {
+        "anyOf": [
+          {},
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Value to set",
+        "title": "Value"
+      }
+    },
+    "required": [
+      "material_name"
+    ],
+    "type": "object"
+  },
+  "material.texture_bake": {
+    "additionalProperties": true,
+    "properties": {
+      "bake_type": {
+        "default": "diffuse",
+        "description": "diffuse | normal | roughness | ao | metallic | emit | shadow | glossy | combined",
+        "title": "Bake Type",
+        "type": "string"
+      },
+      "cage_extrusion": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0,
+        "title": "Cage Extrusion"
+      },
+      "height": {
+        "anyOf": [
+          {
+            "minimum": 64,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 2048,
+        "title": "Height"
+      },
+      "margin": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 16,
+        "title": "Margin"
+      },
+      "object_name": {
+        "description": "Object to bake",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "save_to": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Absolute path to save baked image",
+        "title": "Save To"
+      },
+      "use_cage": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "title": "Use Cage"
+      },
+      "width": {
+        "anyOf": [
+          {
+            "minimum": 64,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 2048,
+        "title": "Width"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "mesh.inspect": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "default": "summary",
+        "enum": [
+          "summary",
+          "vertices",
+          "edges",
+          "faces",
+          "uvs",
+          "normals",
+          "attributes",
+          "shape_keys",
+          "group_weights"
+        ],
+        "type": "string"
+      },
+      "attribute_name": {
+        "type": "string"
+      },
+      "group_name": {
+        "type": "string"
+      },
+      "limit": {
+        "default": 250,
+        "maximum": 5000,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "object_name": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "offset": {
+        "default": 0,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "selected_only": {
+        "default": false,
+        "type": "boolean"
+      },
+      "uv_layer": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "model.boolean": {
+    "properties": {
+      "apply": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": true,
+        "description": "Apply the modifier immediately",
+        "title": "Apply"
+      },
+      "delete_target": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": true,
+        "description": "Delete the target object after applying",
+        "title": "Delete Target"
+      },
+      "object_name": {
+        "description": "Main object",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "operation": {
+        "default": "DIFFERENCE",
+        "description": "Operation: DIFFERENCE, UNION, INTERSECT",
+        "title": "Operation",
+        "type": "string"
+      },
+      "target_name": {
+        "description": "Object to boolean with",
+        "title": "Target Name",
+        "type": "string"
+      }
+    },
+    "required": [
+      "object_name",
+      "target_name"
+    ],
+    "type": "object"
+  },
+  "model.curve": {
+    "properties": {
+      "action": {
+        "default": "create",
+        "description": "Action: 'create', 'to_mesh'",
+        "title": "Action",
+        "type": "string"
+      },
+      "bevel_depth": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bevel depth (makes tube)",
+        "title": "Bevel Depth"
+      },
+      "curve_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "BEZIER",
+        "description": "Curve type: 'BEZIER', 'NURBS', 'CIRCLE', 'NURBS_CIRCLE', 'PATH'",
+        "title": "Curve Type"
+      },
+      "extrude": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Extrusion amount",
+        "title": "Extrude"
+      },
+      "fill_mode": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Fill mode: 'FULL', 'HALF', 'FRONT', 'BACK', 'NONE'",
+        "title": "Fill Mode"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "XYZ location",
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name",
+        "title": "Name"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name (for to_mesh)",
+        "title": "Object Name"
+      },
+      "resolution": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Curve resolution",
+        "title": "Resolution"
+      }
+    },
+    "type": "object"
+  },
+  "model.geometry_nodes": {
+    "properties": {
+      "action": {
+        "default": "add",
+        "description": "Action: 'add' (new GN modifier), 'info' (list nodes), 'add_node', 'connect'",
+        "title": "Action",
+        "type": "string"
+      },
+      "from_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Source node name",
+        "title": "From Node"
+      },
+      "from_output": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "title": "From Output"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node position [x, y]",
+        "title": "Location"
+      },
+      "modifier_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Existing modifier name (for info/add_node/connect)",
+        "title": "Modifier Name"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Modifier name",
+        "title": "Name"
+      },
+      "node_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geometry node type (e.g. 'GeometryNodeMeshCube', 'GeometryNodeDistributePointsOnFaces', 'GeometryNodeInstanceOnPoints')",
+        "title": "Node Type"
+      },
+      "object_name": {
+        "description": "Object to add geometry nodes to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "to_input": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "title": "To Input"
+      },
+      "to_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Destination node name",
+        "title": "To Node"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "model.mesh_edit": {
+    "properties": {
+      "action": {
+        "description": "Edit action: 'extrude', 'inset', 'bevel', 'loop_cut', 'subdivide', 'bridge_edge_loops', 'fill', 'grid_fill', 'merge', 'dissolve_edges', 'dissolve_faces', 'dissolve_vertices', 'delete', 'separate', 'flip_normals', 'recalculate_normals', 'mark_seam', 'mark_sharp', 'poke_faces', 'triangulate', 'tris_to_quads', 'spin', 'solidify', 'wireframe', 'beautify_fill', 'smooth_vertices'",
+        "title": "Action",
+        "type": "string"
+      },
+      "angle": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Spin angle in degrees",
+        "title": "Angle"
+      },
+      "clear": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Clear seam/sharp (instead of mark)",
+        "title": "Clear"
+      },
+      "cuts": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Loop cut / subdivide count",
+        "title": "Cuts"
+      },
+      "delete_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Delete type: 'VERT', 'EDGE', 'FACE', 'ONLY_FACE'",
+        "title": "Delete Type"
+      },
+      "depth": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Inset depth",
+        "title": "Depth"
+      },
+      "inside": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Recalculate normals inside",
+        "title": "Inside"
+      },
+      "merge_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Merge type: 'CENTER', 'CURSOR', 'COLLAPSE', 'FIRST', 'LAST'",
+        "title": "Merge Type"
+      },
+      "object_name": {
+        "description": "Mesh object name",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "repeat": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Smooth repeat count",
+        "title": "Repeat"
+      },
+      "segments": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bevel segments",
+        "title": "Segments"
+      },
+      "select_mode": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "all",
+        "description": "Selection before action: 'all' (default), 'none'",
+        "title": "Select Mode"
+      },
+      "separate_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Separate type: 'SELECTED', 'MATERIAL', 'LOOSE'",
+        "title": "Separate Type"
+      },
+      "smoothness": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Subdivide smoothness",
+        "title": "Smoothness"
+      },
+      "steps": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Spin steps",
+        "title": "Steps"
+      },
+      "thickness": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Inset thickness / wireframe thickness",
+        "title": "Thickness"
+      },
+      "value": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Extrude distance",
+        "title": "Value"
+      },
+      "width": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bevel width",
+        "title": "Width"
+      }
+    },
+    "required": [
+      "object_name",
+      "action"
+    ],
+    "type": "object"
+  },
+  "model.modifier": {
+    "properties": {
+      "action": {
+        "default": "add",
+        "description": "Action: 'add', 'apply', 'remove'",
+        "title": "Action",
+        "type": "string"
+      },
+      "modifier_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name for the modifier",
+        "title": "Modifier Name"
+      },
+      "modifier_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Modifier type: SUBSURF, MIRROR, ARRAY, BEVEL, SOLIDIFY, BOOLEAN, DECIMATE, REMESH, SHRINKWRAP, SMOOTH, SIMPLE_DEFORM, DISPLACE, WIREFRAME, etc.",
+        "title": "Modifier Type"
+      },
+      "object_name": {
+        "description": "Object to add modifier to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "properties": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Modifier properties to set (e.g. {'levels': 2, 'render_levels': 3} for Subdivision Surface)",
+        "title": "Properties"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "model.sculpt": {
+    "properties": {
+      "action": {
+        "default": "enter",
+        "description": "Action: 'enter' (start sculpting), 'set_brush', 'remesh' (voxel remesh), 'exit'",
+        "title": "Action",
+        "type": "string"
+      },
+      "auto_smooth": {
+        "anyOf": [
+          {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Auto smooth factor",
+        "title": "Auto Smooth"
+      },
+      "brush": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Brush name: 'SculptDraw', 'Clay Strips', 'Smooth', 'Grab', 'Inflate', 'Crease', 'Pinch', 'Snake Hook', 'Flatten', 'Scrape'",
+        "title": "Brush"
+      },
+      "dyntopo": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Enable dynamic topology (for 'enter')",
+        "title": "Dyntopo"
+      },
+      "object_name": {
+        "description": "Mesh object to sculpt",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "radius": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Brush radius in pixels",
+        "title": "Radius"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Brush strength 0-1",
+        "title": "Strength"
+      },
+      "voxel_size": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Voxel size for remesh",
+        "title": "Voxel Size"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "object.duplicate": {
+    "properties": {
+      "linked": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Create a linked duplicate (shares mesh data)",
+        "title": "Linked"
+      },
+      "name": {
+        "description": "Name of object to duplicate",
+        "title": "Name",
+        "type": "string"
+      },
+      "new_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name for the duplicate",
+        "title": "New Name"
+      },
+      "offset": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "XYZ offset from original [x, y, z]",
+        "title": "Offset"
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "type": "object"
+  },
+  "object.parent": {
+    "properties": {
+      "children": {
+        "description": "Names of child objects",
+        "items": {
+          "type": "string"
+        },
+        "title": "Children",
+        "type": "array"
+      },
+      "keep_transform": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": true,
+        "description": "Keep children's world transforms",
+        "title": "Keep Transform"
+      },
+      "parent": {
+        "description": "Name of the parent object",
+        "title": "Parent",
+        "type": "string"
+      }
+    },
+    "required": [
+      "parent",
+      "children"
+    ],
+    "type": "object"
+  },
+  "physics.cloth": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "default": "add",
+        "description": "Action: 'add' (create cloth sim), 'pin' (assign pin vertex group)",
+        "title": "Action",
+        "type": "string"
+      },
+      "collision_quality": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Collision Quality"
+      },
+      "fabric": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "cotton",
+        "description": "Fabric preset: cotton, silk, leather, rubber",
+        "title": "Fabric"
+      },
+      "object_name": {
+        "description": "Object to apply cloth simulation to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "vertex_group": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Vertex Group"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "physics.fluid": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "default": "create_domain",
+        "description": "Action: 'create_domain' (gas/liquid domain), 'add_flow' (emitter), 'add_effector' (obstacle), 'bake'",
+        "title": "Action",
+        "type": "string"
+      },
+      "domain_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Domain type: 'GAS' (smoke/fire) or 'LIQUID'",
+        "title": "Domain Type"
+      },
+      "fire": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Enable fire in gas domain",
+        "title": "Fire"
+      },
+      "flow_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Flow type: 'SMOKE', 'FIRE', 'BOTH', 'LIQUID'",
+        "title": "Flow Type"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Name"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object to use as flow source or effector",
+        "title": "Object Name"
+      },
+      "resolution": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Domain resolution (32-256)",
+        "title": "Resolution"
+      },
+      "size": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Size"
+      }
+    },
+    "type": "object"
+  },
+  "physics.force_field": {
+    "additionalProperties": true,
+    "properties": {
+      "falloff": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Falloff"
+      },
+      "falloff_power": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Falloff Power"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Name"
+      },
+      "noise": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Noise"
+      },
+      "size": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Size"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 5.0,
+        "description": "Field strength",
+        "title": "Strength"
+      },
+      "type": {
+        "default": "FORCE",
+        "description": "Field type: FORCE, WIND, VORTEX, MAGNETIC, TURBULENCE, DRAG, HARMONIC",
+        "title": "Type",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "physics.particles": {
+    "properties": {
+      "action": {
+        "default": "add",
+        "description": "Action: 'add', 'remove'",
+        "title": "Action",
+        "type": "string"
+      },
+      "count": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of particles",
+        "title": "Count"
+      },
+      "emit_from": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Emission source: 'VERT', 'FACE', 'VOLUME'",
+        "title": "Emit From"
+      },
+      "lifetime": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Particle lifetime in frames",
+        "title": "Lifetime"
+      },
+      "object_name": {
+        "description": "Object to add particles to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "particle_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "EMITTER",
+        "description": "Type: 'EMITTER' or 'HAIR'",
+        "title": "Particle Type"
+      },
+      "render_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Render type: 'HALO', 'LINE', 'PATH', 'OBJECT', 'COLLECTION'",
+        "title": "Render Type"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "physics.rigid_body": {
+    "properties": {
+      "object_name": {
+        "description": "Object to apply physics to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "physics_type": {
+        "description": "Physics type: 'rigid_body', 'cloth', 'fluid', 'soft_body', 'collision'",
+        "title": "Physics Type",
+        "type": "string"
+      },
+      "rb_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "ACTIVE",
+        "description": "Rigid body type: 'ACTIVE' or 'PASSIVE'",
+        "title": "Rb Type"
+      }
+    },
+    "required": [
+      "object_name",
+      "physics_type"
+    ],
+    "type": "object"
+  },
+  "product.animation": {
+    "$defs": {
+      "CameraStyle": {
+        "enum": [
+          "turntable",
+          "hero_reveal",
+          "detail_orbit"
+        ],
+        "title": "CameraStyle",
+        "type": "string"
+      },
+      "LightingRigPreset": {
+        "enum": [
+          "product_studio",
+          "jewelry",
+          "cosmetics",
+          "electronics",
+          "automotive",
+          "food_product"
+        ],
+        "title": "LightingRigPreset",
+        "type": "string"
+      },
+      "ProductMaterialPreset": {
+        "enum": [
+          "glossy_plastic",
+          "matte_plastic",
+          "brushed_aluminum",
+          "polished_chrome",
+          "gold",
+          "rose_gold",
+          "copper",
+          "clear_glass",
+          "frosted_glass",
+          "tinted_glass",
+          "ceramic_glazed",
+          "rubber_matte",
+          "fabric_cotton",
+          "leather",
+          "silk_satin",
+          "white_product"
+        ],
+        "title": "ProductMaterialPreset",
+        "type": "string"
+      },
+      "RenderQuality": {
+        "enum": [
+          "fast",
+          "balanced",
+          "premium"
+        ],
+        "title": "RenderQuality",
+        "type": "string"
+      },
+      "ResolutionPreset": {
+        "enum": [
+          "720p",
+          "1080p",
+          "4k",
+          "square_1080",
+          "vertical",
+          "instagram"
+        ],
+        "title": "ResolutionPreset",
+        "type": "string"
+      }
+    },
+    "description": "Full product animation recipe \u2014 sets up everything in one call.",
+    "properties": {
+      "auto_render": {
+        "default": false,
+        "description": "Start rendering immediately after setup",
+        "title": "Auto Render",
+        "type": "boolean"
+      },
+      "bloom": {
+        "default": true,
+        "description": "Add bloom/glow post-processing",
+        "title": "Bloom",
+        "type": "boolean"
+      },
+      "camera_distance": {
+        "default": 4.0,
+        "description": "Camera distance from product",
+        "exclusiveMinimum": 0.5,
+        "title": "Camera Distance",
+        "type": "number"
+      },
+      "camera_height": {
+        "default": 1.2,
+        "description": "Camera height above product center",
+        "title": "Camera Height",
+        "type": "number"
+      },
+      "camera_style": {
+        "$ref": "#/$defs/CameraStyle",
+        "default": "turntable",
+        "description": "Camera animation style"
+      },
+      "f_stop": {
+        "default": 2.8,
+        "description": "Aperture f-stop for DOF",
+        "maximum": 32,
+        "minimum": 0.5,
+        "title": "F Stop",
+        "type": "number"
+      },
+      "focal_length": {
+        "default": 50.0,
+        "description": "Camera focal length in mm",
+        "maximum": 300,
+        "minimum": 12,
+        "title": "Focal Length",
+        "type": "number"
+      },
+      "fps": {
+        "default": 24,
+        "description": "Frames per second",
+        "maximum": 120,
+        "minimum": 12,
+        "title": "Fps",
+        "type": "integer"
+      },
+      "frames": {
+        "default": 240,
+        "description": "Total animation frames (240=10sec @24fps)",
+        "maximum": 2400,
+        "minimum": 24,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "gradient_bg": {
+        "default": false,
+        "description": "Use gradient background instead of transparent",
+        "title": "Gradient Bg",
+        "type": "boolean"
+      },
+      "lighting": {
+        "$ref": "#/$defs/LightingRigPreset",
+        "default": "product_studio",
+        "description": "Lighting rig preset"
+      },
+      "material": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ProductMaterialPreset"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Material preset to apply (skip to keep existing)"
+      },
+      "object_name": {
+        "description": "Name of the product object in the scene",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "output_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Output directory for rendered frames",
+        "title": "Output Path"
+      },
+      "quality": {
+        "$ref": "#/$defs/RenderQuality",
+        "default": "balanced",
+        "description": "Render quality preset"
+      },
+      "resolution": {
+        "$ref": "#/$defs/ResolutionPreset",
+        "default": "1080p",
+        "description": "Output resolution"
+      },
+      "shadow_catcher": {
+        "default": true,
+        "description": "Add shadow catcher plane",
+        "title": "Shadow Catcher",
+        "type": "boolean"
+      },
+      "transparent_bg": {
+        "default": true,
+        "description": "Transparent background",
+        "title": "Transparent Bg",
+        "type": "boolean"
+      },
+      "use_dof": {
+        "default": true,
+        "description": "Enable depth of field",
+        "title": "Use Dof",
+        "type": "boolean"
+      },
+      "vignette": {
+        "default": true,
+        "description": "Add vignette post-processing",
+        "title": "Vignette",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "product.camera": {
+    "$defs": {
+      "CameraStyle": {
+        "enum": [
+          "turntable",
+          "hero_reveal",
+          "detail_orbit"
+        ],
+        "title": "CameraStyle",
+        "type": "string"
+      }
+    },
+    "description": "Set up professional product camera animation.",
+    "properties": {
+      "camera_distance": {
+        "default": 4.0,
+        "description": "Camera distance",
+        "exclusiveMinimum": 0.5,
+        "title": "Camera Distance",
+        "type": "number"
+      },
+      "camera_height": {
+        "default": 1.2,
+        "description": "Camera height",
+        "title": "Camera Height",
+        "type": "number"
+      },
+      "end_distance": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Hero reveal: end distance",
+        "title": "End Distance"
+      },
+      "end_focal": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Hero reveal: ending focal length",
+        "title": "End Focal"
+      },
+      "f_stop": {
+        "default": 2.8,
+        "description": "Aperture f-stop",
+        "maximum": 32,
+        "minimum": 0.5,
+        "title": "F Stop",
+        "type": "number"
+      },
+      "focal_length": {
+        "default": 50.0,
+        "description": "Focal length mm",
+        "maximum": 300,
+        "minimum": 12,
+        "title": "Focal Length",
+        "type": "number"
+      },
+      "fps": {
+        "default": 24,
+        "description": "FPS",
+        "maximum": 120,
+        "minimum": 12,
+        "title": "Fps",
+        "type": "integer"
+      },
+      "frames": {
+        "default": 240,
+        "description": "Total animation frames",
+        "minimum": 24,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "orbit_angle": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Detail orbit: angle to sweep in degrees",
+        "title": "Orbit Angle"
+      },
+      "start_distance": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Hero reveal: start distance",
+        "title": "Start Distance"
+      },
+      "start_focal": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Hero reveal: starting focal length",
+        "title": "Start Focal"
+      },
+      "style": {
+        "$ref": "#/$defs/CameraStyle",
+        "description": "Camera animation style"
+      },
+      "target_object": {
+        "description": "Object to focus on",
+        "title": "Target Object",
+        "type": "string"
+      },
+      "use_dof": {
+        "default": true,
+        "description": "Enable DOF",
+        "title": "Use Dof",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "style",
+      "target_object"
+    ],
+    "type": "object"
+  },
+  "product.lighting": {
+    "$defs": {
+      "LightingRigPreset": {
+        "enum": [
+          "product_studio",
+          "jewelry",
+          "cosmetics",
+          "electronics",
+          "automotive",
+          "food_product"
+        ],
+        "title": "LightingRigPreset",
+        "type": "string"
+      }
+    },
+    "description": "Set up professional product lighting.",
+    "properties": {
+      "gradient_bg": {
+        "default": false,
+        "description": "Use gradient world background",
+        "title": "Gradient Bg",
+        "type": "boolean"
+      },
+      "gradient_bottom": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Gradient bottom color [R,G,B]",
+        "title": "Gradient Bottom"
+      },
+      "gradient_top": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Gradient top color [R,G,B]",
+        "title": "Gradient Top"
+      },
+      "hdri_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Optional HDRI path (overrides preset world)",
+        "title": "Hdri Path"
+      },
+      "hdri_rotation": {
+        "default": 0.0,
+        "description": "HDRI rotation in degrees",
+        "title": "Hdri Rotation",
+        "type": "number"
+      },
+      "hdri_strength": {
+        "default": 1.5,
+        "description": "HDRI/world strength",
+        "minimum": 0,
+        "title": "Hdri Strength",
+        "type": "number"
+      },
+      "preset": {
+        "$ref": "#/$defs/LightingRigPreset",
+        "description": "Lighting rig preset"
+      },
+      "shadow_catcher": {
+        "default": true,
+        "description": "Add shadow catcher plane",
+        "title": "Shadow Catcher",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "preset"
+    ],
+    "type": "object"
+  },
+  "product.material": {
+    "$defs": {
+      "ProductMaterialPreset": {
+        "enum": [
+          "glossy_plastic",
+          "matte_plastic",
+          "brushed_aluminum",
+          "polished_chrome",
+          "gold",
+          "rose_gold",
+          "copper",
+          "clear_glass",
+          "frosted_glass",
+          "tinted_glass",
+          "ceramic_glazed",
+          "rubber_matte",
+          "fabric_cotton",
+          "leather",
+          "silk_satin",
+          "white_product"
+        ],
+        "title": "ProductMaterialPreset",
+        "type": "string"
+      }
+    },
+    "description": "Apply a professional product material to an object.",
+    "properties": {
+      "add_imperfections": {
+        "default": false,
+        "description": "Add fingerprints/dust for photorealism",
+        "title": "Add Imperfections",
+        "type": "boolean"
+      },
+      "color_override": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Override base color [R,G,B,A] 0-1",
+        "title": "Color Override"
+      },
+      "material_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Custom material name",
+        "title": "Material Name"
+      },
+      "object_name": {
+        "description": "Object to apply material to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "preset": {
+        "$ref": "#/$defs/ProductMaterialPreset",
+        "description": "Material preset"
+      },
+      "roughness_override": {
+        "anyOf": [
+          {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Override roughness",
+        "title": "Roughness Override"
+      }
+    },
+    "required": [
+      "object_name",
+      "preset"
+    ],
+    "type": "object"
+  },
+  "product.render_setup": {
+    "$defs": {
+      "RenderQuality": {
+        "enum": [
+          "fast",
+          "balanced",
+          "premium"
+        ],
+        "title": "RenderQuality",
+        "type": "string"
+      },
+      "ResolutionPreset": {
+        "enum": [
+          "720p",
+          "1080p",
+          "4k",
+          "square_1080",
+          "vertical",
+          "instagram"
+        ],
+        "title": "ResolutionPreset",
+        "type": "string"
+      }
+    },
+    "description": "Configure professional product render settings.",
+    "properties": {
+      "bloom": {
+        "default": true,
+        "description": "Bloom/glow post-processing",
+        "title": "Bloom",
+        "type": "boolean"
+      },
+      "output_format": {
+        "default": "PNG",
+        "description": "Output format: PNG, JPEG, EXR",
+        "title": "Output Format",
+        "type": "string"
+      },
+      "output_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Output path with #### for frame numbers",
+        "title": "Output Path"
+      },
+      "quality": {
+        "$ref": "#/$defs/RenderQuality",
+        "default": "balanced",
+        "description": "Quality preset"
+      },
+      "resolution": {
+        "$ref": "#/$defs/ResolutionPreset",
+        "default": "1080p",
+        "description": "Resolution preset"
+      },
+      "transparent_bg": {
+        "default": true,
+        "description": "Transparent background",
+        "title": "Transparent Bg",
+        "type": "boolean"
+      },
+      "vignette": {
+        "default": true,
+        "description": "Vignette post-processing",
+        "title": "Vignette",
+        "type": "boolean"
+      }
+    },
+    "type": "object"
+  },
+  "render.compositor": {
+    "properties": {
+      "action": {
+        "default": "info",
+        "description": "Action: 'info' (list nodes), 'add_node', 'connect'",
+        "title": "Action",
+        "type": "string"
+      },
+      "from_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Source node name",
+        "title": "From Node"
+      },
+      "from_output": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "title": "From Output"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node name",
+        "title": "Name"
+      },
+      "node_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Node type for add_node",
+        "title": "Node Type"
+      },
+      "to_input": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "title": "To Input"
+      },
+      "to_node": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Dest node name",
+        "title": "To Node"
+      }
+    },
+    "type": "object"
+  },
+  "rig.armature": {
+    "properties": {
+      "action": {
+        "default": "create",
+        "description": "Action: 'create' (new armature), 'add_bone', 'list_bones'",
+        "title": "Action",
+        "type": "string"
+      },
+      "armature_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Armature name (for add_bone, list_bones)",
+        "title": "Armature Name"
+      },
+      "bone_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bone name (for add_bone)",
+        "title": "Bone Name"
+      },
+      "connected": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Connect to parent bone",
+        "title": "Connected"
+      },
+      "head": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bone head position [x, y, z]",
+        "title": "Head"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Location for new armature",
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Armature name (for create)",
+        "title": "Name"
+      },
+      "parent_bone": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Parent bone name",
+        "title": "Parent Bone"
+      },
+      "tail": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bone tail position [x, y, z]",
+        "title": "Tail"
+      }
+    },
+    "type": "object"
+  },
+  "rig.constraint": {
+    "properties": {
+      "action": {
+        "default": "add",
+        "description": "Action: 'add', 'remove', 'list'",
+        "title": "Action",
+        "type": "string"
+      },
+      "constraint_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Constraint name (for remove)",
+        "title": "Constraint Name"
+      },
+      "constraint_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Constraint type: COPY_LOCATION, COPY_ROTATION, COPY_SCALE, TRACK_TO, DAMPED_TRACK, LIMIT_LOCATION, FOLLOW_PATH, etc.",
+        "title": "Constraint Type"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Constraint name",
+        "title": "Name"
+      },
+      "object_name": {
+        "description": "Object to add constraint to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "properties": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Constraint properties",
+        "title": "Properties"
+      },
+      "target": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Target object name",
+        "title": "Target"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "rig.weight_paint": {
+    "properties": {
+      "action": {
+        "default": "enter",
+        "description": "Action: 'enter', 'exit', 'add_group', 'assign', 'auto_weights'",
+        "title": "Action",
+        "type": "string"
+      },
+      "group_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Vertex group name",
+        "title": "Group Name"
+      },
+      "object_name": {
+        "description": "Mesh object",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "weight": {
+        "anyOf": [
+          {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Weight value 0-1",
+        "title": "Weight"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "runtime.rna_describe": {
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 100,
+        "maximum": 500,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "offset": {
+        "default": 0,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "query": {
+        "type": "string"
+      },
+      "type_name": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "type_name"
+    ],
+    "type": "object"
+  },
+  "runtime.rna_search": {
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 50,
+        "maximum": 200,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "offset": {
+        "default": 0,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "query": {
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "scene.camera": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "description": "look_at | frame_objects | set_properties | set_active | get_info | turntable_setup",
+        "title": "Action",
+        "type": "string"
+      },
+      "camera": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Camera name",
+        "title": "Camera"
+      },
+      "clip_end": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Clip End"
+      },
+      "clip_start": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Clip Start"
+      },
+      "dof_enabled": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Enable depth of field",
+        "title": "Dof Enabled"
+      },
+      "dof_focus_distance": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Dof Focus Distance"
+      },
+      "dof_fstop": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Dof Fstop"
+      },
+      "frames": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Turntable frames",
+        "title": "Frames"
+      },
+      "height": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Height"
+      },
+      "lens": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Focal length in mm",
+        "title": "Lens"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Alias for camera",
+        "title": "Name"
+      },
+      "objects": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Objects to frame",
+        "title": "Objects"
+      },
+      "radius": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Radius"
+      },
+      "sensor_fit": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "AUTO | HORIZONTAL | VERTICAL",
+        "title": "Sensor Fit"
+      },
+      "shift_x": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Shift X"
+      },
+      "shift_y": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Shift Y"
+      },
+      "target": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name to look at / track",
+        "title": "Target"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "scene.cleanup": {
+    "properties": {
+      "action": {
+        "default": "purge_orphans",
+        "description": "Action: 'purge_orphans', 'merge_by_distance', 'shade_smooth', 'shade_flat'",
+        "title": "Action",
+        "type": "string"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name (for mesh operations)",
+        "title": "Object Name"
+      },
+      "threshold": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0001,
+        "description": "Distance threshold for merge",
+        "title": "Threshold"
+      }
+    },
+    "type": "object"
+  },
+  "scene.collections": {
+    "properties": {
+      "action": {
+        "default": "list",
+        "description": "Action: 'list', 'create', 'delete', 'move_objects'",
+        "title": "Action",
+        "type": "string"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Collection name",
+        "title": "Name"
+      },
+      "objects": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object names (for move_objects)",
+        "title": "Objects"
+      },
+      "parent": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Parent collection (for create)",
+        "title": "Parent"
+      },
+      "target": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Target collection (for move_objects)",
+        "title": "Target"
+      }
+    },
+    "type": "object"
+  },
+  "scene.context": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  },
+  "scene.create_object": {
+    "properties": {
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": [
+          0,
+          0,
+          0
+        ],
+        "description": "XYZ location [x, y, z]",
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Custom name for the object",
+        "title": "Name"
+      },
+      "rotation": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": [
+          0,
+          0,
+          0
+        ],
+        "description": "XYZ rotation in degrees [rx, ry, rz]",
+        "title": "Rotation"
+      },
+      "scale": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": [
+          1,
+          1,
+          1
+        ],
+        "description": "XYZ scale [sx, sy, sz]",
+        "title": "Scale"
+      },
+      "size": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 2.0,
+        "description": "Base size of the primitive",
+        "title": "Size"
+      },
+      "type": {
+        "default": "cube",
+        "description": "Object type: cube, sphere, ico_sphere, cylinder, cone, torus, plane, circle, grid, monkey, empty, camera, light_point, light_sun, light_spot, light_area",
+        "title": "Type",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "scene.delete_object": {
+    "additionalProperties": false,
+    "properties": {
+      "names": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "names"
+    ],
+    "type": "object"
+  },
+  "scene.diagnostics": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  },
+  "scene.dimensions": {
+    "additionalProperties": true,
+    "properties": {
+      "action": {
+        "description": "Action: 'get', 'list', 'estimate_from_mesh', 'scale_to_realistic'",
+        "title": "Action",
+        "type": "string"
+      },
+      "category": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Filter by category on 'list'",
+        "title": "Category"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Blender object name (for estimate/scale)",
+        "title": "Object Name"
+      },
+      "object_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Dimension DB key, e.g. 'chair_dining'",
+        "title": "Object Type"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "scene.floor_plan": {
+    "properties": {
+      "axis": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "z",
+        "description": "Viewing axis: 'z' (top-down), 'x', or 'y'",
+        "title": "Axis"
+      },
+      "height": {
+        "anyOf": [
+          {
+            "maximum": 80,
+            "minimum": 10,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 30,
+        "description": "ASCII height in characters",
+        "title": "Height"
+      },
+      "width": {
+        "anyOf": [
+          {
+            "maximum": 200,
+            "minimum": 40,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 80,
+        "description": "ASCII width in characters",
+        "title": "Width"
+      }
+    },
+    "type": "object"
+  },
+  "scene.info": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  },
+  "scene.inspect": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "default": "summary",
+        "enum": [
+          "summary",
+          "object",
+          "topology",
+          "modifiers",
+          "materials",
+          "hierarchy"
+        ],
+        "type": "string"
+      },
+      "object_name": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "scene.lighting_preset": {
+    "properties": {
+      "clear_existing": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": true,
+        "description": "Remove existing lights before applying preset",
+        "title": "Clear Existing"
+      },
+      "fill_energy": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Fill light energy (three_point)",
+        "title": "Fill Energy"
+      },
+      "key_energy": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Key light energy (three_point)",
+        "title": "Key Energy"
+      },
+      "preset": {
+        "description": "Lighting preset: studio, outdoor, sunset, dramatic, night, three_point",
+        "title": "Preset",
+        "type": "string"
+      },
+      "rim_energy": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Rim/back light energy (three_point)",
+        "title": "Rim Energy"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 1.0,
+        "description": "World/environment light strength",
+        "title": "Strength"
+      },
+      "sun_elevation": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Sun elevation in degrees (outdoor)",
+        "title": "Sun Elevation"
+      },
+      "sun_energy": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Sun light energy (outdoor/sunset)",
+        "title": "Sun Energy"
+      }
+    },
+    "required": [
+      "preset"
+    ],
+    "type": "object"
+  },
+  "scene.manage": {
+    "properties": {
+      "action": {
+        "description": "Action: 'set_frame', 'new_scene', 'delete_scene', 'list_scenes', 'switch_scene'",
+        "title": "Action",
+        "type": "string"
+      },
+      "frame": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Frame number (for set_frame)",
+        "title": "Frame"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Scene name",
+        "title": "Name"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "scene.modify_object": {
+    "properties": {
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "New XYZ location [x, y, z]",
+        "title": "Location"
+      },
+      "name": {
+        "description": "Name of the object to modify",
+        "title": "Name",
+        "type": "string"
+      },
+      "new_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Rename the object",
+        "title": "New Name"
+      },
+      "rotation": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "New XYZ rotation in degrees [rx, ry, rz]",
+        "title": "Rotation"
+      },
+      "scale": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "New XYZ scale [sx, sy, sz]",
+        "title": "Scale"
+      },
+      "visible": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Show/hide object in viewport and render",
+        "title": "Visible"
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "type": "object"
+  },
+  "scene.object_info": {
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "type": "object"
+  },
+  "scene.render": {
+    "properties": {
+      "output_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Output file path (e.g. '/tmp/render.png')",
+        "title": "Output Path"
+      },
+      "type": {
+        "default": "image",
+        "description": "Render type: 'image' (single frame) or 'animation' (all frames)",
+        "enum": [
+          "image",
+          "animation"
+        ],
+        "title": "Type",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "scene.render_audit": {
+    "additionalProperties": true,
+    "properties": {
+      "min_samples": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Override minimum sample count",
+        "title": "Min Samples"
+      },
+      "profile": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "cinema",
+        "description": "Audit profile: cinema, preview, animation",
+        "title": "Profile"
+      },
+      "require_compositor": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Require compositor nodes/compositing enabled",
+        "title": "Require Compositor"
+      },
+      "require_dof": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Require active camera depth-of-field",
+        "title": "Require Dof"
+      },
+      "require_exr": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Require OPEN_EXR output format",
+        "title": "Require Exr"
+      },
+      "require_motion_blur": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Require motion blur enabled",
+        "title": "Require Motion Blur"
+      },
+      "strict": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Treat threshold misses as failures instead of warnings",
+        "title": "Strict"
+      }
+    },
+    "type": "object"
+  },
+  "scene.render_settings": {
+    "properties": {
+      "engine": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Render engine: 'eevee', 'cycles', 'workbench'",
+        "title": "Engine"
+      },
+      "file_format": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Output format: PNG, JPEG, EXR, TIFF, BMP",
+        "title": "File Format"
+      },
+      "film_transparent": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Transparent background",
+        "title": "Film Transparent"
+      },
+      "fps": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Frames per second",
+        "title": "Fps"
+      },
+      "frame_end": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Animation end frame",
+        "title": "Frame End"
+      },
+      "frame_start": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Animation start frame",
+        "title": "Frame Start"
+      },
+      "output_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Output file path",
+        "title": "Output Path"
+      },
+      "resolution_percentage": {
+        "anyOf": [
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Resolution scale percentage",
+        "title": "Resolution Percentage"
+      },
+      "resolution_x": {
+        "anyOf": [
+          {
+            "maximum": 16384,
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Render width in pixels",
+        "title": "Resolution X"
+      },
+      "resolution_y": {
+        "anyOf": [
+          {
+            "maximum": 16384,
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Render height in pixels",
+        "title": "Resolution Y"
+      },
+      "samples": {
+        "anyOf": [
+          {
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Render samples (Cycles)",
+        "title": "Samples"
+      }
+    },
+    "type": "object"
+  },
+  "scene.semantic_place": {
+    "properties": {
+      "dry_run": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": false,
+        "description": "Return parsed intent + coords without moving",
+        "title": "Dry Run"
+      },
+      "instruction": {
+        "description": "English placement command, e.g. 'place the lamp on the nightstand'",
+        "title": "Instruction",
+        "type": "string"
+      },
+      "object_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Override the object to place (skip parsing)",
+        "title": "Object Name"
+      },
+      "target_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Override the target object (skip parsing)",
+        "title": "Target Name"
+      }
+    },
+    "required": [
+      "instruction"
+    ],
+    "type": "object"
+  },
+  "scene.set_material": {
+    "properties": {
+      "color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Base color [R, G, B] or [R, G, B, A] (0-1 range)",
+        "title": "Color"
+      },
+      "emission_color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Emission color [R, G, B] (0-1)",
+        "title": "Emission Color"
+      },
+      "emission_strength": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0,
+        "description": "Emission strength",
+        "title": "Emission Strength"
+      },
+      "material_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Material name (creates new if doesn't exist)",
+        "title": "Material Name"
+      },
+      "metallic": {
+        "anyOf": [
+          {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0,
+        "description": "Metallic factor (0=dielectric, 1=metal)",
+        "title": "Metallic"
+      },
+      "object_name": {
+        "description": "Object to apply material to",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "roughness": {
+        "anyOf": [
+          {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.5,
+        "description": "Roughness factor (0=glossy, 1=rough)",
+        "title": "Roughness"
+      },
+      "slot": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0,
+        "description": "Material slot index",
+        "title": "Slot"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "scene.spatial_query": {
+    "additionalProperties": true,
+    "properties": {
+      "a": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "First object (for collision)",
+        "title": "A"
+      },
+      "action": {
+        "description": "Action: 'raycast', 'bounding_box_world', 'check_collision', 'find_placement_position', 'get_safe_movement_range', 'scene_bounds'",
+        "title": "Action",
+        "type": "string"
+      },
+      "axes": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Axes for movement range: ['x','y','z']",
+        "title": "Axes"
+      },
+      "b": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Second object (for collision)",
+        "title": "B"
+      },
+      "direction": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "[x,y,z] ray direction (for raycast)",
+        "title": "Direction"
+      },
+      "max_distance": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 1000.0,
+        "description": "Max raycast distance",
+        "title": "Max Distance"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name (for bounding_box_world)",
+        "title": "Name"
+      },
+      "object": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object to place / move",
+        "title": "Object"
+      },
+      "offset_z": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0,
+        "description": "Z offset added to placement",
+        "title": "Offset Z"
+      },
+      "on_top_of": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Target object for placement",
+        "title": "On Top Of"
+      },
+      "origin": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "[x,y,z] ray origin (for raycast)",
+        "title": "Origin"
+      },
+      "tolerance": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.001,
+        "description": "Collision tolerance",
+        "title": "Tolerance"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  },
+  "scene.template": {
+    "additionalProperties": true,
+    "properties": {
+      "bg_color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Bg Color"
+      },
+      "template": {
+        "default": "product_viz",
+        "description": "Template: 'product_viz' (3-point lighting, studio), 'cinematic' (dramatic spot, DOF), 'architecture' (sun, wide camera), 'motion_graphics' (clean bg, even light)",
+        "title": "Template",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "scene.text": {
+    "properties": {
+      "action": {
+        "default": "create",
+        "description": "Action: 'create', 'edit'",
+        "title": "Action",
+        "type": "string"
+      },
+      "align_x": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Horizontal alignment: 'LEFT', 'CENTER', 'RIGHT', 'JUSTIFY', 'FLUSH'",
+        "title": "Align X"
+      },
+      "bevel_depth": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Bevel depth for rounded edges",
+        "title": "Bevel Depth"
+      },
+      "extrude": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Extrusion depth for 3D text",
+        "title": "Extrude"
+      },
+      "font_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Path to .ttf or .otf font file",
+        "title": "Font Path"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "XYZ location",
+        "title": "Location"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name",
+        "title": "Name"
+      },
+      "size": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Text size",
+        "title": "Size"
+      },
+      "text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Text content",
+        "title": "Text"
+      }
+    },
+    "type": "object"
+  },
+  "scene.world": {
+    "properties": {
+      "color": {
+        "anyOf": [
+          {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Background color [R, G, B] (0-1)",
+        "title": "Color"
+      },
+      "hdri_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Path to HDRI image for environment lighting",
+        "title": "Hdri Path"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Background strength",
+        "title": "Strength"
+      }
+    },
+    "type": "object"
+  },
+  "uv.manage": {
+    "properties": {
+      "action": {
+        "default": "smart_project",
+        "description": "UV method: 'smart_project', 'unwrap', 'cube_project', 'cylinder_project', 'sphere_project', 'reset'",
+        "title": "Action",
+        "type": "string"
+      },
+      "angle_limit": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 66,
+        "description": "Angle limit for smart project (degrees)",
+        "title": "Angle Limit"
+      },
+      "island_margin": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.0,
+        "description": "Margin between UV islands",
+        "title": "Island Margin"
+      },
+      "method": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": "ANGLE_BASED",
+        "description": "Unwrap method: 'ANGLE_BASED', 'CONFORMAL'",
+        "title": "Method"
+      },
+      "object_name": {
+        "description": "Mesh object name",
+        "title": "Object Name",
+        "type": "string"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "uv.unwrap": {
+    "additionalProperties": true,
+    "properties": {
+      "angle_limit": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 66.0,
+        "description": "Smart project angle threshold",
+        "title": "Angle Limit"
+      },
+      "correct_aspect": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": true,
+        "title": "Correct Aspect"
+      },
+      "cube_size": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 2.0,
+        "title": "Cube Size"
+      },
+      "island_margin": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.02,
+        "description": "Island margin 0..1",
+        "title": "Island Margin"
+      },
+      "margin": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 0.003,
+        "title": "Margin"
+      },
+      "method": {
+        "default": "smart_project",
+        "description": "smart_project | angle_based | conformal | lightmap_pack | cube_project | cylinder_project | sphere_project | unwrap_preserve",
+        "title": "Method",
+        "type": "string"
+      },
+      "object_name": {
+        "description": "Mesh object to unwrap",
+        "title": "Object Name",
+        "type": "string"
+      },
+      "quality": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": 12,
+        "description": "Lightmap pack quality",
+        "title": "Quality"
+      }
+    },
+    "required": [
+      "object_name"
+    ],
+    "type": "object"
+  },
+  "workflow.forensic_scene": {
+    "properties": {
+      "action": {
+        "description": "Action: build_road, place_vehicle, place_figure, add_annotation, setup_cameras, set_time_of_day, animate_vehicle, add_impact_marker, ghost_scenario, build_full_scene",
+        "title": "Action",
+        "type": "string"
+      },
+      "annotation_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Annotation: label, speed, distance, arrow",
+        "title": "Annotation Type"
+      },
+      "annotations": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Annotation list for build_full_scene",
+        "title": "Annotations"
+      },
+      "camera_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Camera: bird_eye, driver_pov, witness, orbit, all",
+        "title": "Camera Type"
+      },
+      "cameras": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Camera setup type for build_full_scene",
+        "title": "Cameras"
+      },
+      "color": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "[R, G, B, A] color (0-1 range)",
+        "title": "Color"
+      },
+      "damaged": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Show damage indicator on vehicle",
+        "title": "Damaged"
+      },
+      "driver_vehicle": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Vehicle name for driver POV camera",
+        "title": "Driver Vehicle"
+      },
+      "end": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Arrow end [x,y,z]",
+        "title": "End"
+      },
+      "figures": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Figure list for build_full_scene",
+        "title": "Figures"
+      },
+      "frame_end": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Last animation frame",
+        "title": "Frame End"
+      },
+      "ghost_alpha": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Ghost transparency (0-1)",
+        "title": "Ghost Alpha"
+      },
+      "impact_side": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Damage side: front, rear, left, right",
+        "title": "Impact Side"
+      },
+      "label": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Text label above object",
+        "title": "Label"
+      },
+      "lanes": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of lanes (default 2)",
+        "title": "Lanes"
+      },
+      "length": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Road length in meters",
+        "title": "Length"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "[x, y, z] position in meters",
+        "title": "Location"
+      },
+      "marker_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Marker: impact_point, skid_mark, debris",
+        "title": "Marker Type"
+      },
+      "markers": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Marker list for build_full_scene",
+        "title": "Markers"
+      },
+      "name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Object name",
+        "title": "Name"
+      },
+      "road": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Road config for build_full_scene",
+        "title": "Road"
+      },
+      "road_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Road type: straight, intersection",
+        "title": "Road Type"
+      },
+      "rotation": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Rotation in degrees (Z axis)",
+        "title": "Rotation"
+      },
+      "size": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Text size",
+        "title": "Size"
+      },
+      "source_vehicle": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Source vehicle for ghost copy",
+        "title": "Source Vehicle"
+      },
+      "start": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Arrow start [x,y,z]",
+        "title": "Start"
+      },
+      "strength": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Light strength",
+        "title": "Strength"
+      },
+      "target": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Camera target point [x,y,z]",
+        "title": "Target"
+      },
+      "text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Annotation text content",
+        "title": "Text"
+      },
+      "time": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Time: day, night, dusk, dawn, overcast",
+        "title": "Time"
+      },
+      "time_of_day": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Time of day for build_full_scene",
+        "title": "Time Of Day"
+      },
+      "vehicle_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Vehicle to animate",
+        "title": "Vehicle Name"
+      },
+      "vehicle_type": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Vehicle: sedan, suv, truck, pickup, van, motorcycle, bicycle, bus, semi",
+        "title": "Vehicle Type"
+      },
+      "vehicles": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Vehicle list for build_full_scene",
+        "title": "Vehicles"
+      },
+      "waypoints": {
+        "anyOf": [
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "List of {frame, location, rotation, speed_label}",
+        "title": "Waypoints"
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "type": "object"
+  }
+}

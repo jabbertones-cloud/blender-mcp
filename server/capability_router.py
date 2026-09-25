@@ -27,6 +27,11 @@ class Capability:
 CAPABILITIES: Tuple[Capability, ...] = (
     Capability("blender_get_scene_info", "get_scene_info", "inspect", "understand the whole scene before editing", ("scene info", "inspect scene", "what is in", "what s in the scene", "analyze scene", "understand scene"), mutates_scene=False, priority=20),
     Capability("blender_get_object_data", "get_object_data", "inspect", "inspect one named object in detail", ("inspect object", "object data", "modifiers on", "materials on", "details for"), requires_object=True, mutates_scene=False, priority=18),
+    Capability("blender_scene_context", "scene_context", "inspect", "inspect active scene, selection, mode, frame and render context", ("scene context", "active object", "selected objects", "current mode", "current frame"), mutates_scene=False, priority=26),
+    Capability("blender_scene_inspect", "scene_inspect", "inspect", "inspect grouped scene, hierarchy, topology, modifiers or materials", ("scene inspect", "inspect hierarchy", "inspect topology", "inspect modifiers", "inspect materials"), mutates_scene=False, priority=27),
+    Capability("blender_mesh_inspect", "mesh_inspect", "inspect", "inspect bounded mesh topology, vertices, edges, faces, UVs, normals, attributes, shape keys or weights", ("mesh inspect", "inspect vertices", "inspect edges", "inspect faces", "inspect uvs", "inspect normals", "inspect weights"), requires_object=True, mutates_scene=False, priority=30),
+    Capability("blender_rna_search", "rna_search", "discover", "search live Blender RNA type identifiers for the running Blender version", ("rna search", "blender api search", "search blender types", "find rna type"), mutates_scene=False, priority=31),
+    Capability("blender_rna_describe", "rna_describe", "discover", "describe live Blender RNA properties and constraints for one type", ("rna describe", "describe blender type", "blender api properties", "rna properties"), mutates_scene=False, priority=31),
     Capability("blender_create_object", "create_object", "model", "create a primitive, light, camera, or empty", ("create cube", "create a cube", "create sphere", "create a sphere", "create cylinder", "create cone", "create torus", "add cube", "add a cube", "add sphere", "add a sphere", "primitive", "new camera", "new light"), priority=14),
     Capability("blender_modify_object", "modify_object", "transform", "directly change an object's transform, visibility, or name", ("move", "rotate", "scale", "rename", "hide", "show", "position"), requires_object=True, priority=9),
     Capability("blender_apply_modifier", "apply_modifier", "model", "add/apply/remove a standard Blender modifier", ("bevel", "subdivision", "subsurf", "mirror modifier", "array modifier", "solidify", "decimate", "remesh", "shrinkwrap", "wireframe modifier", "modifier"), requires_object=True, priority=22),
@@ -72,6 +77,20 @@ CAPABILITIES: Tuple[Capability, ...] = (
     Capability("blender_sketchfab", "sketchfab", "assets", "find/import Sketchfab assets", ("sketchfab", "download model", "find 3d model"), priority=25),
     Capability("blender_hyper3d", "hyper3d", "generation", "generate/import a 3D asset using Hyper3D", ("hyper3d", "generate 3d", "text to 3d"), priority=28),
     Capability("blender_hunyuan3d", "hunyuan3d", "generation", "generate/import a 3D asset using Hunyuan3D", ("hunyuan", "hunyuan3d", "image to 3d"), priority=28),
+    # Guided promotion of proven addon handlers: no new public MCP tools.
+    Capability("blender_duplicate_object", "duplicate_object", "object", "duplicate an object, optionally linked/renamed/offset", ("duplicate object", "copy object", "linked duplicate", "clone object"), requires_object=True, priority=24),
+    Capability("blender_parent_objects", "parent_objects", "object", "create parent-child relationships while optionally preserving world transforms", ("parent object", "parent objects", "make child", "attach child", "parent to"), requires_object=True, priority=24),
+    Capability("blender_manage_collection", "manage_collection", "scene", "list/create/delete collections and move objects between them", ("collection", "collections", "move to collection", "organize objects", "create collection"), priority=22),
+    Capability("blender_curve_operations", "curve_operations", "model", "create curves/paths or convert curves to meshes", ("curve", "bezier", "nurbs", "path", "cable", "pipe", "curve to mesh"), priority=25),
+    Capability("blender_shape_keys", "shape_keys", "animation", "list/create/set/keyframe shape keys and morph targets", ("shape key", "shape keys", "morph target", "blend shape", "facial expression"), requires_object=True, priority=28),
+    Capability("blender_weight_paint", "weight_paint", "rigging", "manage vertex groups/weights and automatic armature weights", ("weight paint", "vertex weight", "auto weights", "automatic weights", "vertex group"), requires_object=True, priority=27),
+    Capability("blender_particle_system", "particle_system", "physics", "add/remove emitter or hair particle systems", ("particle system", "particles", "hair particles", "emitter"), requires_object=True, priority=24),
+    Capability("blender_force_field", "force_field", "physics", "create force, wind, vortex, turbulence and related fields", ("force field", "wind field", "vortex", "turbulence", "magnetic field"), priority=24),
+    Capability("blender_text_object", "text_object", "scene", "create or edit 3D text including font/extrude/bevel/alignment", ("3d text", "text object", "add text", "edit text", "font"), priority=24),
+    Capability("blender_compositor", "compositor", "render", "inspect or edit compositor node graphs", ("compositor", "compositing", "post processing", "glare node", "compositor nodes"), priority=25),
+    Capability("blender_image_operations", "image_operations", "material", "list/load/create/save Blender images used by texture workflows", ("image operations", "load image", "texture image", "create image", "save image"), priority=20),
+    Capability("blender_clear_keyframes", "clear_keyframes", "animation", "remove all animation/keyframes from one object", ("clear keyframes", "remove keyframes", "delete animation", "clear animation"), requires_object=True, priority=24),
+    Capability("blender_scene_operations", "scene_operations", "scene", "set frame and manage Blender scenes", ("set frame", "switch scene", "new scene", "delete scene", "list scenes"), priority=22),
 )
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")

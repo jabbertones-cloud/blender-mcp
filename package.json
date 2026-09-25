@@ -78,7 +78,7 @@
     "pool:release": "node scripts/blender-instance-pool.js --release",
     "pool:json": "node scripts/blender-instance-pool.js --json",
     "── BLENDER MCP ──": "",
-    "mcp:start": "python3 server/blender_mcp_server.py",
+    "mcp:start": "python3 server/blender_mcp_guided.py",
     "mcp:test": "python3 tests/qa_runner.py",
     "mcp:healthcheck": "python3 scripts/blender_healthcheck.py",
     "mcp:healthcheck:live": "python3 scripts/blender_healthcheck.py --live",
@@ -114,7 +114,8 @@
     "render:worker:parallel:heavy": "bash scripts/3d-forge/run-parallel-workers.sh 5 10",
     "render:audit": "node scripts/3d-forge/render-audit-supervisor.js",
     "render:worker:status": "cat reports/worker_audit_latest.json 2>/dev/null || echo '{\\\"error\\\": \\\"no audit yet\\\"}' ",
-    "render:worker:experiments": "tail -20 data/worker_experiments.ndjson 2>/dev/null || echo 'No experiments yet' "
+    "render:worker:experiments": "tail -20 data/worker_experiments.ndjson 2>/dev/null || echo 'No experiments yet' ",
+    "mcp:start:power": "python3 server/blender_mcp_server.py"
   },
   "keywords": [
     "blender",

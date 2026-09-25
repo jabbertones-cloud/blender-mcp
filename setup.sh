@@ -40,16 +40,19 @@ fi
 echo -e "${GREEN}Found Blender: $BLENDER_APP${NC}"
 
 echo -e "\n${YELLOW}[3/4] Installing Blender addon...${NC}"
-ADDON_SRC="$SCRIPT_DIR/blender_addon/openclaw_blender_bridge.py"
+ADDON_SRC_DIR="$SCRIPT_DIR/blender_addon"
 BLENDER_VERSION=$("$BLENDER_BIN" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
 if [ -n "$BLENDER_VERSION" ]; then
     ADDON_DIR="$HOME/Library/Application Support/Blender/$BLENDER_VERSION/scripts/addons"
     mkdir -p "$ADDON_DIR"
-    cp "$ADDON_SRC" "$ADDON_DIR/openclaw_blender_bridge.py"
+    cp "$ADDON_SRC_DIR/openclaw_blender_bridge.py" "$ADDON_DIR/openclaw_blender_bridge.py"
+    cp "$ADDON_SRC_DIR/new_handlers_phase5.py" "$ADDON_DIR/new_handlers_phase5.py"
+    cp "$ADDON_SRC_DIR/quality_handlers.py" "$ADDON_DIR/quality_handlers.py"
+    cp "$ADDON_SRC_DIR/depsgraph_helpers.py" "$ADDON_DIR/depsgraph_helpers.py"
     echo -e "${GREEN}Addon installed to: $ADDON_DIR${NC}"
 else
     echo -e "${YELLOW}Could not detect version. Manual install needed:${NC}"
-    echo "  Blender > Edit > Preferences > Add-ons > Install > $ADDON_SRC"
+    echo "  Copy the bridge and sidecar modules from: $ADDON_SRC_DIR"
 fi
 
 echo -e "\n${YELLOW}[4/4] Generating Claude MCP config...${NC}"

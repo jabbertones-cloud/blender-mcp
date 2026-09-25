@@ -222,3 +222,50 @@ def test_forensic_workflow_hits_forensic_bridge_command():
     result = execute_workflow("workflow.forensic_recon", {"action": "build_road"}, bridge)
     assert result["status"] == "ok"
     assert ("forensic_scene", {"action": "build_road"}) in bridge.calls
+
+
+def test_sequence_workflow_prevalidates_then_pushes_one_undo_boundary():
+    bridge = FakeBridge()
+    out = execute_workflow(
+        "workflow.sequence",
+        {"steps": [
+            {"capability": "scene.create_object", "arguments": {"type": "cube", "name": "SeqCube"}, "observe_visual": False},
+            {"capability": "object.duplicate", "arguments": {"name": "SeqCube", "new_name": "SeqCube2"}, "observe_visual": False},
+        ]},
+        bridge,
+    )
+    assert out["status"] == "ok"
+    assert bridge.calls[0] == ("history", {"action": "push", "message": "OpenClaw workflow.sequence"})
+    assert not any(command == "history" and params.get("action") == "undo" for command, params in bridge.calls)
+    assert ("history", {"action": "clear"}) in bridge.calls
+
+
+def test_sequence_workflow_rolls_back_on_failed_step():
+    class FailDuplicate(FakeBridge):
+        def __call__(self, command, params=None):
+            if command == "duplicate_object":
+                self.calls.append((command, params or {}))
+                return {"error": "duplicate failed"}
+            return super().__call__(command, params)
+    bridge = FailDuplicate()
+    out = execute_workflow(
+        "workflow.sequence",
+        {"steps": [
+            {"capability": "object.duplicate", "arguments": {"name": "Bottle"}, "observe_visual": False},
+        ]},
+        bridge,
+    )
+    assert out["status"] == "failed"
+    assert out["failed_step"] == 0
+    assert ("history", {"action": "undo"}) in bridge.calls
+
+
+def test_sequence_workflow_rejects_nested_workflows_before_mutation():
+    bridge = FakeBridge()
+    try:
+        execute_workflow("workflow.sequence", {"steps": [{"capability": "workflow.product_hero", "arguments": {}}]}, bridge)
+    except ValueError as exc:
+        assert "nested workflows" in str(exc)
+    else:
+        raise AssertionError("nested workflow accepted")
+    assert bridge.calls == []

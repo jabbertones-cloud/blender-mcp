@@ -26,3 +26,11 @@ def test_setup_generator_preserves_same_guided_topology():
     assert '"OPENCLAW_PORT": "9877"' in source
     assert '"BLENDER_PORT": "9878"' in source
     assert '"OPENCLAW_PORT": "9878"' in source
+
+
+def test_installers_copy_required_runtime_sidecars():
+    required = {"new_handlers_phase5.py", "quality_handlers.py", "depsgraph_helpers.py"}
+    for filename in ("setup.sh", "install_addon.sh"):
+        source = (ROOT / filename).read_text(encoding="utf-8")
+        for sidecar in required:
+            assert sidecar in source, f"{filename} does not install {sidecar}"

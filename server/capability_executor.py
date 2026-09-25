@@ -62,6 +62,26 @@ WORKFLOW_SCHEMAS: Dict[str, dict] = {
     "workflow.motion_qa": {"type": "object", "properties": {"samples": {"type": "array"}}, "additionalProperties": False},
     "workflow.image_to_scene": {"type": "object", "properties": {"image_url": {"type": "string"}, "filepath": {"type": "string"}, "object_name": {"type": "string"}, "prompt": {"type": "string"}, "keyword": {"type": "string"}, "path": {"type": "string"}}, "additionalProperties": False},
     "workflow.viewport_multiview": {"type": "object", "properties": {"views": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": False},
+    "workflow.sequence": {
+        "type": "object",
+        "required": ["steps"],
+        "properties": {
+            "steps": {
+                "type": "array", "minItems": 1, "maxItems": 25,
+                "items": {
+                    "type": "object", "required": ["capability"],
+                    "properties": {
+                        "capability": {"type": "string"},
+                        "arguments": {"type": "object", "default": {}},
+                        "observe_visual": {"type": "boolean", "default": True},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            "rollback_on_failure": {"type": "boolean", "default": True},
+        },
+        "additionalProperties": False,
+    },
 }
 
 WORKFLOW_DESCRIPTIONS = {
@@ -81,6 +101,7 @@ WORKFLOW_DESCRIPTIONS = {
     "workflow.motion_qa": "Numeric foot-skate and pop checks from evaluated bone samples. No VLM.",
     "workflow.image_to_scene": "Free hero import, HDRI lighting match, shadow catcher, camera. Not photogrammetry.",
     "workflow.viewport_multiview": "Capture front, right, top, and iso viewport stills in one workflow.",
+    "workflow.sequence": "Run a bounded sequence of canonical capabilities with one Blender undo boundary and automatic rollback on failure.",
 }
 
 
@@ -221,7 +242,7 @@ def _execute_spatial_adapter(key: str, args: dict, send_command) -> dict:
 
 def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual: bool = True) -> dict:
     cap = registry.resolve_tool(key)
-    args = arguments or {}
+    args = registry.validate_arguments(key, arguments or {})
     before = _scene_summary(send_command) if cap.mutates_scene else None
     if key.startswith("product."):
         result = _execute_product(cap, args, send_command)
@@ -665,6 +686,39 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
 
     def fail() -> dict:
         return {"workflow": key, "status": "failed", "steps": steps}
+
+    if key == "workflow.sequence":
+        from jsonschema import Draft202012Validator
+        errors = sorted(Draft202012Validator(WORKFLOW_SCHEMAS[key]).iter_errors(args), key=lambda err: list(err.path))
+        if errors:
+            err = errors[0]
+            location = ".".join(str(part) for part in err.path) or "<root>"
+            raise ValueError(f"Invalid arguments for '{key}' at {location}: {err.message}")
+        plan = args["steps"]
+        if any(str(step.get("capability", "")).startswith("workflow.") for step in plan):
+            raise ValueError("workflow.sequence accepts canonical capabilities only; nested workflows are not allowed")
+        for step in plan:
+            registry.validate_arguments(str(step["capability"]), step.get("arguments") or {})
+        rollback = bool(args.get("rollback_on_failure", True))
+        boundary = send_command("history", {"action": "push", "message": "OpenClaw workflow.sequence"}) if rollback else {"status": "skipped"}
+        if rollback and _has_error(boundary):
+            return {"workflow": key, "status": "failed", "error": "could not establish Blender undo boundary", "history": boundary, "steps": []}
+        for index, step in enumerate(plan):
+            out = execute_canonical(
+                str(step["capability"]),
+                step.get("arguments") or {},
+                send_command,
+                observe_visual=bool(step.get("observe_visual", True)),
+            )
+            steps.append(out)
+            if out.get("status") != "ok":
+                undo = send_command("history", {"action": "undo"}) if rollback else {"status": "skipped"}
+                return {
+                    "workflow": key, "status": "failed", "failed_step": index, "steps": steps,
+                    "rollback_requested": rollback, "rollback": undo,
+                }
+        cleared = send_command("history", {"action": "clear"}) if rollback else {"status": "skipped"}
+        return {"workflow": key, "status": "ok", "steps": steps, "rollback_boundary": boundary, "rollback_cleanup": cleared}
 
     object_name = None
     if key in {"workflow.product_hero", "workflow.turntable", "workflow.amazon_packshot"}:
