@@ -63,10 +63,10 @@ _KEY_OVERRIDES = {
 # Dynamic adapters are executed in capability_executor.py; bridge_command records
 # a real registered handler used by that adapter rather than a fictional socket name.
 _BRIDGE_COMMAND_OVERRIDES = {
-    "product.material": "execute_python",
-    "product.lighting": "execute_python",
-    "product.camera": "execute_python",
-    "product.render_setup": "execute_python",
+    "product.material": "product_material",
+    "product.lighting": "product_lighting",
+    "product.camera": "product_camera",
+    "product.render_setup": "product_render_setup",
     "product.animation": "execute_python",
     "scene.spatial_query": "spatial_scene_bounds",
     "scene.dimensions": "dimensions_estimate",
