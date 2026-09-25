@@ -7550,8 +7550,548 @@ def handle_forensic_scene(params):
 
 
 # ─── Command Router ──────────────────────────────────────────────────────────
+
+def handle_product_material(params):
+    import bpy
+    obj_name = params.get("object_name")
+    if not obj_name:
+        return {"error": "object_name is required"}
+    obj = bpy.data.objects.get(obj_name)
+    if not obj:
+        return {"error": f"Object {obj_name} not found"}
+        
+    mat_name = params.get("material_name", "ProductMaterial")
+    mat = bpy.data.materials.get(mat_name)
+    if not mat:
+        mat = bpy.data.materials.new(name=mat_name)
+        
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    bsdf = nodes.get("Principled BSDF")
+    if not bsdf:
+        return {"error": "Material does not have Principled BSDF"}
+        
+    if "color" in params:
+        bsdf.inputs['Base Color'].default_value = params["color"]
+    if "roughness" in params:
+        bsdf.inputs['Roughness'].default_value = params["roughness"]
+    if "metallic" in params:
+        bsdf.inputs['Metallic'].default_value = params["metallic"]
+    if "transmission" in params:
+        if 'Transmission Weight' in bsdf.inputs: # 4.x
+            bsdf.inputs['Transmission Weight'].default_value = params["transmission"]
+        elif 'Transmission' in bsdf.inputs: # 3.x
+            bsdf.inputs['Transmission'].default_value = params["transmission"]
+    if "ior" in params:
+        bsdf.inputs['IOR'].default_value = params["ior"]
+    if "coat_weight" in params:
+        if 'Coat Weight' in bsdf.inputs:
+            bsdf.inputs['Coat Weight'].default_value = params["coat_weight"]
+    if "coat_roughness" in params:
+        if 'Coat Roughness' in bsdf.inputs:
+            bsdf.inputs['Coat Roughness'].default_value = params["coat_roughness"]
+    if "subsurface" in params:
+        if 'Subsurface Weight' in bsdf.inputs:
+            bsdf.inputs['Subsurface Weight'].default_value = params["subsurface"]
+        elif 'Subsurface' in bsdf.inputs:
+            bsdf.inputs['Subsurface'].default_value = params["subsurface"]
+            
+    if params.get("add_imperfections"):
+        tc = nodes.new('ShaderNodeTexCoord')
+        tc.location = (-800, 0)
+        fp = nodes.new('ShaderNodeTexNoise')
+        fp.location = (-600, 100)
+        fp.inputs['Scale'].default_value = 800
+        fp.inputs['Detail'].default_value = 8
+        fp_s = nodes.new('ShaderNodeMath')
+        fp_s.location = (-400, 100)
+        fp_s.operation = 'MULTIPLY'
+        fp_s.inputs[1].default_value = 0.5
+        fp_a = nodes.new('ShaderNodeMath')
+        fp_a.location = (-200, 100)
+        fp_a.operation = 'ADD'
+        fp_a.inputs[1].default_value = params.get("roughness", 0.15)
+        
+        links = mat.node_tree.links
+        links.new(tc.outputs['Object'], fp.inputs['Vector'])
+        links.new(fp.outputs['Fac'], fp_s.inputs[0])
+        links.new(fp_s.outputs['Value'], fp_a.inputs[0])
+        links.new(fp_a.outputs['Value'], bsdf.inputs['Roughness'])
+        
+    if not obj.data.materials:
+        obj.data.materials.append(mat)
+    else:
+        obj.data.materials[0] = mat
+        
+    return {"status": "ok", "material": mat.name, "object": obj.name}
+
+
+def handle_product_render_setup(params):
+    import bpy
+    scene = bpy.context.scene
+    
+    engine = params.get("engine", "CYCLES").upper()
+    if engine not in ["CYCLES", "BLENDER_EEVEE", "BLENDER_EEVEE_NEXT"]:
+        return {"error": f"Engine {engine} not allowed"}
+    scene.render.engine = engine
+    
+    QUALITY_MAP = {
+        "fast": {"samples": 128, "bounces": 6, "threshold": 0.1},
+        "balanced": {"samples": 256, "bounces": 8, "threshold": 0.05},
+        "premium": {"samples": 512, "bounces": 12, "threshold": 0.01},
+    }
+
+    RES_MAP = {
+        "720p": (1280, 720), "1080p": (1920, 1080), "4k": (3840, 2160),
+        "square_1080": (1080, 1080), "vertical": (1080, 1920), "instagram": (1080, 1350),
+    }
+    
+    q = QUALITY_MAP.get(params.get("quality", "balanced"), QUALITY_MAP["balanced"])
+    w, h = RES_MAP.get(params.get("resolution", "1080p"), RES_MAP["1080p"])
+    
+    if engine == 'CYCLES':
+        scene.cycles.device = 'GPU'
+        scene.cycles.samples = q['samples']
+        scene.cycles.preview_samples = 64
+        scene.cycles.use_adaptive_sampling = True
+        scene.cycles.adaptive_threshold = q['threshold']
+        scene.cycles.use_denoising = True
+        scene.cycles.denoiser = 'OPENIMAGEDENOISE'
+        scene.cycles.max_bounces = q['bounces']
+        scene.cycles.diffuse_bounces = 3
+        scene.cycles.glossy_bounces = 4
+        scene.cycles.transmission_bounces = 8
+        scene.cycles.volume_bounces = 0
+        scene.cycles.caustics_reflective = False
+        scene.cycles.caustics_refractive = False
+        scene.cycles.use_persistent_data = True
+    
+    scene.render.resolution_x = w
+    scene.render.resolution_y = h
+    scene.render.resolution_percentage = 100
+    scene.render.film_transparent = bool(params.get("transparent_bg", True))
+    
+    try:
+        scene.view_settings.view_transform = 'AgX'
+        scene.view_settings.look = 'AgX - Punchy'
+    except:
+        scene.view_settings.view_transform = 'Filmic'
+        scene.view_settings.look = 'Medium High Contrast'
+        
+    scene.render.image_settings.file_format = params.get("output_format", "PNG")
+    scene.render.image_settings.color_mode = 'RGBA'
+    
+    if "output_path" in params:
+        scene.render.filepath = params["output_path"]
+        
+    # Compositor
+    scene.use_nodes = True
+    tree = scene.node_tree
+    for n in list(tree.nodes):
+        tree.nodes.remove(n)
+        
+    rl = tree.nodes.new('CompositorNodeRLayers')
+    rl.location = (0, 0)
+    comp = tree.nodes.new('CompositorNodeComposite')
+    comp.location = (800, 0)
+    last = rl.outputs['Image']
+    x = 200
+    
+    if params.get("bloom", True):
+        gl = tree.nodes.new('CompositorNodeGlare')
+        gl.location = (x, 0)
+        gl.glare_type = 'FOG_GLOW'
+        gl.threshold = 0.8
+        gl.quality = 'HIGH'
+        gl.mix = -0.7
+        gl.size = 6
+        tree.links.new(last, gl.inputs[0])
+        last = gl.outputs[0]
+        x += 200
+        
+    if params.get("vignette", True):
+        mask = tree.nodes.new('CompositorNodeEllipseMask')
+        mask.location = (x, -200)
+        mask.width = 0.85
+        mask.height = 0.85
+        blur = tree.nodes.new('CompositorNodeBlur')
+        blur.location = (x+200, -200)
+        blur.size_x = 200
+        blur.size_y = 200
+        blur.use_relative = True
+        mix = tree.nodes.new('CompositorNodeMixRGB')
+        mix.location = (x+400, 0)
+        mix.blend_type = 'MULTIPLY'
+        tree.links.new(mask.outputs[0], blur.inputs[0])
+        tree.links.new(last, mix.inputs[1])
+        tree.links.new(blur.outputs[0], mix.inputs[2])
+        last = mix.outputs[0]
+        
+    tree.links.new(last, comp.inputs['Image'])
+    
+    return {"status": "ok"}
+
+
+# ─── Guided task-sized inspection / runtime discovery ───────────────────────
+
+def _page_rows(rows, params, default_limit=250, max_limit=5000):
+    offset = max(0, int(params.get("offset", 0) or 0))
+    limit = int(params.get("limit", default_limit) or default_limit)
+    limit = max(1, min(limit, max_limit))
+    total = len(rows)
+    page = rows[offset:offset + limit]
+    next_offset = offset + len(page) if offset + len(page) < total else None
+    return page, {"offset": offset, "limit": limit, "total": total, "next_offset": next_offset}
+
+
+def handle_scene_context(params):
+    """Fast structured entry point for the current Blender context."""
+    scene = bpy.context.scene
+    active = bpy.context.view_layer.objects.active
+    selected = list(bpy.context.selected_objects)
+    return {
+        "blender_version": list(bpy.app.version),
+        "scene": scene.name,
+        "mode": bpy.context.mode,
+        "active_object": active.name if active else None,
+        "active_object_type": active.type if active else None,
+        "selected_objects": [o.name for o in selected],
+        "selection_count": len(selected),
+        "frame": scene.frame_current,
+        "frame_start": scene.frame_start,
+        "frame_end": scene.frame_end,
+        "render": {
+            "engine": scene.render.engine,
+            "resolution_x": scene.render.resolution_x,
+            "resolution_y": scene.render.resolution_y,
+            "resolution_percentage": scene.render.resolution_percentage,
+            "fps": scene.render.fps,
+        },
+        "world": scene.world.name if scene.world else None,
+    }
+
+
+def _mesh_topology_payload(obj):
+    if not obj or obj.type != "MESH" or obj.data is None:
+        return {"error": "target is not a mesh object"}
+    mesh = obj.data
+    payload = {
+        "object_name": obj.name,
+        "original": {
+            "vertices": len(mesh.vertices),
+            "edges": len(mesh.edges),
+            "faces": len(mesh.polygons),
+            "triangles": sum(max(1, len(p.vertices) - 2) for p in mesh.polygons),
+            "quads": sum(1 for p in mesh.polygons if len(p.vertices) == 4),
+            "ngons": sum(1 for p in mesh.polygons if len(p.vertices) > 4),
+        },
+        "dimensions": list(obj.dimensions),
+    }
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    obj_eval = obj.evaluated_get(depsgraph)
+    mesh_eval = None
+    try:
+        mesh_eval = obj_eval.to_mesh()
+        payload["evaluated"] = {
+            "vertices": len(mesh_eval.vertices),
+            "edges": len(mesh_eval.edges),
+            "faces": len(mesh_eval.polygons),
+            "triangles": sum(max(1, len(p.vertices) - 2) for p in mesh_eval.polygons),
+        }
+    except Exception as exc:
+        payload["evaluated"] = {"available": False, "error": str(exc)}
+    finally:
+        if mesh_eval is not None:
+            try:
+                obj_eval.to_mesh_clear()
+            except Exception:
+                pass
+    return payload
+
+
+def handle_scene_inspect(params):
+    """Grouped scene/object inspection above existing atomic handlers."""
+    action = str(params.get("action", "summary")).lower()
+    object_name = params.get("object_name") or params.get("name")
+    if action == "summary":
+        return handle_get_scene_info({})
+    if action == "object":
+        if not object_name:
+            return {"error": "object_name is required for action=object"}
+        return handle_get_object_data({"name": object_name})
+    if action == "topology":
+        if not object_name:
+            return {"error": "object_name is required for action=topology"}
+        obj = bpy.data.objects.get(object_name)
+        if not obj:
+            return {"error": f"Object '{object_name}' not found"}
+        return _mesh_topology_payload(obj)
+    if action == "modifiers":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj:
+                continue
+            rows.append({
+                "object_name": obj.name,
+                "modifiers": [
+                    {
+                        "name": m.name,
+                        "type": m.type,
+                        "show_viewport": bool(m.show_viewport),
+                        "show_render": bool(m.show_render),
+                    }
+                    for m in obj.modifiers
+                ],
+            })
+        return {"objects": rows}
+    if action == "materials":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj or not obj.data or not hasattr(obj.data, "materials"):
+                continue
+            rows.append({
+                "object_name": obj.name,
+                "slots": [m.name if m else None for m in obj.data.materials],
+            })
+        return {"objects": rows}
+    if action == "hierarchy":
+        objects = [bpy.data.objects.get(object_name)] if object_name else list(bpy.context.scene.objects)
+        rows = []
+        for obj in objects:
+            if not obj:
+                continue
+            rows.append({
+                "name": obj.name,
+                "type": obj.type,
+                "parent": obj.parent.name if obj.parent else None,
+                "children": [child.name for child in obj.children],
+                "collections": [col.name for col in obj.users_collection],
+            })
+        return {"objects": rows}
+    return {"error": f"Unknown scene inspect action: {action}"}
+
+
+def handle_mesh_inspect(params):
+    """Task-sized mesh truth with bounded/paged payloads."""
+    object_name = params.get("object_name")
+    obj = bpy.data.objects.get(object_name) if object_name else None
+    if not obj:
+        return {"error": f"Object '{object_name}' not found"}
+    if obj.type != "MESH" or obj.data is None:
+        return {"error": f"Object '{object_name}' is not a mesh"}
+    mesh = obj.data
+    action = str(params.get("action", "summary")).lower()
+    selected_only = bool(params.get("selected_only", False))
+
+    if action == "summary":
+        topology = _mesh_topology_payload(obj)
+        bounds = []
+        try:
+            bounds = [list(obj.matrix_world @ Vector(corner)) for corner in obj.bound_box]
+        except Exception:
+            pass
+        return {
+            **topology,
+            "mode": obj.mode,
+            "selected": bool(obj.select_get()),
+            "world_bounds": bounds,
+            "modifiers": [{"name": m.name, "type": m.type} for m in obj.modifiers],
+            "materials": [m.name if m else None for m in mesh.materials],
+            "uv_maps": [uv.name for uv in mesh.uv_layers],
+            "shape_keys": [kb.name for kb in mesh.shape_keys.key_blocks] if mesh.shape_keys else [],
+            "vertex_groups": [group.name for group in obj.vertex_groups],
+            "attributes": [
+                {"name": attr.name, "domain": str(attr.domain), "data_type": str(attr.data_type)}
+                for attr in getattr(mesh, "attributes", [])
+            ],
+        }
+
+    if action == "vertices":
+        rows = [
+            {"index": v.index, "co": list(v.co), "normal": list(v.normal), "selected": bool(v.select)}
+            for v in mesh.vertices if not selected_only or v.select
+        ]
+    elif action == "edges":
+        rows = [
+            {
+                "index": e.index,
+                "vertices": list(e.vertices),
+                "selected": bool(e.select),
+                "seam": bool(getattr(e, "use_seam", False)),
+                "sharp": bool(getattr(e, "use_edge_sharp", False)),
+            }
+            for e in mesh.edges if not selected_only or e.select
+        ]
+    elif action == "faces":
+        rows = [
+            {
+                "index": poly.index,
+                "vertices": list(poly.vertices),
+                "normal": list(poly.normal),
+                "area": float(poly.area),
+                "material_index": int(poly.material_index),
+                "selected": bool(poly.select),
+            }
+            for poly in mesh.polygons if not selected_only or poly.select
+        ]
+    elif action == "uvs":
+        layer_name = params.get("uv_layer")
+        layer = mesh.uv_layers.get(layer_name) if layer_name else mesh.uv_layers.active
+        if layer is None:
+            return {"object_name": object_name, "uv_layer": None, "rows": [], "page": {"offset": 0, "limit": 0, "total": 0, "next_offset": None}}
+        rows = []
+        for loop in mesh.loops:
+            if selected_only and not mesh.vertices[loop.vertex_index].select:
+                continue
+            uv = layer.data[loop.index].uv
+            rows.append({"loop_index": loop.index, "vertex_index": loop.vertex_index, "uv": list(uv)})
+    elif action == "normals":
+        rows = [
+            {"vertex_index": v.index, "normal": list(v.normal), "selected": bool(v.select)}
+            for v in mesh.vertices if not selected_only or v.select
+        ]
+    elif action == "attributes":
+        rows = [
+            {"name": attr.name, "domain": str(attr.domain), "data_type": str(attr.data_type)}
+            for attr in getattr(mesh, "attributes", [])
+            if not params.get("attribute_name") or attr.name == params.get("attribute_name")
+        ]
+    elif action == "shape_keys":
+        rows = []
+        if mesh.shape_keys:
+            for kb in mesh.shape_keys.key_blocks:
+                rows.append({"name": kb.name, "value": float(kb.value), "slider_min": float(kb.slider_min), "slider_max": float(kb.slider_max)})
+    elif action == "group_weights":
+        group_filter = params.get("group_name")
+        group_names = {g.index: g.name for g in obj.vertex_groups}
+        rows = []
+        for v in mesh.vertices:
+            if selected_only and not v.select:
+                continue
+            weights = [
+                {"group": group_names.get(item.group, str(item.group)), "weight": float(item.weight)}
+                for item in v.groups
+                if not group_filter or group_names.get(item.group) == group_filter
+            ]
+            if weights or not group_filter:
+                rows.append({"vertex_index": v.index, "weights": weights})
+    else:
+        return {"error": f"Unknown mesh inspect action: {action}"}
+
+    page_rows, page = _page_rows(rows, params)
+    return {"object_name": object_name, "action": action, "rows": page_rows, "page": page}
+
+
+def handle_rna_search(params):
+    """Search live Blender RNA type identifiers without granting mutation authority."""
+    query = str(params.get("query", "") or "").lower()
+    rows = []
+    for name in dir(bpy.types):
+        if name.startswith("_"):
+            continue
+        if query and query not in name.lower():
+            continue
+        value = getattr(bpy.types, name, None)
+        rna = getattr(value, "bl_rna", None)
+        if rna is None:
+            continue
+        rows.append({"identifier": name, "name": getattr(rna, "name", name), "description": getattr(rna, "description", "")})
+    rows.sort(key=lambda item: item["identifier"])
+    page_rows, page = _page_rows(rows, params, default_limit=50, max_limit=200)
+    return {"blender_version": list(bpy.app.version), "types": page_rows, "page": page, "mutation_authority": False}
+
+
+def handle_rna_describe(params):
+    """Describe live RNA property contracts for the current Blender runtime."""
+    type_name = str(params.get("type_name", "") or "")
+    value = getattr(bpy.types, type_name, None)
+    rna = getattr(value, "bl_rna", None)
+    if rna is None or getattr(rna, "identifier", None) != type_name:
+        return {"error": f"RNA type '{type_name}' not found"}
+    query = str(params.get("query", "") or "").lower()
+    rows = []
+    for prop in rna.properties:
+        identifier = getattr(prop, "identifier", "")
+        if identifier == "rna_type":
+            continue
+        if query and query not in identifier.lower() and query not in str(getattr(prop, "name", "")).lower():
+            continue
+        row = {
+            "identifier": identifier,
+            "name": getattr(prop, "name", identifier),
+            "description": getattr(prop, "description", ""),
+            "type": str(getattr(prop, "type", "")),
+            "readonly": bool(getattr(prop, "is_readonly", False)),
+            "array_length": int(getattr(prop, "array_length", 0) or 0),
+        }
+        for key in ("hard_min", "hard_max", "soft_min", "soft_max", "default"):
+            try:
+                v = getattr(prop, key)
+                if isinstance(v, (str, int, float, bool)) or v is None:
+                    row[key] = v
+            except Exception:
+                pass
+        try:
+            if str(getattr(prop, "type", "")) == "ENUM":
+                row["enum_items"] = [item.identifier for item in prop.enum_items]
+        except Exception:
+            pass
+        rows.append(row)
+    page_rows, page = _page_rows(rows, params, default_limit=100, max_limit=500)
+    return {
+        "blender_version": list(bpy.app.version),
+        "type": type_name,
+        "name": getattr(rna, "name", type_name),
+        "description": getattr(rna, "description", ""),
+        "properties": page_rows,
+        "page": page,
+        "mutation_authority": False,
+    }
+
+
+def handle_history(params):
+    """Explicit undo primitives with a headless-safe in-memory blend snapshot."""
+    action = str(params.get("action", "push")).lower()
+    global _OPENCLAW_HISTORY_SNAPSHOT
+    try:
+        if action == "push":
+            message = str(params.get("message", "OpenClaw MCP step"))[:120]
+            snapshot = bpy.data.libraries.write
+            import tempfile
+            path = tempfile.mktemp(prefix="openclaw-history-", suffix=".blend")
+            bpy.ops.wm.save_as_mainfile(filepath=path, copy=True)
+            _OPENCLAW_HISTORY_SNAPSHOT = path
+            return {"status": "ok", "action": "push", "message": message, "strategy": "blend_snapshot"}
+        if action == "undo":
+            path = globals().get("_OPENCLAW_HISTORY_SNAPSHOT")
+            if not path:
+                return {"error": "history undo failed: no snapshot exists", "action": action}
+            bpy.ops.wm.open_mainfile(filepath=path)
+            return {"status": "ok", "action": "undo", "strategy": "blend_snapshot"}
+        if action == "clear":
+            import os
+            path = globals().get("_OPENCLAW_HISTORY_SNAPSHOT")
+            if path and os.path.exists(path):
+                os.unlink(path)
+            _OPENCLAW_HISTORY_SNAPSHOT = None
+            return {"status": "ok", "action": "clear"}
+    except Exception as exc:
+        return {"error": f"history {action} failed: {exc}", "action": action}
+    return {"error": f"Unknown history action: {action}"}
+
+
 HANDLERS = {
+    "product_material": handle_product_material,
+    "product_render_setup": handle_product_render_setup,
     "ping": handle_ping,
+    "scene_context": handle_scene_context,
+    "scene_inspect": handle_scene_inspect,
+    "mesh_inspect": handle_mesh_inspect,
+    "rna_search": handle_rna_search,
+    "rna_describe": handle_rna_describe,
+    "history": handle_history,
     "get_scene_info": handle_get_scene_info,
     "create_object": handle_create_object,
     "modify_object": handle_modify_object,
@@ -7624,6 +8164,16 @@ try:
     print(f"[OpenClaw] Loaded {len(_PHASE5_HANDLERS)} Phase 5 handlers (spatial, dims, camera, UV, LOD, VR, splat, GP, snapshot)")
 except Exception as _e:
     print(f"[OpenClaw] Phase 5 handlers not loaded: {_e}")
+
+try:
+    try:
+        from .quality_handlers import QUALITY_HANDLERS  # type: ignore
+    except Exception:
+        from quality_handlers import QUALITY_HANDLERS  # type: ignore
+    HANDLERS.update(QUALITY_HANDLERS)
+    print(f"[OpenClaw] Loaded {len(QUALITY_HANDLERS)} quality handlers ({', '.join(sorted(QUALITY_HANDLERS))})")
+except Exception as _e:
+    print(f"[OpenClaw] Quality handlers not loaded: {_e}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -15,3 +15,8 @@ def test_guided_workflow_match_returns_ranked_matches():
 
 def test_guided_workflow_match_empty_query_is_empty_list():
     assert _workflow_match("") == []
+
+
+def test_guided_workflow_match_recreate_intents():
+    assert _workflow_match("image to 3d reconstruct from image")[0]["key"] == "workflow.image_to_asset"
+    assert _workflow_match("character from image mixamo")[0]["key"] == "workflow.character_from_image"

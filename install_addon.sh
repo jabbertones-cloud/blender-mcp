@@ -4,7 +4,7 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ADDON_SRC="$SCRIPT_DIR/blender_addon/openclaw_blender_bridge.py"
+ADDON_SRC_DIR="$SCRIPT_DIR/blender_addon"
 
 # Find Blender version
 BLENDER_BIN="/Applications/Blender.app/Contents/MacOS/Blender"
@@ -30,7 +30,10 @@ for ADDON_DIR in \
     
     mkdir -p "$ADDON_DIR" 2>/dev/null || true
     if [ -d "$ADDON_DIR" ]; then
-        cp "$ADDON_SRC" "$ADDON_DIR/openclaw_blender_bridge.py"
+        cp "$ADDON_SRC_DIR/openclaw_blender_bridge.py" "$ADDON_DIR/openclaw_blender_bridge.py"
+        cp "$ADDON_SRC_DIR/new_handlers_phase5.py" "$ADDON_DIR/new_handlers_phase5.py"
+        cp "$ADDON_SRC_DIR/quality_handlers.py" "$ADDON_DIR/quality_handlers.py"
+        cp "$ADDON_SRC_DIR/depsgraph_helpers.py" "$ADDON_DIR/depsgraph_helpers.py"
         echo "✅ Addon installed to: $ADDON_DIR"
         break
     fi
