@@ -25,11 +25,13 @@ try:
         WORKFLOW_DESCRIPTIONS,
     )
     from server.workflow_rank import workflow_match as _workflow_match
+    from server.workflow_guides import list_workflow_guides, get_workflow_guide
 except ModuleNotFoundError:
     from runtime_config import resolve_blender_host, resolve_blender_port
     from capability_registry import registry, CapabilityNotFound
     from capability_executor import execute_canonical, execute_workflow, WORKFLOW_SCHEMAS, WORKFLOW_DESCRIPTIONS
     from workflow_rank import workflow_match as _workflow_match
+    from workflow_guides import list_workflow_guides, get_workflow_guide
 
 HOST = resolve_blender_host()
 PORT = resolve_blender_port()
@@ -42,7 +44,8 @@ mcp = FastMCP(
         "For multi-step Blender work, set the goal first. Search capabilities before execution. "
         "Prefer a workflow capability when it matches the user's complete intent. Never invent capability keys. "
         "Inspect one schema, then execute the exact canonical key returned by search. "
-        "Appearance-affecting operations automatically return visual postcondition evidence."
+        "Appearance-affecting operations automatically return visual postcondition evidence. "
+        "Read the relevant workflow guide before multi-step changes."
     ),
 )
 _goal_state: Dict[str, Any] = {"goal": None, "last_search": [], "executions": 0}
@@ -162,6 +165,19 @@ async def get_capability_schema(input: SchemaInput) -> dict:
         return {"capability": cap, "next": "Call execute_capability with this exact key."}
     except CapabilityNotFound as exc:
         return {"error": str(exc), "code": "CAPABILITY_NOT_FOUND", "next": "Call search_capabilities again."}
+
+
+@mcp.resource("blender://guides/{key}")
+def workflow_guide_resource(key: str) -> str:
+    """Read packaged workflow guidance; never resolve user-supplied file paths."""
+    result = get_workflow_guide(key)
+    return result.get("content", json.dumps(result))
+
+
+@mcp.resource("blender://guides")
+def workflow_guide_index() -> str:
+    """Discover available outcome guides without expanding the tool surface."""
+    return json.dumps(list_workflow_guides())
 
 
 @mcp.tool(name="execute_capability")
