@@ -1558,6 +1558,12 @@ _SPATIAL_TOOLS = (_try_register("server.spatial_tools", "register_spatial_tools"
 _EXTENDED_TOOLS = (_try_register("server.extended_tools", "register_extended_tools")
                    or _try_register("extended_tools", "register_extended_tools"))
 
+# Outcome tools — blender_product_shot: one verified packshot replacing the
+# six product_* step tools' happy path (the product tools stay; see
+# guides/product-shot.md and the outcome-contracts standard).
+_PRODUCT_SHOT_TOOLS = (_try_register("server.product_shot", "register_product_shot_tools")
+                       or _try_register("product_shot", "register_product_shot_tools"))
+
 print(f"[OpenClaw] v3.0.0 tool registration complete. "
       f"agent_loop={len(_AGENT_LOOP_TOOLS)}, spatial={len(_SPATIAL_TOOLS)}, extended={len(_EXTENDED_TOOLS)}")
 
