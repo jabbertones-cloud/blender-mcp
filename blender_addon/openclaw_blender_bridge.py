@@ -7734,14 +7734,18 @@ def socket_server_thread():
                         response_holder = [None]
 
                         def callback(d=data, evt=response_event, holder=response_holder):
-                            holder[0] = process_command(d)
-                            evt.set()
+                            try:
+                                holder[0] = process_command(d)
+                            except Exception as e:
+                                holder[0] = {"id": d.get("id", "unknown"), "error": f"Bridge internal error: {str(e)}"}
+                            finally:
+                                evt.set()
 
                         command_queue.put(callback)
                         # 600s timeout — Cycles renders can take 3-5 min per frame
                         response_event.wait(timeout=600.0)
 
-                        resp = response_holder[0] or {"error": "Timeout waiting for Blender execution"}
+                        resp = response_holder[0] if response_holder[0] is not None else {"error": "Timeout waiting for Blender execution"}
                         resp_bytes = json.dumps(resp).encode("utf-8")
                         sock.sendall(resp_bytes)
 
