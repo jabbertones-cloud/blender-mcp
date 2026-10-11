@@ -1,4 +1,5 @@
 import argparse
+import os
 import pathlib
 import glob
 import json
@@ -200,19 +201,50 @@ def catalog_command(args):
     print(f"Catalog written to: {catalog_path}")
 
 
+def validate_blend_file(path):
+    """Check that a file is a readable Blender .blend file.
+
+    Validates the 12-byte .blend header: the "BLENDER" magic, the 3-char
+    version stamp, pointer size ('_' 32-bit / '-' 64-bit) and endianness
+    ('v' little / 'V' big). Returns (ok, detail).
+    """
+    try:
+        size = os.path.getsize(path)
+    except OSError as exc:
+        return False, f"unreadable ({exc})"
+    if size < 12:
+        return False, f"too small to be a .blend file ({size} bytes)"
+    try:
+        with open(path, "rb") as fh:
+            header = fh.read(12)
+    except OSError as exc:
+        return False, f"unreadable ({exc})"
+    if header[:7] != b"BLENDER":
+        return False, "missing BLENDER magic header"
+    version = header[7:10].decode("ascii", "replace")
+    pointer = {"_": "32-bit", "-": "64-bit"}.get(header[10:11].decode("ascii", "replace"), "unknown pointer size")
+    endian = {"v": "little-endian", "V": "big-endian"}.get(header[11:12].decode("ascii", "replace"), "unknown endianness")
+    return True, f"Blender {version}, {pointer}, {endian}, {size} bytes"
+
+
 def validate_command(args):
-    blend_files = glob.glob(args.pattern)
+    blend_files = glob.glob(args.pattern, recursive=True)
     if not blend_files:
         print(f"No .blend files found with pattern: {args.pattern}")
-        return
+        return 1
 
+    if args.schema:
+        print(f"Using schema: {args.schema}")
+
+    failures = 0
     for blend_file in blend_files:
-        print(f"Validating file: {blend_file}")
-        if args.schema:
-            print(f"  Using schema: {args.schema}")
-        # TODO: Actual validation logic
+        ok, detail = validate_blend_file(blend_file)
+        print(f"[{'OK' if ok else 'FAIL'}] {blend_file}: {detail}")
+        if not ok:
+            failures += 1
 
-    print(args)
+    print(f"Validated {len(blend_files)} file(s): {len(blend_files) - failures} ok, {failures} failed")
+    return 1 if failures else 0
 
 
 def main():
