@@ -39,3 +39,23 @@ def test_every_guide_has_real_content():
 def test_guide_names_cannot_escape_package():
     for key in ("..", "../../server/blender_mcp_guided.py", "modeling.md", "MODELing", ""):
         assert get_workflow_guide(key)["code"] == "GUIDE_NOT_FOUND"
+
+
+def test_goal_and_search_offer_task_specific_guides():
+    import asyncio
+    from server.blender_mcp_guided import GoalInput, SearchInput, router_set_goal, search_capabilities
+    goal = asyncio.run(router_set_goal(GoalInput(goal="make a product hero render")))
+    assert "blender://guides/product-shot" in [r["uri"] for r in goal["suggested_guides"]]
+    found = asyncio.run(search_capabilities(SearchInput(query="render a product hero")))
+    assert "product-shot" in [r["key"] for r in found["suggested_guides"]]
+
+
+def test_schema_includes_when_how_guidance_without_a_sixth_tool():
+    import asyncio
+    from server.blender_mcp_guided import SchemaInput, get_capability_schema
+    product = asyncio.run(get_capability_schema(SchemaInput(key="workflow.product_hero")))
+    assert "When to use" in product["usage_guide"]["content"]
+    create = asyncio.run(get_capability_schema(SchemaInput(key="scene.create_object")))
+    assert create["usage_guide"]["key"] == "modeling"
+    scene = asyncio.run(get_capability_schema(SchemaInput(key="scene.info")))
+    assert scene["usage_guide"] is None

@@ -27,7 +27,7 @@ _KEYWORDS = {
     "animation": ("animate", "motion", "turntable", "keyframe"),
     "rigging": ("rig", "bone", "skin", "deform", "weight"),
     "retopology": ("retopo", "topology", "edge flow"),
-    "product-shot": ("product shot", "packshot", "hero product", "product photo"),
+    "product-shot": ("product shot", "packshot", "hero product", "product hero", "product photo", "ecommerce image"),
 }
 
 
@@ -48,3 +48,22 @@ def get_workflow_guide(key: str) -> dict[str, str]:
         return {"key": key, "content": path.read_text(encoding="utf-8")}
     except OSError:
         return {"error": f"Guide unavailable: {key}", "code": "GUIDE_UNAVAILABLE"}
+
+
+# Stage-appropriate guidance is surfaced during schema inspection, not left
+# dependent on whether an MCP client happens to browse resources.
+_FAMILY_GUIDES = {
+    "create": "modeling", "mutate": "modeling", "material": "materials",
+    "lighting": "lighting", "camera": "camera", "render": "render",
+    "animation": "animation", "rigging": "rigging", "product": "product-shot",
+    "uv": "materials", "physics": "animation",
+}
+_WORKFLOW_GUIDES = {
+    "workflow.product_hero": "product-shot",
+    "workflow.amazon_packshot": "product-shot",
+    "workflow.turntable": "animation",
+}
+
+def guide_for_capability(key: str, family: str) -> dict | None:
+    name = _WORKFLOW_GUIDES.get(key) or _FAMILY_GUIDES.get(family)
+    return get_workflow_guide(name) if name else None
