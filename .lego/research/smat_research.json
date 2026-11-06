@@ -1,0 +1,18 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "No matching pre-existing SMAT Research Blender study; new independent donor and M2 tests required"
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "GitHub code search in jabbertones-cloud/smat-research for blender produced no matching study. gh search issues returned issue 94 about USIPE/AiSCent/Unloopr OAuth which is unrelated. No prior Blender donor study is claimed; this is explicitly a searched no-match result.",
+  "lane": "smat_research",
+  "mode": "searched_no_match",
+  "no_match_reason": "No Blender-specific prior study found in code search or issue search; issue 94 is not relevant.",
+  "query": "blender repo:jabbertones-cloud/smat-research",
+  "source_refs": [
+    "https://github.com/jabbertones-cloud/smat-research/issues/94"
+  ]
+}

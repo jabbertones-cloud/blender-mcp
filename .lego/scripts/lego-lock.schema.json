@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smatdesigns.com/schemas/lego-lock-v2.schema.json",
+  "title": "Lego Builder donor and research provenance lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "donors",
+    "components",
+    "research_evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "donors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "repository",
+          "commit",
+          "url",
+          "license",
+          "fabric_project",
+          "fabric_job_id",
+          "fabric_claim",
+          "fabric_status",
+          "rationale"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 2
+          },
+          "repository": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+          },
+          "commit": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{40}$"
+          },
+          "url": {
+            "type": "string",
+            "minLength": 20
+          },
+          "license": {
+            "type": "string",
+            "minLength": 2
+          },
+          "fabric_project": {
+            "type": "string",
+            "minLength": 2
+          },
+          "fabric_job_id": {
+            "type": "string",
+            "minLength": 2
+          },
+          "fabric_claim": {
+            "type": "string",
+            "minLength": 12
+          },
+          "fabric_status": {
+            "enum": [
+              "reported",
+              "inferred",
+              "measured"
+            ]
+          },
+          "fabric_verification_ref": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 12
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "mode",
+          "donor_ids",
+          "purpose",
+          "tests",
+          "benchmarks"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mode": {
+            "enum": [
+              "assembly",
+              "glue"
+            ]
+          },
+          "donor_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 12
+          },
+          "tests": {
+            "$ref": "#/$defs/commands"
+          },
+          "benchmarks": {
+            "$ref": "#/$defs/commands"
+          },
+          "apple_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "research_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "github_research",
+        "smat_research",
+        "expert_mcp",
+        "fabric"
+      ],
+      "properties": {
+        "github_research": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/receipt"
+            },
+            {
+              "type": "object",
+              "required": [
+                "query",
+                "taskmap_ref",
+                "pattern_card_refs"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "mcp",
+                    "cli",
+                    "fabric_lane"
+                  ]
+                },
+                "query": {
+                  "type": "string",
+                  "minLength": 10
+                },
+                "taskmap_ref": {
+                  "type": "string",
+                  "minLength": 3
+                },
+                "pattern_card_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 3
+                  }
+                },
+                "fabric_job_id": {
+                  "type": "string",
+                  "minLength": 3
+                }
+              },
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "fabric_lane"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "fabric_job_id"
+                ]
+              }
+            }
+          ]
+        },
+        "smat_research": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/receipt"
+            },
+            {
+              "type": "object",
+              "required": [
+                "query",
+                "finding"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "study",
+                    "searched_no_match"
+                  ]
+                },
+                "query": {
+                  "type": "string",
+                  "minLength": 10
+                },
+                "finding": {
+                  "type": "string",
+                  "minLength": 12
+                },
+                "study_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "no_match_reason": {
+                  "type": "string",
+                  "minLength": 12
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "study"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "study_refs"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "searched_no_match"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "no_match_reason"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "expert_mcp": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/receipt"
+            },
+            {
+              "type": "object",
+              "required": [
+                "domain"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "mcp",
+                    "repo_corpus",
+                    "not_applicable"
+                  ]
+                },
+                "domain": {
+                  "type": "string",
+                  "minLength": 4
+                },
+                "finding": {
+                  "type": "string",
+                  "minLength": 12
+                },
+                "source_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 12
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "enum": [
+                          "mcp",
+                          "repo_corpus"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "finding",
+                      "source_refs"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "not_applicable"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "reason"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "fabric": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/receipt"
+            },
+            {
+              "type": "object",
+              "required": [
+                "query",
+                "job_id",
+                "project"
+              ],
+              "properties": {
+                "mode": {
+                  "const": "research_job"
+                },
+                "query": {
+                  "type": "string",
+                  "minLength": 10
+                },
+                "job_id": {
+                  "type": "string",
+                  "minLength": 8
+                },
+                "project": {
+                  "type": "string",
+                  "minLength": 3
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "required": [
+        "mode",
+        "artifact_path",
+        "sha256"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "artifact_path": {
+          "type": "string",
+          "pattern": "^\\.lego/research/[A-Za-z0-9_./-]+\\.json$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

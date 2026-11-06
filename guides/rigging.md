@@ -5,3 +5,9 @@ Inspect armature, mesh transforms and weights. Build or modify bones and constra
 ## Failure policy
 
 Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.
+
+## When to use
+Binding meshes to armatures, painting weights and validating deformations across multiple poses.
+
+## When not to use
+Do not use a rigging tool for topology repair or claim that bone objects prove acceptable skinning weights.

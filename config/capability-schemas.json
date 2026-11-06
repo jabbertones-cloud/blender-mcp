@@ -727,6 +727,26 @@
   },
   "io.export": {
     "properties": {
+      "action": {
+        "anyOf": [
+          {
+            "enum": [
+              "auto",
+              "export_fbx",
+              "export_gltf",
+              "export_usd",
+              "export_with_bake"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Optional specialized export mode; defaults to extension-based export",
+        "title": "Action"
+      },
       "filepath": {
         "description": "Output file path with extension (.fbx, .obj, .glb, .gltf, .stl, .ply, .abc, .usd)",
         "title": "Filepath",
@@ -4275,6 +4295,12 @@
         "default": null,
         "description": "Output file path (e.g. '/tmp/render.png')",
         "title": "Output Path"
+      },
+      "preview": {
+        "default": false,
+        "description": "Fast still preview at 25% resolution and <=24 Cycles samples; restores render settings",
+        "title": "Preview",
+        "type": "boolean"
       },
       "type": {
         "default": "image",

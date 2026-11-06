@@ -1,0 +1,39 @@
+{
+  "assessment": {
+    "gaps": [
+      {
+        "gap": "No graded task-routing Pattern Card matches current guided workflow selection change",
+        "impact": "GHResearch card supports Blender evaluated mesh inspection but does not independently verify progressive guide matching",
+        "next_action": "Build verified routing-task pattern card from pinned donor tests and tested M2 acceptance evidence"
+      }
+    ],
+    "limitations": [
+      "Pattern Card score is 0 and lacks production measured success; this narrow source study is not evidence that every Blender capability works",
+      "Local TaskMap lacks a server-stable ID; ref is the verified raw CLI output sha256",
+      "Donor source-level review plus live target tests, not GitHubResearch alone, support the narrow guide integration"
+    ],
+    "relevant": true,
+    "sufficient": false
+  },
+  "evidence": "On M1, local GitHubResearchMCP cli.ts taskmap and cards get ran. TaskMap raw output checksum is sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3. Card blender-depsgraph-evaluated-mesh captures depsgraph/undo invariant, not a proven general tool-planner fix. Pinned donor implementation paths independently inspected through GitHub connector and test witnesses; no noncommercial source copied.",
+  "execution_trace": {
+    "card_command": "cards get --slug blender-depsgraph-evaluated-mesh",
+    "command": "node --experimental-strip-types --experimental-sqlite cli.ts taskmap --problem ... --repo jabbertones-cloud/blender-mcp",
+    "host": "smat-m1-mini",
+    "source": "githubresearchmcp CLI",
+    "taskmap_digest": "sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3"
+  },
+  "lane": "github_research",
+  "mode": "cli",
+  "pattern_card_refs": [
+    "blender-depsgraph-evaluated-mesh"
+  ],
+  "query": "Blender MCP 5.2 capability guidance workflow routing compositor compatibility user scene mutation and render verification",
+  "source_refs": [
+    "https://github.com/dcc-mcp/dcc-mcp-blender/blob/9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5/src/dcc_mcp_blender/_semantic_index.py",
+    "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/skills/bl-mcp/SKILL.md",
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py",
+    "https://docs.blender.org/api/5.2/bpy.ops.export_scene.html"
+  ],
+  "taskmap_ref": "sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3"
+}

@@ -5,3 +5,9 @@ Inspect material slots and shader nodes first. Search material capabilities, ins
 ## Failure policy
 
 Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.
+
+## When to use
+Changing surface color, roughness, shader structure, textures, UVs or baked maps.
+
+## When not to use
+Do not use to fix object geometry or illumination; confirm expected material slots before replacing a graph.

@@ -110,6 +110,24 @@ _RULES = (
         lambda t: any(x in t for x in ("foot skate", "motion qa", "bone pops")),
         False,
     ),
+    (
+        "workflow.reference_attach", 135.0,
+        ["register the reference before scoring or reconstruction"],
+        lambda t: any(x in t for x in ("attach reference", "register reference", "load reference plate", "reference image as plate")),
+        False,
+    ),
+    (
+        "workflow.reference_correct", 134.0,
+        ["recommend typed correction after reference scoring"],
+        lambda t: any(x in t for x in ("reference correction", "correct reference match", "fix reference mismatch", "fix deviations from the scored reference")),
+        False,
+    ),
+    (
+        "workflow.sequence", 133.0,
+        ["execute a prevalidated sequence of canonical Blender operations"],
+        lambda t: any(x in t for x in ("workflow sequence", "sequence of canonical", "batch blender operations", "execute a sequence of")),
+        False,
+    ),
 )
 
 

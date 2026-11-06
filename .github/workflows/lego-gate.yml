@@ -1,0 +1,31 @@
+name: Lego Builder provenance and tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lego-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Install pinned upstream schema validator
+        run: python3 -m pip install --disable-pip-version-check -r .lego/scripts/requirements.txt
+      - name: Install Blender MCP deterministic test dependencies
+        run: python3 -m pip install --disable-pip-version-check -r requirements.txt pytest
+      - name: Run Lego Builder's own negative/positive gate suite
+        run: python3 -m unittest discover -s .lego/scripts -p 'test_lego_gate.py' -q
+      - name: Verify provenance against exact SHA
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 .lego/scripts/lego_gate.py \
+            --manifest .lego/lego-lock.json \
+            --base "$BASE_SHA" --head "$HEAD_SHA" --verify

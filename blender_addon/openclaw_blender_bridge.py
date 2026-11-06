@@ -440,19 +440,38 @@ def handle_render(params):
     output_path = params.get("output_path", "//render_output")
     render_type = params.get("type", "image")  # image or animation
 
-    bpy.context.scene.render.filepath = output_path
-
-    if render_type == "animation":
-        bpy.ops.render.render(animation=True)
-    else:
-        bpy.ops.render.render(write_still=True)
-
-    return {
-        "rendered": render_type,
-        "output_path": bpy.path.abspath(output_path),
-        "resolution": f"{bpy.context.scene.render.resolution_x}x{bpy.context.scene.render.resolution_y}",
-        "engine": bpy.context.scene.render.engine,
-    }
+    scene = bpy.context.scene
+    preview = bool(params.get("preview", False))
+    if preview and render_type != "image":
+        return {"error": "Preview is available only for still images"}
+    original_path = scene.render.filepath
+    original_percentage = scene.render.resolution_percentage
+    original_samples = scene.cycles.samples if scene.render.engine == "CYCLES" else None
+    try:
+        if preview:
+            scene.render.resolution_percentage = min(original_percentage, 25)
+            if original_samples is not None:
+                scene.cycles.samples = min(original_samples, 24)
+        scene.render.filepath = output_path
+        if render_type == "animation":
+            bpy.ops.render.render(animation=True)
+        else:
+            bpy.ops.render.render(write_still=True)
+        scale = scene.render.resolution_percentage / 100.0
+        return {
+            "rendered": render_type,
+            "output_path": bpy.path.abspath(output_path),
+            "resolution": f"{round(scene.render.resolution_x * scale)}x{round(scene.render.resolution_y * scale)}",
+            "engine": scene.render.engine,
+            "preview": preview,
+            "samples": scene.cycles.samples if original_samples is not None else None,
+        }
+    finally:
+        if preview:
+            scene.render.filepath = original_path
+            scene.render.resolution_percentage = original_percentage
+            if original_samples is not None:
+                scene.cycles.samples = original_samples
 
 
 def handle_set_keyframe(params):
@@ -534,7 +553,8 @@ def handle_import_file(params):
 
 def handle_export_file(params):
     """Enhanced file export with FBX, glTF, USD, and material baking support."""
-    action = params.get("action", "export_fbx")
+    # Extension-based selection is the default; never write FBX bytes to a GLB path.
+    action = params.get("action") or "auto"
     filepath = params.get("filepath")
 
     if not filepath:
@@ -551,11 +571,10 @@ def handle_export_file(params):
             bpy.ops.export_scene.fbx(
                 filepath=filepath,
                 use_selection=selected_only,
-                apply_scalings=True,
+                apply_scale_options="FBX_SCALE_NONE",
                 object_types={"MESH", "ARMATURE", "EMPTY"},
                 use_mesh_modifiers=apply_modifiers,
                 mesh_smooth_type=mesh_smooth_type,
-                use_anim=bake_animation,
                 bake_anim=bake_animation,
             )
             return {
@@ -568,7 +587,7 @@ def handle_export_file(params):
 
     # NEW: Export glTF
     elif action == "export_gltf":
-        format_type = params.get("format", "GLB")  # GLB, GLTF_SEPARATE, GLTF_EMBEDDED
+        format_type = params.get("format") or ("GLTF_SEPARATE" if filepath.lower().endswith(".gltf") else "GLB")
         selected_only = params.get("selected_only", False)
         apply_modifiers = params.get("apply_modifiers", True)
         export_materials = params.get("export_materials", True)
@@ -586,8 +605,8 @@ def handle_export_file(params):
                 filepath=filepath,
                 use_selection=selected_only,
                 export_format=export_format,
-                use_mesh_modifiers=apply_modifiers,
-                export_materials=export_materials,
+                export_apply=apply_modifiers,
+                export_materials="EXPORT" if export_materials else "NONE",
             )
             return {
                 "status": "glTF exported successfully",
@@ -677,7 +696,7 @@ def handle_export_file(params):
             )
 
             bpy.ops.export_scene.gltf(
-                filepath=filepath, export_format=export_format, export_materials=True
+                filepath=filepath, export_format=export_format, export_materials="EXPORT"
             )
 
             # Restore original render engine
@@ -7668,7 +7687,7 @@ def handle_product_render_setup(params):
         scene.cycles.volume_bounces = 0
         scene.cycles.caustics_reflective = False
         scene.cycles.caustics_refractive = False
-        scene.cycles.use_persistent_data = True
+        scene.render.use_persistent_data = True
     
     scene.render.resolution_x = w
     scene.render.resolution_y = h
@@ -7688,52 +7707,14 @@ def handle_product_render_setup(params):
     if "output_path" in params:
         scene.render.filepath = params["output_path"]
         
-    # Compositor
-    scene.use_nodes = True
-    tree = scene.node_tree
-    for n in list(tree.nodes):
-        tree.nodes.remove(n)
-        
-    rl = tree.nodes.new('CompositorNodeRLayers')
-    rl.location = (0, 0)
-    comp = tree.nodes.new('CompositorNodeComposite')
-    comp.location = (800, 0)
-    last = rl.outputs['Image']
-    x = 200
-    
-    if params.get("bloom", True):
-        gl = tree.nodes.new('CompositorNodeGlare')
-        gl.location = (x, 0)
-        gl.glare_type = 'FOG_GLOW'
-        gl.threshold = 0.8
-        gl.quality = 'HIGH'
-        gl.mix = -0.7
-        gl.size = 6
-        tree.links.new(last, gl.inputs[0])
-        last = gl.outputs[0]
-        x += 200
-        
-    if params.get("vignette", True):
-        mask = tree.nodes.new('CompositorNodeEllipseMask')
-        mask.location = (x, -200)
-        mask.width = 0.85
-        mask.height = 0.85
-        blur = tree.nodes.new('CompositorNodeBlur')
-        blur.location = (x+200, -200)
-        blur.size_x = 200
-        blur.size_y = 200
-        blur.use_relative = True
-        mix = tree.nodes.new('CompositorNodeMixRGB')
-        mix.location = (x+400, 0)
-        mix.blend_type = 'MULTIPLY'
-        tree.links.new(mask.outputs[0], blur.inputs[0])
-        tree.links.new(last, mix.inputs[1])
-        tree.links.new(blur.outputs[0], mix.inputs[2])
-        last = mix.outputs[0]
-        
-    tree.links.new(last, comp.inputs['Image'])
-    
-    return {"status": "ok"}
+    # Use the already-supported Blender 4.x/5.x compositor bridge.
+    try:
+        from .product_compositor import configure_product_compositor
+    except ImportError:
+        from product_compositor import configure_product_compositor
+    compositor = configure_product_compositor(scene, bool(params.get("bloom", True)),
+                                              bool(params.get("vignette", True)))
+    return compositor
 
 
 # ─── Guided task-sized inspection / runtime discovery ───────────────────────

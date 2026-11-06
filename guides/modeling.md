@@ -5,3 +5,9 @@ Define object names, transforms, dimensions, topology and modifiers before execu
 ## Failure policy
 
 Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.
+
+## When to use
+Creating named geometry, applying modifiers or editing existing mesh topology after scene inspection.
+
+## When not to use
+Do not use to adjust only a render, light or camera; do not recreate an existing object when its geometry can be edited safely.

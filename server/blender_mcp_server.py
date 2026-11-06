@@ -14,7 +14,7 @@ import socket
 import traceback
 import sys
 import os
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from mcp.server.fastmcp import FastMCP
@@ -600,6 +600,7 @@ class RenderInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     output_path: Optional[str] = Field(default=None, description="Output file path (e.g. '/tmp/render.png')")
     type: str = Field(default="image", description="Render type: 'image' (single frame) or 'animation' (all frames)")
+    preview: bool = Field(default=False, description="Fast still preview at 25% resolution and <=24 Cycles samples; restores render settings")
 
 
 @mcp.tool(
@@ -607,7 +608,7 @@ class RenderInput(BaseModel):
     annotations={"title": "Render Scene", "readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False},
 )
 async def blender_render(params: RenderInput) -> str:
-    """Render the current scene to an image file or animation. Set output_path first via blender_set_render_settings or pass it here. Returns the output path."""
+    """Render a final image, fast reversible preview, or animation. A preview caps still resolution and Cycles samples without changing saved settings."""
     return format_result(send_command("render", params.model_dump(exclude_none=True)))
 
 
@@ -730,6 +731,7 @@ class ExportInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     filepath: str = Field(..., description="Output file path with extension (.fbx, .obj, .glb, .gltf, .stl, .ply, .abc, .usd)")
     selected_only: Optional[bool] = Field(default=False, description="Export only selected objects")
+    action: Optional[Literal["auto", "export_fbx", "export_gltf", "export_usd", "export_with_bake"]] = Field(default=None, description="Optional specialized export mode; defaults to extension-based export")
 
 
 @mcp.tool(

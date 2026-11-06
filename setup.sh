@@ -48,6 +48,8 @@ if [ -n "$BLENDER_VERSION" ]; then
     cp "$ADDON_SRC_DIR/openclaw_blender_bridge.py" "$ADDON_DIR/openclaw_blender_bridge.py"
     cp "$ADDON_SRC_DIR/new_handlers_phase5.py" "$ADDON_DIR/new_handlers_phase5.py"
     cp "$ADDON_SRC_DIR/quality_handlers.py" "$ADDON_DIR/quality_handlers.py"
+    cp "$ADDON_SRC_DIR/compositor_effects.py" "$ADDON_DIR/compositor_effects.py"
+    cp "$ADDON_SRC_DIR/product_compositor.py" "$ADDON_DIR/product_compositor.py"
     cp "$ADDON_SRC_DIR/depsgraph_helpers.py" "$ADDON_DIR/depsgraph_helpers.py"
     echo -e "${GREEN}Addon installed to: $ADDON_DIR${NC}"
 else

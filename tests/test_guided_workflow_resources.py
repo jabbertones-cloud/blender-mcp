@@ -58,4 +58,4 @@ def test_schema_includes_when_how_guidance_without_a_sixth_tool():
     create = asyncio.run(get_capability_schema(SchemaInput(key="scene.create_object")))
     assert create["usage_guide"]["key"] == "modeling"
     scene = asyncio.run(get_capability_schema(SchemaInput(key="scene.info")))
-    assert scene["usage_guide"] is None
+    assert scene["usage_guide"]["key"] == "inspection"

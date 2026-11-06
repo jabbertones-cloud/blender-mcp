@@ -32,3 +32,9 @@ Legacy tools remain compatibility paths; guide authors should prefer canonical k
 ## Acceptance metrics
 
 Track first-try outcome success, verified postcondition coverage, median tool calls per successful job, failed-action recovery, and render acceptance. A smaller tool count is not itself a success criterion.
+
+## Comprehensive staged usage
+
+Every one of the 66 canonical capabilities and 17 orchestration workflows now has a relevant read-only outcome guide available through `get_capability_schema` and `blender://guides/{key}`. The added guides cover inspection, asset discovery, file exchange, node graphs, simulations, spatial reasoning, reference reconstruction, forensic work and bounded sequences. A guide indicates *when* to pick that family, what to avoid, preconditions, verifiable results and failure policy. It does not imply that an optional third-party provider or unsupported Blender API is installed.
+
+Blender 5.2 LTS is the stable acceptance baseline; 5.1 is legacy-tested, 5.3 is upcoming and requires fresh API/feature verification after release. The compositor uses `Scene.compositing_node_group` and `NodeGroupOutput` on Blender 5.x, while preserving 4.5 compatibility. Generated scripts are still opt-in and should not be the default typed workflow.

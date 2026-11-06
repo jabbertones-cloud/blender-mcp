@@ -5,3 +5,9 @@ Set explicit engine, resolution, samples, transparency, format and destination. 
 ## Failure policy
 
 Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.
+
+## When to use
+Preparing an explicit still/animation deliverable with engine, resolution, sample count and output path.
+
+## When not to use
+Do not equate a viewport capture with final-quality rendered output, or start an expensive final render without checking settings.

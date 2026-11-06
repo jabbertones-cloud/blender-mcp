@@ -5,3 +5,9 @@ Write a frame-by-frame intent and expected moving objects. Set timeline and keyf
 ## Failure policy
 
 Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.
+
+## When to use
+Creating keyframes, shape keys and time-varying motion or evaluating motion quality across frames.
+
+## When not to use
+Do not use keyframes for a static scene or claim physical realism without a simulation; inspect frame range and existing actions.

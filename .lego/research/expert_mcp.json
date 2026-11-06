@@ -1,0 +1,15 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "Domain specialist MCP unavailable; Blender GUI and donor source tests used instead"
+    ],
+    "relevant": false,
+    "sufficient": false
+  },
+  "evidence": "Expert tool discovery found no 3D/Blender-specific expert MCP. No live expert invocation is claimed. The Blender foundation uses official bpy APIs and local GUI runtime probes.",
+  "lane": "expert_mcp",
+  "mode": "not_applicable",
+  "reason": "No SMAT Expert MCP for Blender Python/BPy/3D operations is connected; no Apple-platform Swift/Obj-C code is changed.",
+  "source_refs": []
+}
