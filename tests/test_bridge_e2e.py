@@ -63,7 +63,7 @@ def live_send():
         counter["n"] += 1
         payload = {"id": str(counter["n"]), "command": command, "params": params or {}}
         with socket.create_connection((HOST, PORT), timeout=15) as sock:
-            sock.settimeout(45)
+            sock.settimeout(float(os.getenv("OPENCLAW_TIMEOUT", "180")))
             sock.sendall(json.dumps(payload).encode("utf-8"))
             chunks = []
             while True:
@@ -184,3 +184,39 @@ def test_live_recreate_attach_score_returns_numeric_fields(live_send, tmp_path):
     assert "ssim_passed" in metrics
     assert "lpips_passed" in metrics
 
+
+
+def test_live_fast_render_preserves_scene_configuration(live_send, tmp_path):
+    """Real Blender must render a file while restoring quality/size settings."""
+    before = live_send('scene_diagnostics', {}).get('render', {})
+    path = tmp_path / 'mcp_fast_preview.png'
+    out = execute_canonical('scene.render', {'type': 'image', 'preview': True, 'output_path': str(path)}, live_send, observe_visual=False)
+    assert out['status'] == 'ok', out
+    assert out['result']['preview'] is True
+    assert path.is_file() and path.stat().st_size > 100
+    after = live_send('scene_diagnostics', {}).get('render', {})
+    assert after == before, {'before': before, 'after': after}
+
+
+def test_live_asset_save_and_binary_export_roundtrip(live_send, tmp_path):
+    """Power-user path must save real geometry and export correctly tagged GLB/FBX."""
+    import subprocess
+    from pathlib import Path
+    name='M2_MCP_Export_Proof'
+    created=execute_canonical('scene.create_object',{'type':'cube','name':name},live_send,observe_visual=False)
+    assert created['status']=='ok',created
+    moved=execute_canonical('scene.modify_object',{'name':name,'location':[2.5,-1.25,0.75]},live_send,observe_visual=False)
+    assert moved['status']=='ok',moved
+    blend=tmp_path/'scene.blend'
+    saved=execute_canonical('io.save',{'action':'save','filepath':str(blend)},live_send,observe_visual=False)
+    assert saved['status']=='ok' and blend.stat().st_size > 1000,saved
+    for ext,magic in [('glb',b'glTF'),('fbx',b'Kaydara FBX Binary')]:
+        target=tmp_path/('asset.'+ext)
+        exported=execute_canonical('io.export',{'filepath':str(target)},live_send,observe_visual=False)
+        assert exported['status']=='ok',exported
+        assert target.read_bytes().startswith(magic)
+    blender=os.environ.get('BLENDER_BIN')
+    assert blender and Path(blender).is_file(), 'BLENDER_BIN must reference the tested 5.2 executable'
+    check=f"import bpy; o=bpy.data.objects.get({name!r}); assert o is not None; assert tuple(round(v,2) for v in o.location)==(2.5,-1.25,0.75); print('REOPEN_PROVED')"
+    proc=subprocess.run([blender,'--background',str(blend),'--python-expr',check],capture_output=True,text=True,timeout=50)
+    assert proc.returncode==0 and 'REOPEN_PROVED' in proc.stdout,proc.stdout+proc.stderr

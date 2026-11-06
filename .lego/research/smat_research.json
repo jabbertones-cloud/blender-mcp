@@ -1,0 +1,23 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "Study explicitly research-only and measured on CommerceOS/EzSeller rather than Blender.",
+      "Its lexical versus MiniSearch comparisons do not prove a Blender search improvement.",
+      "Blender source and runtime tests supply separate target evidence."
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "Canonical SMAT Research study mcp-harness-discovery-20261104 documents existing progressive disclosure surfaces in CommerceOS and EzSeller, reproducible search donor comparisons on full 277-tool catalog, preservation of canonical permissions, and limits of keyword/fuzzy searches. It is related architectural and negative evidence but not a Blender-specific implementation or live deployment approval. The study was actually read from immutable SMAT Research main SHA 1ad41ffb46119277c17496c34c51a284a771d8a1, issue 6, and independently compared with the target Blender 5.2 client tests.",
+  "lane": "smat_research",
+  "mode": "study",
+  "query": "SMAT Research MCP progressive disclosure routing donor evaluation November 4 2026",
+  "source_refs": [
+    "https://github.com/jabbertones-cloud/smat-research/blob/1ad41ffb46119277c17496c34c51a284a771d8a1/studies/mcp-harness-discovery-20261104/REPORT.md",
+    "https://github.com/jabbertones-cloud/smat-research/issues/6"
+  ],
+  "study_refs": [
+    "https://github.com/jabbertones-cloud/smat-research/blob/1ad41ffb46119277c17496c34c51a284a771d8a1/studies/mcp-harness-discovery-20261104/REPORT.md"
+  ]
+}

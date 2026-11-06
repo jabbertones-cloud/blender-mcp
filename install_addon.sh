@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ADDON_SRC_DIR="$SCRIPT_DIR/blender_addon"
 
 # Find Blender version
-BLENDER_BIN="/Applications/Blender.app/Contents/MacOS/Blender"
+BLENDER_BIN="${BLENDER_BIN:-/Applications/Blender.app/Contents/MacOS/Blender}"
 if [ ! -f "$BLENDER_BIN" ]; then
     echo "❌ Blender not found at /Applications/Blender.app"
     echo "Looking elsewhere..."
@@ -33,6 +33,8 @@ for ADDON_DIR in \
         cp "$ADDON_SRC_DIR/openclaw_blender_bridge.py" "$ADDON_DIR/openclaw_blender_bridge.py"
         cp "$ADDON_SRC_DIR/new_handlers_phase5.py" "$ADDON_DIR/new_handlers_phase5.py"
         cp "$ADDON_SRC_DIR/quality_handlers.py" "$ADDON_DIR/quality_handlers.py"
+        cp "$ADDON_SRC_DIR/compositor_effects.py" "$ADDON_DIR/compositor_effects.py"
+        cp "$ADDON_SRC_DIR/product_compositor.py" "$ADDON_DIR/product_compositor.py"
         cp "$ADDON_SRC_DIR/depsgraph_helpers.py" "$ADDON_DIR/depsgraph_helpers.py"
         echo "✅ Addon installed to: $ADDON_DIR"
         break

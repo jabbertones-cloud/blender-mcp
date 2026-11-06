@@ -440,7 +440,7 @@ def handle_product_render_setup(params):
         scene.cycles.volume_bounces = 0
         scene.cycles.caustics_reflective = False
         scene.cycles.caustics_refractive = False
-        scene.cycles.use_persistent_data = True
+        scene.render.use_persistent_data = True
 
     scene.render.resolution_x = w
     scene.render.resolution_y = h
@@ -460,52 +460,14 @@ def handle_product_render_setup(params):
     if "output_path" in params:
         scene.render.filepath = params["output_path"]
 
-    # Compositor
-    scene.use_nodes = True
-    tree = scene.node_tree
-    for n in list(tree.nodes):
-        tree.nodes.remove(n)
-
-    rl = tree.nodes.new("CompositorNodeRLayers")
-    rl.location = (0, 0)
-    comp = tree.nodes.new("CompositorNodeComposite")
-    comp.location = (800, 0)
-    last = rl.outputs["Image"]
-    x = 200
-
-    if params.get("bloom", True):
-        gl = tree.nodes.new("CompositorNodeGlare")
-        gl.location = (x, 0)
-        gl.glare_type = "FOG_GLOW"
-        gl.threshold = 0.8
-        gl.quality = "HIGH"
-        gl.mix = -0.7
-        gl.size = 6
-        tree.links.new(last, gl.inputs[0])
-        last = gl.outputs[0]
-        x += 200
-
-    if params.get("vignette", True):
-        mask = tree.nodes.new("CompositorNodeEllipseMask")
-        mask.location = (x, -200)
-        mask.width = 0.85
-        mask.height = 0.85
-        blur = tree.nodes.new("CompositorNodeBlur")
-        blur.location = (x + 200, -200)
-        blur.size_x = 200
-        blur.size_y = 200
-        blur.use_relative = True
-        mix = tree.nodes.new("CompositorNodeMixRGB")
-        mix.location = (x + 400, 0)
-        mix.blend_type = "MULTIPLY"
-        tree.links.new(mask.outputs[0], blur.inputs[0])
-        tree.links.new(last, mix.inputs[1])
-        tree.links.new(blur.outputs[0], mix.inputs[2])
-        last = mix.outputs[0]
-
-    tree.links.new(last, comp.inputs["Image"])
-
-    return {"status": "ok", "ownership": OWNER_VALUE}
+    # Blender 5 uses compositing_node_group; 4.x uses scene.node_tree.
+    try:
+        from .product_compositor import configure_product_compositor
+    except ImportError:
+        from product_compositor import configure_product_compositor
+    compositor = configure_product_compositor(scene, bool(params.get("bloom", True)),
+                                              bool(params.get("vignette", True)))
+    return {**compositor, "ownership": OWNER_VALUE}
 
 
 QUALITY_HANDLERS = {

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lego Builder research receipt",
+  "type": "object",
+  "required": [
+    "lane",
+    "mode",
+    "evidence",
+    "assessment",
+    "source_refs"
+  ],
+  "properties": {
+    "lane": {
+      "enum": [
+        "github_research",
+        "smat_research",
+        "expert_mcp",
+        "fabric"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "minLength": 3
+    },
+    "query": {
+      "type": "string",
+      "minLength": 10
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 20
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 10
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "required": [
+        "relevant",
+        "sufficient",
+        "gaps",
+        "limitations"
+      ],
+      "properties": {
+        "relevant": {
+          "type": "boolean"
+        },
+        "sufficient": {
+          "type": "boolean"
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "gap",
+              "impact",
+              "next_action"
+            ],
+            "properties": {
+              "gap": {
+                "type": "string",
+                "minLength": 8
+              },
+              "impact": {
+                "type": "string",
+                "minLength": 8
+              },
+              "next_action": {
+                "type": "string",
+                "minLength": 8
+              }
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "taskmap_ref": {
+      "type": "string"
+    },
+    "pattern_card_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fabric_job_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "project": {
+      "type": "string"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "sufficiency": {
+          "type": "object",
+          "properties": {
+            "sufficient": {
+              "type": "boolean"
+            },
+            "relevantCandidates": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sufficient",
+            "relevantCandidates"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "sufficiency"
+      ]
+    }
+  }
+}

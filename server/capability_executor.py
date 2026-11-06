@@ -51,7 +51,7 @@ WORKFLOW_SCHEMAS: Dict[str, dict] = {
     "workflow.forensic_recon": {"type": "object", "required": ["action"], "properties": {"action": {"type": "string"}}, "additionalProperties": True},
     "workflow.amazon_packshot": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material": {"type": ["string", "null"], "default": None}, "transparent_bg": {"type": "boolean", "default": True}}, "additionalProperties": False},
     "workflow.reference_attach": {"type": "object", "properties": {"path": {"type": "string"}, "role": {"type": "string"}, "tier": {"type": "string"}}, "additionalProperties": False},
-    "workflow.reference_score": {"type": "object", "properties": {"output_path": {"type": "string"}, "render_path": {"type": "string"}, "allow_unsolved": {"type": "boolean", "default": False}}, "additionalProperties": False},
+    "workflow.reference_score": {"type": "object", "properties": {"output_path": {"type": "string"}, "render_path": {"type": "string"}, "allow_unsolved": {"type": "boolean", "default": False}, "preview": {"type": "boolean", "description": "Fast draft score; set false to score the final-quality render."}}, "additionalProperties": False},
     "workflow.reference_score_sequence": {"type": "object", "properties": {"frames": {"type": "array", "items": {"type": "string"}}, "allow_unsolved": {"type": "boolean", "default": False}}, "additionalProperties": False},
     "workflow.reference_correct": {"type": "object", "properties": {"metrics": {"type": "object"}}, "additionalProperties": False},
     "workflow.reference_camera_solve": {"type": "object", "properties": {"path": {"type": "string"}}, "additionalProperties": False},
@@ -508,7 +508,8 @@ def _execute_recreate(key: str, args: dict, send_command, steps: list, run, fail
         if not ref_path:
             return {"workflow": key, "status": "failed", "error": "no still reference attached", "steps": steps}
         output_path = str(args.get("render_path") or args.get("output_path") or "/tmp/openclaw_ref_score.png")
-        if not run("scene.render", {"type": "image", "output_path": output_path}, observe_visual=True):
+        preview = bool(args.get("preview", state.get("tier") == "draft"))
+        if not run("scene.render", {"type": "image", "output_path": output_path, "preview": preview}, observe_visual=True):
             return fail()
         metrics = reference_loop.score_render(ref_path, output_path, tier=state.get("tier") or "review")
         return {

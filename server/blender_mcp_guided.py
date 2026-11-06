@@ -25,11 +25,13 @@ try:
         WORKFLOW_DESCRIPTIONS,
     )
     from server.workflow_rank import workflow_match as _workflow_match
+    from server.workflow_guides import list_workflow_guides, get_workflow_guide, guide_for_capability
 except ModuleNotFoundError:
     from runtime_config import resolve_blender_host, resolve_blender_port
     from capability_registry import registry, CapabilityNotFound
     from capability_executor import execute_canonical, execute_workflow, WORKFLOW_SCHEMAS, WORKFLOW_DESCRIPTIONS
     from workflow_rank import workflow_match as _workflow_match
+    from workflow_guides import list_workflow_guides, get_workflow_guide, guide_for_capability
 
 HOST = resolve_blender_host()
 PORT = resolve_blender_port()
@@ -42,7 +44,8 @@ mcp = FastMCP(
         "For multi-step Blender work, set the goal first. Search capabilities before execution. "
         "Prefer a workflow capability when it matches the user's complete intent. Never invent capability keys. "
         "Inspect one schema, then execute the exact canonical key returned by search. "
-        "Appearance-affecting operations automatically return visual postcondition evidence."
+        "Appearance-affecting operations automatically return visual postcondition evidence. "
+        "Read the relevant workflow guide before multi-step changes."
     ),
 )
 _goal_state: Dict[str, Any] = {"goal": None, "last_search": [], "executions": 0}
@@ -115,9 +118,12 @@ async def router_set_goal(input: GoalInput) -> dict:
     cap = registry.route_intent(input.goal)
     _goal_state.update({"goal": input.goal, "last_search": [], "executions": 0})
     first = workflows[0] if workflows else {"key": cap.key, "family": cap.family, "description": cap.description}
+    guides = [{"key": row["key"], "uri": f"blender://guides/{row['key']}"}
+              for row in list_workflow_guides(input.goal)]
     return {
         "goal": input.goal,
         "recommended_first": first,
+        "suggested_guides": guides,
         "next": "Call search_capabilities for the concrete workflow/capability before execution.",
     }
 
@@ -141,7 +147,10 @@ async def search_capabilities(input: SearchInput) -> dict:
         if len(results) >= input.limit:
             break
     _goal_state["last_search"] = [row["key"] for row in results]
-    return {"query": input.query, "results": results, "next": "Call get_capability_schema with one returned key."}
+    guides = [{"key": row["key"], "uri": f"blender://guides/{row['key']}"}
+              for row in list_workflow_guides(input.query)]
+    return {"query": input.query, "results": results, "suggested_guides": guides,
+            "next": "Call get_capability_schema with one returned key."}
 
 
 @mcp.tool(name="get_capability_schema")
@@ -149,6 +158,7 @@ async def get_capability_schema(input: SchemaInput) -> dict:
     """Get the schema for one canonical capability or workflow key."""
     if input.key in WORKFLOW_SCHEMAS:
         return {
+            "usage_guide": guide_for_capability(input.key, "workflow"),
             "capability": {
                 "key": input.key,
                 "family": "workflow",
@@ -159,9 +169,23 @@ async def get_capability_schema(input: SchemaInput) -> dict:
         }
     try:
         cap = registry.get_capability_schema(input.key)
-        return {"capability": cap, "next": "Call execute_capability with this exact key."}
+        return {"capability": cap, "usage_guide": guide_for_capability(cap["key"], cap["family"]),
+                "next": "Call execute_capability with this exact key."}
     except CapabilityNotFound as exc:
         return {"error": str(exc), "code": "CAPABILITY_NOT_FOUND", "next": "Call search_capabilities again."}
+
+
+@mcp.resource("blender://guides/{key}")
+def workflow_guide_resource(key: str) -> str:
+    """Read packaged workflow guidance; never resolve user-supplied file paths."""
+    result = get_workflow_guide(key)
+    return result.get("content", json.dumps(result))
+
+
+@mcp.resource("blender://guides")
+def workflow_guide_index() -> str:
+    """Discover available outcome guides without expanding the tool surface."""
+    return json.dumps(list_workflow_guides())
 
 
 @mcp.tool(name="execute_capability")

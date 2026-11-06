@@ -149,3 +149,7 @@ Fall back to `blender_execute_python` for the missing step, then call the
 shot again — and leave a line in the failure log review: a brief the tool
 could not express is a procedure bug, and the fix is a better guide or
 preset, not a new tool.
+
+## Failure policy
+
+Stop on an unverified postcondition, preserve evidence, and retry only a scoped correction. Record what was tested and what remains subjective.

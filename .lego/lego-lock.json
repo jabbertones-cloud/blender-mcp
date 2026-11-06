@@ -1,0 +1,393 @@
+{
+  "components": [
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "dcc-guided",
+        "asedias-recipes"
+      ],
+      "mode": "assembly",
+      "path": "server/blender_mcp_guided.py",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "dcc-guided",
+        "asedias-recipes"
+      ],
+      "mode": "assembly",
+      "path": "server/workflow_guides.py",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "dcc-guided",
+        "asedias-recipes"
+      ],
+      "mode": "assembly",
+      "path": "server/workflow_rank.py",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "server/blender_mcp_server.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "server/capability_executor.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "server/product_animation_tools.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "blender_addon/compositor_effects.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "blender_addon/product_compositor.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "blender_addon/openclaw_blender_bridge.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "assembly",
+      "path": "blender_addon/quality_handlers.py",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "glue",
+      "path": "install_addon.sh",
+      "purpose": "Connect the existing add-on installation path to the actual selected Blender executable and ship native helper sidecars.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_blender_guides.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-tools",
+        "dcc-guided"
+      ],
+      "mode": "glue",
+      "path": "setup.sh",
+      "purpose": "Connect the existing add-on installation path to the actual selected Blender executable and ship native helper sidecars.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    }
+  ],
+  "donors": [
+    {
+      "commit": "9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5",
+      "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "dcc-guided",
+      "license": "MIT",
+      "rationale": "MIT-licensed Blender MCP tested skill taxonomy and capability manifests; consulted for progressive tool discovery and Blender-specific scene invariants.",
+      "repository": "dcc-mcp/dcc-mcp-blender",
+      "url": "https://github.com/dcc-mcp/dcc-mcp-blender/blob/9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5/src/dcc_mcp_blender/_semantic_index.py"
+    },
+    {
+      "commit": "de3c773ec2ab83d2b859f928b75a8e6f351ef128",
+      "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "asedias-recipes",
+      "license": "MIT",
+      "rationale": "MIT-licensed task recipe and when/not guidance layout; consulted for explaining prerequisites, correct tool order and recovery rather than tool-name guessing.",
+      "repository": "asedias/bl-mcp",
+      "url": "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/skills/bl-mcp/SKILL.md"
+    },
+    {
+      "commit": "bc2aaadceaf96d3436313ab1c05b2971f5f0718d",
+      "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "blenderwright-tools",
+      "license": "MIT",
+      "rationale": "MIT-licensed Blender MCP toolset descriptors and typed routing interfaces; reviewed for request narrowing and canonical handler fidelity.",
+      "repository": "HoldMyBeer-gg/blenderwright",
+      "url": "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py"
+    }
+  ],
+  "research_evidence": {
+    "expert_mcp": {
+      "artifact_path": ".lego/research/expert_mcp.json",
+      "domain": "Blender Python 3D scene operations",
+      "mode": "not_applicable",
+      "reason": "No SMAT Expert MCP for Blender Python/BPy/3D operations is connected; no Apple-platform Swift/Obj-C code is changed.",
+      "sha256": "544fb636190a3b6d0f77b1e537ff9f85d12b1b236855654c7c2f84afe52a2c94"
+    },
+    "fabric": {
+      "artifact_path": ".lego/research/fabric.json",
+      "job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+      "mode": "research_job",
+      "project": "blender-mcp",
+      "query": "Bounded Blender MCP engineering comparison: dcc-mcp/dcc-mcp-blender uses BlenderSemanticIndex.augment to append lexical/vector skill results without replacing canonical ordering; HoldMyBeer-gg/blenderwright uses TOOLSETS and parse_spec to disclose tool families; asedias/bl-mcp uses task recipes with status, inspect, measure and rollback. The target Blender-MCP 5.2.3 release has 5 MCP tools, a 66-capability registry, guide_for_capability, and 6 live GUI/MCP acceptance tests. Compare these exact source and native Blender API boundaries, not generic repository recommendations. Evaluate the three pinned source files attached, their missing guarantees, and tests; report unsupported claims as insufficient.",
+      "sha256": "ee969e4f69793c8c666c9e77ee14bcc670c2e0c8ee9bf507d1f618a7a0578d98"
+    },
+    "github_research": {
+      "artifact_path": ".lego/research/github_research.json",
+      "mode": "cli",
+      "pattern_card_refs": [
+        "blender-progressive-tool-guides",
+        "blender-depsgraph-evaluated-mesh"
+      ],
+      "query": "Blender MCP task goals progressive tool guides schema and canonical execution",
+      "sha256": "abe132e705314a70b8b60f4eafc68dfeed4a5793d9fb4d75026a6c177759acad",
+      "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
+    },
+    "smat_research": {
+      "artifact_path": ".lego/research/smat_research.json",
+      "finding": "Prior SMAT Research study validates progressive tool-disclosure design constraints and canonical authorization preservation but not Blender-specific completion.",
+      "mode": "study",
+      "query": "SMAT Research MCP progressive disclosure routing donor evaluation November 4 2026",
+      "sha256": "e08222092723aa303fa36db8b759de0a54e972e96b0b150385cc788b4eea5a3c",
+      "study_refs": [
+        "https://github.com/jabbertones-cloud/smat-research/blob/1ad41ffb46119277c17496c34c51a284a771d8a1/studies/mcp-harness-discovery-20261104/REPORT.md"
+      ]
+    }
+  },
+  "schema_version": 2
+}

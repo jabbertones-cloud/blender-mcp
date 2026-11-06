@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-06",
+  "handroll": {
+    "coverage": "sparse baseline checkout; not exhaustive",
+    "decision": "NO_AUTOMATIC_REPLACEMENT",
+    "finding": {
+      "category": "chunking",
+      "classification": "REVIEW_CANDIDATE",
+      "line": 150,
+      "path": "server/image_similarity.py"
+    },
+    "scanner": "ast-grep 0.40.0",
+    "surface": "local stdio MCP through mcp.Client on smat-m1-mini",
+    "target_commit": "8ab74c6926ba0ee1d3f94fef81864e86495e195a"
+  },
+  "live_m2": {
+    "deterministic": "162 passed / 5 skipped live-only",
+    "guide_benchmark": {
+      "baseline": 0,
+      "candidate": 10,
+      "tasks": 10
+    },
+    "live": "5 passed including scene save/reopen GLB/FBX",
+    "version": "Blender 5.2.3 LTS"
+  },
+  "unloopr": {
+    "finding": {
+      "file": "config/capability-schemas.json",
+      "rule": "T1-known-bad:p0004",
+      "type": "general historical UI-pattern overlap; unverified as Blender defect"
+    },
+    "history": "GitHub API HTTP 403 rate limit",
+    "repair": "NOT_APPLIED",
+    "scope": "submitted candidate diff only",
+    "status": "INCOMPLETE_EVIDENCE",
+    "surface": "hosted unloopr_loop",
+    "verify": "NOT_RUN"
+  }
+}
