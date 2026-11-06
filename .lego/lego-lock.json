@@ -346,7 +346,7 @@
       "fabric_status": "reported",
       "id": "blenderwright-tools",
       "license": "MIT",
-      "rationale": "MIT-licensed Blender MCP toolset descriptors and routing examples; reviewed for request narrowing and canonical handler fidelity.",
+      "rationale": "MIT-licensed Blender MCP toolset descriptors and typed routing interfaces; reviewed for request narrowing and canonical handler fidelity.",
       "repository": "HoldMyBeer-gg/blenderwright",
       "url": "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py"
     }
