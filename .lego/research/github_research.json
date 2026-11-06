@@ -1,39 +1,39 @@
 {
   "assessment": {
-    "gaps": [
-      {
-        "gap": "No graded task-routing Pattern Card matches current guided workflow selection change",
-        "impact": "GHResearch card supports Blender evaluated mesh inspection but does not independently verify progressive guide matching",
-        "next_action": "Build verified routing-task pattern card from pinned donor tests and tested M2 acceptance evidence"
-      }
-    ],
+    "gaps": [],
     "limitations": [
-      "Pattern Card score is 0 and lacks production measured success; this narrow source study is not evidence that every Blender capability works",
-      "Local TaskMap lacks a server-stable ID; ref is the verified raw CLI output sha256",
-      "Donor source-level review plus live target tests, not GitHubResearch alone, support the narrow guide integration"
+      "Pattern Card is new and its source claims are limited to reviewed code and development-branch tests, not production success; GHR evidence scoring remains conservative.",
+      "TaskMap card selection is a real CLI result, not proof of ChatGPT choosing the correct tool for arbitrary user prompts.",
+      "The ten-task 0-versus-10 benchmark measures guide disclosure on authored queries only.",
+      "Only 6 live Blender 5.2.3 tests were executed; full 66-capability and Blender 5.3 runtime parity remain unmeasured."
     ],
     "relevant": true,
-    "sufficient": false
+    "sufficient": true
   },
-  "evidence": "On M1, local GitHubResearchMCP cli.ts taskmap and cards get ran. TaskMap raw output checksum is sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3. Card blender-depsgraph-evaluated-mesh captures depsgraph/undo invariant, not a proven general tool-planner fix. Pinned donor implementation paths independently inspected through GitHub connector and test witnesses; no noncommercial source copied.",
+  "evidence": "On M1 the real GitHubResearchMCP CLI indexed the source-backed Blender progressive-guides Pattern Card, and its TaskMap for the exact query in this receipt selected that card first. Raw TaskMap bytes at .lego/research/github-taskmap-guided-20261106.json have SHA256 0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd. Card source is jabbertones-cloud/githubresearchmcp PR 32 at commit 991241d5e8baa3f22c70aaf6e2df18242160dc27; source code at Blender PR 30 commit 6ddc5176, plus pinned MIT-licensed donor files and target tests independently read via GitHub. The source-backed design is goal -> search -> schema (with contextual guide) -> canonical validated execution, not inferred unrestricted direct Python. Blender M2 passed 162 unit plus 6 live GUI/MCP tests. This is sufficient to support a narrowly scoped implementation, not autonomous task completion or all 66 capabilities.",
   "execution_trace": {
-    "card_command": "cards get --slug blender-depsgraph-evaluated-mesh",
-    "command": "node --experimental-strip-types --experimental-sqlite cli.ts taskmap --problem ... --repo jabbertones-cloud/blender-mcp",
+    "artifact_path": ".lego/research/github-taskmap-guided-20261106.json",
+    "command": "src/cli.ts taskmap --problem Blender MCP task goals progressive tool guides schema and canonical execution --repo jabbertones-cloud/blender-mcp",
     "host": "smat-m1-mini",
-    "source": "githubresearchmcp CLI",
-    "taskmap_digest": "sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3"
+    "mode": "GitHubResearchMCP CLI via node --experimental-strip-types --experimental-sqlite",
+    "pattern_card_commit": "991241d5e8baa3f22c70aaf6e2df18242160dc27",
+    "pattern_card_pr": "https://github.com/jabbertones-cloud/githubresearchmcp/pull/32",
+    "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
   },
   "lane": "github_research",
   "mode": "cli",
   "pattern_card_refs": [
+    "blender-progressive-tool-guides",
     "blender-depsgraph-evaluated-mesh"
   ],
-  "query": "Blender MCP 5.2 capability guidance workflow routing compositor compatibility user scene mutation and render verification",
+  "query": "Blender MCP task goals progressive tool guides schema and canonical execution",
   "source_refs": [
+    "https://github.com/jabbertones-cloud/githubresearchmcp/blob/991241d5e8baa3f22c70aaf6e2df18242160dc27/data/pattern-cards/blender-progressive-tool-guides.md",
+    "https://github.com/jabbertones-cloud/blender-mcp/blob/6ddc51766221d21cf77db7251a81cd10ade13873/server/blender_mcp_guided.py",
+    "https://github.com/jabbertones-cloud/blender-mcp/blob/6ddc51766221d21cf77db7251a81cd10ade13873/tests/test_mcp_stdio_live.py",
     "https://github.com/dcc-mcp/dcc-mcp-blender/blob/9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5/src/dcc_mcp_blender/_semantic_index.py",
-    "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/skills/bl-mcp/SKILL.md",
     "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py",
-    "https://docs.blender.org/api/5.2/bpy.ops.export_scene.html"
+    "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/bl_mcp/recipes/rules.md"
   ],
-  "taskmap_ref": "sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3"
+  "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
 }

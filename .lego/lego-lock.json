@@ -20,7 +20,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -46,7 +46,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -72,7 +72,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -98,7 +98,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -124,7 +124,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -150,7 +150,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -176,7 +176,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -202,7 +202,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -228,7 +228,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -254,7 +254,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -280,7 +280,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -306,7 +306,7 @@
           "python3",
           "-m",
           "pytest",
-          "tests/test_*.py",
+          "tests",
           "-q",
           "--disable-warnings"
         ]
@@ -317,7 +317,7 @@
     {
       "commit": "9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5",
       "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
-      "fabric_job_id": "0345f943-fdb6-4df9-a040-6f3971f580a5",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
       "fabric_project": "blender-mcp",
       "fabric_status": "reported",
       "id": "dcc-guided",
@@ -329,7 +329,7 @@
     {
       "commit": "de3c773ec2ab83d2b859f928b75a8e6f351ef128",
       "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
-      "fabric_job_id": "0345f943-fdb6-4df9-a040-6f3971f580a5",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
       "fabric_project": "blender-mcp",
       "fabric_status": "reported",
       "id": "asedias-recipes",
@@ -341,7 +341,7 @@
     {
       "commit": "bc2aaadceaf96d3436313ab1c05b2971f5f0718d",
       "fabric_claim": "Donor offers source-level patterns relevant to typed Blender tool invocation and task-oriented guidance, not a measured production win.",
-      "fabric_job_id": "0345f943-fdb6-4df9-a040-6f3971f580a5",
+      "fabric_job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
       "fabric_project": "blender-mcp",
       "fabric_status": "reported",
       "id": "blenderwright-tools",
@@ -361,29 +361,32 @@
     },
     "fabric": {
       "artifact_path": ".lego/research/fabric.json",
-      "job_id": "0345f943-fdb6-4df9-a040-6f3971f580a5",
+      "job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Compare dcc-mcp/dcc-mcp-blender and asedias/bl-mcp for Blender 5.2 guided MCP and render compatibility",
-      "sha256": "21b16a8000accb93f12a5852124e90cb40c6952aec17e6c94684351c253aaecd"
+      "query": "Bounded Blender MCP engineering comparison: dcc-mcp/dcc-mcp-blender uses BlenderSemanticIndex.augment to append lexical/vector skill results without replacing canonical ordering; HoldMyBeer-gg/blenderwright uses TOOLSETS and parse_spec to disclose tool families; asedias/bl-mcp uses task recipes with status, inspect, measure and rollback. The target Blender-MCP 5.2.3 release has 5 MCP tools, a 66-capability registry, guide_for_capability, and 6 live GUI/MCP acceptance tests. Compare these exact source and native Blender API boundaries, not generic repository recommendations. Evaluate the three pinned source files attached, their missing guarantees, and tests; report unsupported claims as insufficient.",
+      "sha256": "ee969e4f69793c8c666c9e77ee14bcc670c2e0c8ee9bf507d1f618a7a0578d98"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",
       "mode": "cli",
       "pattern_card_refs": [
+        "blender-progressive-tool-guides",
         "blender-depsgraph-evaluated-mesh"
       ],
-      "query": "Blender MCP 5.2 capability guidance workflow routing compositor compatibility user scene mutation and render verification",
-      "sha256": "5af1d4e26b37e7a6e5231737609ebfdef7a8ffeae5146af20d3780fd58d65236",
-      "taskmap_ref": "sha256:e7d0f78a790a1ec3898b9ab517acd45099c4bc5e4a7ccfb6a6164825c32b15b3"
+      "query": "Blender MCP task goals progressive tool guides schema and canonical execution",
+      "sha256": "abe132e705314a70b8b60f4eafc68dfeed4a5793d9fb4d75026a6c177759acad",
+      "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
     },
     "smat_research": {
       "artifact_path": ".lego/research/smat_research.json",
-      "finding": "No relevant prior Blender study; searched private SMAT Research index and issues",
-      "mode": "searched_no_match",
-      "no_match_reason": "No Blender-specific study found; matched issue 94 concerns unrelated OAuth work",
-      "query": "blender repo:jabbertones-cloud/smat-research",
-      "sha256": "76d96908498fc44703e3fce1a7dc0607d7e9da8ce546f0284dd64bbea5d77fcf"
+      "finding": "Prior SMAT Research study validates progressive tool-disclosure design constraints and canonical authorization preservation but not Blender-specific completion.",
+      "mode": "study",
+      "query": "SMAT Research MCP progressive disclosure routing donor evaluation November 4 2026",
+      "sha256": "e08222092723aa303fa36db8b759de0a54e972e96b0b150385cc788b4eea5a3c",
+      "study_refs": [
+        "https://github.com/jabbertones-cloud/smat-research/blob/1ad41ffb46119277c17496c34c51a284a771d8a1/studies/mcp-harness-discovery-20261104/REPORT.md"
+      ]
     }
   },
   "schema_version": 2
