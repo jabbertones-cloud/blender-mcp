@@ -73,7 +73,7 @@ _WORKFLOW_GUIDES = {
     "workflow.character_from_image": "reconstruction", "workflow.match_reference_lighting": "reconstruction",
     "workflow.motion_from_video": "animation", "workflow.motion_qa": "animation",
     "workflow.image_to_scene": "reconstruction", "workflow.viewport_multiview": "inspection",
-    "workflow.sequence": "workflow",
+    "workflow.sequence": "workflow", "workflow.quality_inspect": "inspection",
 }
 
 

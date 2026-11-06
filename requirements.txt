@@ -5,3 +5,5 @@ mcp>=1.28,<2
 pydantic>=2,<3
 PyYAML>=6,<7
 jsonschema>=4.20,<5
+# Read-only Blender Quality Lab API v1, pinned to verified MIT donor source and tests.
+blender-quality-lab @ git+https://github.com/AleBrito124356/blender-quality-lab.git@9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0

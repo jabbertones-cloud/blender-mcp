@@ -31,22 +31,23 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_blender_guides.py"
+          "tests/benchmark_quality_gates.py"
         ]
       ],
       "donor_ids": [
         "dcc-guided",
-        "asedias-recipes"
+        "asedias-recipes",
+        "blender-quality-lab"
       ],
       "mode": "assembly",
       "path": "server/workflow_guides.py",
-      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation.",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests",
+          "tests/test_quality_workflow.py",
           "-q",
           "--disable-warnings"
         ]
@@ -57,22 +58,23 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_blender_guides.py"
+          "tests/benchmark_quality_gates.py"
         ]
       ],
       "donor_ids": [
         "dcc-guided",
-        "asedias-recipes"
+        "asedias-recipes",
+        "blender-quality-lab"
       ],
       "mode": "assembly",
       "path": "server/workflow_rank.py",
-      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation.",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests",
+          "tests/test_quality_workflow.py",
           "-q",
           "--disable-warnings"
         ]
@@ -109,22 +111,23 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_blender_guides.py"
+          "tests/benchmark_quality_gates.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
-        "dcc-guided"
+        "dcc-guided",
+        "blender-quality-lab"
       ],
       "mode": "assembly",
       "path": "server/capability_executor.py",
-      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests",
+          "tests/test_quality_workflow.py",
           "-q",
           "--disable-warnings"
         ]
@@ -311,6 +314,56 @@
           "--disable-warnings"
         ]
       ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_quality_gates.py"
+        ]
+      ],
+      "donor_ids": [
+        "blender-quality-lab"
+      ],
+      "mode": "glue",
+      "path": "server/scene_quality_adapter.py",
+      "purpose": "Thin typed adapter to source-pinned MIT Quality Lab API v1; validates authorized path, opens read-only isolated Blender, reports technical gates without generated Python execution.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_quality_workflow.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_quality_gates.py"
+        ]
+      ],
+      "donor_ids": [
+        "blender-quality-lab"
+      ],
+      "mode": "glue",
+      "path": "requirements.txt",
+      "purpose": "Thin typed adapter to source-pinned MIT Quality Lab API v1; validates authorized path, opens read-only isolated Blender, reports technical gates without generated Python execution.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_quality_workflow.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
     }
   ],
   "donors": [
@@ -349,6 +402,18 @@
       "rationale": "MIT-licensed Blender MCP toolset descriptors and typed routing interfaces; reviewed for request narrowing and canonical handler fidelity.",
       "repository": "HoldMyBeer-gg/blenderwright",
       "url": "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py"
+    },
+    {
+      "commit": "9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0",
+      "fabric_claim": "Source reports technical quality checks, real Blender 5.2 M2 tests and 9-of-10 to 10-of-10 authorized scene repair; Fabric source relevance is reported, target local runtime separately measured.",
+      "fabric_job_id": "2d1d0156-713c-47fd-b3f3-e42cd671536e",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "blender-quality-lab",
+      "license": "MIT",
+      "rationale": "Use versioned Quality Lab API v1 check and score to audit a saved Blender scene with isolated autoexec-disabled process, hard technical gates and non-executable human actions. Preserve target Blender canonical mutation boundary.",
+      "repository": "AleBrito124356/blender-quality-lab",
+      "url": "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/src/blender_quality/api.py"
     }
   ],
   "research_evidence": {
@@ -361,11 +426,11 @@
     },
     "fabric": {
       "artifact_path": ".lego/research/fabric.json",
-      "job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+      "job_id": "2d1d0156-713c-47fd-b3f3-e42cd671536e",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Bounded Blender MCP engineering comparison: dcc-mcp/dcc-mcp-blender uses BlenderSemanticIndex.augment to append lexical/vector skill results without replacing canonical ordering; HoldMyBeer-gg/blenderwright uses TOOLSETS and parse_spec to disclose tool families; asedias/bl-mcp uses task recipes with status, inspect, measure and rollback. The target Blender-MCP 5.2.3 release has 5 MCP tools, a 66-capability registry, guide_for_capability, and 6 live GUI/MCP acceptance tests. Compare these exact source and native Blender API boundaries, not generic repository recommendations. Evaluate the three pinned source files attached, their missing guarantees, and tests; report unsupported claims as insufficient.",
-      "sha256": "ee969e4f69793c8c666c9e77ee14bcc670c2e0c8ee9bf507d1f618a7a0578d98"
+      "query": "Bounded comparison of pinned MIT Blender Quality Lab API v1 / Astra Harness for canonical, read-only scene quality inspection and eventual outcome loop.",
+      "sha256": "40d61111dd80fb6eb4395342111322f29b8dbcb4cc561e5b585ec17bd565994b"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",
@@ -374,9 +439,9 @@
         "blender-progressive-tool-guides",
         "blender-depsgraph-evaluated-mesh"
       ],
-      "query": "Blender MCP task goals progressive tool guides schema and canonical execution",
-      "sha256": "abe132e705314a70b8b60f4eafc68dfeed4a5793d9fb4d75026a6c177759acad",
-      "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
+      "query": "Blender MCP integrate read-only Blender Quality Lab gate on saved scene and report deficiencies via existing five-tool architecture",
+      "sha256": "97b927f7134a5a15329deff9d1fbd0f0df718704a5f3f4e9e6f6f06bf5f6085c",
+      "taskmap_ref": "sha256:e229ab3d34e433f511c109835d5f65cf1d26fd236a3e06423059f1230abbaa1a"
     },
     "smat_research": {
       "artifact_path": ".lego/research/smat_research.json",

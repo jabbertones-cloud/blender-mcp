@@ -46,6 +46,7 @@ _CREATE_KEYS = {"scene.create_object"}
 _DELETE_KEYS = {"scene.delete_object"}
 
 WORKFLOW_SCHEMAS: Dict[str, dict] = {
+    "workflow.quality_inspect": {"type": "object", "required": ["scene_path"], "properties": {"scene_path": {"type": "string", "minLength": 1}, "subject": {"type": "string"}, "strict_contact": {"type": "boolean", "default": False}}, "additionalProperties": False},
     "workflow.product_hero": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "material": {"type": ["string", "null"], "default": None}, "lighting": {"type": "string", "default": "product_studio"}, "camera_style": {"type": "string", "default": "hero_reveal"}, "quality": {"type": "string", "default": "premium"}, "resolution": {"type": "string", "default": "square_1080"}, "transparent_bg": {"type": "boolean", "default": False}, "auto_render": {"type": "boolean", "default": True}}, "additionalProperties": False},
     "workflow.turntable": {"type": "object", "required": ["object_name"], "properties": {"object_name": {"type": "string"}, "lighting": {"type": "string", "default": "product_studio"}, "frames": {"type": "integer", "default": 120}, "quality": {"type": "string", "default": "balanced"}, "auto_render": {"type": "boolean", "default": False}}, "additionalProperties": False},
     "workflow.forensic_recon": {"type": "object", "required": ["action"], "properties": {"action": {"type": "string"}}, "additionalProperties": True},
@@ -85,6 +86,7 @@ WORKFLOW_SCHEMAS: Dict[str, dict] = {
 }
 
 WORKFLOW_DESCRIPTIONS = {
+    "workflow.quality_inspect": "Inspect a saved .blend with read-only Blender Quality Lab technical gates, prioritized human-actionable findings, and no generated Python execution.",
     "workflow.product_hero": "Create a polished product hero shot as one deterministic workflow: inspect, optional product material, studio lighting, hero camera, premium render setup, visual observations, and optional final render.",
     "workflow.turntable": "Build a 360 product turntable: inspect, product lighting, turntable camera orbit, optional still render.",
     "workflow.forensic_recon": "Run the forensic/accident reconstruction handler as one workflow after a scene inspect.",
@@ -678,6 +680,16 @@ def execute_workflow(key: str, arguments: dict, send_command) -> dict:
     if key not in WORKFLOW_SCHEMAS:
         raise KeyError(f"Unknown workflow capability: {key}")
     args = arguments or {}
+    if key == "workflow.quality_inspect":
+        from jsonschema import Draft202012Validator
+        errors = list(Draft202012Validator(WORKFLOW_SCHEMAS[key]).iter_errors(args))
+        if errors:
+            raise ValueError(errors[0].message)
+        try:
+            from server.scene_quality_adapter import inspect_saved_scene
+        except ModuleNotFoundError:
+            from scene_quality_adapter import inspect_saved_scene
+        return {"workflow": key, **inspect_saved_scene(args)}
     steps = []
 
     def run(step_key: str, step_args: dict, *, observe_visual: bool = True) -> bool:

@@ -9,6 +9,8 @@ except ModuleNotFoundError:
     from capability_executor import WORKFLOW_DESCRIPTIONS
 
 _RULES = (
+    ("workflow.quality_inspect", 159.0, ["inspect saved Blender scene with objective quality gates"],
+     lambda t: any(x in t for x in ("inspect quality", "quality audit", "audit scene quality", "check scene quality", "validate scene quality")), False),
     (
         "workflow.amazon_packshot",
         160.0,
