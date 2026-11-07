@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-06",
+  "feature_head": "b4ae354fd35962d8a97a2fbf61b04c3b4c77e092",
+  "feature_tests": {
+    "benchmark": "Huey 0/1 vs RQ 1/1 in one controlled abrupt exit each, not a general success rate",
+    "deterministic": "181 passed 6 skipped before release PR",
+    "live": "three RQ native Blender and worker-crash SDK tests passed on isolated AOF broker",
+    "m2_blender": "5.2.3"
+  },
+  "handroll_rehab": {
+    "decision": "NO_AUTOMATIC_REPLACEMENT",
+    "findings": [
+      {
+        "category": "chunking",
+        "classification": "REVIEW_CANDIDATE",
+        "line": 150,
+        "path": "server/image_similarity.py",
+        "relevant_to_RQ_render_feature": false
+      }
+    ],
+    "limitations": [
+      "MCP scanner did not return an explicit source_head; local git worktree SHA independently checked",
+      "Chunking finding was not shown to affect render queue logic; no donor replacement recommended"
+    ],
+    "ok": true,
+    "source_head_field": null,
+    "surface": "real local Handroll Rehab MCP on smat-m1-mini",
+    "target": "/Users/tatsheen/claw-repos/blender-rq-audit-20261106",
+    "target_head": "b4ae354fd35962d8a97a2fbf61b04c3b4c77e092"
+  },
+  "release": "Not merged or production deployed at scan time",
+  "unloopr": {
+    "first_party_bpy_acknowledged": true,
+    "first_party_modules_provided": true,
+    "language": "py",
+    "manifest_modules_provided": true,
+    "negative_history_limit": "The broad file-level pattern warning is not a source-line bug or validated RQ failure; direct M2 tests are separate",
+    "remaining_findings": [
+      {
+        "classification": "general history-pattern match, no demonstrated failing behavior",
+        "disposition": "not changed because the diff only adds typed workflow key-to-existing-guide mappings and deterministic+live tests pass",
+        "file": "server/workflow_guides.py",
+        "line_scope": "file",
+        "rule": "T1-known-bad:p0001",
+        "severity": "warn"
+      }
+    ],
+    "runtime_verification": "not performed by Unloopr",
+    "surface": "hosted unloopr_agent_check against actual production diff"
+  }
+}
