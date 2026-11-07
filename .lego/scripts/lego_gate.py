@@ -307,14 +307,13 @@ def validate(repo, base, head, manifest, verify=False):
     except (ValueError, json.JSONDecodeError):
         base_lock = {}
     inherited = {d.get("id"): d for d in base_lock.get("donors", []) if isinstance(d, dict)}
-    prior_fabric = base_lock.get("research_evidence", {}).get("fabric", {})
     for donor in donors:
         check_donor(donor, errors)
         if isinstance(donor, dict):
             if donor.get("fabric_job_id") != fabric_job or donor.get("fabric_project") != fabric_project:
                 original = inherited.get(donor.get("id"))
                 unchanged_and_approved = (
-                    original == donor and donor.get("fabric_project") == prior_fabric.get("project")
+                    original is not None and original == donor
                 )
                 if not unchanged_and_approved:
                     errors.append(f"{donor.get('id', '<donor>')}: Fabric evidence must match active job or unchanged base donor provenance")

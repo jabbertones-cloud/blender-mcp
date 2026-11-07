@@ -178,10 +178,13 @@ class GateTests(unittest.TestCase):
         prev = json.loads((self.repo / '.lego/lego-lock.json').read_text())
         second_job = 'fixture-stage-two-4321'
         prev['donors'].append(dict(prev['donors'][0], id='second', fabric_job_id=second_job))
+        prev['donors'][-1]['fabric_project'] = 'second-project'
+        prev['research_evidence']['fabric']['project'] = 'second-project'
         prev['research_evidence']['fabric']['job_id'] = second_job
         path = self.repo / '.lego/research/fabric.json'
         receipt = json.loads(path.read_text())
         receipt['job_id'] = second_job
+        receipt['project'] = 'second-project'
         raw = (json.dumps(receipt, sort_keys=True, indent=2) + '\n').encode()
         path.write_bytes(raw)
         prev['research_evidence']['fabric']['sha256'] = hashlib.sha256(raw).hexdigest()
@@ -191,8 +194,11 @@ class GateTests(unittest.TestCase):
         second = git(self.repo, 'rev-parse', 'HEAD')
         third_job = 'fixture-stage-three-5678'
         prev['donors'].append(dict(prev['donors'][0], id='third', fabric_job_id=third_job))
+        prev['donors'][-1]['fabric_project'] = 'third-project'
+        prev['research_evidence']['fabric']['project'] = 'third-project'
         prev['research_evidence']['fabric']['job_id'] = third_job
         receipt['job_id'] = third_job
+        receipt['project'] = 'third-project'
         raw = (json.dumps(receipt, sort_keys=True, indent=2) + '\n').encode()
         path.write_bytes(raw)
         prev['research_evidence']['fabric']['sha256'] = hashlib.sha256(raw).hexdigest()
