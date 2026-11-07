@@ -23,8 +23,9 @@
   },
   "research": {
     "expert": "No dedicated Blender image codec expert MCP connected; official Pillow sources used",
-    "fabric_job_id": "3aa761d3-4019-4a88-9d00-a2781918a206",
-    "fabric_status": "initial source exploration succeeded process but insufficient due unrelated donor-verification failures; new source-pinned Fabric job 50275a68-9854-4dad-b23f-26886c0040e4 pending sufficiency",
+    "fabric_job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
+    "fabric_project": "python-pillow/Pillow",
+    "fabric_status": "The source-focused python-pillow/Pillow job 56ec6c45-10c0-4683-be54-25f00843a25d succeeded with sufficient=true and donorVerification.action=clean; previous Blender-scoped runs remain insufficient. The Fabric source claim is reported, while M2 measured evidence is independent.",
     "github_research": "Existing .lego/research/github-taskmap-rq-20261106.json (R/Q source-pinned recovery); live CLI cards search returned unrelated 0-score cards",
     "smat_research": "searched smat-research studies markdown for Blender PNG integrity and found no matching implementation study"
   },
