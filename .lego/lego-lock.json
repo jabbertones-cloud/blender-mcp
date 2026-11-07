@@ -405,8 +405,8 @@
     },
     {
       "commit": "9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0",
-      "fabric_claim": "Source reports technical quality checks, real Blender 5.2 M2 tests and 9-of-10 to 10-of-10 authorized scene repair; Fabric source relevance is reported, target local runtime separately measured.",
-      "fabric_job_id": "2d1d0156-713c-47fd-b3f3-e42cd671536e",
+      "fabric_claim": "Pinned Quality Lab API v1 exposes isolated technical inspection of saved Blender scenes; Fabric confirms source relevance and code tests, while separate M2 actual SDK client tests prove the narrow integration.",
+      "fabric_job_id": "9f3a85e0-1fe5-4b02-a5da-a84371739e6d",
       "fabric_project": "blender-mcp",
       "fabric_status": "reported",
       "id": "blender-quality-lab",
@@ -426,11 +426,11 @@
     },
     "fabric": {
       "artifact_path": ".lego/research/fabric.json",
-      "job_id": "2d1d0156-713c-47fd-b3f3-e42cd671536e",
+      "job_id": "9f3a85e0-1fe5-4b02-a5da-a84371739e6d",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Bounded comparison of pinned MIT Blender Quality Lab API v1 / Astra Harness for canonical, read-only scene quality inspection and eventual outcome loop.",
-      "sha256": "40d61111dd80fb6eb4395342111322f29b8dbcb4cc561e5b585ec17bd565994b"
+      "query": "Verify pinned MIT sources for existing typed Blender guided discovery and new Blender Quality Lab read-only scene inspection. No runtime performance inference.",
+      "sha256": "36db6c70a2897c7f01449dfc00816b33091523e3c07000680446e885ac67e3f5"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",

@@ -299,11 +299,26 @@ def validate(repo, base, head, manifest, verify=False):
     donor_ids = set()
     fabric_job = manifest.get("research_evidence", {}).get("fabric", {}).get("job_id")
     fabric_project = manifest.get("research_evidence", {}).get("fabric", {}).get("project")
+    # Already-approved donors retain their original Fabric job when carried
+    # forward unchanged from the exact base commit. New or edited donors must
+    # use the active, sufficient job verified in this HEAD.
+    try:
+        base_lock = json.loads(git(repo, "show", f"{base}:.lego/lego-lock.json"))
+    except (ValueError, json.JSONDecodeError):
+        base_lock = {}
+    inherited = {d.get("id"): d for d in base_lock.get("donors", []) if isinstance(d, dict)}
+    prior_fabric = base_lock.get("research_evidence", {}).get("fabric", {})
     for donor in donors:
         check_donor(donor, errors)
         if isinstance(donor, dict):
             if donor.get("fabric_job_id") != fabric_job or donor.get("fabric_project") != fabric_project:
-                errors.append(f"{donor.get('id', '<donor>')}: Fabric evidence must match research_evidence.fabric job and project")
+                original = inherited.get(donor.get("id"))
+                unchanged_and_approved = (
+                    original == donor and donor.get("fabric_job_id") == prior_fabric.get("job_id")
+                    and donor.get("fabric_project") == prior_fabric.get("project")
+                )
+                if not unchanged_and_approved:
+                    errors.append(f"{donor.get('id', '<donor>')}: Fabric evidence must match active job or unchanged base donor provenance")
             ident = donor.get("id")
             if ident in donor_ids:
                 errors.append(f"Duplicate donor id: {ident}")

@@ -145,6 +145,34 @@ class GateTests(unittest.TestCase):
         head = self.build(lock_edit=edit)
         self.assert_blocked(self.gate(head), "pinned 40-character")
 
+    def test_unchanged_historical_donor_keeps_pinned_fabric_job(self):
+        first = self.build()
+        prior = json.loads((self.repo / ".lego/lego-lock.json").read_text())
+        new_job = "fixture-successor-job-123"
+        new_donor = dict(prior["donors"][0], id="second-fixture", fabric_job_id=new_job)
+        prior["donors"].append(new_donor)
+        prior["components"][0]["donor_ids"].append("second-fixture")
+        prior["research_evidence"]["fabric"]["job_id"] = new_job
+        receipt_path = self.repo / ".lego/research/fabric.json"
+        receipt = json.loads(receipt_path.read_text())
+        receipt["job_id"] = new_job
+        raw = (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode()
+        receipt_path.write_bytes(raw)
+        prior["research_evidence"]["fabric"]["sha256"] = hashlib.sha256(raw).hexdigest()
+        (self.repo / ".lego/lego-lock.json").write_text(json.dumps(prior, indent=2, sort_keys=True) + "\n")
+        (self.repo / "src/app.py").write_text("print('successor')\n")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-qm", "add new donor with active Fabric job")
+        second = git(self.repo, "rev-parse", "HEAD")
+        result = self.gate(second, base=first)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        prior["donors"][0]["rationale"] += " ALTERED original provenance"
+        (self.repo / ".lego/lego-lock.json").write_text(json.dumps(prior, indent=2, sort_keys=True) + "\n")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-qm", "tamper inherited donor")
+        third = git(self.repo, "rev-parse", "HEAD")
+        self.assert_blocked(self.gate(third, base=first), "unchanged base donor provenance")
+
     def test_glue_line_limit(self):
         code = "\n".join(f"x{i} = {i}" for i in range(48)) + "\n"
         head = self.build(source=code, lock_edit=lambda d: d["components"][0].update(mode="glue"))
