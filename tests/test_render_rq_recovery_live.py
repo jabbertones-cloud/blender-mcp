@@ -15,7 +15,7 @@ def crash_once(marker):
 
 
 @pytest.mark.skipif(os.getenv('BLENDER_RENDER_E2E')!='1', reason='needs dedicated Redis')
-def test_rq_retries_abrupt_child_exit_same_job_id(tmp_path):
+def test_rq_retries_abrupt_child_exit_same_job_id(tmp_path, isolated_render_broker):
     from redis import Redis
     from rq import Queue, Retry
     from rq.serializers import JSONSerializer

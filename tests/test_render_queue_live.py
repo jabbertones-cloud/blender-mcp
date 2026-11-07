@@ -10,7 +10,7 @@ import pytest
 
 
 @pytest.mark.skipif(os.getenv('BLENDER_RENDER_E2E') != '1',reason='needs dedicated AOF Redis and native Blender 5.x')
-def test_mcp_worker_render_persists_result_across_processes():
+def test_mcp_worker_render_persists_result_across_processes(isolated_render_broker):
     from server.capability_executor import execute_workflow
     from server.render_queue_api import status
     root=Path(os.environ['BLENDER_RENDER_ROOT'])
