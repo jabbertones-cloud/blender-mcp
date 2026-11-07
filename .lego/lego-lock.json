@@ -580,7 +580,7 @@
       "mode": "research_job",
       "project": "blender-mcp",
       "query": "Verify exactly the supplied RQ Redis Queue source files and license for an existing Blender MCP background rendering workflow. RQ provides StartedJobRegistry.cleanup on abandoned jobs and Worker handling workhorse termination; Redis-backed Queue.enqueue returns a stable job ID and JSONSerializer avoids pickle. The specific source commit is rq/rq 8bdb8426f8cbc4e0a2f77176135939055c9e5f39. Verify whether the pinned files and associated documentation are accessible, that the code supports one bounded retry after an unexpected worker-child exit, and describe limits such as duplicated side effects and persistence depending on Redis AOF. Do not infer Blender runtime measurements from source. Restrict to the single named RQ repository and pinned documents; do not introduce unrelated donors or probe unfurnished paths.",
-      "sha256": "d47ef5cb72b0b70e07df71262c6180010ea817d10a1aa914b22be66fa4e53f07"
+      "sha256": "1a35bb5573b6c4cc65e95f11d7e7952ef0ebbeeb2f83448634d425e348ff4669"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",

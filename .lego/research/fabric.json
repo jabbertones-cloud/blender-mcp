@@ -2,7 +2,7 @@
   "assessment": {
     "gaps": [],
     "limitations": [
-      "Fabric registry.py caller document was UNKNOWN in this run; direct GitHub connector retrieval independently verified exact file and commit.",
+      "Fabric registry.py caller document had an inconclusive status in this run; direct GitHub connector retrieval independently verified exact file and commit.",
       "Research sufficiency does not promote external M2 runtime observations to Fabric-measured results.",
       "AOF everysec does not guarantee against unclean power loss before fsync.",
       "RQ retries may duplicate side effects; native subprocess staging and stable job-ID path provide partial mitigation, not exactly-once semantics.",
@@ -11,7 +11,7 @@
     "relevant": true,
     "sufficient": true
   },
-  "evidence": "Research Fabric source-focused job e216b5a5-d6b7-41b3-b595-4d44875a78d8 succeeded, topically relevant evidence present, three relevant candidates in six total and donorVerification.action clean. Four caller documents were requested: Worker/base.py, jobs.md, LICENSE resolved; registry.py was UNKNOWN in this Fabric retrieval, not falsely claimed resolved. The exact registry.py commit and StartedJobRegistry.cleanup were independently read directly with GitHub connector. Prior source job 0e01f7d6 was insufficient due nonexistent rq/worker.py; corrected to rq/worker/base.py. Fabric did NOT run local Blender, Redis or fault injection. M2 separate fault trial: Huey SqliteHuey 3.5.4 retries=1 lost hard-exit task; RQ 2.12.0 Retry(max=1) recovered os._exit(17) job under same ID; dedicated AOF Redis 8.2 broker restart preserved a pending Blender render and subsequent worker created a 57,010-byte PNG. M2 branch also passed actual SDK five-tool enqueue/status and background native render tests. This is a bounded trial, not an exactly-once guarantee.",
+  "evidence": "Research Fabric source-focused job e216b5a5-d6b7-41b3-b595-4d44875a78d8 succeeded, topically relevant evidence present, three relevant candidates in six total and donorVerification.action clean. Four caller documents were requested: Worker/base.py, jobs.md, LICENSE resolved; registry.py retrieval was inconclusive in this Fabric retrieval, not falsely claimed resolved. The exact registry.py commit and StartedJobRegistry.cleanup were independently read directly with GitHub connector. Prior source job 0e01f7d6 was insufficient due nonexistent rq/worker.py; corrected to rq/worker/base.py. Fabric did NOT run local Blender, Redis or fault injection. M2 separate fault trial: Huey SqliteHuey 3.5.4 retries=1 lost hard-exit task; RQ 2.12.0 Retry(max=1) recovered os._exit(17) job under same ID; dedicated AOF Redis 8.2 broker restart preserved a pending Blender render and subsequent worker created a 57,010-byte PNG. M2 branch also passed actual SDK five-tool enqueue/status and background native render tests. This is a bounded trial, not an exactly-once guarantee.",
   "job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
   "lane": "fabric",
   "mode": "research_job",
