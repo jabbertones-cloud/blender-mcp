@@ -2,48 +2,50 @@
   "assessment": {
     "gaps": [],
     "limitations": [
-      "Fabric research sufficiency proves relevant source material and clean citations, not a measured runtime success.",
-      "Fabric project lacks claim-bound Blender runtime/test verification adapters; Fabric verify was inconclusive.",
-      "Github code-search 403 rate limiting still degraded an optional external search; pinned caller documents resolved independently.",
-      "0 target candidates and 15 sibling candidates retained; target-side behavior is established by separate tests."
+      "Research Fabric confirms topical relevance and source retrieval only, not Blender runtime compatibility or an autonomous agent success rate.",
+      "The verification enumerates unrelated repositories and status-badge URLs; they are not adopted sources.",
+      "Blender 5.3 and broad 66-capability parity not measured.",
+      "Historical approved donors retain separately documented source-specific Fabric job; gate checks their byte-identical provenance against exact base."
     ],
     "relevant": true,
     "sufficient": true
   },
-  "evidence": "Actual Research Fabric job 4d9befa7-42a6-4305-ba27-bbbe4bf53bdd completed 2026-11-06T22:25:06.513Z with 15 topically relevant retained candidates from 18 total and four caller-provided pinned GitHub documents RESOLVED; research sufficiency.sufficient=true, reason topically_relevant_evidence_present. Deterministic citation check donorVerification.action=clean, 5/5 cited repositories and 4/4 cited URLs alive. An unrelated prior job 9205cbc8-8190-4dec-8959-2eaaaecc368e blocked due a non-cited poly-mcp GitHub 404; that report is retained as a negative, not reclassified. Fabric stages are reported/inferred, NOT measured; GitHub code search remained 403-degraded; separate real M2 tests, direct GitHub source inspection and exact-head CI are the implementation checks.",
-  "job_id": "4d9befa7-42a6-4305-ba27-bbbe4bf53bdd",
+  "evidence": "Research Fabric 9f3a85e0-1fe5-4b02-a5da-a84371739e6d completed 2026-11-06T23:14:31.151Z. Five caller-supplied source and test documents all resolved: DCC semantic index, asedias recipe rules, Blenderwright toolsets, Quality Lab API v1 and sabotage tests. Sufficiency=true with six relevant candidates among eight, reason topically_relevant_evidence_present, verification action clean and no broken repo citations. Source report includes unrelated search discoveries, one stale repo and shield badge URLs; those are not selected as donors and do not prove target behavior. Target M2 Blender 5.2.3 separate local verification: 173 tests pass and exact SDK client technical material gate failure/recovery; those results were NOT measured by Research Fabric. Historical donors retain earlier verified Fabric job 4d9befa7-42a6-4305-ba27-bbbe4bf53bdd, unchanged from approved merge base.",
+  "job_id": "9f3a85e0-1fe5-4b02-a5da-a84371739e6d",
   "lane": "fabric",
   "mode": "research_job",
   "project": "blender-mcp",
-  "query": "Bounded Blender MCP engineering comparison: dcc-mcp/dcc-mcp-blender uses BlenderSemanticIndex.augment to append lexical/vector skill results without replacing canonical ordering; HoldMyBeer-gg/blenderwright uses TOOLSETS and parse_spec to disclose tool families; asedias/bl-mcp uses task recipes with status, inspect, measure and rollback. The target Blender-MCP 5.2.3 release has 5 MCP tools, a 66-capability registry, guide_for_capability, and 6 live GUI/MCP acceptance tests. Compare these exact source and native Blender API boundaries, not generic repository recommendations. Evaluate the three pinned source files attached, their missing guarantees, and tests; report unsupported claims as insufficient.",
+  "query": "Verify pinned MIT sources for existing typed Blender guided discovery and new Blender Quality Lab read-only scene inspection. No runtime performance inference.",
   "result": {
-    "documents_resolved": 4,
-    "documents_total": 4,
+    "documents_resolved": 5,
+    "documents_total": 5,
     "donorVerification": {
       "action": "clean",
-      "claims_checked": 0,
-      "claims_supported": 0,
-      "repos_alive": 5,
-      "repos_checked": 5,
-      "urls_alive": 4,
-      "urls_checked": 4
+      "broken_repos": 0,
+      "source_document_verdicts": [
+        "RESOLVED",
+        "RESOLVED",
+        "RESOLVED",
+        "RESOLVED",
+        "RESOLVED"
+      ]
     },
     "status": "succeeded",
     "sufficiency": {
       "reason": "topically_relevant_evidence_present",
-      "relevantCandidates": 15,
-      "siblingCandidates": 15,
+      "relevantCandidates": 6,
+      "siblingCandidates": 6,
       "sufficient": true,
       "targetCandidates": 0,
       "targetGrounded": true,
-      "totalCandidates": 18
-    },
-    "verificationStatus": "no_results"
+      "totalCandidates": 8
+    }
   },
   "source_refs": [
     "https://github.com/dcc-mcp/dcc-mcp-blender/blob/9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5/src/dcc_mcp_blender/_semantic_index.py",
-    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py",
     "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/bl_mcp/recipes/rules.md",
-    "https://github.com/jabbertones-cloud/blender-mcp/blob/6ddc51766221d21cf77db7251a81cd10ade13873/server/workflow_guides.py"
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py",
+    "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/src/blender_quality/api.py",
+    "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/tests/test_gates.py"
   ]
 }

@@ -16,3 +16,7 @@ Compare structured readback to the requested target; fail closed if the object o
 
 ## Failure policy
 Stop on unsupported or missing prerequisites, record the exact tool error and preserve existing scene content. Retry only the narrowest approved correction; do not claim a final result without readback.
+
+## Saved-scene technical quality audit (Blender Quality Lab)
+
+When the user asks to check scene quality, use `workflow.quality_inspect` with a saved `.blend` path inside `BLENDER_QUALITY_ROOT`. The MCP-side `BLENDER_QUALITY_BIN` must identify the intended Blender executable. This starts a separate, read-only, autoexec-disabled Blender inspection. It returns objective failed gates, advisory warnings, and suggested *actions only*, never executable fix snippets. Technical gates passing does **not** mean visual/aesthetic approval; warnings still require review. Apply any correction through separately selected, validated canonical capabilities and then rerun inspection. Never use this report as authorization to execute arbitrary Python.

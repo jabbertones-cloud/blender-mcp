@@ -1,0 +1,28 @@
+{
+  "branch": "feat/quality-lab-outcome-inspection-20261106",
+  "date": "2026-11-06",
+  "donor_api_version": 1,
+  "donor_sha": "9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0",
+  "files": [
+    "tests/fixtures/quality_lab/missing_material.json",
+    "tests/fixtures/quality_lab/assigned_material.json",
+    "tests/benchmark_quality_gates.py"
+  ],
+  "limitations": [
+    "No production install of new donor yet",
+    "Path and binary authorization requires server process BLENDER_QUALITY_ROOT and BLENDER_QUALITY_BIN",
+    "No arbitrary Python fixes executed",
+    "Only small real-scene and fixture gates validated; complete 66-capability and Blender 5.3 parity unproven"
+  ],
+  "quality_benchmark": {
+    "baseline": 9,
+    "candidate": 10,
+    "meaning": "same frozen real-scene inspection gate count before and after authorized correction; not autonomous completion"
+  },
+  "target_main_before": "7c69d62418ac792a3f26fccfc3f21e2b079c9588",
+  "tests": {
+    "real_mcp_quality": "M2 actual MCP SDK client path passed; missing-material source fails and corrected copy passes technical gates",
+    "target_branch": "173 passed, 3 skipped; passing live-installed Blender MCP port 9876",
+    "upstream_selected": "70 pinned donor tests passed; Quality Lab direct real Blender 5.2.3 engine"
+  }
+}

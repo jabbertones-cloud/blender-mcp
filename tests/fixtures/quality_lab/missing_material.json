@@ -1,0 +1,603 @@
+{
+  "schema_version": 2,
+  "blender_version": "5.2.3 LTS",
+  "file": {
+    "name": "m2_blender_mcp_acceptance.blend",
+    "sha256": "b0e02c852e80e799dfb8798e7f1622fa6bae68821d9a523f9131cf2af70bb166",
+    "bytes": 105493
+  },
+  "scene": "Scene",
+  "scenes": [
+    {
+      "name": "Scene",
+      "objects": 8
+    }
+  ],
+  "view_layer": "ViewLayer",
+  "engine": "CYCLES",
+  "resolution": [1080, 1080],
+  "render": {
+    "samples": 512,
+    "film_transparent": false,
+    "view_transform": "AgX",
+    "look": "AgX - Punchy",
+    "exposure": 0.0,
+    "gamma": 1.0
+  },
+  "units": {
+    "system": "METRIC",
+    "scale_length": 1.0
+  },
+  "camera": {
+    "name": "OpenClaw_Product_Camera",
+    "type": "PERSP",
+    "lens_mm": 50.0,
+    "ortho_scale": null,
+    "sensor_mm": [36.0, 24.0],
+    "sensor_fit": "AUTO",
+    "shift": [0.0, 0.0],
+    "clip": [0.1, 1000.0],
+    "location": [0.0, -4.0, 2.2],
+    "rotation_euler": [0.0, 0.0, 0.0],
+    "rotation_mode": "XYZ",
+    "forward": [-0.0, 0.9578, -0.2873],
+    "up": [0.0, 0.2873, 0.9578],
+    "right": [1.0, 0.0, 0.0],
+    "hfov_deg": 39.6,
+    "vfov_deg": 39.6,
+    "dof": {
+      "use": true,
+      "focus_distance": 10.0,
+      "focus_object": null,
+      "fstop": 2.8
+    }
+  },
+  "frame": {
+    "size": [64, 64],
+    "background": 0.5466,
+    "legend": {
+      "A": "Cube",
+      "B": "M2_Release_Asset_Proof"
+    },
+    "rows": [
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "................................................................",
+      "..............AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..............",
+      "..............AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..............",
+      ".............AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.............",
+      "............AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA............",
+      "...........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...........",
+      "..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..........",
+      "..........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..........",
+      ".........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.........",
+      "........AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA........",
+      ".......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      "....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      ".....AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....B",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....B",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....B",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....B",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.....B",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      "......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......",
+      ".......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.......",
+      ".......AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......."
+    ],
+    "camera_inside": null
+  },
+  "subject": {
+    "method": "heuristic",
+    "objects": [
+      "Cube",
+      "M2_Release_Asset_Proof"
+    ],
+    "environment": [],
+    "bbox_min": [-1.0, -2.25, -1.0],
+    "bbox_max": [3.5, 1.0, 1.75],
+    "center": [1.25, -0.625, 0.375],
+    "radius": 3.0974,
+    "in_frame": 0.3965,
+    "occluded": 0.0,
+    "coverage": 0.4533,
+    "screen_bbox": [0.068, -0.576, 3.0, 0.741],
+    "cut_off": [
+      "bottom",
+      "right"
+    ],
+    "center_screen": [0.962, 0.212],
+    "distance": 4.0353,
+    "light_basis": "camera-visible subject surface"
+  },
+  "objects": [
+    {
+      "name": "OpenClaw_Key",
+      "type": "LIGHT",
+      "data": "OpenClaw_Key",
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [3.0, -4.0, 5.0],
+      "rotation_euler": [0.8727, 0.0, 0.4363],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [0.90631, -0.27165, 0.32374, 3.0],
+        [0.42262, 0.58256, -0.69427, -4.0],
+        [0.0, 0.76604, 0.64279, 5.0],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 0.99999998,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "OpenClaw_Fill",
+      "type": "LIGHT",
+      "data": "OpenClaw_Fill",
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [-3.0, -2.0, 3.0],
+      "rotation_euler": [0.6109, 0.0, -0.6981],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [0.76604, 0.52654, -0.36869, -3.0],
+        [-0.64279, 0.62751, -0.43939, -2.0],
+        [0.0, 0.57358, 0.81915, 3.0],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 1.000000003,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "OpenClaw_Back",
+      "type": "LIGHT",
+      "data": "OpenClaw_Back",
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [0.0, 3.0, 4.0],
+      "rotation_euler": [-0.3491, 0.0, 3.1416],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [-1.0, 0.0, 0.0, 0.0],
+        [-0.0, -0.93969, -0.34202, 3.0],
+        [0.0, -0.34202, 0.93969, 4.0],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 0.999999979,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "OpenClaw_Product_Camera",
+      "type": "CAMERA",
+      "data": "OpenClaw_Product_Camera",
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [0.0, -4.0, 2.2],
+      "rotation_euler": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 0.28735, -0.95783, -4.0],
+        [0.0, 0.95783, 0.28735, 2.2],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 0.999999944,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "OpenClaw_Product_Target",
+      "type": "EMPTY",
+      "data": null,
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [0.0, 0.0, 1.0],
+      "rotation_euler": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 1.0],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 1.0,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "Cube",
+      "type": "MESH",
+      "data": "Cube",
+      "parent": null,
+      "collections": [
+        "Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [0.0, 0.0, 0.0],
+      "rotation_euler": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 1.0,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 1,
+      "vertices": 8,
+      "polygons": 6,
+      "mesh_hash": "e87f77803c2a1de5",
+      "renders_geometry": true,
+      "triangles": 12,
+      "instances": 1,
+      "materials": [
+        "Material"
+      ],
+      "faces_without_material": 0,
+      "area": 24.0,
+      "role": "subject",
+      "bbox_min": [-1.0, -1.0, -1.0],
+      "bbox_max": [1.0, 1.0, 1.0],
+      "dimensions": [2.0, 2.0, 2.0],
+      "view": {
+        "in_frame": 0.793,
+        "behind_camera": false,
+        "beyond_clip_end": 0.0,
+        "screen_bbox": [0.068, -0.307, 0.932, 0.578],
+        "cut_off": [
+          "bottom"
+        ],
+        "center": [0.5, 0.202],
+        "distance": 4.5651,
+        "occluded": 0.0,
+        "occluded_by": [],
+        "seen": 0.3333,
+        "coverage": 0.4521
+      },
+      "support": {
+        "touching": [],
+        "intersecting": [],
+        "gap_below": null,
+        "surface_below": null,
+        "floating": false
+      }
+    },
+    {
+      "name": "Light",
+      "type": "LIGHT",
+      "data": "Light",
+      "parent": null,
+      "collections": [
+        "Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [4.0762, 1.0055, 5.9039],
+      "rotation_euler": [0.6503, 0.0552, 1.8664],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [-0.29086, -0.7711, 0.56639, 4.07625],
+        [0.95517, -0.19988, 0.21839, 1.00545],
+        [-0.05519, 0.60452, 0.79467, 5.90386],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 0.999999984,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 0,
+      "polygons": 0
+    },
+    {
+      "name": "M2_Release_Asset_Proof",
+      "type": "MESH",
+      "data": "Cube.003",
+      "parent": null,
+      "collections": [
+        "Collection"
+      ],
+      "hide_render": false,
+      "render_visible": true,
+      "camera_visible": true,
+      "hidden_by": [],
+      "location": [2.5, -1.25, 0.75],
+      "rotation_euler": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "matrix_world": [
+        [1.0, 0.0, 0.0, 2.5],
+        [0.0, 1.0, 0.0, -1.25],
+        [0.0, 0.0, 1.0, 0.75],
+        [0.0, 0.0, 0.0, 1.0]
+      ],
+      "finite": true,
+      "world_determinant": 1.0,
+      "world_axis_lengths": [1.0, 1.0, 1.0],
+      "degenerate_axes": 0,
+      "material_count": 0,
+      "vertices": 8,
+      "polygons": 6,
+      "mesh_hash": "67d94743e43a787d",
+      "renders_geometry": true,
+      "triangles": 12,
+      "instances": 1,
+      "materials": [],
+      "faces_without_material": 6,
+      "area": 24.0,
+      "role": "subject",
+      "bbox_min": [1.5, -2.25, -0.25],
+      "bbox_max": [3.5, -0.25, 1.75],
+      "dimensions": [2.0, 2.0, 2.0],
+      "view": {
+        "in_frame": 0.0,
+        "behind_camera": false,
+        "beyond_clip_end": 0.0,
+        "screen_bbox": [0.985, -0.576, 3.0, 0.741],
+        "center": [1.638, 0.227],
+        "distance": 3.9894,
+        "coverage": 0.0012
+      },
+      "support": {
+        "touching": [],
+        "intersecting": [],
+        "gap_below": null,
+        "surface_below": null,
+        "floating": false
+      }
+    }
+  ],
+  "lights": [
+    {
+      "name": "OpenClaw_Key",
+      "type": "AREA",
+      "energy": 600.0,
+      "exposure": 0.0,
+      "color": [1.0, 1.0, 1.0],
+      "use_temperature": false,
+      "render_visible": true,
+      "hidden_by": [],
+      "location": [3.0, -4.0, 5.0],
+      "direction": [-0.3237, 0.6943, -0.6428],
+      "cast_shadows": true,
+      "shape": "SQUARE",
+      "size": 2.0,
+      "spread_deg": 180.0,
+      "normalize": true,
+      "distance_to_subject": 5.987,
+      "angle_off_axis_deg": 10.71,
+      "angle_to_camera_deg": 43.09,
+      "aimed_at_subject": true,
+      "reaches_subject": 0.9706,
+      "facing_but_blocked": 0.0294,
+      "blocked_by": [
+        "M2_Release_Asset_Proof"
+      ],
+      "irradiance": 2.6792
+    },
+    {
+      "name": "OpenClaw_Fill",
+      "type": "AREA",
+      "energy": 250.0,
+      "exposure": 0.0,
+      "color": [1.0, 1.0, 1.0],
+      "use_temperature": false,
+      "render_visible": true,
+      "hidden_by": [],
+      "location": [-3.0, -2.0, 3.0],
+      "direction": [0.3687, 0.4394, -0.8192],
+      "cast_shadows": true,
+      "shape": "SQUARE",
+      "size": 3.0,
+      "spread_deg": 180.0,
+      "normalize": true,
+      "distance_to_subject": 5.1811,
+      "angle_off_axis_deg": 33.48,
+      "angle_to_camera_deg": 45.15,
+      "aimed_at_subject": true,
+      "reaches_subject": 1.0,
+      "facing_but_blocked": 0.0,
+      "blocked_by": [],
+      "irradiance": 1.6841
+    },
+    {
+      "name": "OpenClaw_Back",
+      "type": "AREA",
+      "energy": 350.0,
+      "exposure": 0.0,
+      "color": [1.0, 1.0, 1.0],
+      "use_temperature": false,
+      "render_visible": true,
+      "hidden_by": [],
+      "location": [0.0, 3.0, 4.0],
+      "direction": [-0.0, 0.342, -0.9397],
+      "cast_shadows": true,
+      "shape": "SQUARE",
+      "size": 1.5,
+      "spread_deg": 180.0,
+      "normalize": true,
+      "distance_to_subject": 5.2767,
+      "angle_off_axis_deg": 65.76,
+      "angle_to_camera_deg": 100.98,
+      "aimed_at_subject": true,
+      "reaches_subject": 0.6176,
+      "facing_but_blocked": 0.0,
+      "blocked_by": [],
+      "irradiance": 1.1707
+    },
+    {
+      "name": "Light",
+      "type": "POINT",
+      "energy": 1000.0,
+      "exposure": 0.0,
+      "color": [1.0, 1.0, 1.0],
+      "use_temperature": false,
+      "render_visible": true,
+      "hidden_by": [],
+      "location": [4.0762, 1.0055, 5.9039],
+      "direction": [-0.5664, -0.2184, -0.7947],
+      "cast_shadows": true,
+      "distance_to_subject": 6.4198,
+      "angle_to_camera_deg": 87.67,
+      "aimed_at_subject": true,
+      "reaches_subject": 0.6176,
+      "facing_but_blocked": 0.0,
+      "blocked_by": [],
+      "irradiance": 0.8589
+    }
+  ],
+  "world": {
+    "name": "World",
+    "strength": 1.0,
+    "color": [0.0509, 0.0509, 0.0509],
+    "textured": false,
+    "radiance": 0.0509,
+    "film_transparent": false,
+    "textures": []
+  },
+  "materials": [
+    {
+      "name": "Material",
+      "shaders": [
+        "BSDF_PRINCIPLED"
+      ],
+      "emission": null,
+      "see_through": false,
+      "images": [],
+      "base_color": [0.8, 0.8, 0.8],
+      "metallic": 0.0,
+      "roughness": 0.5,
+      "transmission": 0.0,
+      "alpha": 1.0,
+      "users": [
+        "Cube"
+      ]
+    }
+  ],
+  "illumination": {
+    "lights": 4,
+    "render_visible_lights": 4,
+    "lights_reaching_subject": 4,
+    "emissive_materials": [],
+    "unused_emissive_materials": []
+  },
+  "contacts": {
+    "tolerance": 0.005,
+    "floating": []
+  },
+  "animation": {
+    "frame_start": 1,
+    "frame_end": 120,
+    "frame_current": 1,
+    "fps": 24.0,
+    "objects": [],
+    "python_drivers_not_evaluated": 0
+  },
+  "missing_images": [],
+  "inspector": {
+    "mode": "file",
+    "samples_per_object": 256,
+    "raycast": true,
+    "raycast_truncated": false,
+    "seconds": 0.16
+  }
+}
