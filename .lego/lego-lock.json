@@ -116,17 +116,22 @@
         [
           "python3",
           "tests/benchmark_render_recovery.py"
+        ],
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
         "dcc-guided",
         "blender-quality-lab",
-        "rq-render-jobs"
+        "rq-render-jobs",
+        "khronos-glb-validator"
       ],
       "mode": "assembly",
       "path": "server/capability_executor.py",
-      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths. GLB exports require independent Khronos spec validation and changed-file postconditions.",
       "tests": [
         [
           "python3",
@@ -136,6 +141,13 @@
           "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
+        ],
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
         ]
       ]
     },
@@ -557,6 +569,54 @@
           "--disable-warnings"
         ]
       ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
+        ]
+      ],
+      "donor_ids": [
+        "khronos-glb-validator"
+      ],
+      "mode": "glue",
+      "path": "server/gltf_validation.py",
+      "purpose": "Bounded local validation adapter, independent of Blender scene mutation.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
+        ]
+      ],
+      "donor_ids": [
+        "khronos-glb-validator"
+      ],
+      "mode": "glue",
+      "path": "scripts/validate_glb.cjs",
+      "purpose": "Use Khronos validator package as the single source of GLB specification truth.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
+        ]
+      ]
     }
   ],
   "donors": [
@@ -632,6 +692,18 @@
       "rationale": "Use Pillow 13.0.0, official trusted PNG decoder, instead of eight-byte header-only validation; full read before atomic publication and status success. Local evidence in .lego/research/png_integrity_20261107.json.",
       "repository": "python-pillow/Pillow",
       "url": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py"
+    },
+    {
+      "commit": "602c54043ba66856b2e68c40fdf2bced975cdb8a",
+      "fabric_claim": "Fabric reported candidates, while the official pinned API and license were read directly and separately tested on M2.",
+      "fabric_job_id": "fdafb366-0f0f-405f-871c-c94f65e84ff5",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "khronos-glb-validator",
+      "license": "Apache-2.0",
+      "rationale": "Invoke the existing Khronos Node validateBytes API after canonical .glb export; fail closed on nonzero spec errors, stale output, absent assets or validator faults.",
+      "repository": "KhronosGroup/glTF-Validator",
+      "url": "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md"
     }
   ],
   "research_evidence": {
@@ -643,23 +715,22 @@
       "sha256": "544fb636190a3b6d0f77b1e537ff9f85d12b1b236855654c7c2f84afe52a2c94"
     },
     "fabric": {
-      "artifact_path": ".lego/research/fabric_pillow_png_20261107.json",
-      "job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
+      "artifact_path": ".lego/research/fabric_glb_20261106.json",
+      "job_id": "fdafb366-0f0f-405f-871c-c94f65e84ff5",
       "mode": "research_job",
-      "project": "python-pillow/Pillow",
-      "query": "Audit the exact Pillow 13.0.0 Image.open verify load PNG API and its unit tests for truncated and CRC-damaged PNG files. Use ONLY the supplied pinned Pillow source and license; do not analyze Blender MCP or other tools. Evidence is to support a separate integration in jabbertones-cloud/blender-mcp, whose live tests are independent.",
-      "sha256": "b7a365635a998d59c4e537cfc4bec7a12a453a8eaea146bff42ba26654df517e"
+      "project": "blender-mcp",
+      "query": "Single pinned Khronos glTF-Validator source dependency for Blender MCP GLB output; validateBytes, issues, Apache-2.0 and invalid exports",
+      "sha256": "a2ac9b95298be3ccf2865333ee6aa0af4ca7b1ad74ad0502d21da6099a8f9f19"
     },
     "github_research": {
-      "artifact_path": ".lego/research/github_research.json",
+      "artifact_path": ".lego/research/github_glb_20261106.json",
       "mode": "cli",
       "pattern_card_refs": [
-        "blender-rq-native-render-crash-recovery",
         "blender-progressive-tool-guides"
       ],
-      "query": "Blender MCP RQ crash-retried native background render Redis AOF atomic output worker failover",
-      "sha256": "d915271eb355d6ec6dc75f22af6277037360728c70f97957ad55346ba80447a5",
-      "taskmap_ref": "sha256:b8beee6c6cd69e6cd1e99e18482775986870f2a492f202ff905b7c0b946b2f53"
+      "query": "M1 GitHubResearchMCP Blender guided capability boundary and GLB output verification with source-pinned Khronos glTF-Validator",
+      "sha256": "f79e2f071872f178e08b0a51f64b70651f81e90e8570e437e279905ba22444e9",
+      "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
     },
     "smat_research": {
       "artifact_path": ".lego/research/smat_research.json",

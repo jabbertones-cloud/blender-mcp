@@ -104,7 +104,7 @@ def test_live_create_observe_delete(live_send):
         live_send,
         observe_visual=False,
     )
-    assert moved["status"] == "ok"
+    assert moved["status"] == "ok", moved
 
 
     lit = execute_canonical("product.lighting", {"preset": "product_studio"}, live_send)

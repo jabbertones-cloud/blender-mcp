@@ -1,0 +1,29 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "README caller-document download timed out in Fabric; GitHub exact-commit read independently verified the API.",
+      "Reported source support is not a measurement of Blender 5.3 or autonomous artistic quality.",
+      "The candidate set contains related repos but only Khronos specification validation is integrated."
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "Research Fabric source-specific job fdafb366-0f0f-405f-871c-c94f65e84ff5 succeeded with three relevant candidates and donorVerification.action clean. It verified the Khronos repository as ALIVE and resolved the pinned Apache-2.0 license. Its README fetch timed out, so the exact pinned README was independently retrieved via GitHub connector and the installed package was tested on M2; no Fabric claim of M2 measurement or artistic quality is made.",
+  "job_id": "fdafb366-0f0f-405f-871c-c94f65e84ff5",
+  "lane": "fabric",
+  "mode": "research_job",
+  "project": "blender-mcp",
+  "query": "Single pinned Khronos glTF-Validator source dependency for Blender MCP GLB output; validateBytes, issues, Apache-2.0 and invalid exports",
+  "result": {
+    "status": "succeeded",
+    "sufficiency": {
+      "relevantCandidates": 3,
+      "sufficient": true
+    }
+  },
+  "source_refs": [
+    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md",
+    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/LICENSE"
+  ]
+}
