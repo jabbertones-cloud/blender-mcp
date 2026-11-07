@@ -1,0 +1,134 @@
+{
+  "baseline_main_sha": "edd10c8ef0c753ac3f663badaa4115ea30eb6dac",
+  "candidate_local_m2": {
+    "benchmark_script": "tests/benchmark_npm_security.py",
+    "gltf_transform_version": "4.5.1",
+    "native_clean_ci": true,
+    "ndarray_pixels_version": "5.2.0",
+    "node_smoke_script": "tests/test_npm_dependency_security.mjs",
+    "node_version": "22.23.4",
+    "npm_audit_total": 0,
+    "npm_lockfile_version": 3,
+    "python_regression": "181 passed, 6 skipped with BLENDER_BIN set",
+    "sharp_version": "0.35.5",
+    "validated_apis": [
+      "sharp 4x4 RGBA PNG native compression",
+      "glTF Document buffer/accessor/mesh triangle",
+      "NodeIO writeBinary/readBinary",
+      "glTF Validator zero errors/warnings"
+    ]
+  },
+  "date": "2026-11-06",
+  "direct_advisories": [
+    {
+      "ghsa": "GHSA-f88m-g3jw-g9cj",
+      "number": 1,
+      "severity": "high"
+    },
+    {
+      "ghsa": "GHSA-rgj7-g3m4-5g8c",
+      "number": 2,
+      "severity": "high"
+    },
+    {
+      "ghsa": "GHSA-wq5f-xc86-pv6w",
+      "number": 3,
+      "severity": "high"
+    }
+  ],
+  "fabricresearch": {
+    "downgrade": "The previously merged, approved .lego/lego-lock.json retains its earlier successful research receipts for the RQ source changes; this security update changes package.json and lock data, not production source paths. These Fabric runs are retained as failed/incomplete evidence in this independent research file, rather than retroactively fabricated as sufficient in .lego/lego-lock.json.",
+    "honest_state": "all inspected jobs reported insufficient (donor_verification_blocked); no claim of Fabric source-verification success",
+    "runs": [
+      {
+        "caller_resolution": "one unknown, two broken, one advisory resolved",
+        "job_id": "96cf081a-51d8-4129-9a0d-ff0e3bb438cf",
+        "reason": "donor_verification_blocked",
+        "source_type": "npm registry metadata",
+        "sufficient": false
+      },
+      {
+        "caller_resolution": "five of five sources resolved; unrelated autodiscovered repos and web links generated broken verification",
+        "job_id": "8a09ee43-9e48-4b55-a4a3-828b3686aa39",
+        "reason": "donor_verification_blocked",
+        "source_type": "five GitHub raw pinned files",
+        "sufficient": false
+      },
+      {
+        "caller_resolution": "three of three pinned package source files resolved, unrelated donor verification still blocked",
+        "job_id": "2da690f3-0f17-4fdf-8ca3-d9143dcf64ec",
+        "reason": "donor_verification_blocked",
+        "source_type": "three exact pinned GitHub source files",
+        "sufficient": false
+      }
+    ]
+  },
+  "githubresearchmcp": {
+    "card_head_sha": "79cc25cbf2cec57158d901820d03016ef65574e1",
+    "card_pr": "https://github.com/jabbertones-cloud/githubresearchmcp/pull/34",
+    "card_score": 0,
+    "caveat": "Source-led Pattern Card is not a graded production success claim; TaskMap score=0",
+    "first_ranked_card": "blender-sharp-transitive-security-upgrade",
+    "merged_main_sha": "b746ddb9f8bb2f0a663ff6147a65d2af106a1f84",
+    "query": "Blender MCP patched sharp npm transitive glTF Transform Node >=20.9 lockfile and audit",
+    "surface": "M1 GitHubResearch CLI, not generic GitHub search",
+    "taskmap_path": ".lego/research/github-taskmap-sharp-20261106.json",
+    "taskmap_sha256": "6c4d84a8470aa747c16674321768dc12de7f8fd7ab3c13cf860bf31b5cf1572d"
+  },
+  "known_limits": [
+    "Node >=20.9 required; Node 18 no longer supported",
+    "Some optional Forge scripts have not been visually audited for output drift",
+    "GitHub Dependabot alert closure may lag merge and must be checked on exact main",
+    "Fabric donor verification not sufficient; exact pinned GitHub source plus npm and M2 tests substituted for bounded package change",
+    "No handrolled transitive override or copied upstream dependency code"
+  ],
+  "negative_control": {
+    "high_vulnerable_dependency_nodes": 2,
+    "lock_created_from_old_gltf": true,
+    "only_remove_direct_sharp": true,
+    "packages": [
+      "sharp",
+      "ndarray-pixels"
+    ],
+    "source_artifact": "tests/fixtures/npm_security_audit_observed.json"
+  },
+  "smat_research": {
+    "claim_limit": "No SMAT study is claimed to benchmark npm package security",
+    "match": "no specific npm sharp transitive security study returned; the prior MCP-harness study is architectural only",
+    "mode": "reviewed prior MCP-harness research and searched SMAT Research for sharp code mentions"
+  },
+  "source_provenance": [
+    {
+      "blob_sha": "a3f5262aebeee9cfb5ae88651b3266623df0e2b5",
+      "license": "MIT",
+      "path": "packages/functions/package.json",
+      "repository": "donmccurdy/glTF-Transform",
+      "supports": "functions 4.5.1 depends on ndarray-pixels ^5.2.0",
+      "tag": "v4.5.1",
+      "tag_commit": "41156dfa2324ac6c44ddf0a40ec0da194c4731d6",
+      "url": "https://github.com/donmccurdy/glTF-Transform/blob/41156dfa2324ac6c44ddf0a40ec0da194c4731d6/packages/functions/package.json"
+    },
+    {
+      "blob_sha": "ad1f7386c69f2e1b4777d5ce33a84fbd4900cdd8",
+      "license": "MIT",
+      "path": "package.json",
+      "repository": "donmccurdy/ndarray-pixels",
+      "supports": "ndarray-pixels 5.2.0 depends on sharp ^0.35.0",
+      "tag": "v5.2.0",
+      "tag_commit": "850a81fcd8e4490f8a19eb6105d12306d03337ea",
+      "url": "https://github.com/donmccurdy/ndarray-pixels/blob/850a81fcd8e4490f8a19eb6105d12306d03337ea/package.json"
+    },
+    {
+      "blob_sha": "64daa849bbf8c35c881a20787ae506eb4eac4fb9",
+      "license": "Apache-2.0",
+      "path": "package.json",
+      "repository": "lovell/sharp",
+      "supports": "sharp 0.35.5 requires Node >=20.9.0",
+      "tag": "v0.35.5",
+      "tag_commit": "51a990faa26ade5586a4934ac9673c98d8893326",
+      "url": "https://github.com/lovell/sharp/blob/51a990faa26ade5586a4934ac9673c98d8893326/package.json"
+    }
+  ],
+  "target_repo": "jabbertones-cloud/blender-mcp",
+  "topic": "sharp transitive vulnerability remediation in Blender MCP Node-side dependency graph"
+}

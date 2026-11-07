@@ -116,6 +116,8 @@
     "render:worker:status": "cat reports/worker_audit_latest.json 2>/dev/null || echo '{\\\"error\\\": \\\"no audit yet\\\"}' ",
     "render:worker:experiments": "tail -20 data/worker_experiments.ndjson 2>/dev/null || echo 'No experiments yet' ",
     "mcp:start:power": "python3 server/blender_mcp_server.py",
+    "test:node:security": "node --test tests/test_npm_dependency_security.mjs",
+    "test:security": "npm run test:node:security && npm audit --omit=dev --audit-level=low",
     "test": "python3 -m pytest -q"
   },
   "keywords": [
@@ -130,13 +132,12 @@
     "autoresearch"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.9.0"
   },
   "dependencies": {
-    "sharp": "^0.33.5",
-    "@gltf-transform/core": "^4.3.0",
-    "@gltf-transform/extensions": "^4.3.0",
-    "@gltf-transform/functions": "^4.3.0",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
     "gltf-validator": "^2.0.0-dev.3.10"
   }
 }
