@@ -11,7 +11,7 @@ import pytest
 
 
 @pytest.mark.skipif(os.getenv('BLENDER_RENDER_E2E') != '1', reason='requires isolated Redis AOF broker and native Blender')
-def test_real_sdk_client_queues_and_inspects_native_render():
+def test_real_sdk_client_queues_and_inspects_native_render(isolated_render_broker):
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
 
