@@ -267,12 +267,15 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
         return response
     response["status"] = "ok"
     if key == "io.export" and str(args.get("filepath", "")).lower().endswith(".glb"):
-        from server.gltf_validation import validate_export
-        validation = validate_export(args["filepath"], previous=glb_before)
+        try:
+            from server.gltf_validation import validate_export
+            validation = validate_export(args["filepath"], previous=glb_before)
+        except Exception as exc:
+            validation = {"valid": False, "error": f"GLB validator unavailable: {type(exc).__name__}"}
         response["export_validation"] = validation
-        if not validation["valid"]:
+        if not isinstance(validation, dict) or validation.get("valid") is not True:
             response["status"] = "postcondition_failed"
-            response["error"] = validation["error"]
+            response["error"] = validation.get("error", "Malformed GLB validation result") if isinstance(validation, dict) else "Malformed GLB validation result"
             return response
     if before is not None:
         after = _scene_summary(send_command)

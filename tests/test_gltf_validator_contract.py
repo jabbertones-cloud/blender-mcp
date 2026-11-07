@@ -64,3 +64,16 @@ def test_non_glb_keeps_existing_export_contract(tmp_path):
     response = execute_canonical("io.export", {"filepath": str(path), "action": "auto"}, bridge)
     assert response["status"] == "ok"
     assert "export_validation" not in response
+
+
+def test_validator_malformed_return_is_a_structured_failure(tmp_path):
+    path = tmp_path / "bad.glb"
+    def bridge(command, args):
+        if command == "export_file":
+            path.write_bytes(b"garbage")
+            return {"exported": str(path)}
+        return {"objects": []}
+    with patch("server.gltf_validation.validate_export", return_value=None):
+        response = execute_canonical("io.export", {"filepath": str(path)}, bridge)
+    assert response["status"] == "postcondition_failed"
+    assert response["error"] == "Malformed GLB validation result"

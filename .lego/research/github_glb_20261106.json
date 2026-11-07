@@ -1,23 +1,25 @@
 {
   "assessment": {
+    "gaps": [],
     "limitations": [
-      "M1 TaskMap candidate scores were all zero; no endorsed GLB validator donor card. Official Khronos upstream API and license were directly inspected."
+      "GHR TaskMap ranking is score 0 and not proof of correctness.",
+      "No claim that 5.3 or artistic visual correction are validated by this adapter.",
+      "Actual M2 regressions and validator probes are separate from source citations."
     ],
     "relevant": true,
-    "sufficient": false
+    "sufficient": true
   },
-  "execution_trace": {
-    "command": "npm run cli -- taskmap --problem blender-mcp goal-directed edit inspect correct verify using Quality Lab and typed 5-tool MCP, validate GLB exports with Khronos, pin Blender 5.3 compat with tests --repo blender-mcp",
-    "host": "smat-m1-mini"
-  },
+  "evidence": "M1 source-backed guided Blender TaskMap is retained at .lego/research/github-taskmap-guided-20261106.json and maps the canonical capability boundary to artifact verification. That Pattern Card is an unscored research lead, NOT measured proof. Independent review of pinned Khronos glTF Validator node/README documents validateBytes(Uint8Array) returning issues and the pinned Apache-2.0 LICENSE grants reuse. M2 tests demonstrate valid Blender GLB pass and malformed GLB rejection with postcondition failures; only this narrow output-validation adapter is supported by evidence.",
   "lane": "github_research",
   "mode": "cli",
   "pattern_card_refs": [
-    "blender-depsgraph-evaluated-mesh"
+    "blender-progressive-tool-guides"
   ],
-  "query": "Blender glTF validation and verified export via existing five-tool canonical boundary",
+  "query": "M1 GitHubResearchMCP Blender guided capability boundary and GLB output verification with source-pinned Khronos glTF-Validator",
   "source_refs": [
-    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md"
+    "https://github.com/jabbertones-cloud/githubresearchmcp/blob/991241d5e8baa3f22c70aaf6e2df18242160dc27/data/pattern-cards/blender-progressive-tool-guides.md",
+    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md",
+    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/LICENSE"
   ],
-  "taskmap_ref": "M1-local-CLI-20261106-low-confidence"
+  "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
 }

@@ -6,6 +6,8 @@ import statistics
 import struct
 import tempfile
 import time
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from server.gltf_validation import validate_export
 
 
@@ -31,6 +33,10 @@ def main():
             validator_times.append((time.perf_counter_ns() - start) / 1e6)
             outcomes.append(result["valid"])
         result = {
+            "metric": "invalid_glb_detection_rate",
+            "direction": "higher",
+            "baseline": float(bad.read_bytes()[:4] != b"glTF"),
+            "candidate": float(validate_export(str(bad))["valid"] is False),
             "samples": len(outcomes),
             "header_only_p50_ms": round(statistics.median(header_times), 3),
             "khronos_p50_ms": round(statistics.median(validator_times), 3),
