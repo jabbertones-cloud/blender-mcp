@@ -24,14 +24,18 @@
   "research": {
     "expert": "No dedicated Blender image codec expert MCP connected; official Pillow sources used",
     "fabric_job_id": "3aa761d3-4019-4a88-9d00-a2781918a206",
-    "fabric_status": "succeeded, research-only, not measured",
+    "fabric_status": "initial source exploration succeeded process but insufficient due unrelated donor-verification failures; new source-pinned Fabric job 50275a68-9854-4dad-b23f-26886c0040e4 pending sufficiency",
     "github_research": "Existing .lego/research/github-taskmap-rq-20261106.json (R/Q source-pinned recovery); live CLI cards search returned unrelated 0-score cards",
     "smat_research": "searched smat-research studies markdown for Blender PNG integrity and found no matching implementation study"
   },
   "source_main": "99d1c2144c2ff06b94405c45eb136dfb135ba8de",
   "test_proof": {
-    "benchmark": "tests/benchmark_png_integrity.py",
+    "benchmark": "3/3 8-byte-header-only false accepts before, 0/3 Pillow false accepts after, measured fixture",
+    "full_python_regression": "200 passed, 6 skipped on M2 candidate code with Pillow 13.0.0",
+    "isolated_live_rq": "3/3 live RQ/Blender tests passed with M2 DB1; DB0 supervised worker unchanged",
+    "real_job_id": "00f3879b-da23-46c1-8b8a-aceabe39da4a",
     "real_png": "Pillow 13.0.0 fully decoded 270x270 M2 Blender render",
+    "real_sdk_corruption": "Cursor-configured MCP SDK on M2 DB1 produced real 57,010 byte Blender PNG, corruption was reported artifact_invalid, original PNG restored and status finished, original scene checksum preserved",
     "synthetic_new_tests": "10/10 PNG/atomic tests passed with isolated Pillow target"
   }
 }

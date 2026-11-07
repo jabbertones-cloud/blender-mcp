@@ -1,7 +1,10 @@
 """Reproducible PNG integrity negative-control comparison."""
 import json
+import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image
 
@@ -26,8 +29,9 @@ def main():
             path.write_bytes(data)
             decoded += int(valid_png(path))
         passed = valid_png(valid)
-    result = {"invalid_cases": len(inputs), "legacy_false_accepts": baseline,
-              "decoded_false_accepts": decoded, "valid_png_accepted": passed}
+    result = {"metric": "invalid_png_false_accepts", "baseline": baseline,
+              "candidate": decoded, "direction": "lower",
+              "invalid_cases": len(inputs), "valid_png_accepted": passed}
     print(json.dumps(result, sort_keys=True))
     assert baseline == 3 and decoded == 0 and passed
 

@@ -628,7 +628,7 @@
       "fabric_status": "reported",
       "id": "pillow-png-integrity",
       "license": "MIT-CMU",
-      "local_receipt_sha256": "d2f54f3465befe64228a4e0256da8e27d0fd2cecdba9517d8c63466878e3f971",
+      "local_receipt_sha256": "841ecd5671cacade551305eeb1cf55a990a153d7866d9295c322216832c08a8b",
       "rationale": "Use Pillow 13.0.0, official trusted PNG decoder, instead of eight-byte header-only validation; full read before atomic publication and status success. Local evidence in .lego/research/png_integrity_20261107.json.",
       "repository": "python-pillow/Pillow",
       "url": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py"
