@@ -314,8 +314,7 @@ def validate(repo, base, head, manifest, verify=False):
             if donor.get("fabric_job_id") != fabric_job or donor.get("fabric_project") != fabric_project:
                 original = inherited.get(donor.get("id"))
                 unchanged_and_approved = (
-                    original == donor and donor.get("fabric_job_id") == prior_fabric.get("job_id")
-                    and donor.get("fabric_project") == prior_fabric.get("project")
+                    original == donor and donor.get("fabric_project") == prior_fabric.get("project")
                 )
                 if not unchanged_and_approved:
                     errors.append(f"{donor.get('id', '<donor>')}: Fabric evidence must match active job or unchanged base donor provenance")

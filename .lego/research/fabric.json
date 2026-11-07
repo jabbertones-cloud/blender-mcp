@@ -2,50 +2,48 @@
   "assessment": {
     "gaps": [],
     "limitations": [
-      "Research Fabric confirms topical relevance and source retrieval only, not Blender runtime compatibility or an autonomous agent success rate.",
-      "The verification enumerates unrelated repositories and status-badge URLs; they are not adopted sources.",
-      "Blender 5.3 and broad 66-capability parity not measured.",
-      "Historical approved donors retain separately documented source-specific Fabric job; gate checks their byte-identical provenance against exact base."
+      "Fabric registry.py caller document had an inconclusive status in this run; direct GitHub connector retrieval independently verified exact file and commit.",
+      "Research sufficiency does not promote external M2 runtime observations to Fabric-measured results.",
+      "AOF everysec does not guarantee against unclean power loss before fsync.",
+      "RQ retries may duplicate side effects; native subprocess staging and stable job-ID path provide partial mitigation, not exactly-once semantics.",
+      "Background job service is not yet installed into persistent production MCP."
     ],
     "relevant": true,
     "sufficient": true
   },
-  "evidence": "Research Fabric 9f3a85e0-1fe5-4b02-a5da-a84371739e6d completed 2026-11-06T23:14:31.151Z. Five caller-supplied source and test documents all resolved: DCC semantic index, asedias recipe rules, Blenderwright toolsets, Quality Lab API v1 and sabotage tests. Sufficiency=true with six relevant candidates among eight, reason topically_relevant_evidence_present, verification action clean and no broken repo citations. Source report includes unrelated search discoveries, one stale repo and shield badge URLs; those are not selected as donors and do not prove target behavior. Target M2 Blender 5.2.3 separate local verification: 173 tests pass and exact SDK client technical material gate failure/recovery; those results were NOT measured by Research Fabric. Historical donors retain earlier verified Fabric job 4d9befa7-42a6-4305-ba27-bbbe4bf53bdd, unchanged from approved merge base.",
-  "job_id": "9f3a85e0-1fe5-4b02-a5da-a84371739e6d",
+  "evidence": "Research Fabric source-focused job e216b5a5-d6b7-41b3-b595-4d44875a78d8 succeeded, topically relevant evidence present, three relevant candidates in six total and donorVerification.action clean. Four caller documents were requested: Worker/base.py, jobs.md, LICENSE resolved; registry.py retrieval was inconclusive in this Fabric retrieval, not falsely claimed resolved. The exact registry.py commit and StartedJobRegistry.cleanup were independently read directly with GitHub connector. Prior source job 0e01f7d6 was insufficient due nonexistent rq/worker.py; corrected to rq/worker/base.py. Fabric did NOT run local Blender, Redis or fault injection. M2 separate fault trial: Huey SqliteHuey 3.5.4 retries=1 lost hard-exit task; RQ 2.12.0 Retry(max=1) recovered os._exit(17) job under same ID; dedicated AOF Redis 8.2 broker restart preserved a pending Blender render and subsequent worker created a 57,010-byte PNG. M2 branch also passed actual SDK five-tool enqueue/status and background native render tests. This is a bounded trial, not an exactly-once guarantee.",
+  "job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
   "lane": "fabric",
   "mode": "research_job",
   "project": "blender-mcp",
-  "query": "Verify pinned MIT sources for existing typed Blender guided discovery and new Blender Quality Lab read-only scene inspection. No runtime performance inference.",
+  "query": "Verify exactly the supplied RQ Redis Queue source files and license for an existing Blender MCP background rendering workflow. RQ provides StartedJobRegistry.cleanup on abandoned jobs and Worker handling workhorse termination; Redis-backed Queue.enqueue returns a stable job ID and JSONSerializer avoids pickle. The specific source commit is rq/rq 8bdb8426f8cbc4e0a2f77176135939055c9e5f39. Verify whether the pinned files and associated documentation are accessible, that the code supports one bounded retry after an unexpected worker-child exit, and describe limits such as duplicated side effects and persistence depending on Redis AOF. Do not infer Blender runtime measurements from source. Restrict to the single named RQ repository and pinned documents; do not introduce unrelated donors or probe unfurnished paths.",
   "result": {
-    "documents_resolved": 5,
-    "documents_total": 5,
+    "caller_documents": {
+      "broken": 0,
+      "resolved": 3,
+      "unknown": 1
+    },
     "donorVerification": {
-      "action": "clean",
-      "broken_repos": 0,
-      "source_document_verdicts": [
-        "RESOLVED",
-        "RESOLVED",
-        "RESOLVED",
-        "RESOLVED",
-        "RESOLVED"
-      ]
+      "action": "clean"
     },
     "status": "succeeded",
     "sufficiency": {
       "reason": "topically_relevant_evidence_present",
-      "relevantCandidates": 6,
-      "siblingCandidates": 6,
+      "relevantCandidates": 3,
+      "siblingCandidates": 3,
       "sufficient": true,
       "targetCandidates": 0,
       "targetGrounded": true,
-      "totalCandidates": 8
+      "totalCandidates": 6
     }
   },
   "source_refs": [
-    "https://github.com/dcc-mcp/dcc-mcp-blender/blob/9f096ab182d8eb16b4fd8d5644e7cf6d8acfb3b5/src/dcc_mcp_blender/_semantic_index.py",
-    "https://github.com/asedias/bl-mcp/blob/de3c773ec2ab83d2b859f928b75a8e6f351ef128/bl_mcp/recipes/rules.md",
-    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/toolsets.py",
-    "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/src/blender_quality/api.py",
-    "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/tests/test_gates.py"
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/worker/base.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_worker.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_registry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_retry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/LICENSE",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/docs/docs/jobs.md"
   ]
 }

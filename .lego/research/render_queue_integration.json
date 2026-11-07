@@ -1,0 +1,21 @@
+{
+  "base_sha": "bfc8f63e6e533e535f62688b72a061c9f4966e8c",
+  "benchmark": "tests/benchmark_render_recovery.py uses frozen observed M2 experiment fixture 0 -> 1, not blanket reliability statistics",
+  "branch": "feat/durable-rq-render-20261106",
+  "broker": "Dedicated loopback Redis 8.2 with AOF everysec 6399, queued job persisted across shutdown/restart, native Blender 5.2.3 executed rendered PNG, production Redis 6379 untouched",
+  "candidate": "RQ 2.12.0 workhorse hard os._exit(17) retried same ID and finished on second attempt, retry=1",
+  "date": "2026-11-06",
+  "donor_commit": "8bdb8426f8cbc4e0a2f77176135939055c9e5f39",
+  "donor_license": "BSD-3-Clause",
+  "donor_repo": "rq/rq",
+  "limitations": [
+    "No production deployment of persistent worker yet",
+    "Redis 6399 test data was under /tmp; must be moved to a persistent supervisor",
+    "RQ retry not exactly-once",
+    "Only one controlled child-exit trial",
+    "Output ownership multi-user auth not part of current local-only scope"
+  ],
+  "negative_control": "Huey SqliteHuey 3.5.4 retries=1 with hard process os._exit(17) lost dequeued job; no result, no pending",
+  "source_commit_not_pypi_build": "The exact source commit was reviewed; runtime uses RQ PyPI 2.12.0, so no claim of binary equivalence to that source commit.",
+  "tests": "181 passed, 6 skipped deterministic; opt-in real RQ native render and hard crash passed; separately actual five-tool MCP SDK enqueue/status passed"
+}

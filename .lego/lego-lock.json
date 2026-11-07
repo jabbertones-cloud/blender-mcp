@@ -31,23 +31,25 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_quality_gates.py"
+          "tests/benchmark_render_recovery.py"
         ]
       ],
       "donor_ids": [
         "dcc-guided",
         "asedias-recipes",
-        "blender-quality-lab"
+        "blender-quality-lab",
+        "rq-render-jobs"
       ],
       "mode": "assembly",
       "path": "server/workflow_guides.py",
-      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests/test_quality_workflow.py",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
         ]
@@ -58,23 +60,25 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_quality_gates.py"
+          "tests/benchmark_render_recovery.py"
         ]
       ],
       "donor_ids": [
         "dcc-guided",
         "asedias-recipes",
-        "blender-quality-lab"
+        "blender-quality-lab",
+        "rq-render-jobs"
       ],
       "mode": "assembly",
       "path": "server/workflow_rank.py",
-      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
+      "purpose": "Connect retained workflow recipe descriptions to the existing five-tool Blender MCP surface and schemas; no third-party primitive reimplementation. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests/test_quality_workflow.py",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
         ]
@@ -111,23 +115,25 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_quality_gates.py"
+          "tests/benchmark_render_recovery.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
         "dcc-guided",
-        "blender-quality-lab"
+        "blender-quality-lab",
+        "rq-render-jobs"
       ],
       "mode": "assembly",
       "path": "server/capability_executor.py",
-      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution.",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests/test_quality_workflow.py",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
         ]
@@ -345,21 +351,153 @@
       "benchmarks": [
         [
           "python3",
-          "tests/benchmark_quality_gates.py"
+          "tests/benchmark_render_recovery.py"
         ]
       ],
       "donor_ids": [
-        "blender-quality-lab"
+        "blender-quality-lab",
+        "rq-render-jobs"
       ],
       "mode": "glue",
       "path": "requirements.txt",
-      "purpose": "Thin typed adapter to source-pinned MIT Quality Lab API v1; validates authorized path, opens read-only isolated Blender, reports technical gates without generated Python execution.",
+      "purpose": "Thin typed adapter to source-pinned MIT Quality Lab API v1; validates authorized path, opens read-only isolated Blender, reports technical gates without generated Python execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
       "tests": [
         [
           "python3",
           "-m",
           "pytest",
-          "tests/test_quality_workflow.py",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_render_recovery.py"
+        ]
+      ],
+      "donor_ids": [
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_job_paths.py",
+      "purpose": "Glue official RQ redis worker and Blender CLI to saved-scene authorization, JSON job ID and staged atomic PNG publication; core scheduling/retry delegated to RQ.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_render_recovery.py"
+        ]
+      ],
+      "donor_ids": [
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_job_cli.py",
+      "purpose": "Glue official RQ redis worker and Blender CLI to saved-scene authorization, JSON job ID and staged atomic PNG publication; core scheduling/retry delegated to RQ.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_render_recovery.py"
+        ]
+      ],
+      "donor_ids": [
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_jobs_worker.py",
+      "purpose": "Glue official RQ redis worker and Blender CLI to saved-scene authorization, JSON job ID and staged atomic PNG publication; core scheduling/retry delegated to RQ.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_render_recovery.py"
+        ]
+      ],
+      "donor_ids": [
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_native_script.py",
+      "purpose": "Glue official RQ redis worker and Blender CLI to saved-scene authorization, JSON job ID and staged atomic PNG publication; core scheduling/retry delegated to RQ.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_render_recovery.py"
+        ]
+      ],
+      "donor_ids": [
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_queue_api.py",
+      "purpose": "Glue official RQ redis worker and Blender CLI to saved-scene authorization, JSON job ID and staged atomic PNG publication; core scheduling/retry delegated to RQ.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
         ]
@@ -414,6 +552,18 @@
       "rationale": "Use versioned Quality Lab API v1 check and score to audit a saved Blender scene with isolated autoexec-disabled process, hard technical gates and non-executable human actions. Preserve target Blender canonical mutation boundary.",
       "repository": "AleBrito124356/blender-quality-lab",
       "url": "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/src/blender_quality/api.py"
+    },
+    {
+      "commit": "8bdb8426f8cbc4e0a2f77176135939055c9e5f39",
+      "fabric_claim": "RQ StartedJobRegistry and Worker source provide bounded crash retry and observable states; M2 isolated tests independently observed workhorse recovery, AOF broker restart and native Blender PNG publication.",
+      "fabric_job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "rq-render-jobs",
+      "license": "BSD-3-Clause",
+      "rationale": "Pin and configure upstream Redis Queue job submission, retry, started registry cleanup and workhorse isolation; route saved-scene native Blender rendering behind the existing five-tool typed MCP. Do not handroll worker retries.",
+      "repository": "rq/rq",
+      "url": "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py"
     }
   ],
   "research_evidence": {
@@ -426,22 +576,22 @@
     },
     "fabric": {
       "artifact_path": ".lego/research/fabric.json",
-      "job_id": "9f3a85e0-1fe5-4b02-a5da-a84371739e6d",
+      "job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Verify pinned MIT sources for existing typed Blender guided discovery and new Blender Quality Lab read-only scene inspection. No runtime performance inference.",
-      "sha256": "36db6c70a2897c7f01449dfc00816b33091523e3c07000680446e885ac67e3f5"
+      "query": "Verify exactly the supplied RQ Redis Queue source files and license for an existing Blender MCP background rendering workflow. RQ provides StartedJobRegistry.cleanup on abandoned jobs and Worker handling workhorse termination; Redis-backed Queue.enqueue returns a stable job ID and JSONSerializer avoids pickle. The specific source commit is rq/rq 8bdb8426f8cbc4e0a2f77176135939055c9e5f39. Verify whether the pinned files and associated documentation are accessible, that the code supports one bounded retry after an unexpected worker-child exit, and describe limits such as duplicated side effects and persistence depending on Redis AOF. Do not infer Blender runtime measurements from source. Restrict to the single named RQ repository and pinned documents; do not introduce unrelated donors or probe unfurnished paths.",
+      "sha256": "1a35bb5573b6c4cc65e95f11d7e7952ef0ebbeeb2f83448634d425e348ff4669"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",
       "mode": "cli",
       "pattern_card_refs": [
-        "blender-progressive-tool-guides",
-        "blender-depsgraph-evaluated-mesh"
+        "blender-rq-native-render-crash-recovery",
+        "blender-progressive-tool-guides"
       ],
-      "query": "Blender MCP integrate read-only Blender Quality Lab gate on saved scene and report deficiencies via existing five-tool architecture",
-      "sha256": "97b927f7134a5a15329deff9d1fbd0f0df718704a5f3f4e9e6f6f06bf5f6085c",
-      "taskmap_ref": "sha256:e229ab3d34e433f511c109835d5f65cf1d26fd236a3e06423059f1230abbaa1a"
+      "query": "Blender MCP RQ crash-retried native background render Redis AOF atomic output worker failover",
+      "sha256": "d915271eb355d6ec6dc75f22af6277037360728c70f97957ad55346ba80447a5",
+      "taskmap_ref": "sha256:b8beee6c6cd69e6cd1e99e18482775986870f2a492f202ff905b7c0b946b2f53"
     },
     "smat_research": {
       "artifact_path": ".lego/research/smat_research.json",

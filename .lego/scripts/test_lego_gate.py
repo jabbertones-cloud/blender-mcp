@@ -173,6 +173,43 @@ class GateTests(unittest.TestCase):
         third = git(self.repo, "rev-parse", "HEAD")
         self.assert_blocked(self.gate(third, base=first), "unchanged base donor provenance")
 
+    def test_two_generations_of_immutable_donors_keep_original_source_jobs(self):
+        first = self.build()
+        prev = json.loads((self.repo / '.lego/lego-lock.json').read_text())
+        second_job = 'fixture-stage-two-4321'
+        prev['donors'].append(dict(prev['donors'][0], id='second', fabric_job_id=second_job))
+        prev['research_evidence']['fabric']['job_id'] = second_job
+        path = self.repo / '.lego/research/fabric.json'
+        receipt = json.loads(path.read_text())
+        receipt['job_id'] = second_job
+        raw = (json.dumps(receipt, sort_keys=True, indent=2) + '\n').encode()
+        path.write_bytes(raw)
+        prev['research_evidence']['fabric']['sha256'] = hashlib.sha256(raw).hexdigest()
+        self.repo.joinpath('.lego/lego-lock.json').write_text(json.dumps(prev, indent=2) + '\n')
+        git(self.repo, 'add', '.')
+        git(self.repo, 'commit', '-qm', 'stage two')
+        second = git(self.repo, 'rev-parse', 'HEAD')
+        third_job = 'fixture-stage-three-5678'
+        prev['donors'].append(dict(prev['donors'][0], id='third', fabric_job_id=third_job))
+        prev['research_evidence']['fabric']['job_id'] = third_job
+        receipt['job_id'] = third_job
+        raw = (json.dumps(receipt, sort_keys=True, indent=2) + '\n').encode()
+        path.write_bytes(raw)
+        prev['research_evidence']['fabric']['sha256'] = hashlib.sha256(raw).hexdigest()
+        (self.repo / 'src/app.py').write_text('print("third stage")\n')
+        self.repo.joinpath('.lego/lego-lock.json').write_text(json.dumps(prev, indent=2) + '\n')
+        git(self.repo, 'add', '.')
+        git(self.repo, 'commit', '-qm', 'stage three')
+        third = git(self.repo, 'rev-parse', 'HEAD')
+        verdict = self.gate(third, base=second, verify=False)
+        self.assertEqual(verdict.returncode, 0, verdict.stderr)
+        prev['donors'][0]['rationale'] += ' unauthorized mutation'
+        self.repo.joinpath('.lego/lego-lock.json').write_text(json.dumps(prev, indent=2) + '\n')
+        git(self.repo, 'add', '.')
+        git(self.repo, 'commit', '-qm', 'tamper inherited lineage')
+        tampered = git(self.repo, 'rev-parse', 'HEAD')
+        self.assert_blocked(self.gate(tampered, base=second, verify=False), 'unchanged base donor provenance')
+
     def test_glue_line_limit(self):
         code = "\n".join(f"x{i} = {i}" for i in range(48)) + "\n"
         head = self.build(source=code, lock_edit=lambda d: d["components"][0].update(mode="glue"))
