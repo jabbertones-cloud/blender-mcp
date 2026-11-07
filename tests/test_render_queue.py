@@ -24,6 +24,21 @@ def test_exposes_native_render_without_an_extra_mcp_tool():
     assert schema['capability']['input_schema']['required']==['scene_path']
 
 
+@pytest.mark.parametrize("goal,expected", [
+    ("queue background Blender render of saved scene", "workflow.render_enqueue"),
+    ("queue a background render of a saved scene", "workflow.render_enqueue"),
+    ("start an asynchronous render of the saved scene", "workflow.render_enqueue"),
+    ("render this scene in the background", "workflow.render_enqueue"),
+    ("check background Blender render job status", "workflow.render_status"),
+    ("show progress of the background render", "workflow.render_status"),
+    ("is the background render finished?", "workflow.render_status"),
+    ("render a png", "scene.render"),
+])
+def test_background_render_goal_disambiguation(goal, expected):
+    result = asyncio.run(router_set_goal(GoalInput(goal=goal)))
+    assert result["recommended_first"]["key"] == expected, (goal, result)
+
+
 def test_schema_rejects_code_or_client_selected_output():
     with pytest.raises(ValueError):
         execute_workflow('workflow.render_enqueue',{'scene_path':'/tmp/example.blend','code':'evil()'},no_bridge)
