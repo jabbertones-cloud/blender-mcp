@@ -250,6 +250,10 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
     cap = registry.resolve_tool(key)
     args = registry.validate_arguments(key, arguments or {})
     before = _scene_summary(send_command) if cap.mutates_scene else None
+    glb_before = None
+    if key == "io.export" and str(args.get("filepath", "")).lower().endswith(".glb"):
+        from server.gltf_validation import file_signature
+        glb_before = file_signature(args["filepath"])
     if key.startswith("product."):
         result = _execute_product(cap, args, send_command)
     elif key in {"scene.spatial_query", "scene.dimensions", "scene.floor_plan"}:
@@ -262,6 +266,14 @@ def execute_canonical(key: str, arguments: dict, send_command, *, observe_visual
         response["error"] = result.get("error", "capability execution failed") if isinstance(result, dict) else "capability execution failed"
         return response
     response["status"] = "ok"
+    if key == "io.export" and str(args.get("filepath", "")).lower().endswith(".glb"):
+        from server.gltf_validation import validate_export
+        validation = validate_export(args["filepath"], previous=glb_before)
+        response["export_validation"] = validation
+        if not validation["valid"]:
+            response["status"] = "postcondition_failed"
+            response["error"] = validation["error"]
+            return response
     if before is not None:
         after = _scene_summary(send_command)
         delta = _scene_delta(before, after)

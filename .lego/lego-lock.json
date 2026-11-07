@@ -116,17 +116,22 @@
         [
           "python3",
           "tests/benchmark_render_recovery.py"
+        ],
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
         "dcc-guided",
         "blender-quality-lab",
-        "rq-render-jobs"
+        "rq-render-jobs",
+        "khronos-glb-validator"
       ],
       "mode": "assembly",
       "path": "server/capability_executor.py",
-      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths.",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Quality Lab read-only saved-scene inspection binds to the typed five-tool guided interface; no donor Python fix execution. Source-pinned RQ handles queued/background native Blender rendering with canonical schema, no user Python or output paths. GLB exports require independent Khronos spec validation and changed-file postconditions.",
       "tests": [
         [
           "python3",
@@ -136,6 +141,13 @@
           "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
+        ],
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
         ]
       ]
     },
@@ -502,6 +514,54 @@
           "--disable-warnings"
         ]
       ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
+        ]
+      ],
+      "donor_ids": [
+        "khronos-glb-validator"
+      ],
+      "mode": "glue",
+      "path": "server/gltf_validation.py",
+      "purpose": "Bounded local validation adapter, independent of Blender scene mutation.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_glb_validation.py"
+        ]
+      ],
+      "donor_ids": [
+        "khronos-glb-validator"
+      ],
+      "mode": "glue",
+      "path": "scripts/validate_glb.cjs",
+      "purpose": "Use Khronos validator package as the single source of GLB specification truth.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_gltf_validator_contract.py",
+          "-q"
+        ]
+      ]
     }
   ],
   "donors": [
@@ -564,6 +624,18 @@
       "rationale": "Pin and configure upstream Redis Queue job submission, retry, started registry cleanup and workhorse isolation; route saved-scene native Blender rendering behind the existing five-tool typed MCP. Do not handroll worker retries.",
       "repository": "rq/rq",
       "url": "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py"
+    },
+    {
+      "commit": "602c54043ba66856b2e68c40fdf2bced975cdb8a",
+      "fabric_claim": "Fabric reported candidates, while the official pinned API and license were read directly and separately tested on M2.",
+      "fabric_job_id": "2c6378f5-40f7-4ca1-8d53-cf219eb6e0f5",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "khronos-glb-validator",
+      "license": "Apache-2.0",
+      "rationale": "Invoke the existing Khronos Node validateBytes API after canonical .glb export; fail closed on nonzero spec errors, stale output, absent assets or validator faults.",
+      "repository": "KhronosGroup/glTF-Validator",
+      "url": "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md"
     }
   ],
   "research_evidence": {
@@ -575,23 +647,22 @@
       "sha256": "544fb636190a3b6d0f77b1e537ff9f85d12b1b236855654c7c2f84afe52a2c94"
     },
     "fabric": {
-      "artifact_path": ".lego/research/fabric.json",
-      "job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
+      "artifact_path": ".lego/research/fabric_glb_20261106.json",
+      "job_id": "2c6378f5-40f7-4ca1-8d53-cf219eb6e0f5",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Verify exactly the supplied RQ Redis Queue source files and license for an existing Blender MCP background rendering workflow. RQ provides StartedJobRegistry.cleanup on abandoned jobs and Worker handling workhorse termination; Redis-backed Queue.enqueue returns a stable job ID and JSONSerializer avoids pickle. The specific source commit is rq/rq 8bdb8426f8cbc4e0a2f77176135939055c9e5f39. Verify whether the pinned files and associated documentation are accessible, that the code supports one bounded retry after an unexpected worker-child exit, and describe limits such as duplicated side effects and persistence depending on Redis AOF. Do not infer Blender runtime measurements from source. Restrict to the single named RQ repository and pinned documents; do not introduce unrelated donors or probe unfurnished paths.",
-      "sha256": "1a35bb5573b6c4cc65e95f11d7e7952ef0ebbeeb2f83448634d425e348ff4669"
+      "query": "Source-pinned donor research for Blender MCP GLB validation, visual self-correction, camera matching and Blender 5.3",
+      "sha256": "389165eb61682a4da88dd5d949a442b12f66d04e6200ab3f14bba7d731ff481e"
     },
     "github_research": {
-      "artifact_path": ".lego/research/github_research.json",
+      "artifact_path": ".lego/research/github_glb_20261106.json",
       "mode": "cli",
       "pattern_card_refs": [
-        "blender-rq-native-render-crash-recovery",
-        "blender-progressive-tool-guides"
+        "blender-depsgraph-evaluated-mesh"
       ],
-      "query": "Blender MCP RQ crash-retried native background render Redis AOF atomic output worker failover",
-      "sha256": "d915271eb355d6ec6dc75f22af6277037360728c70f97957ad55346ba80447a5",
-      "taskmap_ref": "sha256:b8beee6c6cd69e6cd1e99e18482775986870f2a492f202ff905b7c0b946b2f53"
+      "query": "Blender glTF validation and verified export via existing five-tool canonical boundary",
+      "sha256": "52635acd9d960092c7ad0562af305dc525522eb80b764cf59642e49da8e35973",
+      "taskmap_ref": "M1-local-CLI-20261106-low-confidence"
     },
     "smat_research": {
       "artifact_path": ".lego/research/smat_research.json",

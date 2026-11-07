@@ -1,0 +1,23 @@
+{
+  "assessment": {
+    "limitations": [
+      "M1 TaskMap candidate scores were all zero; no endorsed GLB validator donor card. Official Khronos upstream API and license were directly inspected."
+    ],
+    "relevant": true,
+    "sufficient": false
+  },
+  "execution_trace": {
+    "command": "npm run cli -- taskmap --problem blender-mcp goal-directed edit inspect correct verify using Quality Lab and typed 5-tool MCP, validate GLB exports with Khronos, pin Blender 5.3 compat with tests --repo blender-mcp",
+    "host": "smat-m1-mini"
+  },
+  "lane": "github_research",
+  "mode": "cli",
+  "pattern_card_refs": [
+    "blender-depsgraph-evaluated-mesh"
+  ],
+  "query": "Blender glTF validation and verified export via existing five-tool canonical boundary",
+  "source_refs": [
+    "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md"
+  ],
+  "taskmap_ref": "M1-local-CLI-20261106-low-confidence"
+}
