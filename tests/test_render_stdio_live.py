@@ -26,7 +26,7 @@ def test_real_sdk_client_queues_and_inspects_native_render(isolated_render_broke
                 await client.initialize()
                 tools=await client.list_tools()
                 assert len(tools.tools)==5
-                r=await client.call_tool('router_set_goal',{'input':{'goal':'queue a background render of a saved scene'}})
+                r=await client.call_tool('router_set_goal',{'input':{'goal':'queue background Blender render of saved scene'}})
                 assert not r.isError and 'workflow.render_enqueue' in str(r.structuredContent or json.loads(r.content[0].text))
                 r=await client.call_tool('get_capability_schema',{'input':{'key':'workflow.render_enqueue'}})
                 assert not r.isError and 'scene_path' in str(r.structuredContent or json.loads(r.content[0].text))

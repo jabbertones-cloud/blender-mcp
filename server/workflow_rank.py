@@ -8,9 +8,20 @@ try:
 except ModuleNotFoundError:
     from capability_executor import WORKFLOW_DESCRIPTIONS
 
+def _render_status_query(text: str) -> bool:
+    return ("render" in text and any(x in text for x in ("status", "progress", "job id", "job state", "finished"))) or ("check" in text and "render job" in text)
+
+
+def _render_enqueue_query(text: str) -> bool:
+    return not _render_status_query(text) and (
+        any(x in text for x in ("background render", "background blender render", "queue render", "queue a render", "async render", "asynchronous render"))
+        or ("render" in text and "in the background" in text)
+    )
+
+
 _RULES = (
-    ("workflow.render_enqueue", 165.0, ["queue saved scene background Blender render"], lambda t: "background render" in t or "queue render" in t or "async render" in t, False),
-    ("workflow.render_status", 164.0, ["check background Blender render job status"], lambda t: "render status" in t or "render job" in t, False),
+    ("workflow.render_enqueue", 165.0, ["queue saved scene background Blender render"], _render_enqueue_query, False),
+    ("workflow.render_status", 164.0, ["check background Blender render job status"], _render_status_query, False),
     ("workflow.quality_inspect", 159.0, ["inspect saved Blender scene with objective quality gates"],
      lambda t: any(x in t for x in ("inspect quality", "quality audit", "audit scene quality", "check scene quality", "validate scene quality")), False),
     (
