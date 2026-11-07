@@ -1,0 +1,17 @@
+# Crash-retried background Blender renders (RQ)
+
+Sources: [RQ `StartedJobRegistry.cleanup`](https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py), [RQ Worker](https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/worker/base.py), BSD-3-Clause. Runtime pins: `rq==2.12.0`, `redis==7.4.1`. Uses the actual Blender executable, not a custom renderer.
+
+The existing five-tool MCP discovers `workflow.render_enqueue` and `workflow.render_status` using the same goal/search/schema/execute interface. Only saved `.blend` files within the configured `BLENDER_RENDER_ROOT` or `BLENDER_QUALITY_ROOT` can be submitted. The output is fixed to `Blender MCP Renders/<job-id>.png` under the authorized root. Neither user Python nor user-selected output paths are accepted. The native worker loads scenes with `--disable-autoexec`, renders with Blender's own Python API, verifies the PNG signature, and publishes via `os.replace` after success. Replayed jobs recognize the existing output. Technical quality and image review are separate gates.
+
+The server and the worker need `BLENDER_RENDER_REDIS_URL` pointing to a **dedicated, loopback-only, AOF-enabled Redis** instance. On M2 the isolated experiment used `redis://127.0.0.1:6399/0`, **not the existing service on port 6379** (that service had AOF disabled). Start `redis-server` with `--bind 127.0.0.1 --protected-mode yes --appendonly yes --appendfsync everysec --dir <persistent-data-directory> --port 6399` before the worker. Never set the data directory to a temporary location in production.
+
+With the pinned server venv, start one foreground worker:
+
+```sh
+BLENDER_RENDER_ROOT="$HOME/Projects" BLENDER_RENDER_BIN="$HOME/Applications/Blender-5.2.3.app/Contents/MacOS/Blender" BLENDER_RENDER_REDIS_URL=redis://127.0.0.1:6399/0 PYTHONPATH="$HOME/claw-repos/blender-mcp" "$HOME/claw-repos/blender-mcp/.venv/bin/rq" worker blender-mcp-render-v1 --url redis://127.0.0.1:6399/0 --serializer rq.serializers.JSONSerializer --maintenance-interval 20 --job-monitoring-interval 5
+```
+
+To verify against a real saved scene, set `BLENDER_RENDER_E2E=1`, the root, binary, Redis URL, and `BLENDER_RENDER_TEST_SCENE`, then run the opt-in tests `tests/test_render_queue_live.py` and `tests/test_render_rq_recovery_live.py`. The normal suite skips them when a live broker is unavailable. The worker should run under a supervised user service in production; absence of the worker must not be reported as a successful render.
+
+**Recovery contract:** RQ detects abrupt child exits and, with `Retry(max=1)`, retries the same job ID. Started-job cleanup handles stale jobs after heartbeat expiration. AOF preserves queued jobs across Redis restarts. Jobs are not exactly-once: an orphan Blender subprocess could finish after a retry begins. The output is job-ID-specific, staged and atomically published, but do not claim comprehensive crash isolation, resource guarantees, or general-purpose transactionality. Do not render until the user saves the current scene; background jobs use an on-disk snapshot, not unsaved viewport changes.

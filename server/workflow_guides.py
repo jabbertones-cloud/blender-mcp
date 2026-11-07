@@ -74,6 +74,7 @@ _WORKFLOW_GUIDES = {
     "workflow.motion_from_video": "animation", "workflow.motion_qa": "animation",
     "workflow.image_to_scene": "reconstruction", "workflow.viewport_multiview": "inspection",
     "workflow.sequence": "workflow", "workflow.quality_inspect": "inspection",
+    "workflow.render_enqueue": "render", "workflow.render_status": "render",
 }
 
 

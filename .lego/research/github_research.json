@@ -2,31 +2,40 @@
   "assessment": {
     "gaps": [],
     "limitations": [
-      "Pattern Card is an architectural routing study, not evidence of technical quality-gate behavior; those are verified through direct donor source, local tests, and source-pinned JSON fixtures.",
-      "The current feature only exposes read-only inspection; it does not autonomously execute fixes or assert aesthetic completion.",
-      "GHR TaskMap scored all patterns 0; rank is lexical relevance only, not a performance grade."
+      "TaskMap scores are zero and only lexical ranking was shown.",
+      "The Pattern Card source is a new PR, not a prior production proof, and no RQ donor code was copied.",
+      "RQ at-most-one retry is not exactly-once; a killed worker may leave a Blender child and duplicate final publication without staging.",
+      "M2 runtime observations are independent of GHR and not inferred from the TaskMap."
     ],
     "relevant": true,
     "sufficient": true
   },
-  "evidence": "Ran GitHubResearchMCP CLI (M1) cards search + TaskMap with stated query; first returned Pattern Card blender-progressive-tool-guides and preserved canonical model-facing 5-tool architecture. Raw CLI result saved at .lego/research/github-taskmap-quality-20261106.json digest e229ab3d34e433f511c109835d5f65cf1d26fd236a3e06423059f1230abbaa1a. Pattern Card speaks to routing only. Actual Quality Lab API v1/scene inspect and pinned tests were independently inspected with the GitHub connector, and true M2 Blender 5.2.3 static/live artifact tests were separately measured.",
+  "evidence": "Actual GitHubResearchMCP M1 cli.ts created a TaskMap on 2026-11-06 using the precise RQ Blender render query; the newly source-pinned Pattern Card blender-rq-native-render-crash-recovery appeared first, with a raw SHA-256 TaskMap artifact under .lego/research/github-taskmap-rq-20261106.json. Pattern Card commit 4e933a3a9f38eadb91fa67229622b2c3574171d0 at GitHub Research PR 33 reports RQ donor code and observed M2 fault tests. Its score=0, so it is a source/counterpattern catalog, not independently graded production performance. RQ source and upstream tests directly inspected using the GitHub connector; isolated M2 live fault, broker-restart and Blender E2E tests supply separate measurements.",
   "execution_trace": {
-    "artifact_path": ".lego/research/github-taskmap-quality-20261106.json",
-    "command": "node --experimental-strip-types --experimental-sqlite src/cli.ts taskmap --problem Blender MCP integrate read-only Blender Quality Lab gate on saved scene and report deficiencies via existing five-tool architecture --repo jabbertones-cloud/blender-mcp",
+    "artifact_path": ".lego/research/github-taskmap-rq-20261106.json",
+    "command": "node --experimental-strip-types --experimental-sqlite src/cli.ts taskmap --problem Blender MCP RQ crash-retried native background render Redis AOF atomic output worker failover --repo jabbertones-cloud/blender-mcp",
     "host": "smat-m1-mini",
-    "mode": "GitHubResearchMCP CLI via node --experimental-strip-types --experimental-sqlite",
-    "pattern_card_commit": "991241d5e8baa3f22c70aaf6e2df18242160dc27",
-    "pattern_card_pr": "https://github.com/jabbertones-cloud/githubresearchmcp/pull/32",
-    "taskmap_ref": "sha256:e229ab3d34e433f511c109835d5f65cf1d26fd236a3e06423059f1230abbaa1a"
+    "pattern_card_commit": "4e933a3a9f38eadb91fa67229622b2c3574171d0",
+    "pattern_card_pr": "https://github.com/jabbertones-cloud/githubresearchmcp/pull/33",
+    "source": "githubresearchmcp CLI",
+    "taskmap_ref": "sha256:b8beee6c6cd69e6cd1e99e18482775986870f2a492f202ff905b7c0b946b2f53"
   },
   "lane": "github_research",
   "mode": "cli",
   "pattern_card_refs": [
-    "blender-progressive-tool-guides",
-    "blender-depsgraph-evaluated-mesh"
+    "blender-rq-native-render-crash-recovery",
+    "blender-progressive-tool-guides"
   ],
-  "query": "Blender MCP integrate read-only Blender Quality Lab gate on saved scene and report deficiencies via existing five-tool architecture",
+  "query": "Blender MCP RQ crash-retried native background render Redis AOF atomic output worker failover",
   "source_refs": [
+    "https://github.com/jabbertones-cloud/githubresearchmcp/blob/4e933a3a9f38eadb91fa67229622b2c3574171d0/data/pattern-cards/blender-rq-native-render-crash-recovery.md",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/worker/base.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_worker.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_registry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/tests/test_retry.py",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/LICENSE",
+    "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/docs/docs/jobs.md",
     "https://github.com/jabbertones-cloud/githubresearchmcp/blob/991241d5e8baa3f22c70aaf6e2df18242160dc27/data/pattern-cards/blender-progressive-tool-guides.md",
     "https://github.com/jabbertones-cloud/blender-mcp/blob/6ddc51766221d21cf77db7251a81cd10ade13873/server/blender_mcp_guided.py",
     "https://github.com/jabbertones-cloud/blender-mcp/blob/6ddc51766221d21cf77db7251a81cd10ade13873/tests/test_mcp_stdio_live.py",
@@ -36,5 +45,5 @@
     "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/src/blender_quality/api.py",
     "https://github.com/AleBrito124356/blender-quality-lab/blob/9b4b0132deb49d17ee9bdf7823cd11fac2f3f2e0/tests/test_gates.py"
   ],
-  "taskmap_ref": "sha256:e229ab3d34e433f511c109835d5f65cf1d26fd236a3e06423059f1230abbaa1a"
+  "taskmap_ref": "sha256:b8beee6c6cd69e6cd1e99e18482775986870f2a492f202ff905b7c0b946b2f53"
 }
