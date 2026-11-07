@@ -1,0 +1,42 @@
+{
+  "actual_reproduction": "M2 exact-main native_render accepted a 25-byte PNG-signature+CORRUPT_NOT_IMAGE file as replayed=True, without invoking Blender.",
+  "date": "2026-11-07",
+  "defect": "Native RQ render replay and publish only checked PNG eight-byte signature; finished status only checked file presence.",
+  "donor": {
+    "commit": "293218ad059d994baf1777d882911bed6a49704a",
+    "license": "MIT-CMU",
+    "repo": "python-pillow/Pillow",
+    "src": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py",
+    "tests": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/Tests/test_file_png.py",
+    "use": "Image.open/verify, then reopen/load to force complete pixel decoding",
+    "version": "13.0.0"
+  },
+  "non_goals": [
+    "No exactly-once RQ guarantee",
+    "No general rendering aesthetic verification",
+    "No change to Redis 6379 or RQ worker scheduling"
+  ],
+  "project": "jabbertones-cloud/blender-mcp",
+  "rejected_alternative": {
+    "module": "server/image_similarity.py",
+    "reason": "Existing stdlib custom PNG decoder lacks CRC validation and rejects interlaced PNG; not a general integrity library."
+  },
+  "research": {
+    "expert": "No dedicated Blender image codec expert MCP connected; official Pillow sources used",
+    "fabric_job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
+    "fabric_project": "python-pillow/Pillow",
+    "fabric_status": "The source-focused python-pillow/Pillow job 56ec6c45-10c0-4683-be54-25f00843a25d succeeded with sufficient=true and donorVerification.action=clean; previous Blender-scoped runs remain insufficient. The Fabric source claim is reported, while M2 measured evidence is independent.",
+    "github_research": "Existing .lego/research/github-taskmap-rq-20261106.json (R/Q source-pinned recovery); live CLI cards search returned unrelated 0-score cards",
+    "smat_research": "searched smat-research studies markdown for Blender PNG integrity and found no matching implementation study"
+  },
+  "source_main": "99d1c2144c2ff06b94405c45eb136dfb135ba8de",
+  "test_proof": {
+    "benchmark": "3/3 8-byte-header-only false accepts before, 0/3 Pillow false accepts after, measured fixture",
+    "full_python_regression": "200 passed, 6 skipped on M2 candidate code with Pillow 13.0.0",
+    "isolated_live_rq": "3/3 live RQ/Blender tests passed with M2 DB1; DB0 supervised worker unchanged",
+    "real_job_id": "00f3879b-da23-46c1-8b8a-aceabe39da4a",
+    "real_png": "Pillow 13.0.0 fully decoded 270x270 M2 Blender render",
+    "real_sdk_corruption": "Cursor-configured MCP SDK on M2 DB1 produced real 57,010 byte Blender PNG, corruption was reported artifact_invalid, original PNG restored and status finished, original scene checksum preserved",
+    "synthetic_new_tests": "10/10 PNG/atomic tests passed with isolated Pillow target"
+  }
+}

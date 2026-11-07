@@ -1,0 +1,46 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "Fabric succeeded on the source-focused Pillow project, not a Blender deployment. Independent candidate M2 tests provide runtime proof.",
+      "Fabric reported two relevant candidates, not a measured reliability rate; no claim of exactly-once RQ effects.",
+      "The older Blender-scoped Fabric explorations were insufficient due to unrelated donor verification and are not promoted."
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "Actual source-scoped Research Fabric job 56ec6c45-10c0-4683-be54-25f00843a25d succeeded on 2026-11-07 with sufficient=true, two relevant candidates among four and donorVerification.action=clean. Caller-supplied exact-commit official Pillow Image.py, test_file_png.py, and MIT-CMU LICENSE were supplied. This is research-only donor provenance, not local Blender measured truth. Independent pinned source inspection and M2 candidate tests measured the PNG decoding behavior.",
+  "job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
+  "lane": "fabric",
+  "local_acceptance": {
+    "benchmark": {
+      "baseline": 3,
+      "candidate": 0,
+      "direction": "lower",
+      "metric": "invalid_png_false_accepts"
+    },
+    "candidate_m2_tests": "200 passed, 6 skipped",
+    "real_mcp": "57,010-byte PNG, tamper produced artifact_invalid, restoration returned finished",
+    "real_rq": "3 passed"
+  },
+  "mode": "research_job",
+  "project": "python-pillow/Pillow",
+  "query": "Audit the exact Pillow 13.0.0 Image.open verify load PNG API and its unit tests for truncated and CRC-damaged PNG files. Use ONLY the supplied pinned Pillow source and license; do not analyze Blender MCP or other tools. Evidence is to support a separate integration in jabbertones-cloud/blender-mcp, whose live tests are independent.",
+  "result": {
+    "donorVerification": {
+      "action": "clean"
+    },
+    "status": "succeeded",
+    "sufficiency": {
+      "reason": "topically_relevant_evidence_present",
+      "relevantCandidates": 2,
+      "sufficient": true,
+      "totalCandidates": 4
+    }
+  },
+  "source_refs": [
+    "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py",
+    "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/Tests/test_file_png.py",
+    "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/LICENSE"
+  ]
+}

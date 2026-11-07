@@ -11,3 +11,6 @@ blender-quality-lab @ git+https://github.com/AleBrito124356/blender-quality-lab.
 # BSD-3-Clause RQ job registry and Redis transport; native Blender subprocess worker.
 rq==2.12.0
 redis==7.4.1
+
+# MIT-CMU Pillow verifies PNG structure and fully decodes pixels before successful publication.
+Pillow==13.0.0

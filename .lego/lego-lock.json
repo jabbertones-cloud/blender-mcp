@@ -405,10 +405,15 @@
         [
           "python3",
           "tests/benchmark_render_recovery.py"
+        ],
+        [
+          "python3",
+          "tests/benchmark_png_integrity.py"
         ]
       ],
       "donor_ids": [
-        "rq-render-jobs"
+        "rq-render-jobs",
+        "pillow-png-integrity"
       ],
       "mode": "glue",
       "path": "server/render_job_cli.py",
@@ -419,6 +424,15 @@
           "-m",
           "pytest",
           "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ],
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_artifact.py",
           "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
@@ -483,10 +497,15 @@
         [
           "python3",
           "tests/benchmark_render_recovery.py"
+        ],
+        [
+          "python3",
+          "tests/benchmark_png_integrity.py"
         ]
       ],
       "donor_ids": [
-        "rq-render-jobs"
+        "rq-render-jobs",
+        "pillow-png-integrity"
       ],
       "mode": "glue",
       "path": "server/render_queue_api.py",
@@ -497,6 +516,42 @@
           "-m",
           "pytest",
           "tests/test_render_queue.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ],
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_artifact.py",
+          "tests/test_render_worker_atomic.py",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "python3",
+          "tests/benchmark_png_integrity.py"
+        ]
+      ],
+      "donor_ids": [
+        "pillow-png-integrity",
+        "rq-render-jobs"
+      ],
+      "mode": "glue",
+      "path": "server/render_artifact.py",
+      "purpose": "Use upstream Pillow verify and pixel load, not a handcrafted PNG parser, to gate RQ replay, atomic publication and visible status.",
+      "tests": [
+        [
+          "python3",
+          "-m",
+          "pytest",
+          "tests/test_render_artifact.py",
           "tests/test_render_worker_atomic.py",
           "-q",
           "--disable-warnings"
@@ -564,6 +619,19 @@
       "rationale": "Pin and configure upstream Redis Queue job submission, retry, started registry cleanup and workhorse isolation; route saved-scene native Blender rendering behind the existing five-tool typed MCP. Do not handroll worker retries.",
       "repository": "rq/rq",
       "url": "https://github.com/rq/rq/blob/8bdb8426f8cbc4e0a2f77176135939055c9e5f39/rq/registry.py"
+    },
+    {
+      "commit": "293218ad059d994baf1777d882911bed6a49704a",
+      "fabric_claim": "Source-pinned official Pillow 13.0.0 Image.verify and reopen/load APIs, tests and MIT-CMU license were reviewed under actual sufficient Fabric job 56ec6c45-10c0-4683-be54-25f00843a25d; M2 measurements are separate.",
+      "fabric_job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
+      "fabric_project": "python-pillow/Pillow",
+      "fabric_status": "reported",
+      "id": "pillow-png-integrity",
+      "license": "MIT-CMU",
+      "local_receipt_sha256": "48874ea4326fed40e1e059ebfc957159fd92d328a1fd461cc18fe310ce7b78c5",
+      "rationale": "Use Pillow 13.0.0, official trusted PNG decoder, instead of eight-byte header-only validation; full read before atomic publication and status success. Local evidence in .lego/research/png_integrity_20261107.json.",
+      "repository": "python-pillow/Pillow",
+      "url": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py"
     }
   ],
   "research_evidence": {
@@ -575,12 +643,12 @@
       "sha256": "544fb636190a3b6d0f77b1e537ff9f85d12b1b236855654c7c2f84afe52a2c94"
     },
     "fabric": {
-      "artifact_path": ".lego/research/fabric.json",
-      "job_id": "e216b5a5-d6b7-41b3-b595-4d44875a78d8",
+      "artifact_path": ".lego/research/fabric_pillow_png_20261107.json",
+      "job_id": "56ec6c45-10c0-4683-be54-25f00843a25d",
       "mode": "research_job",
-      "project": "blender-mcp",
-      "query": "Verify exactly the supplied RQ Redis Queue source files and license for an existing Blender MCP background rendering workflow. RQ provides StartedJobRegistry.cleanup on abandoned jobs and Worker handling workhorse termination; Redis-backed Queue.enqueue returns a stable job ID and JSONSerializer avoids pickle. The specific source commit is rq/rq 8bdb8426f8cbc4e0a2f77176135939055c9e5f39. Verify whether the pinned files and associated documentation are accessible, that the code supports one bounded retry after an unexpected worker-child exit, and describe limits such as duplicated side effects and persistence depending on Redis AOF. Do not infer Blender runtime measurements from source. Restrict to the single named RQ repository and pinned documents; do not introduce unrelated donors or probe unfurnished paths.",
-      "sha256": "1a35bb5573b6c4cc65e95f11d7e7952ef0ebbeeb2f83448634d425e348ff4669"
+      "project": "python-pillow/Pillow",
+      "query": "Audit the exact Pillow 13.0.0 Image.open verify load PNG API and its unit tests for truncated and CRC-damaged PNG files. Use ONLY the supplied pinned Pillow source and license; do not analyze Blender MCP or other tools. Evidence is to support a separate integration in jabbertones-cloud/blender-mcp, whose live tests are independent.",
+      "sha256": "b7a365635a998d59c4e537cfc4bec7a12a453a8eaea146bff42ba26654df517e"
     },
     "github_research": {
       "artifact_path": ".lego/research/github_research.json",
