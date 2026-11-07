@@ -1,0 +1,37 @@
+{
+  "actual_reproduction": "M2 exact-main native_render accepted a 25-byte PNG-signature+CORRUPT_NOT_IMAGE file as replayed=True, without invoking Blender.",
+  "date": "2026-11-07",
+  "defect": "Native RQ render replay and publish only checked PNG eight-byte signature; finished status only checked file presence.",
+  "donor": {
+    "commit": "293218ad059d994baf1777d882911bed6a49704a",
+    "license": "MIT-CMU",
+    "repo": "python-pillow/Pillow",
+    "src": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py",
+    "tests": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/Tests/test_file_png.py",
+    "use": "Image.open/verify, then reopen/load to force complete pixel decoding",
+    "version": "13.0.0"
+  },
+  "non_goals": [
+    "No exactly-once RQ guarantee",
+    "No general rendering aesthetic verification",
+    "No change to Redis 6379 or RQ worker scheduling"
+  ],
+  "project": "jabbertones-cloud/blender-mcp",
+  "rejected_alternative": {
+    "module": "server/image_similarity.py",
+    "reason": "Existing stdlib custom PNG decoder lacks CRC validation and rejects interlaced PNG; not a general integrity library."
+  },
+  "research": {
+    "expert": "No dedicated Blender image codec expert MCP connected; official Pillow sources used",
+    "fabric_job_id": "3aa761d3-4019-4a88-9d00-a2781918a206",
+    "fabric_status": "succeeded, research-only, not measured",
+    "github_research": "Existing .lego/research/github-taskmap-rq-20261106.json (R/Q source-pinned recovery); live CLI cards search returned unrelated 0-score cards",
+    "smat_research": "searched smat-research studies markdown for Blender PNG integrity and found no matching implementation study"
+  },
+  "source_main": "99d1c2144c2ff06b94405c45eb136dfb135ba8de",
+  "test_proof": {
+    "benchmark": "tests/benchmark_png_integrity.py",
+    "real_png": "Pillow 13.0.0 fully decoded 270x270 M2 Blender render",
+    "synthetic_new_tests": "10/10 PNG/atomic tests passed with isolated Pillow target"
+  }
+}

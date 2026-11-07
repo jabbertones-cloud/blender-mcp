@@ -4,11 +4,12 @@ import subprocess
 import tempfile
 from pathlib import Path
 from .render_job_paths import output_path
+from .render_artifact import valid_png
 
 
 def native_render(scene, job_id, preview):
     final = output_path(job_id)
-    if final.is_file() and final.open('rb').read(8) == b'\x89PNG\r\n\x1a\n':
+    if valid_png(final):
         return {'path': str(final), 'bytes': final.stat().st_size, 'replayed': True}
     blender = os.getenv('BLENDER_RENDER_BIN') or os.getenv('BLENDER_QUALITY_BIN')
     if not blender or not Path(blender).is_file():
@@ -23,7 +24,7 @@ def native_render(scene, job_id, preview):
         process = subprocess.run([blender, '--background', '--factory-startup', '--disable-autoexec',
                                   '--python-exit-code', '1', str(scene), '--python', script],
                                  capture_output=True, text=True, timeout=600, env=env)
-        if process.returncode or not Path(temp).is_file() or Path(temp).open('rb').read(8) != b'\x89PNG\r\n\x1a\n':
+        if process.returncode or not valid_png(Path(temp)):
             raise RuntimeError(f'Blender render failed (exit={process.returncode})')
         os.replace(temp, final)
         return {'path': str(final), 'bytes': final.stat().st_size, 'replayed': False}

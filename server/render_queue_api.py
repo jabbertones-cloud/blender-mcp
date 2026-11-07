@@ -8,6 +8,7 @@ from rq.exceptions import NoSuchJobError
 from rq.serializers import JSONSerializer
 from .render_job_paths import scene_path, output_path
 from .render_jobs_worker import render_saved_blend
+from .render_artifact import valid_png
 
 def connection():
     uri = os.getenv('BLENDER_RENDER_REDIS_URL', 'redis://127.0.0.1:6399/0')
@@ -35,6 +36,10 @@ def status(args):
         return {'status': 'not_found', 'job_id': args['job_id']}
     state = job.get_status(refresh=True)
     response = {'status': str(getattr(state, 'value', state)), 'job_id': job.id, 'retries_left': job.retries_left}
-    if response['status'] == 'finished' and path.is_file():
-        response['render'] = job.return_value()
+    if response['status'] == 'finished':
+        if not valid_png(path):
+            response['status'] = 'artifact_invalid'
+            response['error'] = 'Rendered PNG is missing or invalid'
+        else:
+            response['render'] = job.return_value()
     return response
