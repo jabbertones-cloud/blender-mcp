@@ -888,24 +888,18 @@ def register_product_tools(mcp_instance, send_command_fn, format_result_fn):
         easing_code = f'kf.easing = "{params.easing}"' if params.easing else ""
         handle_code = f'kf.handle_left_type = "{params.handle_type}"\n                    kf.handle_right_type = "{params.handle_type}"' if params.handle_type else ""
         
-        code = f"""
-import bpy
-obj = bpy.data.objects.get("{params.object_name}")
-if not obj or not obj.animation_data or not obj.animation_data.action:
-    __result__ = {{"error": "Object '{params.object_name}' has no animation"}}
-else:
-    modified = 0
-    for fc in obj.animation_data.action.fcurves:
-        if "{params.data_path}" in fc.data_path:
-            if {params.index} == -1 or fc.array_index == {params.index}:
-                for kf in fc.keyframe_points:
-                    kf.interpolation = '{params.interpolation}'
-                    {easing_code}
-                    {handle_code}
-                    modified += 1
-    __result__ = {{"status": "ok", "keyframes_modified": modified, "interpolation": "{params.interpolation}"}}
-"""
-        return format_result_fn(send_command_fn("execute_python", {"code": code}))
+        payload = {
+            "object_name": params.object_name,
+            "data_path": params.data_path,
+            "index": params.index,
+            "interpolation": params.interpolation,
+        }
+        if params.easing:
+            payload["easing"] = params.easing
+        if params.handle_type:
+            payload["handle_type"] = params.handle_type
+
+        return format_result_fn(send_command_fn("fcurve_edit", payload))
     
     return [
         "blender_product_animation",
