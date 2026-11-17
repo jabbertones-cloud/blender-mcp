@@ -4,6 +4,8 @@ Blender over MCP, with a **small search-first agent surface** in front of a much
 
 The project still contains the original ~80 Blender operations for modeling, materials, animation, rendering, rigging, physics, spatial reasoning, product visualization, forensic reconstruction, asset import, and generation. The default MCP entrypoint no longer exposes all of them as equal peers to the model.
 
+**Support:** [Guided MCP troubleshooting](SUPPORT.md) | [Report a sanitized bug](https://github.com/jabbertones-cloud/blender-mcp/issues/new/choose). Do not post private Blender assets or secrets.
+
 ## Recommended architecture
 
 ```text
