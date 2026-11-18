@@ -43,7 +43,8 @@ def _clean(value, limit=120):
         return ""
     cleaned = " ".join("".join(c for c in value if c.isprintable()).split())[:limit]
     lower = cleaned.lower()
-    if ("://" in lower or "/users/" in lower or "\\users\\" in lower or
+    path_like = bool(re.search(r"(?:^|\s)(?:/|~[/\\]|[A-Za-z]:[/\\]|\\\\)", cleaned))
+    if (path_like or "://" in lower or "/users/" in lower or "\\users\\" in lower or
         any(marker in lower for marker in ("password=", "secret=", "api_key=", "bearer ", "authorization:"))):
         return "[redacted]"
     return cleaned
@@ -109,6 +110,8 @@ def compile_recording(recording, *, identifier, goal, source_hash):
     """Summarize observed facts and evidence indices; never emit executable code."""
     if not isinstance(recording, dict) or recording.get("schema_version") != 1:
         raise ValueError("Unsupported Blender Replay schema")
+    if recording.get("recording_state") != "stopped":
+        raise ValueError("Incomplete recording: stop before teaching; paused or active work is not a finished lesson")
     events = recording.get("events")
     if not isinstance(events, list) or len(events) > MAX_EVENTS:
         raise ValueError("Invalid or excessively large recording event list")
