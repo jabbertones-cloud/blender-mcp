@@ -143,6 +143,12 @@ def compile_recording(recording, *, identifier, goal, source_hash):
 
     for i, event in enumerate(events):
         event_type = event["type"]
+        if event_type == "segment":
+            # Paused work is not an observed operator. Never attribute a later
+            # state-only edit to an operator from the preceding segment.
+            last_operator = None
+            last_context = {}
+            continue
         if event_type == "context":
             c = event.get("context")
             if isinstance(c, dict):
