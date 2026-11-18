@@ -58,6 +58,12 @@ class Capability:
     aliases: Tuple[str, ...] = ()
     tags: Tuple[str, ...] = ()
     mutates_scene: bool = True
+    # Addon-boundary metadata (2026-11-17, taught from the artist's files +
+    # operator-level addon research): an addon's bl_idname existing does NOT
+    # make it a capability. These fields state the real execution boundary.
+    requires_gui: bool = False
+    requires_addon_enabled: str = ""
+    state_setup: str = ""
 
 
 _KEY_OVERRIDES = {
@@ -84,6 +90,7 @@ _KEY_OVERRIDES = {
     "blender_scene_operations": "scene.manage",
     "blender_scene_context": "scene.context", "blender_scene_inspect": "scene.inspect", "blender_mesh_inspect": "mesh.inspect",
     "blender_rna_search": "runtime.rna_search", "blender_rna_describe": "runtime.rna_describe",
+    "blender_scene_health": "scene.health", "blender_drain_human_activity": "scene.human_activity",
 }
 
 # MCP-side wrappers must advertise the real addon boundary they ultimately use.
@@ -114,6 +121,59 @@ _SPECIFIC_FAMILIES = {
     "object.duplicate": "mutate", "object.parent": "mutate", "scene.collections": "mutate", "model.curve": "create",
     "animation.shape_keys": "animation", "rig.weight_paint": "rigging", "physics.particles": "physics", "physics.force_field": "physics",
     "scene.text": "create", "render.compositor": "render", "image.manage": "material", "animation.clear": "animation", "scene.manage": "mutate",
+    "scene.health": "inspect", "scene.human_activity": "inspect",
+}
+
+# Verified addon execution boundaries (operator IDs checked against the
+# addons' own source / the artist's installed copies, 2026-11-17). These are
+# honest limits, not execution promises: modal or stateful addon operators
+# are labelled, never advertised as headless-safe automation.
+_BOUNDARY_OVERRIDES = {
+    "model.geometry_nodes": {
+        "state_setup": (
+            "GScatter (gscatter.*) is stateful: it acts on the active scatter system, so "
+            "create/configure the system via its property groups first, then call "
+            "gscatter.scatter / apply_scatter_system / realize_scatter_system. Geometry-node "
+            "group inputs must be set by socket NAME, never by index."
+        ),
+    },
+    "rig.armature": {
+        "state_setup": (
+            "Rokoko retargeting requires a bone-map built against the source/target armatures "
+            "before any transfer; the artist's rigs use generic bone names (Bone, Bone.003.L...), "
+            "so never assume a Rigify-style namespace."
+        ),
+    },
+    "model.sculpt": {
+        "requires_gui": True,
+        "state_setup": (
+            "RetopoFlow operators (cgcookie.retopoflow*) are modal/BLOCKING VIEW_3D tools: they "
+            "can only be OPENED for the artist in a GUI session, never executed as automated "
+            "retopology; non-modal helpers are cgcookie.retopoflow_newtarget_cursor / "
+            "_newtarget_active / _continue_active. QRemeshify runs as a job instead: set "
+            "scene.quadwild_props / scene.quadpatches_props, select the target mesh, then call "
+            "qremeshify.remesh."
+        ),
+    },
+    "product.camera": {
+        "requires_addon_enabled": "keentools",
+        "state_setup": (
+            "fSpy photo-matching: import the calibration with fspy_blender.import_project, "
+            "then verify the resulting scene camera against the .fspy project before use. "
+            "KeenTools face work (keentools_fb/ft/gt.*) is enable-first: the artist's own "
+            "startup.py disables keentools at startup (policy, not an error), so re-enable "
+            "the addon and verify the pykeentools core is present before calling any "
+            "keentools operator; pin modes are modal and excluded."
+        ),
+    },
+    "scene.human_activity": {
+        "requires_gui": True,
+        "state_setup": (
+            "Recorder captures the window-manager operator stack, which only exists in a live "
+            "GUI session (proven empty in --background mode). Consent-gated, OFF by default; "
+            "drain refuses and clears when consent is off."
+        ),
+    },
 }
 
 
@@ -147,6 +207,8 @@ class CapabilityRegistry:
         text = " ".join((intent or "").lower().replace("'s", " is").split())
         if any(x in text for x in ("what is in the scene", "what's in the scene", "inspect scene", "scene info")):
             return self._by_key["scene.info"]
+        if any(x in text for x in ("scene health", "health check", "missing files", "missing textures", "missing texture", "preflight", "pre-flight")):
+            return self._by_key["scene.health"]
         if any(x in text for x in ("add a cube", "add cube", "create a cube", "create cube", "add a sphere", "create a sphere", "add a cylinder", "create a cylinder")):
             return self._by_key["scene.create_object"]
         if any(x in text for x in ("three point light", "three-point light", "three point lighting", "studio lighting")):
@@ -217,7 +279,8 @@ def _build_registry() -> CapabilityRegistry:
         family = _SPECIFIC_FAMILIES.get(key, _FAMILY_OVERRIDES.get(source.family, source.family))
         bridge_command = _BRIDGE_COMMAND_OVERRIDES.get(key, source.command)
         aliases = (source.command, *source.positive) if source.command != bridge_command else tuple(source.positive)
-        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_schema_for(key), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene))
+        boundary = _BOUNDARY_OVERRIDES.get(key, {})
+        caps.append(Capability(key=key, family=family, description=source.purpose, bridge_command=bridge_command, mcp_name=source.tool, input_schema=_schema_for(key), aliases=aliases, tags=(source.family,), mutates_scene=source.mutates_scene, requires_gui=boundary.get("requires_gui", False), requires_addon_enabled=boundary.get("requires_addon_enabled", ""), state_setup=boundary.get("state_setup", "")))
     caps.append(Capability(key="scene.delete_object", family="mutate", description="delete one or more named scene objects", bridge_command="delete_object", mcp_name="blender_delete_object", input_schema=_schema_for("scene.delete_object"), aliases=("delete object", "remove object", "delete default cube"), tags=("objects",), mutates_scene=True))
     caps.append(Capability(
         key="scene.diagnostics",

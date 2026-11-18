@@ -11,6 +11,7 @@ _GUIDES = {name: f"{name}.md" for name in (
     "modeling", "materials", "lighting", "camera", "render", "animation",
     "rigging", "retopology", "product-shot", "inspection", "assets",
     "file-io", "nodes", "physics", "spatial", "reconstruction", "forensic", "workflow",
+    "ariel-workflow",
 )}
 _KEYWORDS = {
     "modeling": ("model", "mesh", "sculpt", "object", "geometry"),
@@ -31,6 +32,7 @@ _KEYWORDS = {
     "reconstruction": ("reference", "reconstruct", "photo to", "image to", "score", "correct"),
     "forensic": ("forensic", "accident", "courtroom", "evidence"),
     "workflow": ("workflow sequence", "batch operations", "rollback", "steps", "compose"),
+    "ariel-workflow": ("ariel", "patch", "bottle", "mascot", "bunny beanie", "anamorphic", "face tracking", "spray", "transdermal", "skyn", "plush trap", "odr"),
 }
 
 

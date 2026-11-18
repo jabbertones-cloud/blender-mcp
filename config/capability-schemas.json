@@ -4011,6 +4011,16 @@
     },
     "type": "object"
   },
+  "scene.health": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  },
+  "scene.human_activity": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  },
   "scene.info": {
     "additionalProperties": false,
     "properties": {},

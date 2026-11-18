@@ -470,7 +470,94 @@ def handle_product_render_setup(params):
     return {**compositor, "ownership": OWNER_VALUE}
 
 
+def handle_scene_health(params):
+    """Pre-flight health report for the artist's real files.
+
+    Her scenes link (never pack) label textures with relative paths, depend
+    on per-version addon state, and span Blender 3.3-5.1 file formats, so a
+    scene that "opened fine" can still be missing its labels, its HDRI, or
+    the addon that owns its node groups. This is the report_missing_files /
+    find_missing_files pre-flight from the production workflow, as data:
+    run it on open, before render, and before export. Read-only.
+    """
+    _require_blender("scene_health")
+    import os
+
+    scene = bpy.context.scene
+
+    def _external_status(datablocks, kind):
+        rows = []
+        for block in datablocks:
+            filepath = getattr(block, "filepath", "") or ""
+            packed = bool(getattr(block, "packed_file", None))
+            absolute = bpy.path.abspath(filepath) if filepath else ""
+            exists = bool(absolute) and os.path.exists(absolute)
+            rows.append({
+                "kind": kind,
+                "name": block.name,
+                "filepath": filepath,
+                "packed": packed,
+                "exists_on_disk": exists,
+                "missing": bool(filepath) and not packed and not exists,
+            })
+        return rows
+
+    external = []
+    external += _external_status(bpy.data.images, "image")
+    external += _external_status(bpy.data.fonts, "font")
+    external += _external_status(bpy.data.libraries, "library")
+    external += _external_status(getattr(bpy.data, "sounds", []), "sound")
+    external += _external_status(getattr(bpy.data, "movieclips", []), "movieclip")
+    missing = [row for row in external if row["missing"]]
+
+    enabled_addons = []
+    try:
+        import addon_utils
+        for module in addon_utils.modules():
+            name = getattr(module, "__name__", "")
+            if name and addon_utils.check(name)[1]:
+                enabled_addons.append(name)
+    except Exception:
+        pass
+
+    non_uniform_scale = [
+        obj.name for obj in scene.objects
+        if obj.type == "MESH" and len({round(float(v), 4) for v in obj.scale}) > 1
+    ]
+    duplicate_names = sorted(
+        obj.name for obj in scene.objects if "." in obj.name and obj.name.rsplit(".", 1)[-1].isdigit()
+    )
+
+    version = tuple(int(v) for v in bpy.app.version)
+    return {
+        "blender_version": ".".join(str(v) for v in version),
+        "python_version": ".".join(str(v) for v in __import__("sys").version_info[:3]),
+        "engine_id": scene.render.engine,
+        "eevee_engine_id_for_this_version": (
+            "BLENDER_EEVEE" if version >= (5, 0, 0) or version < (4, 2, 0) else "BLENDER_EEVEE_NEXT"
+        ),
+        "has_compositing_node_group": hasattr(scene, "compositing_node_group"),
+        "saved_with_version": ".".join(str(v) for v in bpy.data.version),
+        "filepath": bpy.data.filepath,
+        "external_files": external,
+        "missing_files": missing,
+        "missing_count": len(missing),
+        "linked_libraries": [
+            {"name": lib.name, "filepath": lib.filepath} for lib in bpy.data.libraries
+        ],
+        "enabled_addons": sorted(enabled_addons),
+        "non_uniform_scale_objects": non_uniform_scale,
+        "duplicate_suffix_objects": duplicate_names,
+        "remediation": (
+            "For missing files: bpy.ops.file.find_missing_files(directory=<folder>) "
+            "then make paths relative; pack with bpy.ops.file.pack_all() before handoff. "
+            "Packing cannot resurrect a file that is actually gone."
+        ) if missing else "No missing external files detected.",
+    }
+
+
 QUALITY_HANDLERS = {
+    "scene_health": handle_scene_health,
     "scene_diagnostics": handle_scene_diagnostics,
     "product_lighting": handle_product_lighting,
     "product_camera": handle_product_camera,

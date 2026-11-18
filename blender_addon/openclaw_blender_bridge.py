@@ -86,9 +86,31 @@ def handle_get_scene_info(params):
         if obj.data and hasattr(obj.data, "materials"):
             obj_info["materials"] = [m.name if m else None for m in obj.data.materials]
         if obj.type == "MESH" and obj.data:
+            # Base-mesh counts are PRE-modifier. Reporting them alone was
+            # CRIT-5 in the fleet audit: on the artist's real files (Subsurf
+            # level 2-3 on most hero meshes) base counts understate the
+            # rendered geometry by an order of magnitude and caused
+            # "geometry soup" planning errors. Always report evaluated
+            # (depsgraph) counts alongside, labelled as such.
             obj_info["vertex_count"] = len(obj.data.vertices)
             obj_info["face_count"] = len(obj.data.polygons)
             obj_info["edge_count"] = len(obj.data.edges)
+            obj_info["modifiers"] = [
+                {"name": mod.name, "type": mod.type, "show_render": mod.show_render}
+                for mod in obj.modifiers
+            ]
+            try:
+                depsgraph = bpy.context.evaluated_depsgraph_get()
+                eval_obj = obj.evaluated_get(depsgraph)
+                eval_mesh = eval_obj.to_mesh()
+                try:
+                    obj_info["evaluated_vertex_count"] = len(eval_mesh.vertices)
+                    obj_info["evaluated_face_count"] = len(eval_mesh.polygons)
+                finally:
+                    eval_obj.to_mesh_clear()
+                obj_info["dimensions_evaluated"] = list(eval_obj.dimensions)
+            except Exception as exc:
+                obj_info["evaluated_error"] = str(exc)
         if obj.type == "CAMERA":
             cam = obj.data
             obj_info["camera"] = {
@@ -8160,6 +8182,22 @@ try:
 except Exception as _e:
     print(f"[OpenClaw] Quality handlers not loaded: {_e}")
 
+# Human-activity recorder (MIT port from ahujasid/mcp-for-blender — see
+# human_activity.py header). Consent-gated, OFF by default. When loaded,
+# process_command() brackets every dispatched command in agent_command()
+# so agent-triggered operators are never recorded as the artist's.
+_human_recorder = None
+try:
+    try:
+        from .human_activity import HUMAN_ACTIVITY_HANDLERS, get_edit_recorder  # type: ignore
+    except Exception:
+        from human_activity import HUMAN_ACTIVITY_HANDLERS, get_edit_recorder  # type: ignore
+    HANDLERS.update(HUMAN_ACTIVITY_HANDLERS)
+    _human_recorder = get_edit_recorder()
+    print(f"[OpenClaw] Loaded human-activity recorder ({', '.join(sorted(HUMAN_ACTIVITY_HANDLERS))}); consent OFF unless opted in")
+except Exception as _e:
+    print(f"[OpenClaw] Human-activity recorder not loaded: {_e}")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SOCKET SERVER (background thread) + TIMER (main thread execution)
@@ -8373,7 +8411,13 @@ def process_command(data):
         }
 
     try:
-        result = HANDLERS[command](params)
+        if _human_recorder is not None:
+            # Attribute operators run inside an agent command to the agent,
+            # never to the artist (recorder design: ahujasid/mcp-for-blender).
+            with _human_recorder.agent_command():
+                result = HANDLERS[command](params)
+        else:
+            result = HANDLERS[command](params)
         return {"id": request_id, "result": _sanitize_for_json(result)}
     except Exception as e:
         return {

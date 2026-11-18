@@ -1,0 +1,233 @@
+{
+  "addon_boundaries": [
+    {
+      "addon": "QRemeshify",
+      "boundary": "Scriptable as a job: set scene.quadwild_props / scene.quadpatches_props, select target mesh, call the operator. Headless-safe.",
+      "operators": [
+        "qremeshify.remesh"
+      ]
+    },
+    {
+      "addon": "fSpy-Blender",
+      "boundary": "Import-only on the Blender side; calibration happens in the external fSpy app. Import, then verify the scene camera.",
+      "operators": [
+        "fspy_blender.import_project"
+      ]
+    },
+    {
+      "addon": "RetopoFlow",
+      "boundary": "MODAL/BLOCKING VIEW_3D tools. Launch-only in a GUI session; never automated retopology. Non-modal helpers: cgcookie.retopoflow_newtarget_cursor, cgcookie.retopoflow_newtarget_active, cgcookie.retopoflow_continue_active.",
+      "operators": [
+        "cgcookie.retopoflow*"
+      ],
+      "requires_gui": true
+    },
+    {
+      "addon": "KeenTools",
+      "boundary": "Enable-first: the artist's startup.py disables keentools at startup (POLICY, not an error). Re-enable and verify the pykeentools core before calling. Pin modes are modal and excluded.",
+      "operators": [
+        "keentools_gt.*",
+        "keentools_fb.*",
+        "keentools_ft.*"
+      ],
+      "requires_addon_enabled": "keentools"
+    },
+    {
+      "addon": "GScatter",
+      "boundary": "Scriptable but STATEFUL: acts on the active scatter system configured via property groups. Set node/group inputs by socket NAME.",
+      "operators": [
+        "gscatter.scatter",
+        "gscatter.apply_scatter_system",
+        "gscatter.realize_scatter_system"
+      ],
+      "state_setup": "Create/configure the scatter system first."
+    },
+    {
+      "addon": "MACHIN3tools",
+      "boundary": "Bridge-only call targets (VIEW_3D context operators); no code ported.",
+      "operators": [
+        "machin3.*"
+      ]
+    },
+    {
+      "addon": "RBX / ImportLDraw / 3MF / USDZ",
+      "boundary": "UNVERIFIED: operator surface not opened in research. Do not advertise capabilities for these.",
+      "operators": []
+    }
+  ],
+  "forensic_findings": {
+    "absent_veins": "Across 15 files: ZERO embedded texts, ZERO NLA, ZERO drivers, ZERO annotations; fake-user datablocks are factory data plus ONE artist item (SprayNodes_Final in Bottle2). No rejected-takes pattern exists for her.",
+    "bottle_chain_evolution": "Spray sockets 7 -> 18, node tree 29 -> 74 nodes, AgX -> Filmic, EEVEE -> CYCLES between Bottle and Bottle2.",
+    "construction_stacks": {
+      "Bag": [
+        "MIRROR",
+        "SUBSURF"
+      ],
+      "Rig Head": [
+        "SUBSURF",
+        "ARMATURE"
+      ],
+      "SKYN Box": [
+        "SOLIDIFY",
+        "BEVEL",
+        "SUBSURF"
+      ],
+      "spray.004": [
+        "BOOLEAN (unapplied)"
+      ]
+    },
+    "rotted_links": "SKYNpatches_Updated genuinely has rotted texture links (//Bags/grace.png, //Bags/ignite.png, a Crave box texture, a Mac-mini Dropbox path), verified at ORIGINAL paths. Missing-file checks on copies are provisional: '//' paths resolve against the copy's location and lie.",
+    "uuid_lineage": "The scene 'uuid' custom property is IDENTICAL across Bottle -> Bottle2 -> Bottle3: a same-file lineage fingerprint. Use it to group versioned series."
+  },
+  "hard_guards": [
+    "Never auto-append or auto-attach missing linked assets; report them (scene.health).",
+    "Missing fluid/point cache = report, never auto-rebake.",
+    "KeenTools disabled-by-startup is POLICY, not an error state to fix.",
+    "Migration reads the saved version, works on a copy, and preserves the original file.",
+    "Inspect first, rename never by default: her naming (heroes semantic, support geometry factory-named, functional collections like boolean_cutters / Reference / RigidBodyWorld) carries information.",
+    "Never modify her original .blend files; open read-only, copy to scratch for any test that saves."
+  ],
+  "history_limits": {
+    "fact": "A .blend file contains NO operator history, NO undo steps, NO Info-editor log, NO repeat history. All session-only RAM (Blender Manual + window-manager write path in source). Never claim otherwise.",
+    "fossil_record": "What files DO hold: unapplied modifier stacks in order, node trees (incl. orphaned/muted nodes), embedded Text datablocks, actions/NLA/drivers, custom properties, annotations, tracking data, point caches, and fake-user datablocks (the only unused data that survives a save).",
+    "never_recoverable": "Within-session operator sequence/parameters, undone or deleted-and-saved work, applied-modifier parameters, brush strokes, per-step time, authorship.",
+    "timeline_method": "Diff the backup chain (.blend1 older -> .blend newest) and versioned filename series at datablock level. Granularity is one snapshot per save, never per operation."
+  },
+  "learning_status": {
+    "addon_boundary_table": "Inspected (RBX/LDraw/3MF/USDZ rows unverified)",
+    "evaluated_count_rule": "Validated (M2 live test vs independent extraction)",
+    "extracted_patterns": "Inspected",
+    "human_activity_recorder": "Inspected (GUI-session capture unproven; capture source cannot populate in --background mode)",
+    "note": "Nothing in this profile is Artist-approved or Production-proven. Rungs must not be interchanged.",
+    "scene.health": "Transferred (ran live on an unseen copy, original untouched)"
+  },
+  "learning_status_ladder": [
+    "Discovered",
+    "Inspected",
+    "Reconstructed",
+    "Transferred",
+    "Validated",
+    "Artist-approved",
+    "Production-proven"
+  ],
+  "modifier_histogram_sample": {
+    "BEVEL": 8,
+    "MIRROR": 12,
+    "NODES": 37,
+    "SOLIDIFY": 14,
+    "SUBSURF": 61,
+    "note": "142 modifiers across the 20-file sample."
+  },
+  "presets": {
+    "bottle_true_scale": {
+      "description": "ODR CNTRL bottle: 28 mm diameter x 75-81 mm tall, cap 28x38 mm, true 1 fl oz scale, METRIC, scale applied.",
+      "rule": "Scale discipline is per-project (boxes ~1.6 units non-uniform; Pressed at 0.251). Measure, never assume."
+    },
+    "box_template": {
+      "box_dimensions": [
+        1.612,
+        1.809,
+        0.406
+      ],
+      "modifier_stack": [
+        "SOLIDIFY",
+        "BEVEL",
+        "SUBSURF"
+      ],
+      "rule": "She clones a proven template and swaps the label art; she does not rebuild product scenes.",
+      "shared_by": [
+        "SKYNpatches_Updated",
+        "CraveBox"
+      ]
+    },
+    "cameras": {
+      "bottle_hero_focal_mm": 70,
+      "default_focal_mm": 50,
+      "depth_of_field": "OFF in 20/20 files. Deep-focus product work; do not enable DOF.",
+      "motion": "Constraint-driven: Follow Path around a Bezier circle + Track To the product (camera-orbit variant), or Track To empties."
+    },
+    "lighting": {
+      "rule": "Store lighting as RATIOS + bbox-relative sizes, never absolute wattages.",
+      "skyn_crave_template_pair": {
+        "description": "Finished stills template: two Area lights, energy 50, colour [0.962, 1.0, 0.744], size 2.798.",
+        "ratio": "1:1"
+      },
+      "spraylight": {
+        "description": "SprayLight Key/Rim/Top, AREA SQUARE 1.4/0.9/0.6. Rim is HOTTER than key for spray shots.",
+        "ratio": "1.8:2.7:1",
+        "reference_watts_bottle3": [
+          55,
+          80,
+          30
+        ]
+      },
+      "trilamp": {
+        "description": "Bottle/Bottle3 product rig: TriLamp Key/Fill/Back, AREA RECTANGLE 1.0x0.25, aimed via Track-To constraints.",
+        "ratio": "2:1:1",
+        "reference_watts": [
+          100,
+          50,
+          50
+        ]
+      },
+      "wip_marker": "A lone factory Point light at 1000 W marks an unlit work-in-progress file, not a style."
+    },
+    "materials": {
+      "named_pair": {
+        "Matte Black": "black, Roughness 0.5",
+        "Shine Black": "near-black 0.0027, Roughness 0.1"
+      },
+      "packaging": "Principled + linked (never packed) image-texture labels; flavour variants are duplicated materials, not node switches.",
+      "patch": "Transmission Weight 1.0, Roughness 0, skin-tone tint [0.80, 0.65, 0.57]",
+      "spray_water": "IOR 1.33, Transmission 1.0, Alpha 0.35 (Droplets add Coat 0.7, Roughness 0.01)"
+    },
+    "render": {
+      "cycles_denoise": true,
+      "cycles_samples": 400,
+      "film_transparent": "11/20 files; transparent-background product cut-outs are a core deliverable (shadow catcher is Cycles-only).",
+      "finals_engine": "CYCLES",
+      "format": "PNG",
+      "fps": 24,
+      "note": "400 samples is HERS (10/10 Cycles files), against the generic research starting range of 64-128. Eevee files carry an unused 4096 Cycles default; never read samples without the active engine.",
+      "resolutions": {
+        "default": "1920x1080",
+        "patch_box_stills": "1920x1920",
+        "vertical_product": "1080x1920"
+      },
+      "view_transform": "AgX in newer files; Filmic in older files + Bottle3 + spray (a migration over time, not per-project)."
+    },
+    "rigging": {
+      "bone_naming": "Generic (Bone, Bone.003.L ... Bone.015.R), mirrored .L/.R pairs, no Rigify namespace. PTmascotRig = 29 bones.",
+      "rule": "Work with generic bone names; never demand semantic renaming."
+    },
+    "spray_system": {
+      "animation_frames": "24-75",
+      "compositor_group": "SprayCompositorFinish",
+      "geometry_nodes_group": "SprayNodes_Final",
+      "shared_by": [
+        "Bottle",
+        "Bottle3",
+        "SMASH spray.blend"
+      ]
+    }
+  },
+  "profile": "ariel-workflow",
+  "provenance_separation": {
+    "corpora": {
+      "ariel-files": "Patterns extracted from the artist's own .blend files (this profile).",
+      "artist-live": "Operators drained from the consent-gated human-activity recorder during her live GUI sessions, going forward only.",
+      "external": "Licensed tutorial/demo files collected from the web (external-corpus manifest, stamped 'external'). Generic good practice only; never presented as her style."
+    },
+    "rule": "Three corpora are labelled and NEVER merged blindly."
+  },
+  "reconstructed": "2026-11-17 reconstruction of the lost teaching commit 8265dcc; content re-derived from REPORT.md + patterns.md (extraction of 20 of the artist's real .blend files, Blender 5.3.0 headless, read-only copies).",
+  "version": "1.0",
+  "version_adapter": {
+    "addon_availability": "Per-version, never assumed: her 5.1 config has the full addon stack + startup.py; her 5.2 config has NO addons migrated and NO startup.py.",
+    "blend_header": "Blender 5.0+ writes a 17-byte header (BLENDER17-01v0502) and zstd-compresses by default; a naive 7-byte BLENDER magic check rejects her newest files. Never sniff magic bytes; open through Blender.",
+    "compositing": "5.0 removed scene.node_tree; use scene.compositing_node_group.",
+    "eevee_engine_id": "BLENDER_EEVEE_NEXT for 4.2-4.4; BLENDER_EEVEE before 4.2 and again from 5.0.",
+    "principled_renames": "4.0 renamed Principled inputs (Subsurface Weight, Specular IOR Level, Transmission Weight, Emission Color); read inputs by current names per running version.",
+    "slotted_actions": "Blender 5.3 removed legacy action.fcurves for Slotted Actions; it silently reads 0 keyframes. Correct read: bpy_extras.anim_utils.action_get_channelbag_for_slot(action, slot). Verified totals: Bottle = 158 keyframes / 7 actions; Bottle3 = 232 / 7."
+  }
+}
