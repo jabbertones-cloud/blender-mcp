@@ -1,6 +1,6 @@
 # Ariel: record Blender work and teach the MCP
 
-**Status (2026-11-17):** recording is available through an independently maintained Blender extension. Automatic lesson import/promotion into this repository's five-tool MCP is **not yet implemented, merged, installed, or live-verified**. This page is a usable capture runbook and an integration contract, not a claim that the agent has learned.
+**Status (2026-11-17):** a source-pinned independent Blender recording extension has passed native Blender 5.1.1 and 5.3.0 checks and is enabled in the M2 and M3 normal Blender profiles. **Automatic lesson import/promotion into this repository's five-tool MCP is not yet implemented, merged or live-verified.** This page is a usable capture runbook and an integration contract, not a claim that the agent has learned.
 
 ## Why this is not the existing auto-learner
 
@@ -21,7 +21,7 @@
 4. Press **Stop**. Save the `.blend`, then **Export Recording** to `<lesson>.chronicle.json`. Keep the source `.blend`, recording, references and final render together in a local, access-controlled folder; do not automatically upload recordings or asset paths.
 5. Before trusting it, duplicate the original `.blend`. Test **Restore Baseline + Replay** only on the disposable copy (it can remove objects created after the baseline). Verify geometry, materials, camera, render and export; record every missing/skipped step. Do not overwrite Ariel's source.
 
-**Coverage boundary:** Blender does not expose a guaranteed full history of *every* UI action. Modal mouse motion, some sculpt/paint operations, simulation caches, and third-party add-on internals can be absent or only represented by final-state checkpoints. Blender 5.3 behavior must be verified separately; the released donor advertises Blender 4.2+ and was verified by its authors on Blender 5.2/macOS. `bpy.msgbus` also does not see all viewport moves or animation-system changes.
+**Coverage boundary:** Blender does not expose a guaranteed full history of *every* UI action. Modal mouse motion, some sculpt/paint operations, simulation caches, and third-party add-on internals can be absent or only represented by final-state checkpoints. The source-pinned release passes basic native checks on Blender 5.1.1 and 5.3.0, but M3's first simulated-keyboard capture attempt recorded no operator; five subsequent clean attempts passed. A real Ariel editing session and a complex-scene replay remain unverified. The donor advertises Blender 4.2+ and was verified by its authors on Blender 5.2/macOS. `bpy.msgbus` also does not see all viewport moves or animation-system changes.
 
 ## MCP teaching integration contract (unimplemented)
 
@@ -42,5 +42,7 @@ For each, require an independently inspected before/after `.blend`, outputs, sce
 ## Research and release holds
 
 - The current repo's GitHub Research Pattern Card for guided canonical execution is [`blender-progressive-tool-guides`](https://github.com/jabbertones-cloud/githubresearchmcp/blob/main/data/pattern-cards/blender-progressive-tool-guides.md); no action-recording-specific TaskMap/Pattern Card was established in this session. Research Fabric job `82c49db4-6f33-47e3-aae1-c938200f9aa7` finished with `sufficiency.sufficient=false` / `donor_verification_blocked` and is **not** a production-code gate pass.
-- No authorized Blender workstation was connected through Desktop Commander for a 5.2/5.3 live recording exercise; do not claim end-to-end acceptance, installation, trained lessons, or deployment.
+- **M2 (Blender 5.1.1):** pinned donor `160c840...` scene/geometry/material/replay smoke passed (`CHRONICLE_BLENDER_TEST_OK`); the downloaded published extension's SHA-256 matched the pinned release and was installed and enabled in the normal M2 user profile. A post-install check confirmed the OpenClaw bridge still loaded. The user preference file was backed up locally before installation.
+- **M3 (Blender 5.3.0):** the same donor's native scene replay smoke passed, 7 Python 3.12 unit tests passed, and the published extension was installed into an isolated profile and passed `BLENDER_REPLAY_INSTALLED_EXTENSION_TEST_OK`. M3's normal user profile also reports version 0.3.0 enabled. A `.chronicle.json` and `.blend` round trip produced a read-backable 6-event direct-edit recording; a UI-simulated transform produced a 10-event recording including `TRANSFORM_OT_translate`, with one intermittent cold-start miss before five consecutive passes.
+- These verify the **independent recorder** only. Neither system has been observed teaching the live MCP from an Ariel-authored product scene. The existing MCP server has not been changed or deployed by this branch; no training, export/replay fidelity on real assets, or autonomous skill promotion is claimed.
 - Future code must satisfy source-pinned donor/license review, independent local Blender runtime tests and the repo's release gate. **GitHub Actions stay disabled**; use a non-GitHub-Actions runner. Follow exact HEAD -> merge -> exact MAIN -> installation -> live acceptance -> adversarial/regression. Preserve original scene data and existing MCP access boundaries.
