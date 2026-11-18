@@ -14,3 +14,6 @@ redis==7.4.1
 
 # MIT-CMU Pillow verifies PNG structure and fully decodes pixels before successful publication.
 Pillow==13.0.0
+
+# BSD-3-Clause incremental JSON parser for bounded-memory Blender Replay evidence.
+ijson==3.5.1

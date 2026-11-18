@@ -13,13 +13,15 @@ import json
 import math
 import os
 import re
+
+import ijson
 from datetime import datetime, timezone
 from pathlib import Path
 
-MAX_SOURCE_BYTES = 16 * 1024 * 1024
-MAX_LESSON_BYTES = 256 * 1024
-MAX_EVENTS = 10000
-MAX_STEPS = 400
+MAX_SOURCE_BYTES = 512 * 1024 * 1024
+MAX_LESSON_BYTES = 1024 * 1024
+MAX_EVENTS = 25000
+MAX_STEPS = 2500
 MAX_LOADED = 100
 _SLUG = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
 _CREATE_OPERATORS = {
@@ -106,6 +108,41 @@ def _load_lesson(path):
     return doc
 
 
+class _ReplayEvents:
+    """Repeatable, bounded-memory event iterator over untrusted replay data."""
+
+    def __init__(self, path, count):
+        self.path, self.count = path, count
+
+    def __len__(self):
+        return self.count
+
+    def __iter__(self):
+        with self.path.open("rb") as stream:
+            yield from ijson.items(stream, "events.item", use_float=True)
+
+
+def _scan_recording(path):
+    """Read scalar metadata and count events without materializing checkpoints."""
+    recording, count = {"warnings": []}, 0
+    fields = {"schema_version", "recording_state", "name", "blender_version", "recorder_version"}
+    try:
+        with path.open("rb") as stream:
+            for prefix, kind, value in ijson.parse(stream, use_float=True):
+                if prefix == "events.item" and kind == "start_map":
+                    count += 1
+                    if count > MAX_EVENTS:
+                        raise ValueError("Recording exceeds bounded event limit")
+                elif prefix in fields and kind in ("string", "number"):
+                    recording[prefix] = value
+                elif prefix == "warnings.item" and kind in ("string", "start_map"):
+                    recording["warnings"].append(None)
+    except ijson.JSONError as error:
+        raise ValueError("Invalid Blender Replay JSON") from error
+    recording["events"] = _ReplayEvents(path, count)
+    return recording
+
+
 def compile_recording(recording, *, identifier, goal, source_hash):
     """Summarize observed facts and evidence indices; never emit executable code."""
     if not isinstance(recording, dict) or recording.get("schema_version") != 1:
@@ -113,10 +150,8 @@ def compile_recording(recording, *, identifier, goal, source_hash):
     if recording.get("recording_state") != "stopped":
         raise ValueError("Incomplete recording: stop before teaching; paused or active work is not a finished lesson")
     events = recording.get("events")
-    if not isinstance(events, list) or len(events) > MAX_EVENTS:
+    if not hasattr(events, "__iter__") or len(events) > MAX_EVENTS:
         raise ValueError("Invalid or excessively large recording event list")
-    if not all(isinstance(e, dict) and e.get("type") in ("operator", "checkpoint", "context", "segment") for e in events):
-        raise ValueError("Invalid recording event")
     steps = []
     known_objects = {}
     known_meshes = {}
@@ -142,6 +177,8 @@ def compile_recording(recording, *, identifier, goal, source_hash):
         steps.append(row)
 
     for i, event in enumerate(events):
+        if not isinstance(event, dict) or event.get("type") not in ("operator", "checkpoint", "context", "segment"):
+            raise ValueError("Invalid recording event")
         event_type = event["type"]
         if event_type == "segment":
             # A resumed segment has its own recording baseline. Never attribute
@@ -284,10 +321,20 @@ def import_recording(source, *, directory, identifier, goal):
     path = Path(source).expanduser().resolve(strict=True)
     if not path.name.endswith(".chronicle.json") or not path.is_file() or path.stat().st_size > MAX_SOURCE_BYTES:
         raise ValueError("Source must be a bounded .chronicle.json file")
-    data = path.read_bytes()
-    recording = json.loads(data)
+    checksum = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            checksum.update(block)
+    source_hash = checksum.hexdigest()
+    recording = _scan_recording(path)
     destination = _lesson_path(directory, identifier)
-    lesson = compile_recording(recording, identifier=identifier, goal=goal, source_hash=_digest(data))
+    lesson = compile_recording(recording, identifier=identifier, goal=goal, source_hash=source_hash)
+    checksum = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            checksum.update(block)
+    if checksum.hexdigest() != source_hash:
+        raise ValueError("Recording changed during import")
     _atomic_store(destination, lesson)
     return lesson
 

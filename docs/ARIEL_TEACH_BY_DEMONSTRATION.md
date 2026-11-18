@@ -23,6 +23,12 @@
 
 **Coverage boundary:** Blender does not expose a guaranteed full history of *every* UI action. Modal mouse motion, some sculpt/paint operations, simulation caches, and third-party add-on internals can be absent or only represented by final-state checkpoints. The source-pinned release passes basic native checks on Blender 5.1.1 and 5.3.0, but M3's first simulated-keyboard capture attempt recorded no operator; five subsequent clean attempts passed. A real Ariel editing session and a complex-scene replay remain unverified. The donor advertises Blender 4.2+ and was verified by its authors on Blender 5.2/macOS. `bpy.msgbus` also does not see all viewport moves or animation-system changes.
 
+## Large recordings (streaming import)
+
+The read-only importer uses the pinned BSD/ISC ijson streaming parser rather than loading checkpoint geometry into memory. It accepts recordings up to 512 MiB, 25,000 events, 2,500 summarized steps, and a 1 MiB lesson draft. Oversized, invalid, incomplete, or source-mutated recordings are rejected, and all new lessons require manual approval.
+
+On 2026-11-18, the 442,972,978-byte Blender 5.3.0 recording yielded 14,759 events, 1,750 draft steps, 318 operators, 213 unsupported operator occurrences and 1,388 mesh-digest changes; no step-cap truncation occurred. This confirms import, not autonomous reconstruction. The user's original geometry replay comparison was reported successful.
+
 ## Teaching integration: import, review, discover
 
 The adapter reads the exported recording and reduces it to a **draft** containing source SHA-256, exact event evidence indices, observed operators, object state diffs and typed canonical *candidates* where possible. It does not import the large mesh payload or run donor Python, and it does not auto-replay Blender operators. Every unsupported/ambiguous operator, topology change, material adjustment, modifier or state-only transform remains marked as needing review.
