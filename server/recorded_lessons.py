@@ -143,6 +143,12 @@ def compile_recording(recording, *, identifier, goal, source_hash):
 
     for i, event in enumerate(events):
         event_type = event["type"]
+        if event_type == "segment":
+            # A resumed segment has its own recording baseline. Never attribute
+            # state-only edits during pause to the preceding user operator.
+            last_operator = None
+            last_context = {}
+            continue
         if event_type == "context":
             c = event.get("context")
             if isinstance(c, dict):
