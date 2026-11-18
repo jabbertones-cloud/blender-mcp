@@ -1,6 +1,6 @@
 # Ariel: record Blender work and teach the MCP
 
-**Status (2026-11-17):** a source-pinned independent Blender recording extension has passed native Blender 5.1.1 and 5.3.0 checks and is enabled in the M2 and M3 normal Blender profiles. **Automatic lesson import/promotion into this repository's five-tool MCP is not yet implemented, merged or live-verified.** This page is a usable capture runbook and an integration contract, not a claim that the agent has learned.
+**Status (2026-11-17):** the independent GPL-licensed Blender Replay extension has passed native 5.1.1 and 5.3.0 checks and is reported enabled in M2 and M3 normal Blender profiles. The repo now includes a branch-only read-only lesson importer and approved-lesson discovery candidate (`server/recorded_lessons.py`), not a deployed trained agent or an automatic executable skill. Real Ariel scenes remain unverified.
 
 ## Why this is not the existing auto-learner
 
@@ -23,7 +23,29 @@
 
 **Coverage boundary:** Blender does not expose a guaranteed full history of *every* UI action. Modal mouse motion, some sculpt/paint operations, simulation caches, and third-party add-on internals can be absent or only represented by final-state checkpoints. The source-pinned release passes basic native checks on Blender 5.1.1 and 5.3.0, but M3's first simulated-keyboard capture attempt recorded no operator; five subsequent clean attempts passed. A real Ariel editing session and a complex-scene replay remain unverified. The donor advertises Blender 4.2+ and was verified by its authors on Blender 5.2/macOS. `bpy.msgbus` also does not see all viewport moves or animation-system changes.
 
-## MCP teaching integration contract (unimplemented)
+## Teaching integration: import, review, discover
+
+The adapter reads the exported recording and reduces it to a **draft** containing source SHA-256, exact event evidence indices, observed operators, object state diffs and typed canonical *candidates* where possible. It does not import the large mesh payload or run donor Python, and it does not auto-replay Blender operators. Every unsupported/ambiguous operator, topology change, material adjustment, modifier or state-only transform remains marked as needing review.
+
+Create the draft locally, using the same directory for the MCP server:
+
+```bash
+export BLENDER_LESSONS_DIR="$HOME/.local/share/blender-mcp/lessons"
+python3 -m server.recorded_lessons --dir "$BLENDER_LESSONS_DIR" import   "/path/to/ariel-patch-hero.chronicle.json"   --id ariel-patch-hero --goal "Build a 1-inch patch hero shot"
+python3 -m server.recorded_lessons --dir "$BLENDER_LESSONS_DIR" inspect ariel-patch-hero
+```
+
+Compare the draft with the original recording, scene and final render, and investigate all `coverage` gaps. **No draft is accessible to the MCP.** Only an explicit manual approval with the exact source digest releases it as *guidance*:
+
+```bash
+python3 -m server.recorded_lessons --dir "$BLENDER_LESSONS_DIR" approve   ariel-patch-hero --source-sha256 "SHA_FROM_INSPECT" --reviewer "Ariel"
+```
+
+An approved lesson is found using the existing `search_capabilities("patch hero")` tool and inspected with `get_capability_schema("lesson.ariel-patch-hero")`. The lesson key is **never executable**: `execute_capability("lesson.ariel-patch-hero")` returns `LESSON_NOT_EXECUTABLE`. Any observed candidate must be individually checked against the canonical capability schema, then verified on a disposable scene. The server only reads `*.lesson.json` from the explicit `BLENDER_LESSONS_DIR`, not arbitrary model-supplied paths.
+
+**Important:** this is structured teaching/retrieval, **not** machine learning or guaranteed action replay. Support must be added case by case for unsupported geometry, texture, simulation, rigging and animation steps.
+
+## MCP teaching integration contract (remaining work)
 
 Preserve exactly the five guided model-facing tools: `router_set_goal`, `router_get_status`, `search_capabilities`, `get_capability_schema`, and `execute_capability`. Do not expose arbitrary recorded `bpy.ops`, source execution, or unchecked JSON as executable MCP tools.
 
@@ -44,5 +66,5 @@ For each, require an independently inspected before/after `.blend`, outputs, sce
 - The current repo's GitHub Research Pattern Card for guided canonical execution is [`blender-progressive-tool-guides`](https://github.com/jabbertones-cloud/githubresearchmcp/blob/main/data/pattern-cards/blender-progressive-tool-guides.md); no action-recording-specific TaskMap/Pattern Card was established in this session. Research Fabric job `82c49db4-6f33-47e3-aae1-c938200f9aa7` finished with `sufficiency.sufficient=false` / `donor_verification_blocked` and is **not** a production-code gate pass.
 - **M2 (Blender 5.1.1):** pinned donor `160c840...` scene/geometry/material/replay smoke passed (`CHRONICLE_BLENDER_TEST_OK`); the downloaded published extension's SHA-256 matched the pinned release and was installed and enabled in the normal M2 user profile. A post-install check confirmed the OpenClaw bridge still loaded. The user preference file was backed up locally before installation.
 - **M3 (Blender 5.3.0):** the same donor's native scene replay smoke passed, 7 Python 3.12 unit tests passed, and the published extension was installed into an isolated profile and passed `BLENDER_REPLAY_INSTALLED_EXTENSION_TEST_OK`. M3's normal user profile also reports version 0.3.0 enabled. A `.chronicle.json` and `.blend` round trip produced a read-backable 6-event direct-edit recording; a UI-simulated transform produced a 10-event recording including `TRANSFORM_OT_translate`, with one intermittent cold-start miss before five consecutive passes.
-- These verify the **independent recorder** only. Neither system has been observed teaching the live MCP from an Ariel-authored product scene. The existing MCP server has not been changed or deployed by this branch; no training, export/replay fidelity on real assets, or autonomous skill promotion is claimed.
+- These verify the **independent recorder** only. Neither system has been observed teaching the live MCP from an Ariel-authored product scene. The MCP's source now includes a branch-only read-only lesson importer, not a deployed skill trainer; no export/replay fidelity on real assets or autonomous skill promotion is claimed.
 - Future code must satisfy source-pinned donor/license review, independent local Blender runtime tests and the repo's release gate. **GitHub Actions stay disabled**; use a non-GitHub-Actions runner. Follow exact HEAD -> merge -> exact MAIN -> installation -> live acceptance -> adversarial/regression. Preserve original scene data and existing MCP access boundaries.
