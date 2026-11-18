@@ -6,6 +6,8 @@ The project still contains the original ~80 Blender operations for modeling, mat
 
 **Support:** [Guided MCP troubleshooting](SUPPORT.md) | [Report a sanitized bug](https://github.com/jabbertones-cloud/blender-mcp/issues/new/choose). Do not post private Blender assets or secrets.
 
+**Ariel's teach-by-demonstration workflow:** [record human Blender work](docs/ARIEL_TEACH_BY_DEMONSTRATION.md). This uses a separate GPL Blender recorder; automatic MCP lesson import is not yet implemented.
+
 ## Recommended architecture
 
 ```text
