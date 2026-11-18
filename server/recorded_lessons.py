@@ -41,7 +41,12 @@ def _clean(value, limit=120):
     """Operator names and goals are untrusted labels, never instructions."""
     if not isinstance(value, str):
         return ""
-    return " ".join("".join(c for c in value if c.isprintable()).split())[:limit]
+    cleaned = " ".join("".join(c for c in value if c.isprintable()).split())[:limit]
+    lower = cleaned.lower()
+    if ("://" in lower or "/users/" in lower or "\\users\\" in lower or
+        any(marker in lower for marker in ("password=", "secret=", "api_key=", "bearer ", "authorization:"))):
+        return "[redacted]"
+    return cleaned
 
 
 def _digest(data):
@@ -143,7 +148,7 @@ def compile_recording(recording, *, identifier, goal, source_hash):
         if event_type == "operator":
             counts["operators"] += 1
             identifier_ = event.get("idname")
-            if not isinstance(identifier_, str) or not re.fullmatch(r"[A-Z0-9_]{3,90}", identifier_):
+            if not isinstance(identifier_, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{2,100}", identifier_):
                 identifier_ = "UNKNOWN_OPERATOR"
             last_operator = identifier_
             if identifier_ in _TRANSFORM_OPERATORS:
