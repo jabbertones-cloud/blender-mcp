@@ -1,0 +1,24 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "No Blender-specific preexisting SMAT study matched the queries; donor exact source and real-scene execution were newly verified on M3."
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "Read canonical SMAT Research README and handrolled donor audit. GitHub code searches 'blender mcp geometry nodes donor' and 'blenderwright' scoped to SMAT Research returned zero results, and matching issue search returned no Blender graph-specific issue. The November 3 audit explicitly says source-level donor research is research-only; it does not establish a completed Blender solution.",
+  "finding": "No prior study validates this exact Blender 5.3 graph integration; older general donor audit is methodological context.",
+  "lane": "smat_research",
+  "mode": "searched_no_match",
+  "no_match_reason": "Search returned zero exact matching Blender graph studies; general November 3 research-only donor audit does not establish implementation acceptance.",
+  "query": "Blender MCP geometry nodes donor and blenderwright prior studies",
+  "searched_queries": [
+    "blender mcp geometry nodes donor",
+    "blenderwright",
+    "blender donor research"
+  ],
+  "source_refs": [
+    "https://github.com/jabbertones-cloud/smat-research/blob/506503f2ad0be4aa54a28f8e3652698b7d4aad8e/studies/handrolled-donor-audit-20261103/REPORT.md"
+  ]
+}

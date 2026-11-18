@@ -31,6 +31,11 @@ for ADDON_DIR in \
     mkdir -p "$ADDON_DIR" 2>/dev/null || true
     if [ -d "$ADDON_DIR" ]; then
         cp "$ADDON_SRC_DIR/openclaw_blender_bridge.py" "$ADDON_DIR/openclaw_blender_bridge.py"
+        cp "$ADDON_SRC_DIR/blenderwright_graph_donor.py" "$ADDON_DIR/blenderwright_graph_donor.py"
+        cp "$ADDON_SRC_DIR/graph_input_state.py" "$ADDON_DIR/graph_input_state.py"
+        cp "$ADDON_SRC_DIR/graph_animation_transfer.py" "$ADDON_DIR/graph_animation_transfer.py"
+        cp "$ADDON_SRC_DIR/graph_transaction.py" "$ADDON_DIR/graph_transaction.py"
+        cp "$ADDON_SRC_DIR/BLENDERWRIGHT_MIT_LICENSE.md" "$ADDON_DIR/BLENDERWRIGHT_MIT_LICENSE.md"
         cp "$ADDON_SRC_DIR/new_handlers_phase5.py" "$ADDON_DIR/new_handlers_phase5.py"
         cp "$ADDON_SRC_DIR/quality_handlers.py" "$ADDON_DIR/quality_handlers.py"
         cp "$ADDON_SRC_DIR/compositor_effects.py" "$ADDON_DIR/compositor_effects.py"

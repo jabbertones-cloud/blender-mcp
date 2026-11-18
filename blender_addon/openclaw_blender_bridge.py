@@ -2094,6 +2094,17 @@ def handle_geometry_nodes(params):
 
     action = params.get("action", "add")
 
+    if action == "build_graph":
+        try:
+            from .graph_transaction import build_graph as validated_build
+        except ImportError:
+            from graph_transaction import build_graph as validated_build
+        try:
+            return validated_build(params)
+        except Exception as exc:
+            return {"error": f"Validated geometry graph build rejected: {exc}",
+                    "code": "GRAPH_BUILD_REJECTED"}
+
     if action == "add":
         mod = obj.modifiers.new(name=params.get("name", "GeometryNodes"), type="NODES")
         if mod.node_group is None:

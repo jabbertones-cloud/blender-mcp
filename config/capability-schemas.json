@@ -1454,7 +1454,7 @@
     "properties": {
       "action": {
         "default": "add",
-        "description": "Action: 'add' (new GN modifier), 'info' (list nodes), 'add_node', 'connect'",
+        "description": "Actions include add/info/add_node/connect and build_graph (validated, atomic structured graph)",
         "title": "Action",
         "type": "string"
       },
@@ -1567,12 +1567,69 @@
         "default": null,
         "description": "Destination node name",
         "title": "To Node"
+      },
+      "spec": {
+        "type": "object",
+        "description": "A bounded, validated blenderwright graph spec. Required for build_graph; never Python source.",
+        "additionalProperties": false,
+        "properties": {
+          "inputs": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object"
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object"
+            }
+          },
+          "nodes": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "type": "object"
+            }
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4
+            }
+          }
+        }
       }
     },
     "required": [
       "object_name"
     ],
-    "type": "object"
+    "type": "object",
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "action": {
+              "const": "build_graph"
+            }
+          },
+          "required": [
+            "action"
+          ]
+        },
+        "then": {
+          "required": [
+            "spec",
+            "object_name"
+          ]
+        }
+      }
+    ]
   },
   "model.mesh_edit": {
     "properties": {
@@ -2514,7 +2571,7 @@
         "type": "string"
       }
     },
-    "description": "Full product animation recipe \u2014 sets up everything in one call.",
+    "description": "Full product animation recipe — sets up everything in one call.",
     "properties": {
       "auto_render": {
         "default": false,

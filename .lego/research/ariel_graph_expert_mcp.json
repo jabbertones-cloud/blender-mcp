@@ -1,0 +1,24 @@
+{
+  "assessment": {
+    "gaps": [
+      {
+        "gap": "No Blender-specific expert corpus",
+        "impact": "No independent graded Blender specialist certification",
+        "next_action": "Treat Blender-native acceptance as required"
+      }
+    ],
+    "limitations": [
+      "Expert charter is not a live Blender expert tool."
+    ],
+    "relevant": false,
+    "sufficient": false
+  },
+  "domain": "Blender 5.3 Python Geometry Nodes runtime integration",
+  "evidence": "SMAT Expert MCPs charter checked through GitHub connector. No live Blender-specific expert tool is available in the current session, and code search 'Blender geometry nodes' within expert repo returned zero results. Blender 5.3 graph input mechanics were verified against real bpy runtime and verified donor source, not attributed to an unavailable specialist.",
+  "lane": "expert_mcp",
+  "mode": "not_applicable",
+  "reason": "No relevant live SMAT Blender expert tool or graded Blender corpus was found; this Python/BPY task is instead assessed using pinned MIT donor and real Blender 5.3 tests.",
+  "source_refs": [
+    "https://github.com/jabbertones-cloud/smat-expert-mcps/blob/624c84dcac86bc9e0e79207bf86626d76fcb0d2c/docs/PROGRAM.md"
+  ]
+}

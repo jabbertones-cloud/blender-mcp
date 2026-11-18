@@ -233,20 +233,21 @@
       "apple_refs": [],
       "benchmarks": [
         [
-          "python3",
-          "tests/benchmark_blender_guides.py"
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
-        "dcc-guided"
+        "dcc-guided",
+        "blenderwright-atomic-geometry-53"
       ],
       "mode": "assembly",
       "path": "blender_addon/openclaw_blender_bridge.py",
-      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions.",
+      "purpose": "Reuse existing Blender handlers and official bpy compositor API while preserving schema validation, fast-preview configuration recovery and visual postconditions. Extension: exact-source MIT validated graph build with frame-level dogfood.",
       "tests": [
         [
-          "python3",
+          "/opt/homebrew/bin/python3.11",
           "-m",
           "pytest",
           "tests",
@@ -285,20 +286,21 @@
       "apple_refs": [],
       "benchmarks": [
         [
-          "python3",
-          "tests/benchmark_blender_guides.py"
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
         ]
       ],
       "donor_ids": [
         "blenderwright-tools",
-        "dcc-guided"
+        "dcc-guided",
+        "blenderwright-atomic-geometry-53"
       ],
       "mode": "glue",
       "path": "install_addon.sh",
-      "purpose": "Connect the existing add-on installation path to the actual selected Blender executable and ship native helper sidecars.",
+      "purpose": "Connect the existing add-on installation path to the actual selected Blender executable and ship native helper sidecars. Extension: exact-source MIT validated graph build with frame-level dogfood.",
       "tests": [
         [
-          "python3",
+          "/opt/homebrew/bin/python3.11",
           "-m",
           "pytest",
           "tests",
@@ -617,6 +619,131 @@
           "-q"
         ]
       ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-atomic-geometry-53"
+      ],
+      "mode": "assembly",
+      "path": "blender_addon/blenderwright_graph_donor.py",
+      "purpose": "Validated atomic Blender 5.3 geometry graph integration with pinned MIT donor, preserving modifier inputs, animation and canonical MCP execution.",
+      "tests": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-atomic-geometry-53"
+      ],
+      "mode": "glue",
+      "path": "blender_addon/graph_input_state.py",
+      "purpose": "Validated atomic Blender 5.3 geometry graph integration with pinned MIT donor, preserving modifier inputs, animation and canonical MCP execution.",
+      "tests": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-atomic-geometry-53"
+      ],
+      "mode": "glue",
+      "path": "blender_addon/graph_animation_transfer.py",
+      "purpose": "Validated atomic Blender 5.3 geometry graph integration with pinned MIT donor, preserving modifier inputs, animation and canonical MCP execution.",
+      "tests": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-atomic-geometry-53"
+      ],
+      "mode": "glue",
+      "path": "blender_addon/graph_transaction.py",
+      "purpose": "Validated atomic Blender 5.3 geometry graph integration with pinned MIT donor, preserving modifier inputs, animation and canonical MCP execution.",
+      "tests": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
+    },
+    {
+      "apple_refs": [],
+      "benchmarks": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "tests/benchmark_geometry_graph.py"
+        ]
+      ],
+      "donor_ids": [
+        "blenderwright-atomic-geometry-53"
+      ],
+      "mode": "glue",
+      "path": "server/capability_router.py",
+      "purpose": "Validated atomic Blender 5.3 geometry graph integration with pinned MIT donor, preserving modifier inputs, animation and canonical MCP execution.",
+      "tests": [
+        [
+          "/opt/homebrew/bin/python3.11",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings"
+        ]
+      ]
     }
   ],
   "donors": [
@@ -704,43 +831,53 @@
       "rationale": "Invoke the existing Khronos Node validateBytes API after canonical .glb export; fail closed on nonzero spec errors, stale output, absent assets or validator faults.",
       "repository": "KhronosGroup/glTF-Validator",
       "url": "https://github.com/KhronosGroup/glTF-Validator/blob/602c54043ba66856b2e68c40fdf2bced975cdb8a/node/README.md"
+    },
+    {
+      "commit": "bc2aaadceaf96d3436313ab1c05b2971f5f0718d",
+      "fabric_claim": "MIT bounded atomic structured graph building for Blender 5.3.0; Fabric donor verification separately blocked.",
+      "fabric_job_id": "11123b52-669e-4a3e-bf32-eb964d3538ad",
+      "fabric_project": "blender-mcp",
+      "fabric_status": "reported",
+      "id": "blenderwright-atomic-geometry-53",
+      "license": "MIT",
+      "rationale": "21 AST-equivalent MIT functions in three source files, exact source SHA pin; real M3 Blender 5.3 dogfood independently verified same geometry across 17 frames and atomic rejection of hostile graphs.",
+      "repository": "HoldMyBeer-gg/blenderwright",
+      "url": "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/addon/handlers/geometry_nodes.py"
     }
   ],
   "research_evidence": {
     "expert_mcp": {
-      "artifact_path": ".lego/research/expert_mcp.json",
-      "domain": "Blender Python 3D scene operations",
+      "artifact_path": ".lego/research/ariel_graph_expert_mcp.json",
+      "domain": "Blender 5.3 Python Geometry Nodes runtime integration",
       "mode": "not_applicable",
-      "reason": "No SMAT Expert MCP for Blender Python/BPy/3D operations is connected; no Apple-platform Swift/Obj-C code is changed.",
-      "sha256": "544fb636190a3b6d0f77b1e537ff9f85d12b1b236855654c7c2f84afe52a2c94"
+      "reason": "No relevant live SMAT Blender expert tool or graded Blender corpus was found; this Python/BPY task is instead assessed using pinned MIT donor and real Blender 5.3 tests.",
+      "sha256": "77ce704b8791e21ec7c0d04c98591c0839d403726f134badb3c0514d3bafedc4"
     },
     "fabric": {
-      "artifact_path": ".lego/research/fabric_glb_20261106.json",
-      "job_id": "fdafb366-0f0f-405f-871c-c94f65e84ff5",
+      "artifact_path": ".lego/research/ariel_graph_fabric.json",
+      "job_id": "11123b52-669e-4a3e-bf32-eb964d3538ad",
       "mode": "research_job",
       "project": "blender-mcp",
-      "query": "Single pinned Khronos glTF-Validator source dependency for Blender MCP GLB output; validateBytes, issues, Apache-2.0 and invalid exports",
-      "sha256": "a2ac9b95298be3ccf2865333ee6aa0af4ca7b1ad74ad0502d21da6099a8f9f19"
+      "query": "Validate exact donor HoldMyBeer-gg/blenderwright implementation of _validate_spec in src/blenderwright/tools/geometry_nodes.py and handle_build_geometry_nodes in addon/handlers/geometry_nodes.py at commit bc2aaadceaf96d3436313ab1c05b2971f5f0718d. This MIT donor has already been measured on two authorized Blender 5.3 scenes to preserve evaluated mesh geometry across 17 frame evaluations. Need relevant candidate grounded to this donor, not unrelated Blender MCP generalities.",
+      "sha256": "034435254a55dfa2767e0e6ad8e9b554f84c29d9a2065bba28c1b46966b361c7"
     },
     "github_research": {
-      "artifact_path": ".lego/research/github_glb_20261106.json",
+      "artifact_path": ".lego/research/ariel_graph_github_research.json",
       "mode": "cli",
       "pattern_card_refs": [
-        "blender-progressive-tool-guides"
+        "https://github.com/jabbertones-cloud/githubresearchmcp/blob/a359b7ee7b6eefbe02cce7279a2fd1ccfeae5ec6/data/pattern-cards/blender-progressive-tool-guides.md"
       ],
-      "query": "M1 GitHubResearchMCP Blender guided capability boundary and GLB output verification with source-pinned Khronos glTF-Validator",
-      "sha256": "f79e2f071872f178e08b0a51f64b70651f81e90e8570e437e279905ba22444e9",
-      "taskmap_ref": "sha256:0bb21482faffb918c3a5d698d1f2a4f98b7308d9504eb88d1dd9df94c8dd13dd"
+      "query": "Blender MCP guided canonical tool execution",
+      "sha256": "71dce1fb6bdf1886ee8b3905074f07e020d7dbd82c2be51f8c86d58c3683218c",
+      "taskmap_ref": "CLI: node --experimental-strip-types --experimental-sqlite src/cli.ts taskmap --problem 'Blender MCP guided canonical tool execution' --repo blender-mcp (githubresearchmcp@a359b7ee7b6eefbe02cce7279a2fd1ccfeae5ec6)"
     },
     "smat_research": {
-      "artifact_path": ".lego/research/smat_research.json",
-      "finding": "Prior SMAT Research study validates progressive tool-disclosure design constraints and canonical authorization preservation but not Blender-specific completion.",
-      "mode": "study",
-      "query": "SMAT Research MCP progressive disclosure routing donor evaluation November 4 2026",
-      "sha256": "e08222092723aa303fa36db8b759de0a54e972e96b0b150385cc788b4eea5a3c",
-      "study_refs": [
-        "https://github.com/jabbertones-cloud/smat-research/blob/1ad41ffb46119277c17496c34c51a284a771d8a1/studies/mcp-harness-discovery-20261104/REPORT.md"
-      ]
+      "artifact_path": ".lego/research/ariel_graph_smat_research.json",
+      "finding": "No prior study validates this exact Blender 5.3 graph integration; older general donor audit is methodological context.",
+      "mode": "searched_no_match",
+      "no_match_reason": "Search returned zero exact matching Blender graph studies; general November 3 research-only donor audit does not establish implementation acceptance.",
+      "query": "Blender MCP geometry nodes donor and blenderwright prior studies",
+      "sha256": "569b5bd2aa4f13cdd89b2fd68f480dce450cede1bb4b1e66b841dfe64f476a5d"
     }
   },
   "schema_version": 2

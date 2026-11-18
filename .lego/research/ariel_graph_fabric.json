@@ -1,0 +1,40 @@
+{
+  "assessment": {
+    "gaps": [
+      {
+        "gap": "Fabric parser false-positive gg/blenderwright",
+        "impact": "Fabric donor verification says blocked even though the real pinned donor is alive",
+        "next_action": "Fix or adjudicate normalization in Research Fabric and rerun the claim-bound research job"
+      }
+    ],
+    "limitations": [
+      "Cannot promote Fabric evidence to sufficient; local Blender proofs are separate evidence."
+    ],
+    "relevant": true,
+    "sufficient": false
+  },
+  "evidence": "Research Fabric returned succeeded with eight relevant candidates and both pinned blenderwright source URLs HTTP 200, but donor_verify policy blocked due to automatically extracted nonexistent gg/blenderwright (404). The actual HoldMyBeer-gg/blenderwright repository was ALIVE, and all 21 copied AST functions passed independent source equivalence checks. The Fabric result is insufficient and is NOT claimed to have verified the integration.",
+  "job_id": "11123b52-669e-4a3e-bf32-eb964d3538ad",
+  "lane": "fabric",
+  "mode": "research_job",
+  "project": "blender-mcp",
+  "query": "Validate exact donor HoldMyBeer-gg/blenderwright implementation of _validate_spec in src/blenderwright/tools/geometry_nodes.py and handle_build_geometry_nodes in addon/handlers/geometry_nodes.py at commit bc2aaadceaf96d3436313ab1c05b2971f5f0718d. This MIT donor has already been measured on two authorized Blender 5.3 scenes to preserve evaluated mesh geometry across 17 frame evaluations. Need relevant candidate grounded to this donor, not unrelated Blender MCP generalities.",
+  "result": {
+    "donor_verification": {
+      "invalid_extracted_repo": "gg/blenderwright",
+      "invalid_repo_status": "BROKEN",
+      "policy": "blocked",
+      "real_repo": "HoldMyBeer-gg/blenderwright",
+      "real_repo_status": "ALIVE"
+    },
+    "status": "succeeded",
+    "sufficiency": {
+      "relevantCandidates": 8,
+      "sufficient": false
+    }
+  },
+  "source_refs": [
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/tools/geometry_nodes.py",
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/addon/handlers/geometry_nodes.py"
+  ]
+}

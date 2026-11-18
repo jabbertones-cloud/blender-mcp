@@ -1,0 +1,34 @@
+{
+  "assessment": {
+    "gaps": [],
+    "limitations": [
+      "The pattern does not itself establish Blender 5.3 source compatibility; tested separately on M3.",
+      "TaskMap is guidance, not a release certification."
+    ],
+    "relevant": true,
+    "sufficient": true
+  },
+  "evidence": "On M3, GitHubResearchMCP CLI at a359b7ee returned the blender-progressive-tool-guides Pattern Card and exact canonical-dispatch TaskMap. A broader search for Blender geometry nodes graph validation yielded a zero-match TaskMap; the more specific existing guided-routing query recovered the relevant card. The pattern explicitly keeps five guided tools and prohibits generic direct Python execution. Donor source independently audited at immutable SHA, and 21 extracted AST symbols matched exactly.",
+  "execution": {
+    "mode": "M3 CLI",
+    "observed_cards": [
+      "blender-progressive-tool-guides",
+      "blender-rq-native-render-crash-recovery"
+    ],
+    "observed_taskmap_relevant": true,
+    "path": "githubresearchmcp/src/cli.ts",
+    "target_baseline": "cdace700ab0bb69673af7d7fca4e6caa001ee8c3"
+  },
+  "lane": "github_research",
+  "mode": "cli",
+  "pattern_card_refs": [
+    "https://github.com/jabbertones-cloud/githubresearchmcp/blob/a359b7ee7b6eefbe02cce7279a2fd1ccfeae5ec6/data/pattern-cards/blender-progressive-tool-guides.md"
+  ],
+  "query": "Blender MCP guided canonical tool execution",
+  "source_refs": [
+    "https://github.com/jabbertones-cloud/githubresearchmcp/blob/a359b7ee7b6eefbe02cce7279a2fd1ccfeae5ec6/data/pattern-cards/blender-progressive-tool-guides.md",
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/src/blenderwright/tools/geometry_nodes.py",
+    "https://github.com/HoldMyBeer-gg/blenderwright/blob/bc2aaadceaf96d3436313ab1c05b2971f5f0718d/addon/handlers/geometry_nodes.py"
+  ],
+  "taskmap_ref": "CLI: node --experimental-strip-types --experimental-sqlite src/cli.ts taskmap --problem 'Blender MCP guided canonical tool execution' --repo blender-mcp (githubresearchmcp@a359b7ee7b6eefbe02cce7279a2fd1ccfeae5ec6)"
+}

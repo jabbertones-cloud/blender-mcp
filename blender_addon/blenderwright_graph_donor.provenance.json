@@ -1,0 +1,49 @@
+{
+  "repository": "HoldMyBeer-gg/blenderwright",
+  "commit": "bc2aaadceaf96d3436313ab1c05b2971f5f0718d",
+  "license": "MIT",
+  "upstream_url": "https://github.com/HoldMyBeer-gg/blenderwright/tree/bc2aaadceaf96d3436313ab1c05b2971f5f0718d",
+  "source_map": [
+    {
+      "repo_path": "src/blenderwright/validators.py",
+      "source_sha256": "73511c7c29702403c1db70cba4dcb5a003eadc4ff9a0b1b761d3dab49c43b73b",
+      "symbols": [
+        "ValidationError",
+        "validate_object_name",
+        "validate_new_name",
+        "validate_vector",
+        "validate_enum"
+      ]
+    },
+    {
+      "repo_path": "src/blenderwright/tools/geometry_nodes.py",
+      "source_sha256": "ed3ba1f2bf1462a13c649c62568bebeacaeeaf5efd32e4487b0845dd8f778643",
+      "symbols": [
+        "_text",
+        "_plain_value",
+        "_socket_ref",
+        "_interface_items",
+        "_validate_spec"
+      ]
+    },
+    {
+      "repo_path": "addon/handlers/geometry_nodes.py",
+      "source_sha256": "7c30dbcedbcc269020a6523ba2d5ee9b0098347eed8c05afd43ed17616ffe037",
+      "symbols": [
+        "_from_text",
+        "_unknown_node_message",
+        "_known_node_types",
+        "_base_node_props",
+        "_data_block",
+        "_find_socket",
+        "_apply_node_settings",
+        "_set_socket_value",
+        "_add_interface",
+        "_fill_group",
+        "handle_build_geometry_nodes"
+      ]
+    }
+  ],
+  "verified_functions": "source-equivalent slices, AST extracted",
+  "behavioral_contract": "validated_build -> _validate_spec -> handle_build_geometry_nodes"
+}
