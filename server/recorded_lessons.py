@@ -143,6 +143,12 @@ def compile_recording(recording, *, identifier, goal, source_hash):
 
     for i, event in enumerate(events):
         event_type = event["type"]
+        if event_type == "segment":
+            # Recording gaps cannot be evidence that a previous operation
+            # caused a later state change. Reset provenance on pause/resume.
+            last_operator = None
+            last_context = {}
+            continue
         if event_type == "context":
             c = event.get("context")
             if isinstance(c, dict):
