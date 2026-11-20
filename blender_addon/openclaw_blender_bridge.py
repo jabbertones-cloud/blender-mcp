@@ -1,3 +1,19 @@
+
+def _get_action_fcurves(action):
+    """Retrieve fcurves across Blender 4.x legacy actions and Blender 5.x layered/slotted actions."""
+    if not action:
+        return []
+    if hasattr(action, "fcurves"):
+        return list(action.fcurves)
+    curves = []
+    layers = getattr(action, "layers", [])
+    for layer in layers:
+        for strip in getattr(layer, "strips", []):
+            for bag in getattr(strip, "channelbags", []):
+                for fc in getattr(bag, "fcurves", []):
+                    curves.append(fc)
+    return curves
+
 """
 OpenClaw Blender Bridge - Persistent Socket Server Addon for Blender
 ====================================================================
@@ -1070,7 +1086,7 @@ def handle_get_object_data(params):
         data["animation"] = {
             "action_name": action.name,
             "frame_range": list(action.frame_range),
-            "fcurves": [{"data_path": fc.data_path, "array_index": fc.array_index, "keyframe_count": len(fc.keyframe_points)} for fc in action.fcurves],
+            "fcurves": [{"data_path": fc.data_path, "array_index": fc.array_index, "keyframe_count": len(fc.keyframe_points)} for fc in _get_action_fcurves(action)],
         }
 
     return data
@@ -5260,8 +5276,14 @@ def handle_forensic_scene(params):
         bpy.ops.object.empty_add(type="PLAIN_AXES", location=location)
         root = bpy.context.active_object
         root.name = name
-        if rotation_deg:
-            root.rotation_euler[2] = math.radians(rotation_deg)
+        if rotation_deg is not None:
+            if isinstance(rotation_deg, (list, tuple)):
+                if len(rotation_deg) >= 3:
+                    root.rotation_euler = Euler([math.radians(r) for r in rotation_deg[:3]])
+                elif len(rotation_deg) == 1:
+                    root.rotation_euler[2] = math.radians(rotation_deg[0])
+            elif isinstance(rotation_deg, (int, float)):
+                root.rotation_euler[2] = math.radians(rotation_deg)
 
         # Materials
         body_mat = _make_mat(f"{name}_Body", color, metallic=0.7, roughness=0.25)
@@ -5733,8 +5755,14 @@ def handle_forensic_scene(params):
         bpy.ops.object.empty_add(type="PLAIN_AXES", location=(bx, by, bz))
         root = bpy.context.active_object
         root.name = name
-        if rotation_deg:
-            root.rotation_euler[2] = math.radians(rotation_deg)
+        if rotation_deg is not None:
+            if isinstance(rotation_deg, (list, tuple)):
+                if len(rotation_deg) >= 3:
+                    root.rotation_euler = Euler([math.radians(r) for r in rotation_deg[:3]])
+                elif len(rotation_deg) == 1:
+                    root.rotation_euler[2] = math.radians(rotation_deg[0])
+            elif isinstance(rotation_deg, (int, float)):
+                root.rotation_euler[2] = math.radians(rotation_deg)
 
         leg_angle_l = 0
         leg_angle_r = 0

@@ -564,3 +564,57 @@ QUALITY_HANDLERS = {
     "product_material": handle_product_material,
     "product_render_setup": handle_product_render_setup,
 }
+
+def handle_fcurve_edit(params):
+    """Fine-tune animation F-curves for professional easing natively without execute_python."""
+    obj_name = params.get("object_name")
+    obj = bpy.data.objects.get(obj_name)
+    if not obj or not obj.animation_data or not obj.animation_data.action:
+        return {"error": f"Object '{obj_name}' has no animation data or action"}
+
+    data_path = params.get("data_path", "")
+    index = params.get("index", -1)
+    interpolation = params.get("interpolation", "BEZIER")
+    easing = params.get("easing")
+    handle_type = params.get("handle_type")
+
+    modified = 0
+    # Support both Blender 4.x action.fcurves and Blender 5.x slot action fcurves if applicable
+    action = obj.animation_data.action
+    if hasattr(action, "fcurves"):
+        fcurves = list(action.fcurves)
+    else:
+        fcurves = []
+        for layer in getattr(action, "layers", []):
+            for strip in getattr(layer, "strips", []):
+                for bag in getattr(strip, "channelbags", []):
+                    for fc in getattr(bag, "fcurves", []):
+                        fcurves.append(fc)
+    for fc in fcurves:
+        if data_path in fc.data_path:
+            if index == -1 or fc.array_index == index:
+                for kf in fc.keyframe_points:
+                    kf.interpolation = interpolation
+                    if easing:
+                        try:
+                            kf.easing = easing
+                        except Exception:
+                            pass
+                    if handle_type:
+                        try:
+                            kf.handle_left_type = handle_type
+                            kf.handle_right_type = handle_type
+                        except Exception:
+                            pass
+                    modified += 1
+
+    return {
+        "status": "ok",
+        "object": obj_name,
+        "keyframes_modified": modified,
+        "interpolation": interpolation,
+        "easing": easing,
+        "handle_type": handle_type
+    }
+
+QUALITY_HANDLERS["fcurve_edit"] = handle_fcurve_edit
